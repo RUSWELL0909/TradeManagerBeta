@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RossFx</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg:#0d0a1a; --bg2:#130f24; --bg3:#1a1530;
@@ -14,35 +14,35 @@
   --text:#e8e0ff; --text2:#9b93c4; --text3:#5c5480;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex}
+body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;background-image:radial-gradient(ellipse at 20% 50%,rgba(124,90,240,.04) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(124,90,240,.03) 0%,transparent 50%)}
 .sidebar{width:220px;min-height:100vh;background:var(--bg2);border-right:1px solid var(--border);padding:28px 0;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100}
 .logo{padding:0 20px 28px;border-bottom:1px solid var(--border);margin-bottom:20px}
-.logo-text{font-size:18px;font-weight:700;color:var(--accent3);letter-spacing:-0.5px;font-family:'Playfair Display',serif}
+.logo-text{font-size:17px;font-weight:800;color:var(--accent3);letter-spacing:2px;font-family:'Syne',sans-serif;text-transform:uppercase}
 .logo-sub{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-top:2px}
 .nav-section{padding:0 12px;margin-bottom:6px}
-.nav-label{font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;padding:0 8px;margin-bottom:6px}
+.nav-label{font-size:9px;font-family:'Space Grotesk',sans-serif;color:var(--text3);text-transform:uppercase;letter-spacing:2px;padding:0 8px;margin-bottom:6px;font-weight:600}
 .nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;transition:all .2s;font-size:13px;font-weight:600;color:var(--text2);margin-bottom:2px;border:1px solid transparent;user-select:none}
 .nav-item:hover{background:var(--card);color:var(--text)}
-.nav-item.active{background:linear-gradient(135deg,rgba(124,90,240,.2),rgba(124,90,240,.05));color:var(--accent3);border-color:rgba(124,90,240,.3)}
+.nav-item.active{background:linear-gradient(135deg,rgba(124,90,240,.25),rgba(124,90,240,.08));color:var(--accent3);border-color:rgba(124,90,240,.4);box-shadow:inset 0 0 20px rgba(124,90,240,.05)}
 .nav-icon{font-size:16px;width:20px;text-align:center}
 .main{margin-left:220px;flex:1;padding:32px 36px;min-height:100vh}
 .page{display:none}.page.active{display:block}
 .page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px}
-.page-title{font-size:26px;font-weight:700;letter-spacing:-0.5px;font-family:'Playfair Display',serif}
+.page-title{font-size:28px;font-weight:800;letter-spacing:-0.5px;font-family:'Syne',sans-serif}
 .page-sub{font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:4px}
 .btn{padding:9px 18px;border-radius:8px;border:none;cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;font-size:13px;transition:all .2s}
 .btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:var(--accent2);transform:translateY(-1px)}
 .btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}.btn-ghost:hover{border-color:var(--accent);color:var(--accent3)}
 .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
-.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;position:relative;overflow:hidden}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;position:relative;overflow:hidden;transition:box-shadow .3s}.stat-card:hover{box-shadow:0 4px 24px rgba(124,90,240,.1)}
 .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);opacity:.6}
 .stat-card.green::before{background:var(--green)}.stat-card.red::before{background:var(--red)}.stat-card.yellow::before{background:var(--yellow)}
-.stat-label{font-size:10px;font-family:'DM Mono',monospace;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
-.stat-value{font-size:28px;font-weight:700;letter-spacing:-1px;font-family:'Playfair Display',serif}
+.stat-label{font-size:10px;font-family:'Space Grotesk',sans-serif;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;font-weight:600}
+.stat-value{font-size:28px;font-weight:700;letter-spacing:-1px;font-family:'DM Mono',monospace}
 .stat-value.green{color:var(--green)}.stat-value.red{color:var(--red)}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.section-title{font-size:13px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px}
+.section-title{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;font-family:'Syne',sans-serif}
 .recent-list{display:flex;flex-direction:column;gap:8px}
 .recent-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:8px;transition:background .15s}
 .recent-item:hover{background:var(--bg3)}
@@ -52,14 +52,14 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .recent-pair{font-size:13px;font-weight:700}
 .recent-detail{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:1px}
 .journal-filters{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
-.filter-btn{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
+.filter-btn{padding:7px 16px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
 .filter-btn:hover,.filter-btn.active{background:rgba(124,90,240,.15);border-color:var(--accent);color:var(--accent3)}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
 .form-group{display:flex;flex-direction:column;gap:6px}
 .form-group.full{grid-column:1/-1}
-.form-label{font-size:10px;font-family:'DM Mono',monospace;color:var(--text3);text-transform:uppercase;letter-spacing:1px}
-.form-input,.form-select,.form-textarea{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;transition:border .2s;width:100%}
-.form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--accent)}
+.form-label{font-size:11px;font-family:'Space Grotesk',sans-serif;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:5px}
+.form-input,.form-select,.form-textarea{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'DM Mono',monospace;font-size:15px;transition:border .2s;width:100%;font-weight:500}
+.form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,90,240,.1)}
 .form-select option{background:var(--bg2)}
 .form-textarea{resize:vertical;min-height:80px}
 .trade-list{display:flex;flex-direction:column;gap:10px;margin-top:20px}
@@ -92,7 +92,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .modal{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px;width:540px;max-height:85vh;overflow-y:auto;transform:translateY(20px);transition:transform .2s}
 .modal-overlay.show .modal{transform:translateY(0)}
 .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
-.modal-title{font-size:18px;font-weight:700;font-family:'Playfair Display',serif}
+.modal-title{font-size:18px;font-weight:800;font-family:'Syne',sans-serif;letter-spacing:0.5px}
 .modal-close{background:transparent;border:none;color:var(--text3);font-size:20px;cursor:pointer;padding:4px 8px;border-radius:6px;transition:all .2s}
 .modal-close:hover{background:var(--card);color:var(--text)}
 .empty-state{text-align:center;padding:60px 20px;color:var(--text3)}
@@ -105,25 +105,25 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .tm-accounts{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px}
 .tm-account-card{background:var(--card);border:2px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:all .2s;text-align:center}
 .tm-account-card:hover{border-color:var(--accent2)}
-.tm-account-card.selected{border-color:var(--accent);background:rgba(124,90,240,.1)}
+.tm-account-card.selected{border-color:var(--accent);background:rgba(124,90,240,.12);box-shadow:0 0 20px rgba(124,90,240,.15)}
 .tm-account-name{font-size:11px;font-family:'DM Mono',monospace;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
 .tm-account-input{background:transparent;border:none;border-bottom:1px dashed var(--border);color:var(--text);font-family:'Inter',sans-serif;font-size:20px;font-weight:800;text-align:center;width:100%;padding:2px 0}
 .tm-account-input:focus{outline:none;border-bottom-color:var(--accent)}
 .tm-calculator{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}
-.tm-panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
-.tm-panel-title{font-size:11px;font-family:'DM Mono',monospace;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:16px}
-.tm-result-box{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin-top:14px}
-.tm-result-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}
+.tm-panel{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;transition:box-shadow .3s;box-shadow:0 2px 20px rgba(0,0,0,.3)}.tm-panel:hover{box-shadow:0 4px 32px rgba(124,90,240,.12),0 2px 20px rgba(0,0,0,.3)}
+.tm-panel-title{font-size:14px;font-family:'Syne',sans-serif;color:var(--accent3);font-weight:700;text-transform:uppercase;letter-spacing:2.5px;margin-bottom:18px;border-left:3px solid var(--accent);padding-left:10px}
+.tm-result-box{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:18px;margin-top:16px}
+.tm-result-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(46,38,80,.8);font-size:13px}
 .tm-result-row:last-child{border-bottom:none}
-.tm-result-label{color:var(--text3);font-family:'DM Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
-.tm-result-val{font-weight:700;color:var(--text);font-family:'DM Mono',monospace}
-.tm-result-val.big{font-size:20px;color:var(--accent3)}
+.tm-result-label{color:var(--text2);font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:1px}
+.tm-result-val{font-weight:700;color:var(--text);font-family:'DM Mono',monospace;font-size:16px;letter-spacing:0.5px}
+.tm-result-val.big{font-size:30px;color:var(--accent3);letter-spacing:-0.5px}
 .tm-result-val.green{color:var(--green)}.tm-result-val.red{color:var(--red)}.tm-result-val.yellow{color:var(--yellow)}
 .risk-slider{-webkit-appearance:none;width:100%;height:4px;border-radius:2px;background:var(--border);outline:none;margin:8px 0}
 .risk-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);cursor:pointer}
-.risk-display{font-size:28px;font-weight:800;color:var(--accent3);text-align:center;font-family:'DM Mono',monospace;margin:8px 0}
-.pip-badge{padding:4px 10px;border-radius:6px;font-size:11px;font-family:'DM Mono',monospace;background:var(--bg3);color:var(--text3);border:1px solid var(--border);cursor:pointer;transition:all .2s;display:inline-block;margin:2px}
-.pip-badge:hover,.pip-badge.active{background:rgba(124,90,240,.15);color:var(--accent3);border-color:var(--accent)}
+.risk-display{font-size:32px;font-weight:800;color:var(--accent3);text-align:center;font-family:'DM Mono',monospace;margin:8px 0;letter-spacing:-1px}
+.pip-badge{padding:7px 16px;border-radius:8px;font-size:13px;font-family:'DM Mono',monospace;font-weight:500;background:var(--bg3);color:var(--text2);border:1px solid var(--border);cursor:pointer;transition:all .2s;display:inline-block;margin:3px;letter-spacing:0.5px}
+.pip-badge:hover{background:rgba(124,90,240,.1);color:var(--accent3);border-color:var(--accent);transform:translateY(-1px)}.pip-badge.active{background:rgba(124,90,240,.2);color:var(--accent3);border-color:var(--accent);box-shadow:0 0 10px rgba(124,90,240,.3)}
 .tm-warning{background:rgba(224,92,122,.08);border:1px solid rgba(224,92,122,.2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--red);margin-top:10px;display:none}
 .tm-warning.show{display:block}
 ::-webkit-scrollbar{width:6px}
@@ -248,14 +248,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     </div>
     <div class="tm-calculator">
       <div class="tm-panel">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-          <div class="tm-panel-title" style="margin-bottom:0">Position Size Calculator</div>
-          <div style="display:flex;align-items:center;gap:8px">
-            <span id="pip-value-display" style="font-size:10px;font-family:'DM Mono',monospace;color:var(--accent3)">—</span>
-            <span id="pip-rate-status" style="font-size:10px;font-family:'DM Mono',monospace;color:var(--text3)">Loading rates...</span>
-            <button onclick="fetchLiveRates()" style="font-size:9px;font-family:'DM Mono',monospace;background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--text3);padding:2px 6px;cursor:pointer">↻ Refresh</button>
-          </div>
-        </div>
+        <div class="tm-panel-title">Position Size Calculator</div>
         <div class="form-group" style="margin-bottom:12px">
           <label class="form-label">Pair</label>
           <select class="form-select" id="tm-pair">
@@ -310,11 +303,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       <div class="tm-panel">
         <div class="tm-panel-title">R:R & Take Profit Calculator</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-          <div class="form-group"><label class="form-label">Entry Price</label><input class="form-input" id="tm-entry" type="number" step="0.00001" placeholder="1.08500"></div>
-          <div class="form-group"><label class="form-label">Stop Loss Price</label><input class="form-input" id="tm-sl-price" type="number" step="0.00001" placeholder="1.08200"></div>
+          <div class="form-group"><label class="form-label">Entry Price</label><input class="form-input" id="tm-entry" type="number" step="0.00001" placeholder="1.16180"></div>
+          <div class="form-group"><label class="form-label">Stop Loss Price</label><input class="form-input" id="tm-sl-price" type="number" step="0.00001" placeholder="1.15980"></div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
-          <div class="form-group"><label class="form-label">Take Profit Price</label><input class="form-input" id="tm-tp-price" type="number" step="0.00001" placeholder="1.09100"></div>
+          <div class="form-group"><label class="form-label">Take Profit Price</label><input class="form-input" id="tm-tp-price" type="number" step="0.00001" placeholder="1.16780"></div>
           <div class="form-group"><label class="form-label">Direction</label>
             <select class="form-select" id="tm-dir"><option value="long">Long (Buy)</option><option value="short">Short (Sell)</option></select>
           </div>
@@ -322,34 +315,30 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
         <div class="form-label" style="margin-bottom:6px">Quick R:R Target</div>
         <div style="margin-bottom:12px">
           <span class="pip-badge" data-rr="1">1:1</span>
-          <span class="pip-badge" data-rr="1.5">1:1.5</span>
-          <span class="pip-badge" data-rr="2">1:2</span>
           <span class="pip-badge" data-rr="3">1:3</span>
-          <span class="pip-badge" data-rr="5">1:5</span>
+          <span class="pip-badge" data-rr="10">1:10 🚀</span>
         </div>
         <div class="tm-result-box">
           <div class="tm-result-row"><span class="tm-result-label">SL Distance (pips)</span><span class="tm-result-val" id="rr-sl-pips">—</span></div>
           <div class="tm-result-row"><span class="tm-result-label">TP Distance (pips)</span><span class="tm-result-val" id="rr-tp-pips">—</span></div>
           <div class="tm-result-row"><span class="tm-result-label">R:R Ratio</span><span class="tm-result-val big" id="rr-ratio">—</span></div>
           <div class="tm-result-row"><span class="tm-result-label">Potential Loss ($)</span><span class="tm-result-val red" id="rr-loss">—</span></div>
+          <div id="rr-loss-spread-row" style="display:none" class="tm-result-row"><span class="tm-result-label" style="color:var(--text3);font-size:10px">↳ with spread</span><span class="tm-result-val red" style="font-size:11px;opacity:0.7" id="rr-loss-spread">—</span></div>
           <div class="tm-result-row"><span class="tm-result-label">Potential Profit (full)</span><span class="tm-result-val green" id="rr-profit">—</span></div>
+          <div id="rr-profit-spread-row" style="display:none" class="tm-result-row"><span class="tm-result-label" style="color:var(--text3);font-size:10px">↳ with spread</span><span class="tm-result-val green" style="font-size:11px;opacity:0.7" id="rr-profit-spread">—</span></div>
           <div style="background:rgba(240,180,41,.06);border:1px solid rgba(240,180,41,.15);border-radius:8px;padding:12px;margin-top:6px">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-              <span style="font-size:10px;font-family:'DM Mono',monospace;color:var(--yellow);text-transform:uppercase;letter-spacing:1px">🎯 Partial Close</span>
-              <div style="display:flex;align-items:center;gap:8px">
-                <span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace">% volume</span>
-                <input type="number" id="partial-volume" value="50" min="1" max="99" style="width:52px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--yellow);font-family:'DM Mono',monospace;font-size:12px;font-weight:700;text-align:center;padding:3px 6px">
-              </div>
+            <div style="margin-bottom:10px">
+              <span style="font-size:13px;font-family:'Syne',sans-serif;color:var(--yellow);text-transform:uppercase;letter-spacing:1.5px;font-weight:700">🎯 Partial Close</span>
             </div>
             <div id="partial-rows" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px"></div>
             <button id="add-partial-btn" style="width:100%;background:transparent;border:1px dashed var(--border);border-radius:6px;color:var(--text3);font-family:'DM Mono',monospace;font-size:11px;padding:6px;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent3)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text3)'">+ Add Partial</button>
             <div style="margin-top:8px;background:var(--bg);border-radius:6px;padding:8px;display:flex;justify-content:space-between;align-items:center">
-              <span style="font-size:10px;font-family:'DM Mono',monospace;color:var(--text3);text-transform:uppercase">Remaining Volume</span>
-              <span style="font-size:13px;font-weight:700;font-family:'DM Mono',monospace;color:var(--accent3)" id="partial-remaining-vol">100%</span>
+              <span style="font-size:12px;font-family:'Space Grotesk',sans-serif;color:var(--text3);text-transform:uppercase;letter-spacing:1px;font-weight:600">Remaining Volume</span>
+              <span style="font-size:16px;font-weight:700;font-family:'DM Mono',monospace;color:var(--accent3)" id="partial-remaining-vol">100%</span>
             </div>
             <div style="margin-top:6px;background:var(--bg);border-radius:6px;padding:8px;display:flex;justify-content:space-between;align-items:center">
-              <span style="font-size:10px;font-family:'DM Mono',monospace;color:var(--text3);text-transform:uppercase">Total Secured</span>
-              <span style="font-size:13px;font-weight:700;font-family:'DM Mono',monospace;color:var(--green)" id="partial-total-profit">—</span>
+              <span style="font-size:12px;font-family:'Space Grotesk',sans-serif;color:var(--text3);text-transform:uppercase;letter-spacing:1px;font-weight:600">Total Secured</span>
+              <span style="font-size:16px;font-weight:700;font-family:'DM Mono',monospace;color:var(--green)" id="partial-total-profit">—</span>
             </div>
           </div>
           <div class="tm-result-row" style="background:rgba(124,90,240,.06);border-radius:6px;padding:8px;margin-top:4px">
@@ -362,7 +351,13 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
         </div>
         <div class="form-group" style="margin-top:10px">
           <label class="form-label">Spread / BE Offset (pips)</label>
-          <input class="form-input" id="tm-spread" type="number" value="1" step="0.1" placeholder="1">
+          <div style="display:flex;align-items:center;gap:10px">
+            <input class="form-input" id="tm-spread" type="number" value="1" step="0.1" placeholder="1" style="flex:1">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;font-size:11px;font-family:'DM Mono',monospace;color:var(--text3)">
+              <input type="checkbox" id="spread-include" style="accent-color:var(--accent);width:14px;height:14px;cursor:pointer">
+              Include in RR & SL
+            </label>
+          </div>
         </div>
       </div>
     </div>
@@ -496,7 +491,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       <div class="form-group"><label class="form-label">Pair</label><select class="form-select" id="t-pair"><option>EUR/USD</option><option>GBP/USD</option><option>USD/CAD</option><option>USD/CHF</option><option>USD/JPY</option><option>AUD/USD</option><option>NZD/USD</option><option>GBP/JPY</option><option>EUR/GBP</option><option>EUR/JPY</option></select></div>
       <div class="form-group"><label class="form-label">Direction</label><select class="form-select" id="t-dir"><option>Long</option><option>Short</option></select></div>
       <div class="form-group"><label class="form-label">Session</label><select class="form-select" id="t-session"><option>Asia KTW</option><option>London KTW</option><option>NY KTW</option><option>Outside KTW</option></select></div>
-      <div class="form-group"><label class="form-label">Entry Price</label><input class="form-input" id="t-entry" type="number" step="0.00001" placeholder="1.08500"></div>
+      <div class="form-group"><label class="form-label">Entry Price</label><input class="form-input" id="t-entry" type="number" step="0.00001" placeholder="1.16180"></div>
       <div class="form-group"><label class="form-label">Exit Price</label><input class="form-input" id="t-exit" type="number" step="0.00001" placeholder="1.09000"></div>
       <div class="form-group"><label class="form-label">P&L ($)</label><input class="form-input" id="t-pnl" type="number" placeholder="120 or -50"></div>
       <div class="form-group"><label class="form-label">Date</label><input class="form-input" id="t-date" type="date"></div>
@@ -533,6 +528,13 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 
 <script>
 (function() {
+  // Prevent scroll wheel from changing number inputs
+  document.addEventListener('wheel', function(e) {
+    if (document.activeElement && document.activeElement.type === 'number') {
+      document.activeElement.blur();
+    }
+  }, { passive: false });
+
   // STATE
   var trades = JSON.parse(localStorage.getItem('tb_trades') || '[]');
   var caseStudies = JSON.parse(localStorage.getItem('tb_cs') || '[]');
@@ -596,21 +598,51 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     pipValues.us30 = 1.0; // $1 per point per contract
   }
 
+  // Live prices for placeholders
+  var livePrices = {
+    eurusd:1.1618, gbpusd:1.2940, audusd:0.6285, nzdusd:0.5720,
+    usdcad:1.4380, usdchf:0.8950, eurgbp:0.8980, usdjpy:148.20,
+    gbpjpy:191.80, eurjpy:172.10, xauusd:2918.00, nas100:19480.0, us30:41200.0
+  };
+
+  function updatePricePlaceholders() {
+    var pair = $('tm-pair') ? $('tm-pair').value : 'eurusd';
+    var price = livePrices[pair];
+    if (!price) return;
+    var pipSize = pipSizes[pair] || 0.0001;
+    var decimals = pipSize <= 0.0001 ? 5 : pipSize === 0.01 ? 3 : 1;
+    var dir = $('tm-dir') ? $('tm-dir').value : 'long';
+    var slOffset = pipSize * 20;
+    var tpOffset = pipSize * 60;
+    var entryEl = $('tm-entry');
+    var slEl = $('tm-sl-price');
+    var tpEl = $('tm-tp-price');
+    if (entryEl) entryEl.placeholder = price.toFixed(decimals);
+    if (slEl) slEl.placeholder = dir === 'long' ? (price - slOffset).toFixed(decimals) : (price + slOffset).toFixed(decimals);
+    if (tpEl) tpEl.placeholder = dir === 'long' ? (price + tpOffset).toFixed(decimals) : (price - tpOffset).toFixed(decimals);
+  }
+
   window.fetchLiveRates = async function fetchLiveRates() {
     var statusEl = $('pip-rate-status');
     if (statusEl) statusEl.textContent = 'Fetching live rates...';
     try {
-      var res = await fetch('https://api.frankfurter.app/latest?from=USD&to=CAD,CHF,JPY,GBP,EUR,AUD,NZD');
+      // Fetch all major pairs directly from freeforexapi
+      var pairs = ['EURUSD','GBPUSD','AUDUSD','NZDUSD','USDCAD','USDCHF','USDJPY','GBPJPY','EURJPY','EURGBP'];
+      var res = await fetch('https://www.freeforexapi.com/api/live?pairs=' + pairs.join(','));
       var data = await res.json();
       if (data && data.rates) {
-        liveRates['USDCAD'] = data.rates.CAD;
-        liveRates['USDCHF'] = data.rates.CHF;
-        liveRates['USDJPY'] = data.rates.JPY;
-        liveRates['GBPUSD'] = 1 / data.rates.GBP;
-        liveRates['EURUSD'] = 1 / data.rates.EUR;
-        liveRates['AUDUSD'] = 1 / data.rates.AUD;
-        liveRates['NZDUSD'] = 1 / data.rates.NZD;
-        liveRates['EURGBP'] = data.rates.GBP / data.rates.EUR;
+        pairs.forEach(function(p){
+          if (data.rates[p]) liveRates[p] = data.rates[p].rate;
+        });
+        // Also set USD-based for pip calc
+        liveRates['USDCAD'] = liveRates['USDCAD'];
+        liveRates['USDCHF'] = liveRates['USDCHF'];
+        liveRates['USDJPY'] = liveRates['USDJPY'];
+        liveRates['GBPUSD'] = liveRates['GBPUSD'];
+        liveRates['EURUSD'] = liveRates['EURUSD'];
+        liveRates['AUDUSD'] = liveRates['AUDUSD'];
+        liveRates['NZDUSD'] = liveRates['NZDUSD'];
+        liveRates['EURGBP'] = liveRates['EURGBP'];
         ratesLoaded = true;
         calcPipValues();
         calcAll();
@@ -619,6 +651,18 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
           statusEl.style.color = 'var(--green)';
         }
         updatePipDisplay();
+        // Update live prices for placeholders
+        livePrices.eurusd = liveRates['EURUSD'] || livePrices.eurusd;
+        livePrices.gbpusd = liveRates['GBPUSD'] || livePrices.gbpusd;
+        livePrices.audusd = liveRates['AUDUSD'] || livePrices.audusd;
+        livePrices.nzdusd = liveRates['NZDUSD'] || livePrices.nzdusd;
+        livePrices.usdcad = liveRates['USDCAD'] || livePrices.usdcad;
+        livePrices.usdchf = liveRates['USDCHF'] || livePrices.usdchf;
+        livePrices.eurgbp = liveRates['EURGBP'] || livePrices.eurgbp;
+        livePrices.usdjpy = liveRates['USDJPY'] || livePrices.usdjpy;
+        livePrices.gbpjpy = liveRates['GBPJPY'] || parseFloat(((liveRates['GBPUSD']||1.27) * (liveRates['USDJPY']||150)).toFixed(2));
+        livePrices.eurjpy = liveRates['EURJPY'] || parseFloat(((liveRates['EURUSD']||1.08) * (liveRates['USDJPY']||150)).toFixed(2));
+        updatePricePlaceholders();
       }
       // Fetch Gold price separately (XAU quoted in USD — pip value stays $1 but show live price)
       try {
@@ -628,7 +672,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
           liveRates['XAUUSD'] = goldData.rates.USD;
           // For gold: pip value = 0.01 * 100oz = $1 (fixed regardless of price)
           pipValues.xauusd = 1.0;
+          livePrices.xauusd = goldData.rates.USD;
           updatePipDisplay();
+          updatePricePlaceholders();
         }
       } catch(ge) { /* gold fetch failed, use default */ }
     } catch(e) {
@@ -858,7 +904,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       selectedAccount = type;
       document.querySelectorAll('.tm-account-card').forEach(function(c){ c.classList.remove('selected'); });
       $('acc-' + type).classList.add('selected');
-      calcPosition();
+      calcAll();
       calcDaily();
     });
     $('bal-' + type).addEventListener('input', function(){ calcAll(); calcDaily(); });
@@ -890,7 +936,27 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     }
     calcAll();
   });
-  $('tm-pair').addEventListener('change', function(){ calcAll(); updatePipDisplay(); });
+  $('tm-pair').addEventListener('change', function(){ calcAll(); updatePipDisplay(); updatePricePlaceholders(); });
+
+  // Pre-fill price fields on focus if empty — so spinner arrows start from live price
+  ['tm-entry','tm-sl-price','tm-tp-price'].forEach(function(id){
+    $(id).addEventListener('focus', function(){
+      if (!this.value) {
+        var pair = $('tm-pair').value;
+        var price = livePrices[pair];
+        if (!price) return;
+        var pipSize = pipSizes[pair] || 0.0001;
+        var decimals = pipSize <= 0.0001 ? 5 : pipSize === 0.01 ? 3 : 1;
+        var dir = $('tm-dir').value;
+        if (id === 'tm-entry') this.value = price.toFixed(decimals);
+        else if (id === 'tm-sl-price') this.value = dir === 'long' ? (price - pipSize * 20).toFixed(decimals) : (price + pipSize * 20).toFixed(decimals);
+        else if (id === 'tm-tp-price') this.value = dir === 'long' ? (price + pipSize * 60).toFixed(decimals) : (price - pipSize * 60).toFixed(decimals);
+        this.select();
+        inputMode = 'price';
+        calcAll();
+      }
+    });
+  });
 
   // Pip presets
   document.querySelectorAll('.pip-badge[data-pips]').forEach(function(btn){
@@ -915,10 +981,76 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       var pair = $('tm-pair').value;
       var pipSize = pipSizes[pair] || 0.0001;
       var dir = $('tm-dir').value;
-      if (!entry || !sl) return;
-      var slDist = Math.abs(entry - sl);
-      var tp = dir === 'long' ? entry + slDist * ratio : entry - slDist * ratio;
-      $('tm-tp-price').value = tp.toFixed(5);
+      var slPips = parseFloat($('tm-sl-pips').value) || 0;
+      var spread = parseFloat($('tm-spread').value) || 0;
+      var includeSpread = $('spread-include') && $('spread-include').checked;
+
+      // Highlight active RR button
+      document.querySelectorAll('.pip-badge[data-rr]').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+
+      // Sync P1 partial dropdown to match Quick RR
+      if (partials.length > 0) {
+        var closestRR = [1,1.5,2,3,4,5,6,7,8,9,10].reduce(function(prev, curr){
+          return Math.abs(curr - ratio) < Math.abs(prev - ratio) ? curr : prev;
+        });
+        partials[0].rr = closestRR;
+        renderPartialRows();
+      }
+
+      if (entry && sl && !isNaN(sl) && sl > 0) {
+        // Always work from clean SL (strip spread if active)
+        var cleanSL = (includeSpread && spread > 0)
+          ? (dir === 'long' ? sl + spread * pipSize : sl - spread * pipSize)
+          : sl;
+        var cleanSlPips = Math.abs(entry - cleanSL) / pipSize;
+        var cleanTP = dir === 'long' ? entry + cleanSlPips * ratio * pipSize : entry - cleanSlPips * ratio * pipSize;
+
+        // Store clean originals
+        origSlPrice = cleanSL;
+        origTpPrice = cleanTP;
+        baseRatio = ratio;
+
+        // Apply spread if active
+        if (includeSpread && spread > 0) {
+          var adjSL = dir === 'long' ? cleanSL - spread * pipSize : cleanSL + spread * pipSize;
+          var adjSlPips = Math.abs(entry - adjSL) / pipSize;
+          var adjTP = dir === 'long' ? entry + adjSlPips * ratio * pipSize : entry - adjSlPips * ratio * pipSize;
+          $('tm-sl-price').value = adjSL.toFixed(5);
+          $('tm-tp-price').value = adjTP.toFixed(5);
+        } else {
+          $('tm-sl-price').value = cleanSL.toFixed(5);
+          $('tm-tp-price').value = cleanTP.toFixed(5);
+        }
+        inputMode = 'price';
+      } else if (entry && slPips > 0) {
+        var cleanSlPips2 = slPips;
+        var cleanSL2 = dir === 'long' ? entry - cleanSlPips2 * pipSize : entry + cleanSlPips2 * pipSize;
+        var cleanTP2 = dir === 'long' ? entry + cleanSlPips2 * ratio * pipSize : entry - cleanSlPips2 * ratio * pipSize;
+        origSlPrice = cleanSL2;
+        origTpPrice = cleanTP2;
+        baseRatio = ratio;
+
+        if (includeSpread && spread > 0) {
+          var adjSL2 = dir === 'long' ? cleanSL2 - spread * pipSize : cleanSL2 + spread * pipSize;
+          var adjSlPips2 = Math.abs(entry - adjSL2) / pipSize;
+          var adjTP2 = dir === 'long' ? entry + adjSlPips2 * ratio * pipSize : entry - adjSlPips2 * ratio * pipSize;
+          $('tm-sl-price').value = adjSL2.toFixed(5);
+          $('tm-tp-price').value = adjTP2.toFixed(5);
+        } else {
+          $('tm-sl-price').value = cleanSL2.toFixed(5);
+          $('tm-tp-price').value = cleanTP2.toFixed(5);
+        }
+        inputMode = 'price';
+      } else {
+        // Flash hint on RR ratio display
+        var ratioEl = $('rr-ratio');
+        ratioEl.textContent = 'Set SL first';
+        ratioEl.style.color = 'var(--red)';
+        ratioEl.className = 'tm-result-val big red';
+        setTimeout(function(){ ratioEl.textContent = '—'; ratioEl.style.color = ''; }, 1500);
+        return;
+      }
       calcAll();
     });
   });
@@ -926,7 +1058,31 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   // RR inputs
   ['tm-entry','tm-sl-price','tm-tp-price','tm-dir','tm-spread'].forEach(function(id){
     $(id).addEventListener('input', calcAll);
-    $(id).addEventListener('change', calcAll);
+    $(id).addEventListener('change', function(){
+      if (id === 'tm-dir') {
+        $('tm-entry').value = '';
+        $('tm-sl-price').value = '';
+        $('tm-tp-price').value = '';
+        origSlPrice = null;
+        origTpPrice = null;
+        inputMode = 'pips';
+        document.querySelectorAll('.pip-badge[data-rr]').forEach(function(b){ b.classList.remove('active'); });
+        updatePricePlaceholders();
+      }
+      calcAll();
+    });
+  });
+  $('spread-include').addEventListener('change', function(){
+    this.dataset.justToggled = 'true';
+    calcAll();
+  });
+
+  $('tm-spread').addEventListener('input', function(){
+    var includeSpread = $('spread-include') && $('spread-include').checked;
+    if (includeSpread) {
+      $('spread-include').dataset.justToggled = 'true';
+      calcAll();
+    }
   });
 
   // Daily tracker
@@ -936,11 +1092,25 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 
   function calcPosition() {
     var pair = $('tm-pair').value;
-    var slPips = parseFloat($('tm-sl-pips').value) || 0;
-    var riskAmt = getRiskAmt();
+    var pipSize = pipSizes[pair] || 0.0001;
     var pipVal = pipValues[pair] || 10;
-    var contractSize = contractSizes[pair] || 100000;
+    var riskAmt = getRiskAmt();
     updatePipDisplay();
+
+    var entry = parseFloat($('tm-entry').value);
+    var slPrice = parseFloat($('tm-sl-price').value);
+    var includeSpread = $('spread-include') && $('spread-include').checked;
+
+    // Use clean SL pips (without spread) for lot sizing — real position size
+    var slPips;
+    if (includeSpread && origSlPrice && entry) {
+      slPips = Math.abs(entry - origSlPrice) / pipSize;
+    } else if (entry && slPrice) {
+      slPips = Math.abs(entry - slPrice) / pipSize;
+    } else {
+      slPips = parseFloat($('tm-sl-pips').value) || 0;
+    }
+
     var lots = slPips > 0 ? riskAmt / (slPips * pipVal) : 0;
 
     $('res-risk-amt').textContent = '$' + riskAmt.toFixed(2);
@@ -971,13 +1141,19 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     var slDist = Math.abs(entry - slPrice);
     var slPips = slDist / pipSize;
 
+    var includeSpread = $('spread-include') && $('spread-include').checked;
+    var spread = parseFloat($('tm-spread').value) || 0;
+
     var riskAmt = getRiskAmt();
     var lots = slPips > 0 ? riskAmt / (slPips * pipVal) : 0;
 
     $('rr-sl-pips').textContent = slPips.toFixed(1) + 'p';
     $('rr-loss').textContent = '-$' + riskAmt.toFixed(2);
 
-    if (tpPrice) {
+    if (!tpPrice) {
+      ['rr-tp-pips','rr-ratio','rr-profit'].forEach(function(id){ $(id).textContent = '—'; });
+      updatePartial(null, null, null, null, null, null);
+    } else {
       var tpDist = Math.abs(tpPrice - entry);
       var tpPips = tpDist / pipSize;
       var rr = slPips > 0 ? (tpPips / slPips) : 0;
@@ -988,39 +1164,103 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       $('rr-ratio').className = 'tm-result-val big ' + (rr >= 2 ? 'green' : rr >= 1 ? 'yellow' : 'red');
       $('rr-profit').textContent = '+$' + profit.toFixed(2);
 
-      // Partial Out — dynamic RR
-      updatePartial(entry, slPips, pipSize, pipVal, lots, dir);
+      // Show spread comparison rows if include spread is ON
+      if (includeSpread && spread > 0 && origSlPrice && origTpPrice) {
+        var cleanSlPips = Math.abs(entry - origSlPrice) / pipSize;
+        var cleanTpPips = Math.abs(origTpPrice - entry) / pipSize;
+        var cleanLots = cleanSlPips > 0 ? riskAmt / (cleanSlPips * pipVal) : 0;
+        var cleanProfit = cleanLots * cleanTpPips * pipVal;
+        var spreadLoss = cleanLots * slPips * pipVal;
+        var spreadProfit = cleanLots * tpPips * pipVal;
+        $('rr-loss').textContent = '-$' + riskAmt.toFixed(2);
+        $('rr-profit').textContent = '+$' + cleanProfit.toFixed(2);
+        $('rr-loss-spread').textContent = '-$' + spreadLoss.toFixed(2);
+        $('rr-profit-spread').textContent = '+$' + spreadProfit.toFixed(2);
+        $('rr-loss-spread-row').style.display = '';
+        $('rr-profit-spread-row').style.display = '';
+        // Partial uses cleanLots with real (spread-adjusted) prices
+        updatePartial(entry, slPips, pipSize, pipVal, cleanLots, dir);
+      } else {
+        $('rr-loss-spread-row').style.display = 'none';
+        $('rr-profit-spread-row').style.display = 'none';
+        updatePartial(entry, slPips, pipSize, pipVal, lots, dir);
+      }
 
       // Break Even price = entry + spread (long) or entry - spread (short)
-      var spread = parseFloat($('tm-spread') ? $('tm-spread').value : 1) || 1;
       var bePrice = dir === 'long' ? entry + spread * pipSize : entry - spread * pipSize;
-      if (!$('rr-be-price').dataset.manual) $('rr-be-price').value = bePrice.toFixed(5);
+      $('rr-be-price').value = bePrice.toFixed(5);
     }
   }
 
-  var inputMode = 'pips'; // 'pips' or 'price'
+  var inputMode = 'pips';
+  var baseSlPips = 0;
+  var baseRatio = 0;
+  var origSlPrice = null;
+  var origTpPrice = null;
+
+  function applySpread() {
+    var entry = parseFloat($('tm-entry').value);
+    if (!entry || !origSlPrice) return;
+    var pair = $('tm-pair').value;
+    var pipSize = pipSizes[pair] || 0.0001;
+    var dir = $('tm-dir').value;
+    var spread = parseFloat($('tm-spread').value) || 0;
+    var includeSpread = $('spread-include') && $('spread-include').checked;
+
+    if (includeSpread && spread > 0) {
+      var newSL = dir === 'long' ? origSlPrice - spread * pipSize : origSlPrice + spread * pipSize;
+      var newSlPips = Math.abs(entry - newSL) / pipSize;
+      $('tm-sl-price').value = newSL.toFixed(5);
+      $('tm-sl-pips').value = newSlPips.toFixed(1);
+      if (origTpPrice) {
+        var ratio = baseRatio > 0 ? baseRatio : Math.abs(origTpPrice - entry) / Math.abs(origSlPrice - entry);
+        var newTP = dir === 'long' ? entry + newSlPips * ratio * pipSize : entry - newSlPips * ratio * pipSize;
+        $('tm-tp-price').value = newTP.toFixed(5);
+      }
+    } else {
+      $('tm-sl-price').value = origSlPrice.toFixed(5);
+      $('tm-sl-pips').value = (Math.abs(entry - origSlPrice) / pipSize).toFixed(1);
+      if (origTpPrice) $('tm-tp-price').value = origTpPrice.toFixed(5);
+    }
+  }
 
   function calcAll() {
     var entry = parseFloat($('tm-entry').value);
     var slPrice = parseFloat($('tm-sl-price').value);
+    var tpPrice = parseFloat($('tm-tp-price').value);
     var pair = $('tm-pair').value;
     var pipSize = pipSizes[pair] || 0.0001;
     var dir = $('tm-dir').value;
+    var includeSpread = $('spread-include') && $('spread-include').checked;
+    var spreadJustToggled = $('spread-include').dataset.justToggled === 'true';
+    $('spread-include').dataset.justToggled = 'false';
 
-    if (inputMode === 'price' && entry && slPrice) {
-      // Price mode → derive pips from prices
-      var slPips = Math.abs(entry - slPrice) / pipSize;
-      $('tm-sl-pips').value = slPips.toFixed(1);
-    } else if (inputMode === 'pips' && entry) {
-      // Pips mode → derive SL price from entry + pips
-      var manualPips = parseFloat($('tm-sl-pips').value) || 0;
-      if (manualPips > 0) {
-        var slFromPips = dir === 'long'
-          ? entry - manualPips * pipSize
-          : entry + manualPips * pipSize;
-        $('tm-sl-price').value = slFromPips.toFixed(5);
+    if (spreadJustToggled) {
+      applySpread();
+    } else if (!includeSpread) {
+      // Store as originals only when spread is OFF
+      if (entry && slPrice) {
+        origSlPrice = slPrice;
+        baseSlPips = Math.abs(entry - slPrice) / pipSize;
+        $('tm-sl-pips').value = baseSlPips.toFixed(1);
+      } else if (inputMode === 'pips') {
+        baseSlPips = parseFloat($('tm-sl-pips').value) || 0;
+        if (entry && baseSlPips > 0) {
+          origSlPrice = dir === 'long' ? entry - baseSlPips * pipSize : entry + baseSlPips * pipSize;
+          $('tm-sl-price').value = origSlPrice.toFixed(5);
+        }
+      }
+      if (tpPrice) origTpPrice = tpPrice;
+    } else {
+      // Spread ON, normal typing — sync pips display
+      if (entry && slPrice) {
+        $('tm-sl-pips').value = (Math.abs(entry - slPrice) / pipSize).toFixed(1);
       }
     }
+
+    var activeRR = document.querySelector('.pip-badge[data-rr].active');
+    if (activeRR) baseRatio = parseFloat(activeRR.dataset.rr);
+
     calcPosition();
     calcRR();
   }
@@ -1030,8 +1270,13 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     $(id).addEventListener('input', function(){
       if (this.value) {
         inputMode = 'price';
-        // Deactivate pip badges
         document.querySelectorAll('.pip-badge[data-pips]').forEach(function(b){ b.classList.remove('active'); });
+        // Reset originals when prices manually changed
+        var includeSpread = $('spread-include') && $('spread-include').checked;
+        if (!includeSpread) {
+          if (id === 'tm-sl-price') origSlPrice = parseFloat(this.value) || null;
+          if (id === 'tm-tp-price') origTpPrice = parseFloat(this.value) || null;
+        }
       }
     });
   });
@@ -1216,8 +1461,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 
   // MULTI-PARTIAL SYSTEM
   var partials = [
-    { rr: 3, vol: 50 },
-    { rr: 5, vol: 50 }
+    { rr: 3, vol: 50 }
   ];
 
   function rrOptions() {
@@ -1229,22 +1473,22 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   function renderPartialRows() {
     var container = $('partial-rows');
     container.innerHTML = partials.map(function(p, i){
-      return '<div style="display:grid;grid-template-columns:auto 1fr auto auto;gap:6px;align-items:center;background:var(--bg);border-radius:6px;padding:8px">' +
-        '<span style="font-size:10px;font-family:DM Mono,monospace;color:var(--text3);white-space:nowrap">P'+(i+1)+'</span>' +
-        '<select class="partial-rr-sel" data-idx="'+i+'" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--yellow);font-family:DM Mono,monospace;font-size:12px;font-weight:700;padding:4px 6px;cursor:pointer">'+
+      return '<div style="display:grid;grid-template-columns:auto 1fr auto auto;gap:6px;align-items:center;background:var(--bg);border-radius:8px;padding:10px">' +
+        '<span style="font-size:12px;font-family:DM Mono,monospace;color:var(--text3);white-space:nowrap;font-weight:700">P'+(i+1)+'</span>' +
+        '<select class="partial-rr-sel" data-idx="'+i+'" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--yellow);font-family:DM Mono,monospace;font-size:14px;font-weight:700;padding:5px 8px;cursor:pointer">'+
           rrOptions().replace('value="'+p.rr+'"', 'value="'+p.rr+'" selected') +
         '</select>' +
-        '<input type="number" class="partial-vol-inp" data-idx="'+i+'" value="'+p.vol+'" min="1" max="99" style="width:52px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--accent3);font-family:DM Mono,monospace;font-size:12px;font-weight:700;text-align:center;padding:4px 6px">' +
-        '<span style="font-size:10px;color:var(--text3);font-family:DM Mono,monospace">%</span>' +
-        (partials.length > 1 ? '<span class="partial-del" data-idx="'+i+'" style="font-size:14px;color:var(--text3);cursor:pointer;padding:0 4px" title="Remove">×</span>' : '<span style="width:18px"></span>') +
-        '<div style="grid-column:2/-1;display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px">' +
-          '<div style="background:var(--bg3);border-radius:4px;padding:4px 8px;text-align:center">' +
-            '<div style="font-size:9px;color:var(--text3);font-family:DM Mono,monospace">Price</div>' +
-            '<div style="font-size:12px;font-weight:700;color:var(--yellow);font-family:DM Mono,monospace" id="pp-price-'+i+'">—</div>' +
+        '<input type="number" class="partial-vol-inp" data-idx="'+i+'" value="'+p.vol+'" style="width:56px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--accent3);font-family:DM Mono,monospace;font-size:14px;font-weight:700;text-align:center;padding:5px 6px">' +
+        '<span style="font-size:12px;color:var(--text3);font-family:DM Mono,monospace;font-weight:700">%</span>' +
+        (partials.length > 1 ? '<span class="partial-del" data-idx="'+i+'" style="font-size:20px;color:var(--red);cursor:pointer;padding:2px 6px;line-height:1" title="Remove">×</span>' : '<span class="partial-del" data-idx="'+i+'" style="font-size:20px;color:var(--red);cursor:pointer;padding:2px 6px;line-height:1;opacity:0.2" title="Remove">×</span>') +
+        '<div style="grid-column:2/-1;display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px">' +
+          '<div style="background:var(--bg3);border-radius:6px;padding:6px 10px;text-align:center">' +
+            '<div style="font-size:10px;color:var(--text3);font-family:Space Grotesk,sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">Price</div>' +
+            '<div style="font-size:14px;font-weight:700;color:var(--yellow);font-family:DM Mono,monospace" id="pp-price-'+i+'">—</div>' +
           '</div>' +
-          '<div style="background:var(--bg3);border-radius:4px;padding:4px 8px;text-align:center">' +
-            '<div style="font-size:9px;color:var(--text3);font-family:DM Mono,monospace">Profit</div>' +
-            '<div style="font-size:12px;font-weight:700;color:var(--green);font-family:DM Mono,monospace" id="pp-profit-'+i+'">—</div>' +
+          '<div style="background:var(--bg3);border-radius:6px;padding:6px 10px;text-align:center">' +
+            '<div style="font-size:10px;color:var(--text3);font-family:Space Grotesk,sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">Profit</div>' +
+            '<div style="font-size:14px;font-weight:700;color:var(--green);font-family:DM Mono,monospace" id="pp-profit-'+i+'">—</div>' +
           '</div>' +
         '</div>' +
       '</div>';
@@ -1258,18 +1502,34 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       });
     });
     document.querySelectorAll('.partial-vol-inp').forEach(function(el){
+      el.addEventListener('keydown', function(e){
+        if (e.key === '-' || e.key === 'e' || e.key === 'E') { e.preventDefault(); return; }
+        if (e.key === 'Enter') { this.blur(); calcAll(); }
+      });
       el.addEventListener('input', function(){
-        partials[parseInt(this.dataset.idx)].vol = parseFloat(this.value) || 0;
+        var v = parseFloat(this.value) || 0;
+        if (v > 100) { this.value = 100; v = 100; }
+        if (v < 0) { this.value = 1; v = 1; }
+        partials[parseInt(this.dataset.idx)].vol = v;
+        calcAll();
+      });
+      el.addEventListener('blur', function(){
+        var v = parseFloat(this.value) || 50;
+        if (v < 1) { this.value = 1; v = 1; }
+        partials[parseInt(this.dataset.idx)].vol = v;
         calcAll();
       });
     });
     document.querySelectorAll('.partial-del').forEach(function(el){
       el.addEventListener('click', function(){
+        if (partials.length <= 1) return;
         partials.splice(parseInt(this.dataset.idx), 1);
         renderPartialRows();
         calcAll();
       });
     });
+    // Refresh partial values after DOM rebuild
+    if (typeof calcRR === 'function') calcRR();
   }
 
   $('add-partial-btn').addEventListener('click', function(){
@@ -1281,14 +1541,18 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 
   renderPartialRows();
 
-  // partial volume handled inside rows
+
 
   // INIT
+  renderPartialRows();
   renderTrades();
   renderCS();
   updateDashboard();
+  updatePricePlaceholders();
   calcAll();
   calcDaily();
+  fetchLiveRates();
+  setInterval(fetchLiveRates, 30000);
 })();
 </script>
 </body>
