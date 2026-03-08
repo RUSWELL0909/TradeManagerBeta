@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RossFx</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0d0a1a; --bg2:#130f24; --bg3:#1a1530;
+  --card:#1e1838; --border:#2e2650;
+  --accent:#7c5af0; --accent2:#9b7ef8; --accent3:#b8a0ff;
+  --green:#2ecc8a; --red:#e05c7a; --yellow:#f0b429;
+  --text:#e8e0ff; --text2:#9b93c4; --text3:#5c5480;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex}
+.sidebar{width:220px;min-height:100vh;background:var(--bg2);border-right:1px solid var(--border);padding:28px 0;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100}
+.logo{padding:0 20px 28px;border-bottom:1px solid var(--border);margin-bottom:20px}
+.logo-text{font-size:18px;font-weight:700;color:var(--accent3);letter-spacing:-0.5px;font-family:'Playfair Display',serif}
+.logo-sub{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.nav-section{padding:0 12px;margin-bottom:6px}
+.nav-label{font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;padding:0 8px;margin-bottom:6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;transition:all .2s;font-size:13px;font-weight:600;color:var(--text2);margin-bottom:2px;border:1px solid transparent;user-select:none}
+.nav-item:hover{background:var(--card);color:var(--text)}
+.nav-item.active{background:linear-gradient(135deg,rgba(124,90,240,.2),rgba(124,90,240,.05));color:var(--accent3);border-color:rgba(124,90,240,.3)}
+.nav-icon{font-size:16px;width:20px;text-align:center}
+.main{margin-left:220px;flex:1;padding:32px 36px;min-height:100vh}
+.page{display:none}.page.active{display:block}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px}
+.page-title{font-size:26px;font-weight:700;letter-spacing:-0.5px;font-family:'Playfair Display',serif}
+.page-sub{font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:4px}
+.btn{padding:9px 18px;border-radius:8px;border:none;cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;font-size:13px;transition:all .2s}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:var(--accent2);transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}.btn-ghost:hover{border-color:var(--accent);color:var(--accent3)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);opacity:.6}
+.stat-card.green::before{background:var(--green)}.stat-card.red::before{background:var(--red)}.stat-card.yellow::before{background:var(--yellow)}
+.stat-label{font-size:10px;font-family:'DM Mono',monospace;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.stat-value{font-size:28px;font-weight:700;letter-spacing:-1px;font-family:'Playfair Display',serif}
+.stat-value.green{color:var(--green)}.stat-value.red{color:var(--red)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.section-title{font-size:13px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px}
+.recent-list{display:flex;flex-direction:column;gap:8px}
+.recent-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:8px;transition:background .15s}
+.recent-item:hover{background:var(--bg3)}
+.recent-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.tag-win{background:var(--green)}.tag-loss{background:var(--red)}.tag-neutral{background:var(--text3)}
+.recent-info{flex:1}
+.recent-pair{font-size:13px;font-weight:700}
+.recent-detail{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:1px}
+.journal-filters{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.filter-btn{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
+.filter-btn:hover,.filter-btn.active{background:rgba(124,90,240,.15);border-color:var(--accent);color:var(--accent3)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group.full{grid-column:1/-1}
+.form-label{font-size:10px;font-family:'DM Mono',monospace;color:var(--text3);text-transform:uppercase;letter-spacing:1px}
+.form-input,.form-select,.form-textarea{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;transition:border .2s;width:100%}
+.form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--accent)}
+.form-select option{background:var(--bg2)}
+.form-textarea{resize:vertical;min-height:80px}
+.trade-list{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+.trade-item{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:grid;grid-template-columns:auto 1fr 1fr 1fr auto;align-items:center;gap:16px;transition:border .2s}
+.trade-item:hover{border-color:var(--accent)}
+.trade-pair{font-weight:800;font-size:14px;color:var(--accent3);min-width:80px}
+.trade-meta{display:flex;flex-direction:column;gap:2px}
+.trade-meta-label{font-size:10px;font-family:'DM Mono',monospace;color:var(--text3)}
+.trade-meta-val{font-size:13px;font-weight:600;color:var(--text2)}
+.pnl-badge{padding:4px 10px;border-radius:6px;font-weight:700;font-size:13px;font-family:'DM Mono',monospace}
+.pnl-badge.win{background:rgba(46,204,138,.1);color:var(--green);border:1px solid rgba(46,204,138,.2)}
+.pnl-badge.loss{background:rgba(224,92,122,.1);color:var(--red);border:1px solid rgba(224,92,122,.2)}
+.account-badge{padding:3px 8px;border-radius:4px;font-size:10px;font-family:'DM Mono',monospace;font-weight:500;text-transform:uppercase;letter-spacing:.5px}
+.account-badge.funded{background:rgba(124,90,240,.15);color:var(--accent3)}
+.account-badge.backtest{background:rgba(240,180,41,.1);color:var(--yellow)}
+.account-badge.live{background:rgba(46,204,138,.1);color:var(--green)}
+.cs-filters{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;margin-bottom:20px}
+.cs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px}
+.cs-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:all .2s}
+.cs-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.cs-img{width:100%;height:120px;background:var(--bg3);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.cs-img img{width:100%;height:100%;object-fit:cover}
+.cs-body{padding:14px}
+.cs-pair{font-weight:800;font-size:15px;color:var(--accent3);margin-bottom:6px}
+.cs-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.cs-tag{padding:2px 8px;border-radius:4px;font-size:10px;font-family:'DM Mono',monospace;background:var(--bg3);color:var(--text3);border:1px solid var(--border)}
+.cs-date{font-size:11px;font-family:'DM Mono',monospace;color:var(--text3)}
+.modal-overlay{position:fixed;inset:0;background:rgba(10,8,20,.85);display:flex;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.show{opacity:1;pointer-events:all}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px;width:540px;max-height:85vh;overflow-y:auto;transform:translateY(20px);transition:transform .2s}
+.modal-overlay.show .modal{transform:translateY(0)}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.modal-title{font-size:18px;font-weight:700;font-family:'Playfair Display',serif}
+.modal-close{background:transparent;border:none;color:var(--text3);font-size:20px;cursor:pointer;padding:4px 8px;border-radius:6px;transition:all .2s}
+.modal-close:hover{background:var(--card);color:var(--text)}
+.empty-state{text-align:center;padding:60px 20px;color:var(--text3)}
+.empty-icon{font-size:48px;margin-bottom:14px;opacity:.4}
+.empty-text{font-size:14px}
+.upload-area{border:2px dashed var(--border);border-radius:8px;padding:24px;text-align:center;cursor:pointer;transition:all .2s;color:var(--text3);font-size:13px;display:block}
+.upload-area:hover{border-color:var(--accent);color:var(--accent3);background:rgba(124,90,240,.05)}
+.upload-area input{display:none}
+/* TRADE MANAGER */
+.tm-accounts{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px}
+.tm-account-card{background:var(--card);border:2px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:all .2s;text-align:center}
+.tm-account-card:hover{border-color:var(--accent2)}
+.tm-account-card.selected{border-color:var(--accent);background:rgba(124,90,240,.1)}
+.tm-account-name{font-size:11px;font-family:'DM Mono',monospace;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.tm-account-input{background:transparent;border:none;border-bottom:1px dashed var(--border);color:var(--text);font-family:'Inter',sans-serif;font-size:20px;font-weight:800;text-align:center;width:100%;padding:2px 0}
+.tm-account-input:focus{outline:none;border-bottom-color:var(--accent)}
+.tm-calculator{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}
+.tm-panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+.tm-panel-title{font-size:11px;font-family:'DM Mono',monospace;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:16px}
+.tm-result-box{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin-top:14px}
+.tm-result-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}
+.tm-result-row:last-child{border-bottom:none}
+.tm-result-label{color:var(--text3);font-family:'DM Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+.tm-result-val{font-weight:700;color:var(--text);font-family:'DM Mono',monospace}
+.tm-result-val.big{font-size:20px;color:var(--accent3)}
+.tm-result-val.green{color:var(--green)}.tm-result-val.red{color:var(--red)}.tm-result-val.yellow{color:var(--yellow)}
+.risk-slider{-webkit-appearance:none;width:100%;height:4px;border-radius:2px;background:var(--border);outline:none;margin:8px 0}
+.risk-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);cursor:pointer}
+.risk-display{font-size:28px;font-weight:800;color:var(--accent3);text-align:center;font-family:'DM Mono',monospace;margin:8px 0}
+.pip-badge{padding:4px 10px;border-radius:6px;font-size:11px;font-family:'DM Mono',monospace;background:var(--bg3);color:var(--text3);border:1px solid var(--border);cursor:pointer;transition:all .2s;display:inline-block;margin:2px}
+.pip-badge:hover,.pip-badge.active{background:rgba(124,90,240,.15);color:var(--accent3);border-color:var(--accent)}
+.tm-warning{background:rgba(224,92,122,.08);border:1px solid rgba(224,92,122,.2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--red);margin-top:10px;display:none}
+.tm-warning.show{display:block}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+</style>
+</head>
+<body>
+<nav class="sidebar">
+  <div class="logo">
+    <div class="logo-text">RossFx</div>
+    <div class="logo-sub">Personal Portal</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Overview</div>
+    <div class="nav-item active" id="nav-dashboard">
+      <span class="nav-icon">◈</span> Dashboard
+    </div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Trading</div>
+    <div class="nav-item" id="nav-journal">
+      <span class="nav-icon">◎</span> Journal
+    </div>
+    <div class="nav-item" id="nav-casestudies">
+      <span class="nav-icon">◉</span> Case Studies
+    </div>
+    <div class="nav-item" id="nav-trademanager">
+      <span class="nav-icon">⊕</span> Trade Manager
+    </div>
+  </div>
+</nav>
+
+<main class="main">
+  <!-- DASHBOARD -->
+  <div id="page-dashboard" class="page active">
+    <div class="page-header">
+      <div><div class="page-title">Dashboard</div><div class="page-sub">Your trading overview</div></div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card green"><div class="stat-label">Win Rate</div><div class="stat-value green" id="dash-winrate">—</div></div>
+      <div class="stat-card"><div class="stat-label">Total Trades</div><div class="stat-value" id="dash-trades">0</div></div>
+      <div class="stat-card"><div class="stat-label">Case Studies</div><div class="stat-value" id="dash-cs">0</div></div>
+      <div class="stat-card"><div class="stat-label">Net P&L</div><div class="stat-value" id="dash-pnl">$0</div></div>
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <div class="section-title">Recent Trades</div>
+        <div class="recent-list" id="dash-recent-trades"><div class="empty-state" style="padding:20px"><div class="empty-icon" style="font-size:24px">◎</div><div class="empty-text">No trades yet</div></div></div>
+      </div>
+      <div class="card">
+        <div class="section-title">Recent Case Studies</div>
+        <div class="recent-list" id="dash-recent-cs"><div class="empty-state" style="padding:20px"><div class="empty-icon" style="font-size:24px">◉</div><div class="empty-text">No case studies yet</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JOURNAL -->
+  <div id="page-journal" class="page">
+    <div class="page-header">
+      <div><div class="page-title">Journal</div><div class="page-sub">Log and review your trades</div></div>
+      <button class="btn btn-primary" id="btn-add-trade">+ Add Trade</button>
+    </div>
+    <div class="journal-filters">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="funded">Funded Account</button>
+      <button class="filter-btn" data-filter="backtest">Backtest</button>
+      <button class="filter-btn" data-filter="live">Live Capital</button>
+    </div>
+    <div id="trade-list" class="trade-list">
+      <div class="empty-state"><div class="empty-icon">◎</div><div class="empty-text">No trades yet. Add your first trade!</div></div>
+    </div>
+  </div>
+
+  <!-- CASE STUDIES -->
+  <div id="page-casestudies" class="page">
+    <div class="page-header">
+      <div><div class="page-title">Case Studies</div><div class="page-sub">Analyze your setups by pair and session</div></div>
+      <button class="btn btn-primary" id="btn-add-cs">+ Add Case Study</button>
+    </div>
+    <div class="cs-filters">
+      <select class="form-select" id="cs-filter-pair">
+        <option value="">All Pairs</option>
+        <option>EUR/USD</option><option>GBP/USD</option><option>USD/CAD</option><option>USD/CHF</option>
+        <option>USD/JPY</option><option>AUD/USD</option><option>NZD/USD</option><option>GBP/JPY</option>
+        <option>EUR/GBP</option><option>EUR/JPY</option>
+      </select>
+      <select class="form-select" id="cs-filter-session">
+        <option value="">All Sessions</option>
+        <option>Asia KTW</option><option>London KTW</option><option>NY KTW</option><option>Outside KTW</option>
+      </select>
+      <input type="date" class="form-input" id="cs-filter-date">
+      <button class="btn btn-ghost" id="btn-clear-cs">Clear</button>
+    </div>
+    <div id="cs-grid" class="cs-grid">
+      <div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">◉</div><div class="empty-text">No case studies yet.</div></div>
+    </div>
+  </div>
+
+  <!-- TRADE MANAGER -->
+  <div id="page-trademanager" class="page">
+    <div class="page-header">
+      <div><div class="page-title">Trade Manager</div><div class="page-sub">Position sizing, risk & P&L calculator</div></div>
+    </div>
+    <div style="margin-bottom:8px;font-size:11px;font-family:'DM Mono',monospace;color:var(--text3);text-transform:uppercase;letter-spacing:1px">Select Account & Set Balance</div>
+    <div class="tm-accounts">
+      <div class="tm-account-card selected" id="acc-funded">
+        <div class="tm-account-name">Funded Account</div>
+        <input class="tm-account-input" id="bal-funded" type="number" value="10000">
+        <div style="font-size:10px;color:var(--text3);margin-top:4px;font-family:'DM Mono',monospace">USD</div>
+      </div>
+      <div class="tm-account-card" id="acc-backtest">
+        <div class="tm-account-name">Backtest</div>
+        <input class="tm-account-input" id="bal-backtest" type="number" value="10000">
+        <div style="font-size:10px;color:var(--text3);margin-top:4px;font-family:'DM Mono',monospace">USD</div>
+      </div>
+      <div class="tm-account-card" id="acc-live">
+        <div class="tm-account-name">Live Capital</div>
+        <input class="tm-account-input" id="bal-live" type="number" value="5000">
+        <div style="font-size:10px;color:var(--text3);margin-top:4px;font-family:'DM Mono',monospace">USD</div>
+      </div>
+    </div>
+    <div class="tm-calculator">
+      <div class="tm-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div class="tm-panel-title" style="margin-bottom:0">Position Size Calculator</div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span id="pip-value-display" style="font-size:10px;font-family:'DM Mono',monospace;color:var(--accent3)">—</span>
+            <span id="pip-rate-status" style="font-size:10px;font-family:'DM Mono',monospace;color:var(--text3)">Loading rates...</span>
+            <button onclick="fetchLiveRates()" style="font-size:9px;font-family:'DM Mono',monospace;background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--text3);padding:2px 6px;cursor:pointer">↻ Refresh</button>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label class="form-label">Pair</label>
+          <select class="form-select" id="tm-pair">
+            <optgroup label="Forex">
+            <option value="eurusd">EUR/USD</option><option value="gbpusd">GBP/USD</option>
+            <option value="usdcad">USD/CAD</option><option value="usdchf">USD/CHF</option>
+            <option value="usdjpy">USD/JPY</option><option value="audusd">AUD/USD</option>
+            <option value="nzdusd">NZD/USD</option><option value="gbpjpy">GBP/JPY</option>
+            </optgroup><optgroup label="Metals &amp; Indices">
+            <option value="xauusd">XAU/USD (Gold)</option>
+            <option value="nas100">NAS100</option>
+            <option value="us30">US30</option>
+            </optgroup>
+            <option value="eurgbp">EUR/GBP</option><option value="eurjpy">EUR/JPY</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:14px">
+          <button class="filter-btn active" id="risk-pct-btn">% of Balance</button>
+          <button class="filter-btn" id="risk-fixed-btn">Fixed $</button>
+        </div>
+        <div id="risk-pct-wrap">
+          <div class="form-label">Risk Per Trade</div>
+          <div class="risk-display"><span id="risk-pct-display">1.0</span>%</div>
+          <input type="range" class="risk-slider" id="risk-slider" min="0.1" max="5" step="0.1" value="1">
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);font-family:'DM Mono',monospace"><span>0.1%</span><span>2.5%</span><span>5%</span></div>
+        </div>
+        <div id="risk-fixed-wrap" style="display:none">
+          <div class="form-group">
+            <label class="form-label">Risk Amount ($)</label>
+            <input class="form-input" id="risk-fixed-val" type="number" value="100">
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:12px">
+          <label class="form-label">Stop Loss (pips)</label>
+          <input class="form-input" id="tm-sl-pips" type="number" value="10">
+        </div>
+        <div style="margin-top:8px">
+          <span class="pip-badge" data-pips="5">5p</span>
+          <span class="pip-badge" data-pips="10">10p</span>
+          <span class="pip-badge" data-pips="15">15p</span>
+          <span class="pip-badge" data-pips="20">20p</span>
+          <span class="pip-badge" data-pips="30">30p</span>
+          <span class="pip-badge" data-pips="50">50p</span>
+        </div>
+        <div class="tm-result-box">
+          <div class="tm-result-row"><span class="tm-result-label">Risk Amount</span><span class="tm-result-val yellow" id="res-risk-amt">$100.00</span></div>
+          <div class="tm-result-row"><span class="tm-result-label">Pip Value (per lot)</span><span class="tm-result-val" id="res-pip-val">$10.00</span></div>
+          <div class="tm-result-row"><span class="tm-result-label">Lot Size</span><span class="tm-result-val big" id="res-lots">0.10</span></div>
+        </div>
+        <div class="tm-warning" id="tm-warning">⚠️ Risk exceeds 2% — consider reducing position size.</div>
+      </div>
+      <div class="tm-panel">
+        <div class="tm-panel-title">R:R & Take Profit Calculator</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div class="form-group"><label class="form-label">Entry Price</label><input class="form-input" id="tm-entry" type="number" step="0.00001" placeholder="1.08500"></div>
+          <div class="form-group"><label class="form-label">Stop Loss Price</label><input class="form-input" id="tm-sl-price" type="number" step="0.00001" placeholder="1.08200"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+          <div class="form-group"><label class="form-label">Take Profit Price</label><input class="form-input" id="tm-tp-price" type="number" step="0.00001" placeholder="1.09100"></div>
+          <div class="form-group"><label class="form-label">Direction</label>
+            <select class="form-select" id="tm-dir"><option value="long">Long (Buy)</option><option value="short">Short (Sell)</option></select>
+          </div>
+        </div>
+        <div class="form-label" style="margin-bottom:6px">Quick R:R Target</div>
+        <div style="margin-bottom:12px">
+          <span class="pip-badge" data-rr="1">1:1</span>
+          <span class="pip-badge" data-rr="1.5">1:1.5</span>
+          <span class="pip-badge" data-rr="2">1:2</span>
+          <span class="pip-badge" data-rr="3">1:3</span>
+          <span class="pip-badge" data-rr="5">1:5</span>
+        </div>
+        <div class="tm-result-box">
+          <div class="tm-result-row"><span class="tm-result-label">SL Distance (pips)</span><span class="tm-result-val" id="rr-sl-pips">—</span></div>
+          <div class="tm-result-row"><span class="tm-result-label">TP Distance (pips)</span><span class="tm-result-val" id="rr-tp-pips">—</span></div>
+          <div class="tm-result-row"><span class="tm-result-label">R:R Ratio</span><span class="tm-result-val big" id="rr-ratio">—</span></div>
+          <div class="tm-result-row"><span class="tm-result-label">Potential Loss ($)</span><span class="tm-result-val red" id="rr-loss">—</span></div>
+          <div class="tm-result-row"><span class="tm-result-label">Potential Profit (full)</span><span class="tm-result-val green" id="rr-profit">—</span></div>
+          <div style="background:rgba(240,180,41,.06);border:1px solid rgba(240,180,41,.15);border-radius:8px;padding:12px;margin-top:6px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+              <span style="font-size:10px;font-family:'DM Mono',monospace;color:var(--yellow);text-transform:uppercase;letter-spacing:1px">🎯 Partial Close</span>
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace">% volume</span>
+                <input type="number" id="partial-volume" value="50" min="1" max="99" style="width:52px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--yellow);font-family:'DM Mono',monospace;font-size:12px;font-weight:700;text-align:center;padding:3px 6px">
+              </div>
+            </div>
+            <div id="partial-rows" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px"></div>
+            <button id="add-partial-btn" style="width:100%;background:transparent;border:1px dashed var(--border);border-radius:6px;color:var(--text3);font-family:'DM Mono',monospace;font-size:11px;padding:6px;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent3)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text3)'">+ Add Partial</button>
+            <div style="margin-top:8px;background:var(--bg);border-radius:6px;padding:8px;display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:10px;font-family:'DM Mono',monospace;color:var(--text3);text-transform:uppercase">Remaining Volume</span>
+              <span style="font-size:13px;font-weight:700;font-family:'DM Mono',monospace;color:var(--accent3)" id="partial-remaining-vol">100%</span>
+            </div>
+            <div style="margin-top:6px;background:var(--bg);border-radius:6px;padding:8px;display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:10px;font-family:'DM Mono',monospace;color:var(--text3);text-transform:uppercase">Total Secured</span>
+              <span style="font-size:13px;font-weight:700;font-family:'DM Mono',monospace;color:var(--green)" id="partial-total-profit">—</span>
+            </div>
+          </div>
+          <div class="tm-result-row" style="background:rgba(124,90,240,.06);border-radius:6px;padding:8px;margin-top:4px">
+            <span class="tm-result-label" style="color:var(--accent3)">🔒 Break Even Price</span>
+            <div style="text-align:right">
+              <input type="number" step="0.00001" id="rr-be-price" style="background:transparent;border:none;border-bottom:1px dashed var(--accent);color:var(--accent3);font-family:'DM Mono',monospace;font-weight:700;font-size:13px;text-align:right;width:110px;padding:2px 0" placeholder="—">
+              <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace">edit to your TA level</div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:10px">
+          <label class="form-label">Spread / BE Offset (pips)</label>
+          <input class="form-input" id="tm-spread" type="number" value="1" step="0.1" placeholder="1">
+        </div>
+      </div>
+    </div>
+    <div class="tm-panel">
+      <div class="tm-panel-title">Daily Risk Tracker</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">
+        <div class="form-group"><label class="form-label">Max Daily Loss (%)</label><input class="form-input" id="daily-limit" type="number" value="3" step="0.5"></div>
+        <div class="form-group"><label class="form-label">Trades Today</label><input class="form-input" id="daily-trades" type="number" value="0"></div>
+        <div class="form-group"><label class="form-label">P&L Today ($)</label><input class="form-input" id="daily-pnl-tm" type="number" value="0"></div>
+        <div class="form-group"><label class="form-label">Remaining Risk</label><div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'DM Mono',monospace;font-weight:700;font-size:18px" id="daily-remaining">—</div></div>
+      </div>
+      <div style="margin-top:14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px">
+        <div style="display:flex;justify-content:space-between;font-size:10px;font-family:'DM Mono',monospace;color:var(--text3);margin-bottom:6px;text-transform:uppercase"><span>Daily Loss Used</span><span id="daily-pct-label">0%</span></div>
+        <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden"><div id="daily-bar" style="height:100%;width:0%;background:var(--green);border-radius:4px;transition:width .4s,background .4s"></div></div>
+      </div>
+    </div>
+
+    <!-- RISK OF RUIN + PROP CONSISTENCY -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px">
+
+      <!-- RISK OF RUIN -->
+      <div class="tm-panel">
+        <div class="tm-panel-title">☠️ Risk of Ruin Calculator</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:14px;font-family:'DM Mono',monospace">Probability of blowing your account based on your stats</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div class="form-group">
+            <label class="form-label">Win Rate (%)</label>
+            <input class="form-input" id="ror-winrate" type="number" value="50" min="1" max="99">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Avg R:R</label>
+            <input class="form-input" id="ror-rr" type="number" value="2" step="0.1" min="0.1">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Risk per Trade (%)</label>
+            <input class="form-input" id="ror-risk" type="number" value="1" step="0.1" min="0.1">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Ruin = Loss of (%)</label>
+            <input class="form-input" id="ror-ruin" type="number" value="50" min="1" max="100">
+          </div>
+        </div>
+        <div class="tm-result-box">
+          <div class="tm-result-row">
+            <span class="tm-result-label">Expected Value per trade</span>
+            <span class="tm-result-val" id="ror-ev">—</span>
+          </div>
+          <div class="tm-result-row">
+            <span class="tm-result-label">Edge Ratio</span>
+            <span class="tm-result-val" id="ror-edge">—</span>
+          </div>
+          <div class="tm-result-row">
+            <span class="tm-result-label" style="font-size:13px">Risk of Ruin</span>
+            <span class="tm-result-val big" id="ror-result">—</span>
+          </div>
+          <div id="ror-verdict" style="margin-top:10px;padding:10px;border-radius:8px;font-size:12px;font-weight:600;display:none"></div>
+        </div>
+        <button class="btn btn-primary" id="calc-ror-btn" style="width:100%;margin-top:12px">Calculate</button>
+      </div>
+
+      <!-- PROP FIRM CONSISTENCY -->
+      <div class="tm-panel">
+        <div class="tm-panel-title">🏆 Prop Firm Consistency Checker</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:14px;font-family:'DM Mono',monospace">Check if your trading meets funded account rules</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div class="form-group">
+            <label class="form-label">Account Size ($)</label>
+            <input class="form-input" id="prop-balance" type="number" value="10000">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Max Daily Loss (%)</label>
+            <input class="form-input" id="prop-daily" type="number" value="5" step="0.5">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Max Total Drawdown (%)</label>
+            <input class="form-input" id="prop-total" type="number" value="10" step="0.5">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Profit Target (%)</label>
+            <input class="form-input" id="prop-target" type="number" value="8" step="0.5">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Trades Taken</label>
+            <input class="form-input" id="prop-trades" type="number" value="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Current P&L ($)</label>
+            <input class="form-input" id="prop-pnl" type="number" value="0">
+          </div>
+        </div>
+        <div class="tm-result-box" id="prop-results">
+          <div class="tm-result-row">
+            <span class="tm-result-label">Daily Loss Limit</span>
+            <span class="tm-result-val" id="prop-daily-limit">—</span>
+          </div>
+          <div class="tm-result-row">
+            <span class="tm-result-label">Total Drawdown Limit</span>
+            <span class="tm-result-val" id="prop-total-limit">—</span>
+          </div>
+          <div class="tm-result-row">
+            <span class="tm-result-label">Profit Target</span>
+            <span class="tm-result-val" id="prop-target-val">—</span>
+          </div>
+          <div class="tm-result-row">
+            <span class="tm-result-label">Current Progress</span>
+            <span class="tm-result-val" id="prop-progress">—</span>
+          </div>
+          <div id="prop-status" style="margin-top:10px;padding:10px;border-radius:8px;font-size:12px;font-weight:600;display:none"></div>
+        </div>
+        <button class="btn btn-primary" id="calc-prop-btn" style="width:100%;margin-top:12px">Check Status</button>
+      </div>
+    </div>
+
+    <!-- DAILY LOSS HARD ALERT -->
+    <div id="daily-hard-alert" style="display:none;margin-top:20px;background:rgba(224,92,122,.1);border:2px solid var(--red);border-radius:12px;padding:20px;text-align:center">
+      <div style="font-size:28px;margin-bottom:8px">🚨</div>
+      <div style="font-size:18px;font-weight:800;color:var(--red);margin-bottom:6px">DAILY LOSS LIMIT REACHED</div>
+      <div style="font-size:13px;color:var(--text2)">Close all positions. Do not open new trades today.</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:6px;font-family:'DM Mono',monospace" id="alert-detail"></div>
+    </div>
+
+  </div>
+</main>
+
+<!-- MODAL: ADD TRADE -->
+<div id="modal-addTrade" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Add Trade</div><button class="modal-close" id="close-trade-modal">✕</button></div>
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Account Type</label><select class="form-select" id="t-account"><option value="funded">Funded Account</option><option value="backtest">Backtest</option><option value="live">Live Capital</option></select></div>
+      <div class="form-group"><label class="form-label">Pair</label><select class="form-select" id="t-pair"><option>EUR/USD</option><option>GBP/USD</option><option>USD/CAD</option><option>USD/CHF</option><option>USD/JPY</option><option>AUD/USD</option><option>NZD/USD</option><option>GBP/JPY</option><option>EUR/GBP</option><option>EUR/JPY</option></select></div>
+      <div class="form-group"><label class="form-label">Direction</label><select class="form-select" id="t-dir"><option>Long</option><option>Short</option></select></div>
+      <div class="form-group"><label class="form-label">Session</label><select class="form-select" id="t-session"><option>Asia KTW</option><option>London KTW</option><option>NY KTW</option><option>Outside KTW</option></select></div>
+      <div class="form-group"><label class="form-label">Entry Price</label><input class="form-input" id="t-entry" type="number" step="0.00001" placeholder="1.08500"></div>
+      <div class="form-group"><label class="form-label">Exit Price</label><input class="form-input" id="t-exit" type="number" step="0.00001" placeholder="1.09000"></div>
+      <div class="form-group"><label class="form-label">P&L ($)</label><input class="form-input" id="t-pnl" type="number" placeholder="120 or -50"></div>
+      <div class="form-group"><label class="form-label">Date</label><input class="form-input" id="t-date" type="date"></div>
+      <div class="form-group full"><label class="form-label">Notes</label><textarea class="form-textarea" id="t-notes" placeholder="What happened? What did you learn?"></textarea></div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn btn-ghost" id="cancel-trade-modal">Cancel</button>
+      <button class="btn btn-primary" id="save-trade-btn">Save Trade</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ADD CASE STUDY -->
+<div id="modal-addCS" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Add Case Study</div><button class="modal-close" id="close-cs-modal">✕</button></div>
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Pair</label><select class="form-select" id="cs-pair"><option>EUR/USD</option><option>GBP/USD</option><option>USD/CAD</option><option>USD/CHF</option><option>USD/JPY</option><option>AUD/USD</option><option>NZD/USD</option><option>GBP/JPY</option><option>EUR/GBP</option><option>EUR/JPY</option></select></div>
+      <div class="form-group"><label class="form-label">Session (KTW)</label><select class="form-select" id="cs-session"><option>Asia KTW</option><option>London KTW</option><option>NY KTW</option><option>Outside KTW</option></select></div>
+      <div class="form-group"><label class="form-label">Date</label><input class="form-input" id="cs-date" type="date"></div>
+      <div class="form-group"><label class="form-label">Outcome</label><select class="form-select" id="cs-outcome"><option value="win">Win</option><option value="loss">Loss</option><option value="breakeven">Breakeven</option></select></div>
+      <div class="form-group full"><label class="form-label">Title / Setup Name</label><input class="form-input" id="cs-title" placeholder="e.g. Liquidity Sweep + FVG Fill"></div>
+      <div class="form-group full"><label class="form-label">Analysis</label><textarea class="form-textarea" id="cs-notes" placeholder="Describe the setup, confluences, execution..."></textarea></div>
+      <div class="form-group full"><label class="form-label">Screenshot</label>
+        <label class="upload-area"><input type="file" id="cs-image" accept="image/*"><div id="cs-image-preview">📎 Click to upload chart screenshot</div></label>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn btn-ghost" id="cancel-cs-modal">Cancel</button>
+      <button class="btn btn-primary" id="save-cs-btn">Save Case Study</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  // STATE
+  var trades = JSON.parse(localStorage.getItem('tb_trades') || '[]');
+  var caseStudies = JSON.parse(localStorage.getItem('tb_cs') || '[]');
+  var csImageData = null;
+  var currentFilter = 'all';
+  var selectedAccount = 'funded';
+  var riskMode = 'pct';
+
+  // Contract sizes (units per lot)
+  var contractSizes = {
+    eurusd:100000, gbpusd:100000, audusd:100000, nzdusd:100000,
+    usdcad:100000, usdchf:100000, eurgbp:100000, usdjpy:100000,
+    gbpjpy:100000, eurjpy:100000,
+    xauusd:100,   // 100 oz per lot
+    nas100:1,     // 1 contract
+    us30:1        // 1 contract
+  };
+
+  // Pip sizes (fixed)
+  var pipSizes = { eurusd:0.0001, gbpusd:0.0001, audusd:0.0001, nzdusd:0.0001, usdcad:0.0001, usdchf:0.0001, eurgbp:0.0001, usdjpy:0.01, gbpjpy:0.01, eurjpy:0.01, xauusd:0.01, nas100:1, us30:1 };
+
+  // Pip values per lot — start with defaults, updated live
+  var pipValues = { eurusd:10, gbpusd:10, audusd:10, nzdusd:10, usdcad:7.4, usdchf:11, usdjpy:9.1, gbpjpy:9.1, eurjpy:9.1, eurgbp:12.5, xauusd:1.0, nas100:1.0, us30:1.0 };
+
+  // Live rates cache
+  var liveRates = {};
+  var ratesLoaded = false;
+
+  function calcPipValues() {
+    // USD-quoted pairs: pip value = 0.0001 * 100000 = $10 (fixed)
+    // Non-USD quote: pip value = 10 / quote_vs_usd
+    var usdcad = liveRates['USDCAD'] || 1.35;
+    var usdchf = liveRates['USDCHF'] || 0.90;
+    var usdjpy = liveRates['USDJPY'] || 150;
+    var gbpusd = liveRates['GBPUSD'] || 1.27;
+    var eurusd = liveRates['EURUSD'] || 1.08;
+    var audusd = liveRates['AUDUSD'] || 0.65;
+    var nzdusd = liveRates['NZDUSD'] || 0.60;
+    var eurgbp = liveRates['EURGBP'] || 0.85;
+
+    pipValues.eurusd = 10;
+    pipValues.gbpusd = 10;
+    pipValues.audusd = 10;
+    pipValues.nzdusd = 10;
+    pipValues.usdcad = parseFloat((10 / usdcad).toFixed(4));
+    pipValues.usdchf = parseFloat((10 / usdchf).toFixed(4));
+    pipValues.usdjpy = parseFloat((1000 / usdjpy).toFixed(4));
+    pipValues.gbpjpy = parseFloat((gbpusd * 1000 / usdjpy).toFixed(4));
+    pipValues.eurjpy = parseFloat((eurusd * 1000 / usdjpy).toFixed(4));
+    pipValues.eurgbp = parseFloat((gbpusd * 10).toFixed(4));
+
+    // Gold: pip = $0.01, contract = 100oz → pip value = 0.01 * 100 = $1 per pip per lot
+    // But if gold price known: pip value = 0.01 * 100 = $1 (fixed, USD quoted)
+    pipValues.xauusd = 1.0; // $1 per pip (0.01) per lot (100oz) — USD quoted, fixed
+
+    // NAS100: 1 point = $1 per contract (standard CFD)
+    var nas = liveRates['NAS100'] || 19000;
+    pipValues.nas100 = 1.0; // $1 per point per contract
+
+    // US30: 1 point = $1 per contract
+    pipValues.us30 = 1.0; // $1 per point per contract
+  }
+
+  window.fetchLiveRates = async function fetchLiveRates() {
+    var statusEl = $('pip-rate-status');
+    if (statusEl) statusEl.textContent = 'Fetching live rates...';
+    try {
+      var res = await fetch('https://api.frankfurter.app/latest?from=USD&to=CAD,CHF,JPY,GBP,EUR,AUD,NZD');
+      var data = await res.json();
+      if (data && data.rates) {
+        liveRates['USDCAD'] = data.rates.CAD;
+        liveRates['USDCHF'] = data.rates.CHF;
+        liveRates['USDJPY'] = data.rates.JPY;
+        liveRates['GBPUSD'] = 1 / data.rates.GBP;
+        liveRates['EURUSD'] = 1 / data.rates.EUR;
+        liveRates['AUDUSD'] = 1 / data.rates.AUD;
+        liveRates['NZDUSD'] = 1 / data.rates.NZD;
+        liveRates['EURGBP'] = data.rates.GBP / data.rates.EUR;
+        ratesLoaded = true;
+        calcPipValues();
+        calcAll();
+        if (statusEl) {
+          statusEl.textContent = '✓ Live rates loaded';
+          statusEl.style.color = 'var(--green)';
+        }
+        updatePipDisplay();
+      }
+      // Fetch Gold price separately (XAU quoted in USD — pip value stays $1 but show live price)
+      try {
+        var goldRes = await fetch('https://api.frankfurter.app/latest?from=XAU&to=USD');
+        var goldData = await goldRes.json();
+        if (goldData && goldData.rates && goldData.rates.USD) {
+          liveRates['XAUUSD'] = goldData.rates.USD;
+          // For gold: pip value = 0.01 * 100oz = $1 (fixed regardless of price)
+          pipValues.xauusd = 1.0;
+          updatePipDisplay();
+        }
+      } catch(ge) { /* gold fetch failed, use default */ }
+    } catch(e) {
+      if (statusEl) {
+        statusEl.textContent = '⚠ Using estimated rates';
+        statusEl.style.color = 'var(--yellow)';
+      }
+      calcPipValues();
+    }
+  }
+
+  function updatePipDisplay() {
+    var pair = $('tm-pair') ? $('tm-pair').value : 'eurusd';
+    var pv = pipValues[pair] || 10;
+    var cs = contractSizes[pair] || 100000;
+    var el = $('pip-value-display');
+    var csLabel = cs === 100000 ? '100k units' : cs === 100 ? '100 oz/lot' : '1 contract';
+    if (el) el.textContent = '$' + pv.toFixed(2) + '/pip · ' + csLabel;
+  }
+
+  function $(id) { return document.getElementById(id); }
+
+  // NAV
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+    document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+    $('page-' + id).classList.add('active');
+    $('nav-' + id).classList.add('active');
+    if (id === 'dashboard') updateDashboard();
+  }
+
+  ['dashboard','journal','casestudies','trademanager'].forEach(function(id) {
+    $('nav-' + id).addEventListener('click', function(){ showPage(id); });
+  });
+
+  // MODALS
+  function openModal(id) {
+    $('modal-' + id).classList.add('show');
+    if (id === 'addTrade') $('t-date').value = new Date().toISOString().split('T')[0];
+    if (id === 'addCS') {
+      $('cs-date').value = new Date().toISOString().split('T')[0];
+      csImageData = null;
+      $('cs-image-preview').innerHTML = '📎 Click to upload chart screenshot';
+    }
+  }
+  function closeModal(id) { $('modal-' + id).classList.remove('show'); }
+
+  $('btn-add-trade').addEventListener('click', function(){ openModal('addTrade'); });
+  $('btn-add-cs').addEventListener('click', function(){ openModal('addCS'); });
+  $('close-trade-modal').addEventListener('click', function(){ closeModal('addTrade'); });
+  $('cancel-trade-modal').addEventListener('click', function(){ closeModal('addTrade'); });
+  $('close-cs-modal').addEventListener('click', function(){ closeModal('addCS'); });
+  $('cancel-cs-modal').addEventListener('click', function(){ closeModal('addCS'); });
+
+  // Close modal on overlay click
+  ['addTrade','addCS'].forEach(function(id) {
+    $('modal-' + id).addEventListener('click', function(e){
+      if (e.target === $('modal-' + id)) closeModal(id);
+    });
+  });
+
+  // IMAGE PREVIEW
+  $('cs-image').addEventListener('change', function(){
+    if (this.files && this.files[0]) {
+      var r = new FileReader();
+      r.onload = function(e){
+        csImageData = e.target.result;
+        $('cs-image-preview').innerHTML = '<img src="' + csImageData + '" style="max-height:80px;border-radius:4px">';
+      };
+      r.readAsDataURL(this.files[0]);
+    }
+  });
+
+  // JOURNAL FILTERS
+  document.querySelectorAll('.filter-btn[data-filter]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.filter-btn[data-filter]').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      currentFilter = btn.dataset.filter;
+      renderTrades();
+    });
+  });
+
+  // SAVE TRADE
+  $('save-trade-btn').addEventListener('click', function(){
+    var trade = {
+      id: Date.now(),
+      account: $('t-account').value,
+      pair: $('t-pair').value,
+      dir: $('t-dir').value,
+      session: $('t-session').value,
+      entry: $('t-entry').value,
+      exit: $('t-exit').value,
+      pnl: parseFloat($('t-pnl').value) || 0,
+      date: $('t-date').value,
+      notes: $('t-notes').value
+    };
+    trades.unshift(trade);
+    localStorage.setItem('tb_trades', JSON.stringify(trades));
+    closeModal('addTrade');
+    renderTrades();
+    updateDashboard();
+    ['t-entry','t-exit','t-pnl','t-notes'].forEach(function(id){ $(id).value = ''; });
+  });
+
+  function renderTrades() {
+    var list = $('trade-list');
+    var filtered = currentFilter === 'all' ? trades : trades.filter(function(t){ return t.account === currentFilter; });
+    if (!filtered.length) {
+      list.innerHTML = '<div class="empty-state"><div class="empty-icon">◎</div><div class="empty-text">No trades found.</div></div>';
+      return;
+    }
+    list.innerHTML = filtered.map(function(t){
+      return '<div class="trade-item">' +
+        '<div><div class="trade-pair">' + t.pair + '</div><span class="account-badge ' + t.account + '">' + t.account + '</span></div>' +
+        '<div class="trade-meta"><div class="trade-meta-label">Direction</div><div class="trade-meta-val">' + t.dir + '</div></div>' +
+        '<div class="trade-meta"><div class="trade-meta-label">Session</div><div class="trade-meta-val">' + t.session + '</div></div>' +
+        '<div class="trade-meta"><div class="trade-meta-label">Date</div><div class="trade-meta-val">' + t.date + '</div></div>' +
+        '<span class="pnl-badge ' + (t.pnl >= 0 ? 'win' : 'loss') + '">' + (t.pnl >= 0 ? '+' : '') + '$' + t.pnl + '</span>' +
+        '</div>';
+    }).join('');
+  }
+
+  // SAVE CASE STUDY
+  $('save-cs-btn').addEventListener('click', function(){
+    var cs = {
+      id: Date.now(),
+      pair: $('cs-pair').value,
+      session: $('cs-session').value,
+      date: $('cs-date').value,
+      outcome: $('cs-outcome').value,
+      title: $('cs-title').value || 'Untitled Setup',
+      notes: $('cs-notes').value,
+      image: csImageData
+    };
+    caseStudies.unshift(cs);
+    localStorage.setItem('tb_cs', JSON.stringify(caseStudies));
+    closeModal('addCS');
+    renderCS();
+    updateDashboard();
+    ['cs-title','cs-notes'].forEach(function(id){ $(id).value = ''; });
+  });
+
+  // CS FILTERS
+  $('cs-filter-pair').addEventListener('change', renderCS);
+  $('cs-filter-session').addEventListener('change', renderCS);
+  $('cs-filter-date').addEventListener('change', renderCS);
+  $('btn-clear-cs').addEventListener('click', function(){
+    $('cs-filter-pair').value = '';
+    $('cs-filter-session').value = '';
+    $('cs-filter-date').value = '';
+    renderCS();
+  });
+
+  function renderCS() {
+    var pair = $('cs-filter-pair').value;
+    var session = $('cs-filter-session').value;
+    var date = $('cs-filter-date').value;
+    var filtered = caseStudies.filter(function(cs){
+      if (pair && cs.pair !== pair) return false;
+      if (session && cs.session !== session) return false;
+      if (date && cs.date !== date) return false;
+      return true;
+    });
+    var grid = $('cs-grid');
+    var outcomeColor = { win:'#2ecc8a', loss:'#e05c7a', breakeven:'#f0b429' };
+    if (!filtered.length) {
+      grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">◉</div><div class="empty-text">No case studies found.</div></div>';
+      return;
+    }
+    grid.innerHTML = filtered.map(function(cs){
+      return '<div class="cs-card">' +
+        '<div class="cs-img">' + (cs.image ? '<img src="' + cs.image + '">' : '<div style="font-size:32px;opacity:.3">📊</div>') + '</div>' +
+        '<div class="cs-body">' +
+        '<div class="cs-pair">' + cs.pair + '</div>' +
+        '<div class="cs-tags"><span class="cs-tag">' + cs.session + '</span><span class="cs-tag" style="color:' + outcomeColor[cs.outcome] + '">' + cs.outcome.toUpperCase() + '</span></div>' +
+        '<div style="font-size:12px;color:var(--text2);margin-bottom:6px;font-weight:600">' + cs.title + '</div>' +
+        '<div class="cs-date">' + cs.date + '</div>' +
+        '</div></div>';
+    }).join('');
+  }
+
+  // DASHBOARD
+  function updateDashboard() {
+    var total = trades.length;
+    var wins = trades.filter(function(t){ return t.pnl > 0; }).length;
+    var wr = total ? Math.round((wins/total)*100) : null;
+    var netPnl = trades.reduce(function(s,t){ return s + t.pnl; }, 0);
+    $('dash-trades').textContent = total;
+    $('dash-cs').textContent = caseStudies.length;
+    $('dash-winrate').textContent = wr !== null ? wr + '%' : '—';
+    $('dash-winrate').className = 'stat-value ' + (wr >= 50 ? 'green' : wr !== null ? 'red' : '');
+    $('dash-pnl').textContent = (netPnl >= 0 ? '+$' : '-$') + Math.abs(netPnl).toFixed(0);
+    $('dash-pnl').style.color = netPnl >= 0 ? 'var(--green)' : 'var(--red)';
+    var rt = $('dash-recent-trades');
+    if (!trades.length) {
+      rt.innerHTML = '<div class="empty-state" style="padding:20px"><div class="empty-icon" style="font-size:24px">◎</div><div class="empty-text">No trades yet</div></div>';
+    } else {
+      rt.innerHTML = trades.slice(0,5).map(function(t){
+        return '<div class="recent-item"><div class="recent-dot ' + (t.pnl>0?'tag-win':t.pnl<0?'tag-loss':'tag-neutral') + '"></div><div class="recent-info"><div class="recent-pair">' + t.pair + ' · ' + t.dir + '</div><div class="recent-detail">' + t.session + ' · ' + t.date + '</div></div><span class="pnl-badge ' + (t.pnl>=0?'win':'loss') + '">' + (t.pnl>=0?'+':'') + '$' + t.pnl + '</span></div>';
+      }).join('');
+    }
+    var rc = $('dash-recent-cs');
+    if (!caseStudies.length) {
+      rc.innerHTML = '<div class="empty-state" style="padding:20px"><div class="empty-icon" style="font-size:24px">◉</div><div class="empty-text">No case studies yet</div></div>';
+    } else {
+      rc.innerHTML = caseStudies.slice(0,5).map(function(cs){
+        return '<div class="recent-item"><div class="recent-dot ' + (cs.outcome==='win'?'tag-win':cs.outcome==='loss'?'tag-loss':'tag-neutral') + '"></div><div class="recent-info"><div class="recent-pair">' + cs.pair + ' · ' + cs.title + '</div><div class="recent-detail">' + cs.session + ' · ' + cs.date + '</div></div></div>';
+      }).join('');
+    }
+  }
+
+  // ===== TRADE MANAGER =====
+  function getBalance() { return parseFloat($('bal-' + selectedAccount).value) || 0; }
+
+  function getRiskAmt() {
+    var balance = getBalance();
+    if (riskMode === 'pct') {
+      return balance * (parseFloat($('risk-slider').value) || 1) / 100;
+    }
+    return parseFloat($('risk-fixed-val').value) || 0;
+  }
+
+  // Account selection
+  ['funded','backtest','live'].forEach(function(type){
+    $('acc-' + type).addEventListener('click', function(){
+      selectedAccount = type;
+      document.querySelectorAll('.tm-account-card').forEach(function(c){ c.classList.remove('selected'); });
+      $('acc-' + type).classList.add('selected');
+      calcPosition();
+      calcDaily();
+    });
+    $('bal-' + type).addEventListener('input', function(){ calcAll(); calcDaily(); });
+  });
+
+  // Risk mode toggle
+  $('risk-pct-btn').addEventListener('click', function(){
+    riskMode = 'pct';
+    $('risk-pct-btn').classList.add('active'); $('risk-fixed-btn').classList.remove('active');
+    $('risk-pct-wrap').style.display = 'block'; $('risk-fixed-wrap').style.display = 'none';
+    calcAll();
+  });
+  $('risk-fixed-btn').addEventListener('click', function(){
+    riskMode = 'fixed';
+    $('risk-fixed-btn').classList.add('active'); $('risk-pct-btn').classList.remove('active');
+    $('risk-fixed-wrap').style.display = 'block'; $('risk-pct-wrap').style.display = 'none';
+    calcAll();
+  });
+
+  $('risk-slider').addEventListener('input', function(){
+    $('risk-pct-display').textContent = parseFloat(this.value).toFixed(1);
+    calcAll();
+  });
+  $('risk-fixed-val').addEventListener('input', calcAll);
+  $('tm-sl-pips').addEventListener('input', function(){
+    if (this.value) {
+      inputMode = 'pips';
+      document.querySelectorAll('.pip-badge[data-pips]').forEach(function(b){ b.classList.remove('active'); });
+    }
+    calcAll();
+  });
+  $('tm-pair').addEventListener('change', function(){ calcAll(); updatePipDisplay(); });
+
+  // Pip presets
+  document.querySelectorAll('.pip-badge[data-pips]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      inputMode = 'pips';
+      $('tm-sl-price').value = '';
+      $('tm-entry').value = '';
+      $('tm-tp-price').value = '';
+      $('tm-sl-pips').value = btn.dataset.pips;
+      document.querySelectorAll('.pip-badge[data-pips]').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      calcAll();
+    });
+  });
+
+  // RR presets
+  document.querySelectorAll('.pip-badge[data-rr]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var ratio = parseFloat(btn.dataset.rr);
+      var entry = parseFloat($('tm-entry').value);
+      var sl = parseFloat($('tm-sl-price').value);
+      var pair = $('tm-pair').value;
+      var pipSize = pipSizes[pair] || 0.0001;
+      var dir = $('tm-dir').value;
+      if (!entry || !sl) return;
+      var slDist = Math.abs(entry - sl);
+      var tp = dir === 'long' ? entry + slDist * ratio : entry - slDist * ratio;
+      $('tm-tp-price').value = tp.toFixed(5);
+      calcAll();
+    });
+  });
+
+  // RR inputs
+  ['tm-entry','tm-sl-price','tm-tp-price','tm-dir','tm-spread'].forEach(function(id){
+    $(id).addEventListener('input', calcAll);
+    $(id).addEventListener('change', calcAll);
+  });
+
+  // Daily tracker
+  ['daily-limit','daily-trades','daily-pnl-tm'].forEach(function(id){
+    $(id).addEventListener('input', function(){ calcDaily(); checkDailyAlert(); });
+  });
+
+  function calcPosition() {
+    var pair = $('tm-pair').value;
+    var slPips = parseFloat($('tm-sl-pips').value) || 0;
+    var riskAmt = getRiskAmt();
+    var pipVal = pipValues[pair] || 10;
+    var contractSize = contractSizes[pair] || 100000;
+    updatePipDisplay();
+    var lots = slPips > 0 ? riskAmt / (slPips * pipVal) : 0;
+
+    $('res-risk-amt').textContent = '$' + riskAmt.toFixed(2);
+    $('res-pip-val').textContent = '$' + pipVal.toFixed(2);
+    $('res-lots').textContent = lots.toFixed(2);
+
+    var balance = getBalance();
+    var riskPct = balance > 0 ? (riskAmt / balance) * 100 : 0;
+    $('tm-warning').classList.toggle('show', riskPct > 2);
+  }
+
+  function calcRR() {
+    var entry = parseFloat($('tm-entry').value);
+    var slPrice = parseFloat($('tm-sl-price').value);
+    var tpPrice = parseFloat($('tm-tp-price').value);
+    var pair = $('tm-pair').value;
+    var dir = $('tm-dir').value;
+    var pipSize = pipSizes[pair] || 0.0001;
+    var pipVal = pipValues[pair] || 10;
+
+    if (!entry || !slPrice) {
+      ['rr-sl-pips','rr-tp-pips','rr-ratio','rr-loss','rr-profit'].forEach(function(id){ $(id).textContent = '—'; });
+      var bep = $('rr-be-price'); if(bep) bep.value = '';
+      updatePartial(null, null, null, null, null, null);
+      return;
+    }
+
+    var slDist = Math.abs(entry - slPrice);
+    var slPips = slDist / pipSize;
+
+    var riskAmt = getRiskAmt();
+    var lots = slPips > 0 ? riskAmt / (slPips * pipVal) : 0;
+
+    $('rr-sl-pips').textContent = slPips.toFixed(1) + 'p';
+    $('rr-loss').textContent = '-$' + riskAmt.toFixed(2);
+
+    if (tpPrice) {
+      var tpDist = Math.abs(tpPrice - entry);
+      var tpPips = tpDist / pipSize;
+      var rr = slPips > 0 ? (tpPips / slPips) : 0;
+      var profit = lots * tpPips * pipVal;
+
+      $('rr-tp-pips').textContent = tpPips.toFixed(1) + 'p';
+      $('rr-ratio').textContent = '1:' + rr.toFixed(2);
+      $('rr-ratio').className = 'tm-result-val big ' + (rr >= 2 ? 'green' : rr >= 1 ? 'yellow' : 'red');
+      $('rr-profit').textContent = '+$' + profit.toFixed(2);
+
+      // Partial Out — dynamic RR
+      updatePartial(entry, slPips, pipSize, pipVal, lots, dir);
+
+      // Break Even price = entry + spread (long) or entry - spread (short)
+      var spread = parseFloat($('tm-spread') ? $('tm-spread').value : 1) || 1;
+      var bePrice = dir === 'long' ? entry + spread * pipSize : entry - spread * pipSize;
+      if (!$('rr-be-price').dataset.manual) $('rr-be-price').value = bePrice.toFixed(5);
+    }
+  }
+
+  var inputMode = 'pips'; // 'pips' or 'price'
+
+  function calcAll() {
+    var entry = parseFloat($('tm-entry').value);
+    var slPrice = parseFloat($('tm-sl-price').value);
+    var pair = $('tm-pair').value;
+    var pipSize = pipSizes[pair] || 0.0001;
+    var dir = $('tm-dir').value;
+
+    if (inputMode === 'price' && entry && slPrice) {
+      // Price mode → derive pips from prices
+      var slPips = Math.abs(entry - slPrice) / pipSize;
+      $('tm-sl-pips').value = slPips.toFixed(1);
+    } else if (inputMode === 'pips' && entry) {
+      // Pips mode → derive SL price from entry + pips
+      var manualPips = parseFloat($('tm-sl-pips').value) || 0;
+      if (manualPips > 0) {
+        var slFromPips = dir === 'long'
+          ? entry - manualPips * pipSize
+          : entry + manualPips * pipSize;
+        $('tm-sl-price').value = slFromPips.toFixed(5);
+      }
+    }
+    calcPosition();
+    calcRR();
+  }
+
+  // Switch to price mode when entry or sl price is typed
+  ['tm-entry','tm-sl-price','tm-tp-price'].forEach(function(id){
+    $(id).addEventListener('input', function(){
+      if (this.value) {
+        inputMode = 'price';
+        // Deactivate pip badges
+        document.querySelectorAll('.pip-badge[data-pips]').forEach(function(b){ b.classList.remove('active'); });
+      }
+    });
+  });
+
+  function calcDaily() {
+    var balance = getBalance();
+    var limitPct = parseFloat($('daily-limit').value) || 3;
+    var pnl = parseFloat($('daily-pnl-tm').value) || 0;
+    var maxLoss = balance * limitPct / 100;
+    var used = pnl < 0 ? Math.abs(pnl) : 0;
+    var remaining = maxLoss - used;
+    var usedPct = maxLoss > 0 ? Math.min((used / maxLoss) * 100, 100) : 0;
+
+    var remEl = $('daily-remaining');
+    remEl.textContent = remaining > 0 ? '$' + remaining.toFixed(2) : 'STOP TRADING';
+    remEl.style.color = remaining > maxLoss * 0.5 ? 'var(--green)' : remaining > 0 ? 'var(--yellow)' : 'var(--red)';
+    $('daily-pct-label').textContent = usedPct.toFixed(0) + '%';
+    var bar = $('daily-bar');
+    bar.style.width = usedPct + '%';
+    bar.style.background = usedPct < 50 ? 'var(--green)' : usedPct < 80 ? 'var(--yellow)' : 'var(--red)';
+  }
+
+  // RISK OF RUIN
+  $('calc-ror-btn').addEventListener('click', function(){
+    var wr = parseFloat($('ror-winrate').value) / 100;
+    var rr = parseFloat($('ror-rr').value);
+    var riskPct = parseFloat($('ror-risk').value) / 100;
+    var ruinPct = parseFloat($('ror-ruin').value) / 100;
+    var lr = 1 - wr;
+
+    // Expected value
+    var ev = (wr * rr) - lr;
+    $('ror-ev').textContent = (ev >= 0 ? '+' : '') + (ev * 100).toFixed(2) + 'R per trade';
+    $('ror-ev').style.color = ev >= 0 ? 'var(--green)' : 'var(--red)';
+
+    // Edge ratio
+    var edge = wr * rr / lr;
+    $('ror-edge').textContent = edge.toFixed(2);
+    $('ror-edge').style.color = edge > 1 ? 'var(--green)' : 'var(--red)';
+
+    // Risk of Ruin formula: RoR = ((1-edge)/(1+edge))^(ruin/risk)
+    var ror;
+    if (ev <= 0) {
+      ror = 1.0;
+    } else {
+      var q = lr / (wr * rr);
+      var tradesNeeded = Math.ceil(ruinPct / riskPct);
+      ror = Math.pow(q, tradesNeeded);
+      ror = Math.min(ror, 1);
+    }
+
+    var rorPct = (ror * 100).toFixed(2);
+    $('ror-result').textContent = rorPct + '%';
+    $('ror-result').className = 'tm-result-val big ' + (ror < 0.05 ? 'green' : ror < 0.2 ? 'yellow' : 'red');
+
+    var verdict = $('ror-verdict');
+    verdict.style.display = 'block';
+    if (ror < 0.05) {
+      verdict.style.background = 'rgba(46,204,138,.1)';
+      verdict.style.color = 'var(--green)';
+      verdict.style.border = '1px solid rgba(46,204,138,.2)';
+      verdict.textContent = '✅ Excellent — very low risk of blowing account. Your edge is solid.';
+    } else if (ror < 0.2) {
+      verdict.style.background = 'rgba(240,180,41,.1)';
+      verdict.style.color = 'var(--yellow)';
+      verdict.style.border = '1px solid rgba(240,180,41,.2)';
+      verdict.textContent = '⚠️ Manageable — consider reducing risk per trade slightly.';
+    } else {
+      verdict.style.background = 'rgba(224,92,122,.1)';
+      verdict.style.color = 'var(--red)';
+      verdict.style.border = '1px solid rgba(224,92,122,.2)';
+      verdict.textContent = '🚨 High risk — at these stats you will likely blow your account. Reduce risk or improve win rate.';
+    }
+  });
+
+  // PROP CONSISTENCY
+  $('calc-prop-btn').addEventListener('click', function(){
+    var balance = parseFloat($('prop-balance').value) || 10000;
+    var dailyLimitPct = parseFloat($('prop-daily').value) || 5;
+    var totalDDPct = parseFloat($('prop-total').value) || 10;
+    var targetPct = parseFloat($('prop-target').value) || 8;
+    var pnl = parseFloat($('prop-pnl').value) || 0;
+
+    var dailyLimit = balance * dailyLimitPct / 100;
+    var totalLimit = balance * totalDDPct / 100;
+    var target = balance * targetPct / 100;
+
+    $('prop-daily-limit').textContent = '-$' + dailyLimit.toFixed(0);
+    $('prop-daily-limit').style.color = 'var(--red)';
+    $('prop-total-limit').textContent = '-$' + totalLimit.toFixed(0);
+    $('prop-total-limit').style.color = 'var(--red)';
+    $('prop-target-val').textContent = '+$' + target.toFixed(0);
+    $('prop-target-val').style.color = 'var(--green)';
+
+    var progressPct = target > 0 ? Math.min((pnl / target) * 100, 100) : 0;
+    $('prop-progress').textContent = (pnl >= 0 ? '+$' : '-$') + Math.abs(pnl).toFixed(0) + ' (' + progressPct.toFixed(1) + '% of target)';
+    $('prop-progress').style.color = pnl >= 0 ? 'var(--green)' : 'var(--red)';
+
+    var status = $('prop-status');
+    status.style.display = 'block';
+
+    var breached = pnl < -totalLimit;
+    var dailyBreached = pnl < -dailyLimit;
+    var passed = pnl >= target;
+
+    if (passed) {
+      status.style.background = 'rgba(46,204,138,.1)';
+      status.style.color = 'var(--green)';
+      status.style.border = '1px solid rgba(46,204,138,.2)';
+      status.textContent = '🎉 PROFIT TARGET HIT — You passed the challenge!';
+    } else if (breached) {
+      status.style.background = 'rgba(224,92,122,.1)';
+      status.style.color = 'var(--red)';
+      status.style.border = '1px solid rgba(224,92,122,.2)';
+      status.textContent = '❌ MAX DRAWDOWN BREACHED — Account blown. Challenge failed.';
+    } else if (dailyBreached) {
+      status.style.background = 'rgba(224,92,122,.1)';
+      status.style.color = 'var(--red)';
+      status.style.border = '1px solid rgba(224,92,122,.2)';
+      status.textContent = '🚨 DAILY LIMIT BREACHED — Stop trading today immediately.';
+    } else {
+      var remaining = target - pnl;
+      status.style.background = 'rgba(124,90,240,.1)';
+      status.style.color = 'var(--accent3)';
+      status.style.border = '1px solid rgba(124,90,240,.2)';
+      status.textContent = '✅ On track — $' + remaining.toFixed(0) + ' remaining to pass. Stay consistent.';
+    }
+  });
+
+  // DAILY HARD ALERT — triggered from daily tracker
+  function checkDailyAlert() {
+    var balance = getBalance();
+    var limitPct = parseFloat($('daily-limit').value) || 3;
+    var pnl = parseFloat($('daily-pnl-tm').value) || 0;
+    var maxLoss = balance * limitPct / 100;
+    var alert = $('daily-hard-alert');
+    if (pnl < -maxLoss) {
+      alert.style.display = 'block';
+      $('alert-detail').textContent = 'Loss: -$' + Math.abs(pnl).toFixed(2) + ' | Limit was: -$' + maxLoss.toFixed(2);
+    } else {
+      alert.style.display = 'none';
+    }
+  }
+
+  // daily alert already bound above
+
+  // PARTIAL OUT STATE
+  function updatePartial(entry, slPips, pipSize, pipVal, lots, dir) {
+    if (!entry || !slPips || !partials.length) {
+      var rv = $('partial-remaining-vol'); if(rv) rv.textContent = '100%';
+      var tp = $('partial-total-profit'); if(tp) tp.textContent = '—';
+      partials.forEach(function(p,i){
+        var pp = document.getElementById('pp-price-'+i);
+        var pr = document.getElementById('pp-profit-'+i);
+        if(pp) pp.textContent = '—';
+        if(pr) pr.textContent = '—';
+      });
+      return;
+    }
+    var remainingVol = 100;
+    var totalProfit = 0;
+
+    partials.forEach(function(p, i){
+      var closedVol = remainingVol * p.vol / 100;
+      var partialPips = slPips * p.rr;
+      var partialPrice = dir === 'long' ? entry + partialPips * pipSize : entry - partialPips * pipSize;
+      var partialProfit = (lots * closedVol / 100) * partialPips * pipVal;
+      totalProfit += partialProfit;
+      remainingVol -= closedVol;
+
+      var pp = document.getElementById('pp-price-'+i);
+      var pr = document.getElementById('pp-profit-'+i);
+      if (pp) pp.textContent = partialPrice.toFixed(5);
+      if (pr) pr.textContent = '+$' + partialProfit.toFixed(2);
+    });
+
+    var remVolEl = $('partial-remaining-vol');
+    var totProfEl = $('partial-total-profit');
+    if (remVolEl) remVolEl.textContent = remainingVol.toFixed(1) + '%';
+    if (totProfEl) totProfEl.textContent = '+$' + totalProfit.toFixed(2);
+  }
+
+  // MULTI-PARTIAL SYSTEM
+  var partials = [
+    { rr: 3, vol: 50 },
+    { rr: 5, vol: 50 }
+  ];
+
+  function rrOptions() {
+    return [1,1.5,2,3,4,5,6,7,8,9,10].map(function(v){
+      return '<option value="'+v+'">1:'+v+'</option>';
+    }).join('');
+  }
+
+  function renderPartialRows() {
+    var container = $('partial-rows');
+    container.innerHTML = partials.map(function(p, i){
+      return '<div style="display:grid;grid-template-columns:auto 1fr auto auto;gap:6px;align-items:center;background:var(--bg);border-radius:6px;padding:8px">' +
+        '<span style="font-size:10px;font-family:DM Mono,monospace;color:var(--text3);white-space:nowrap">P'+(i+1)+'</span>' +
+        '<select class="partial-rr-sel" data-idx="'+i+'" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--yellow);font-family:DM Mono,monospace;font-size:12px;font-weight:700;padding:4px 6px;cursor:pointer">'+
+          rrOptions().replace('value="'+p.rr+'"', 'value="'+p.rr+'" selected') +
+        '</select>' +
+        '<input type="number" class="partial-vol-inp" data-idx="'+i+'" value="'+p.vol+'" min="1" max="99" style="width:52px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--accent3);font-family:DM Mono,monospace;font-size:12px;font-weight:700;text-align:center;padding:4px 6px">' +
+        '<span style="font-size:10px;color:var(--text3);font-family:DM Mono,monospace">%</span>' +
+        (partials.length > 1 ? '<span class="partial-del" data-idx="'+i+'" style="font-size:14px;color:var(--text3);cursor:pointer;padding:0 4px" title="Remove">×</span>' : '<span style="width:18px"></span>') +
+        '<div style="grid-column:2/-1;display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px">' +
+          '<div style="background:var(--bg3);border-radius:4px;padding:4px 8px;text-align:center">' +
+            '<div style="font-size:9px;color:var(--text3);font-family:DM Mono,monospace">Price</div>' +
+            '<div style="font-size:12px;font-weight:700;color:var(--yellow);font-family:DM Mono,monospace" id="pp-price-'+i+'">—</div>' +
+          '</div>' +
+          '<div style="background:var(--bg3);border-radius:4px;padding:4px 8px;text-align:center">' +
+            '<div style="font-size:9px;color:var(--text3);font-family:DM Mono,monospace">Profit</div>' +
+            '<div style="font-size:12px;font-weight:700;color:var(--green);font-family:DM Mono,monospace" id="pp-profit-'+i+'">—</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    // Bind events
+    document.querySelectorAll('.partial-rr-sel').forEach(function(el){
+      el.addEventListener('change', function(){
+        partials[parseInt(this.dataset.idx)].rr = parseFloat(this.value);
+        calcAll();
+      });
+    });
+    document.querySelectorAll('.partial-vol-inp').forEach(function(el){
+      el.addEventListener('input', function(){
+        partials[parseInt(this.dataset.idx)].vol = parseFloat(this.value) || 0;
+        calcAll();
+      });
+    });
+    document.querySelectorAll('.partial-del').forEach(function(el){
+      el.addEventListener('click', function(){
+        partials.splice(parseInt(this.dataset.idx), 1);
+        renderPartialRows();
+        calcAll();
+      });
+    });
+  }
+
+  $('add-partial-btn').addEventListener('click', function(){
+    if (partials.length >= 4) return;
+    partials.push({ rr: partials[partials.length-1].rr + 2, vol: 50 });
+    renderPartialRows();
+    calcAll();
+  });
+
+  renderPartialRows();
+
+  // partial volume handled inside rows
+
+  // INIT
+  renderTrades();
+  renderCS();
+  updateDashboard();
+  calcAll();
+  calcDaily();
+})();
+</script>
+</body>
+</html>
