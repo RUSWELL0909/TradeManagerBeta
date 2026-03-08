@@ -953,7 +953,7 @@ body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--tex
         else if (id === 'tm-tp-price') this.value = dir === 'long' ? (price + pipSize * 60).toFixed(decimals) : (price - pipSize * 60).toFixed(decimals);
         this.select();
         inputMode = 'price';
-        calcAll();
+        // Don't call calcAll here — user hasn't confirmed value yet
       }
     });
   });
@@ -962,12 +962,22 @@ body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--tex
   document.querySelectorAll('.pip-badge[data-pips]').forEach(function(btn){
     btn.addEventListener('click', function(){
       inputMode = 'pips';
-      $('tm-sl-price').value = '';
-      $('tm-entry').value = '';
-      $('tm-tp-price').value = '';
-      $('tm-sl-pips').value = btn.dataset.pips;
+      var pips = parseFloat(btn.dataset.pips);
+      $('tm-sl-pips').value = pips;
       document.querySelectorAll('.pip-badge[data-pips]').forEach(function(b){ b.classList.remove('active'); });
       btn.classList.add('active');
+
+      // If entry is set on the right side — update SL price too
+      var entry = parseFloat($('tm-entry').value);
+      var pair = $('tm-pair').value;
+      var pipSize = pipSizes[pair] || 0.0001;
+      var dir = $('tm-dir').value;
+      if (entry && !isNaN(entry)) {
+        var newSL = dir === 'long' ? entry - pips * pipSize : entry + pips * pipSize;
+        origSlPrice = newSL;
+        $('tm-sl-price').value = newSL.toFixed(5);
+      }
+
       calcAll();
     });
   });
@@ -1237,24 +1247,31 @@ body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--tex
 
     if (spreadJustToggled) {
       applySpread();
-    } else if (!includeSpread) {
-      // Store as originals only when spread is OFF
-      if (entry && slPrice) {
-        origSlPrice = slPrice;
-        baseSlPips = Math.abs(entry - slPrice) / pipSize;
-        $('tm-sl-pips').value = baseSlPips.toFixed(1);
-      } else if (inputMode === 'pips') {
-        baseSlPips = parseFloat($('tm-sl-pips').value) || 0;
-        if (entry && baseSlPips > 0) {
-          origSlPrice = dir === 'long' ? entry - baseSlPips * pipSize : entry + baseSlPips * pipSize;
-          $('tm-sl-price').value = origSlPrice.toFixed(5);
+    } else if (inputMode === 'price') {
+      // Price mode — store originals only when spread OFF
+      if (!includeSpread) {
+        if (entry && slPrice && !isNaN(slPrice)) {
+          origSlPrice = slPrice;
+          baseSlPips = Math.abs(entry - slPrice) / pipSize;
+          $('tm-sl-pips').value = baseSlPips.toFixed(1);
+        }
+        if (tpPrice && !isNaN(tpPrice)) origTpPrice = tpPrice;
+      } else {
+        // Spread ON — just sync pips display
+        if (entry && slPrice) {
+          $('tm-sl-pips').value = (Math.abs(entry - slPrice) / pipSize).toFixed(1);
         }
       }
-      if (tpPrice) origTpPrice = tpPrice;
-    } else {
-      // Spread ON, normal typing — sync pips display
-      if (entry && slPrice) {
-        $('tm-sl-pips').value = (Math.abs(entry - slPrice) / pipSize).toFixed(1);
+    } else if (inputMode === 'pips') {
+      // Pips mode — derive SL price from pips if entry exists
+      baseSlPips = parseFloat($('tm-sl-pips').value) || 0;
+      if (entry && baseSlPips > 0 && !includeSpread) {
+        var derivedSL = dir === 'long' ? entry - baseSlPips * pipSize : entry + baseSlPips * pipSize;
+        // Only update if origSlPrice was already set by pip badge handler (don't double-set)
+        if (!origSlPrice || Math.abs(origSlPrice - derivedSL) > pipSize * 0.1) {
+          origSlPrice = derivedSL;
+        }
+        $('tm-sl-price').value = origSlPrice.toFixed(5);
       }
     }
 
