@@ -3951,7 +3951,7 @@ document.addEventListener('DOMContentLoaded', function() {
               <div style="display:flex;gap:5px;align-items:center">
                 <button class="jr-conf-pill on" onclick="jrSetDateQuick(this,'today')">Today</button>
                 <button class="jr-conf-pill" onclick="jrSetDateQuick(this,'yesterday')">Yesterday</button>
-                <input class="jr-input" type="date" id="jr-date" style="flex:1">
+                <input class="jr-input" type="date" id="jr-date" lang="en-US" style="flex:1">
               </div>
             </div>
           </div>
@@ -4845,7 +4845,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </select>
           </div>
           <div><label style="font-size:9px;color:var(--text3);font-family:'Inter',sans-serif;font-weight:600;display:block;margin-bottom:4px">Date</label>
-            <input type="date" id="nb-date" onchange="nbDateChanged()" style="width:100%;padding:9px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px;font-family:'Inter',sans-serif">
+            <input type="date" id="nb-date" lang="en-US" onchange="nbDateChanged()" style="width:100%;padding:9px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px;font-family:'Inter',sans-serif">
           </div>
           <div><label style="font-size:9px;color:var(--text3);font-family:'Inter',sans-serif;font-weight:600;display:block;margin-bottom:4px">Mood</label>
             <div style="display:flex;gap:4px" id="nb-mood-btns">
@@ -5774,68 +5774,68 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class="pt-streak-card"><div class="pt-streak-val" id="pt-plan-streak">0</div><div class="pt-streak-label">PLAN FOLLOWED</div></div>
     </div>
 
-    <!-- Consistency Heatmap -->
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px 24px;margin-bottom:18px;position:relative;overflow:hidden">
+    <!-- Consistency Heatmap — compact -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:18px;padding:14px 20px;margin-bottom:14px;position:relative;overflow:hidden">
       <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(46,204,138,.1),transparent)"></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-        <div style="font-size:11px;color:var(--accent3);font-family:'Syne',sans-serif;font-weight:700;letter-spacing:.5px">CONSISTENCY HEATMAP</div>
-        <div style="font-size:9px;color:var(--text3)">Last 90 days · darker = more active</div>
-      </div>
       <div id="pt-heatmap" style="display:flex;gap:3px;flex-wrap:wrap"></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
-        <div style="font-size:9px;color:var(--text3)">Less</div>
-        <div style="display:flex;gap:3px;align-items:center">
-          <div style="width:12px;height:12px;border-radius:3px;background:var(--bg)"></div>
-          <div style="width:12px;height:12px;border-radius:3px;background:rgba(46,204,138,.1)"></div>
-          <div style="width:12px;height:12px;border-radius:3px;background:rgba(46,204,138,.25)"></div>
-          <div style="width:12px;height:12px;border-radius:3px;background:rgba(46,204,138,.45)"></div>
-          <div style="width:12px;height:12px;border-radius:3px;background:rgba(46,204,138,.7)"></div>
+    </div>
+
+    <!-- Weekly Insight — compact inline -->
+    <div style="background:linear-gradient(135deg,rgba(124,90,240,.04),var(--card));border:1px solid rgba(124,90,240,.06);border-radius:12px;padding:12px 16px;margin-bottom:14px">
+      <div id="pt-weekly-insight" style="font-size:12px;color:var(--text);line-height:1.5">Loading insights...</div>
+    </div>
+    <!-- Goals & Milestones — collapsible -->
+    <div style="margin-bottom:14px">
+      <div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.querySelector('span').textContent=this.nextElementSibling.style.display==='none'?'▸':'▾'" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:12px">
+        <span style="font-size:10px;color:var(--text3)">▸</span>
+        <span style="font-size:10px;font-weight:700;color:var(--accent3);letter-spacing:.5px">GOALS & MILESTONES</span>
+        <span style="font-size:9px;color:var(--text3);margin-left:auto">click to expand</span>
+      </div>
+      <div style="display:none;margin-top:8px">
+        <div class="pt-goals">
+          <div class="pt-goal-card">
+            <div class="pt-goal-title">WEEKLY GOALS</div>
+            <div id="pt-weekly-goals"></div>
+            <button class="pt-add-goal" onclick="ptAddGoal('weekly')">+ Add goal</button>
+          </div>
+          <div class="pt-goal-card">
+            <div class="pt-goal-title">MONTHLY GOALS</div>
+            <div id="pt-monthly-goals"></div>
+            <button class="pt-add-goal" onclick="ptAddGoal('monthly')">+ Add goal</button>
+          </div>
         </div>
-        <div style="font-size:9px;color:var(--text3)">More</div>
+        <div class="pt-milestones">
+          <div class="pt-ms-title">MILESTONES</div>
+          <div class="pt-ms-grid" id="pt-milestones"></div>
+        </div>
       </div>
     </div>
 
-    <!-- Weekly Insight -->
-    <div style="background:linear-gradient(135deg,rgba(124,90,240,.04),var(--card));border:1px solid rgba(124,90,240,.06);border-radius:16px;padding:18px 22px;margin-bottom:18px;position:relative;overflow:hidden">
-      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(124,90,240,.12),transparent)"></div>
-      <div style="font-size:11px;color:var(--accent3);font-family:'Syne',sans-serif;font-weight:700;letter-spacing:.5px;margin-bottom:8px">WEEKLY INSIGHT</div>
-      <div id="pt-weekly-insight" style="font-size:13px;color:var(--text);line-height:1.6">Loading insights...</div>
-    </div>
-    <div class="pt-goals">
-      <div class="pt-goal-card">
-        <div class="pt-goal-title">WEEKLY GOALS</div>
-        <div id="pt-weekly-goals"></div>
-        <button class="pt-add-goal" onclick="ptAddGoal('weekly')">+ Add goal</button>
+    <!-- Reviews — collapsible -->
+    <div style="margin-bottom:14px">
+      <div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.querySelector('span').textContent=this.nextElementSibling.style.display==='none'?'▸':'▾'" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:12px">
+        <span style="font-size:10px;color:var(--text3)">▸</span>
+        <span style="font-size:10px;font-weight:700;color:var(--accent3);letter-spacing:.5px">MONTHLY & WEEKLY REVIEWS</span>
+        <span style="font-size:9px;color:var(--text3);margin-left:auto">click to expand</span>
       </div>
-      <div class="pt-goal-card">
-        <div class="pt-goal-title">MONTHLY GOALS</div>
-        <div id="pt-monthly-goals"></div>
-        <button class="pt-add-goal" onclick="ptAddGoal('monthly')">+ Add goal</button>
+      <div style="display:none;margin-top:8px">
+        <!-- MONTHLY REPORT CARD -->
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div style="font-size:10px;color:var(--accent3);font-weight:700;letter-spacing:.5px">MONTHLY REPORT CARD</div>
+            <select class="jr-select" id="pt-month-select" style="width:140px;padding:5px 8px;font-size:11px" onchange="ptRenderMonthCard()"></select>
+          </div>
+          <div id="pt-month-card"></div>
+        </div>
+        <!-- WEEKLY REVIEW -->
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div style="font-size:10px;color:var(--accent3);font-weight:700;letter-spacing:.5px">WEEKLY REVIEW</div>
+            <select class="jr-select" id="pt-week-select" style="width:160px;padding:5px 8px;font-size:11px" onchange="ptRenderWeekReview()"></select>
+          </div>
+          <div id="pt-week-review"></div>
+        </div>
       </div>
-    </div>
-    <div class="pt-milestones">
-      <div class="pt-ms-title">MILESTONES</div>
-      <div class="pt-ms-grid" id="pt-milestones"></div>
-    </div>
-
-    <!-- MONTHLY REPORT CARD -->
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px 24px;margin-top:18px;position:relative;overflow:hidden">
-      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(96,165,250,.12),transparent)"></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-        <div style="font-size:11px;color:var(--accent3);font-family:'Syne',sans-serif;font-weight:700;letter-spacing:.5px">MONTHLY REPORT CARD</div>
-        <select class="jr-select" id="pt-month-select" style="width:140px;padding:5px 8px;font-size:11px" onchange="ptRenderMonthCard()"></select>
-      </div>
-      <div id="pt-month-card"></div>
-    </div>
-
-    <!-- WEEKLY REVIEW -->
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px 24px;margin-top:18px;position:relative;overflow:hidden">
-      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(46,204,138,.12),transparent)"></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-        <div style="font-size:11px;color:var(--accent3);font-family:'Syne',sans-serif;font-weight:700;letter-spacing:.5px">WEEKLY REVIEW</div>
-        <select class="jr-select" id="pt-week-select" style="width:160px;padding:5px 8px;font-size:11px" onchange="ptRenderWeekReview()"></select>
-      </div>
-      <div id="pt-week-review"></div>
     </div>
 
     <!-- AI TRADE ANALYST — consolidated -->
@@ -5859,7 +5859,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div style="display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap;margin-bottom:14px">
         <div style="flex:1;min-width:100px">
           <label style="font-size:8px;color:var(--text3);font-weight:600;display:block;margin-bottom:3px">DATE</label>
-          <input type="date" id="ai-filter-date" style="width:100%;padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:10px">
+          <input type="date" id="ai-filter-date" lang="en-US" style="width:100%;padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:10px">
         </div>
         <div style="min-width:80px">
           <label style="font-size:8px;color:var(--text3);font-weight:600;display:block;margin-bottom:3px">PERIOD</label>
@@ -5886,6 +5886,8 @@ document.addEventListener('DOMContentLoaded', function() {
       <div style="display:flex;gap:2px;margin-bottom:12px;background:var(--bg);border-radius:8px;padding:3px;width:fit-content">
         <button class="ai-tab active" data-tab="daily" onclick="aiSwitchTab('daily')" style="padding:5px 14px;border-radius:6px;border:none;font-size:10px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;background:var(--accent);color:white">Daily</button>
         <button class="ai-tab" data-tab="weekly" onclick="aiSwitchTab('weekly')" style="padding:5px 14px;border-radius:6px;border:none;font-size:10px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;background:transparent;color:var(--text3)">Weekly</button>
+        <button class="ai-tab" data-tab="ask" onclick="aiSwitchTab('ask')" style="padding:5px 14px;border-radius:6px;border:none;font-size:10px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;background:transparent;color:var(--text3)">💬 Ask AI</button>
+        <button class="ai-tab" data-tab="whatif" onclick="aiSwitchTab('whatif')" style="padding:5px 14px;border-radius:6px;border:none;font-size:10px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;background:transparent;color:var(--text3)">🔮 What-If</button>
       </div>
 
       <!-- Loading -->
@@ -5897,6 +5899,34 @@ document.addEventListener('DOMContentLoaded', function() {
       </div>
       <div id="ai-panel-weekly" style="display:none">
         <div id="ai-weekly-analysis" style="font-size:12px;color:var(--text2);line-height:1.7"></div>
+      </div>
+      <div id="ai-panel-ask" style="display:none">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:10px">Ask anything about your trading data. Claude analyzes your trades and answers.</div>
+        <div style="display:flex;gap:6px;margin-bottom:12px">
+          <input type="text" id="ai-ask-input" placeholder="e.g. What's my win rate on Mondays in London session?" style="flex:1;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px;font-family:'Inter',sans-serif" onkeydown="if(event.key==='Enter')aiAskQuestion()">
+          <button class="btn btn-primary" style="font-size:10px;padding:8px 14px;white-space:nowrap" onclick="aiAskQuestion()">Ask</button>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px">
+          <button onclick="document.getElementById('ai-ask-input').value=this.textContent;aiAskQuestion()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:9px;cursor:pointer;font-family:'Inter',sans-serif">Best pair by win rate?</button>
+          <button onclick="document.getElementById('ai-ask-input').value=this.textContent;aiAskQuestion()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:9px;cursor:pointer;font-family:'Inter',sans-serif">When do I lose most?</button>
+          <button onclick="document.getElementById('ai-ask-input').value=this.textContent;aiAskQuestion()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:9px;cursor:pointer;font-family:'Inter',sans-serif">Am I overtrading?</button>
+          <button onclick="document.getElementById('ai-ask-input').value=this.textContent;aiAskQuestion()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:9px;cursor:pointer;font-family:'Inter',sans-serif">Revenge trade pattern?</button>
+          <button onclick="document.getElementById('ai-ask-input').value=this.textContent;aiAskQuestion()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:9px;cursor:pointer;font-family:'Inter',sans-serif">My edge vs my leak?</button>
+        </div>
+        <div id="ai-ask-response" style="font-size:12px;color:var(--text2);line-height:1.7"></div>
+      </div>
+      <div id="ai-panel-whatif" style="display:none">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:10px">Explore hypothetical scenarios. What would your P&L be if you changed something?</div>
+        <div style="display:flex;gap:6px;margin-bottom:12px">
+          <input type="text" id="ai-whatif-input" placeholder="e.g. What if I only traded XAUUSD in London?" style="flex:1;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px;font-family:'Inter',sans-serif" onkeydown="if(event.key==='Enter')aiWhatIf()">
+          <button class="btn btn-primary" style="font-size:10px;padding:8px 14px;white-space:nowrap" onclick="aiWhatIf()">Simulate</button>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px">
+          <button onclick="document.getElementById('ai-whatif-input').value=this.textContent;aiWhatIf()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:9px;cursor:pointer;font-family:'Inter',sans-serif">What if I skipped trades after 3 losses?</button>
+          <button onclick="document.getElementById('ai-whatif-input').value=this.textContent;aiWhatIf()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:9px;cursor:pointer;font-family:'Inter',sans-serif">What if I only took A-grade setups?</button>
+          <button onclick="document.getElementById('ai-whatif-input').value=this.textContent;aiWhatIf()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:9px;cursor:pointer;font-family:'Inter',sans-serif">What if I doubled my lot size?</button>
+        </div>
+        <div id="ai-whatif-response" style="font-size:12px;color:var(--text2);line-height:1.7"></div>
       </div>
     </div>
   </div>
@@ -8965,7 +8995,8 @@ document.addEventListener('DOMContentLoaded', function() {
     foot.innerHTML='<div style="display:flex;gap:8px">'
       +'<button class="pb-btn pb-btn-ghost" style="color:var(--red);border-color:rgba(224,92,122,.2)" onclick="closePbDetail();jrDeleteTrade(\''+id+'\')">Delete</button>'
       +'<button class="pb-btn pb-btn-ghost" onclick="closePbDetail();jrDuplicateTrade(\''+id+'\')">Duplicate</button>'
-      +'<button class="pb-btn pb-btn-ghost" onclick="tqShareCard(\''+id+'\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Share</button></div>'
+      +'<button class="pb-btn pb-btn-ghost" onclick="tqShareCard(\''+id+'\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Share</button>'
+      +'<button class="pb-btn pb-btn-ghost" style="color:var(--accent3);border-color:rgba(124,90,240,.2)" onclick="aiReviewTrade(\''+id+'\')">🧠 AI Review</button></div>'
       +'<button class="pb-btn pb-btn-primary" onclick="closePbDetail();openJrModal(\''+id+'\')">Edit Trade</button>';
     overlay.classList.add('open');
   }
@@ -9150,6 +9181,158 @@ document.addEventListener('DOMContentLoaded', function() {
     link.click();
   }
   window.tqShareCard=tqShareCard;
+
+  // ═══════════════════════════════════════════════════════
+  // AI TRADE REVIEW — analyze single trade via Claude
+  // ═══════════════════════════════════════════════════════
+  function aiReviewTrade(id){
+    var trades=getTradesArr();var t=trades.find(function(x){return x.id===id;});
+    if(!t){alert('Trade not found');return;}
+    // Show loading in detail body
+    var body=document.getElementById('pb-detail-body');
+    var origHTML=body.innerHTML;
+    var rr2='—';if(t.entry&&t.sl&&t.exit){var r2=Math.abs(t.entry-t.sl);if(r2>0.00001)rr2=(Math.abs(t.exit-t.entry)/r2).toFixed(1)+'R';}
+    body.innerHTML+='<div id="ai-trade-review" style="margin-top:16px;padding:16px;border-radius:12px;background:linear-gradient(135deg,rgba(124,90,240,.04),rgba(46,204,138,.02));border:1px solid rgba(124,90,240,.1)"><div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:14px">🧠</span><span style="font-size:11px;font-weight:700;color:var(--accent3);letter-spacing:.5px">AI TRADE REVIEW</span></div><div class="skeleton" style="height:100px;width:100%"></div></div>';
+
+    // Build trade data
+    var td='SINGLE TRADE REVIEW:\nPair: '+t.pair+'\nDirection: '+(t.direction||'buy')+'\nDate: '+t.date+'\nEntry: '+t.entry+' | Exit: '+t.exit+' | SL: '+t.sl+' | TP: '+t.tp+'\nP&L: $'+(t.pnl||0).toFixed(2)+' | R:R: '+rr2+'\nLots: '+(t.lots||'?')+' | Session: '+(t.session||'?')+' | Setup: '+(t.setup||'?')+'\nGrade: '+(t.grade||'?')+' | Emotion: '+(t.emotion||'?')+' | Plan Followed: '+(t.planFollowed||'?')+'\nNotes: '+(t.notes||'none')+'\n';
+    if(t.confluences&&t.confluences.length) td+='Confluences: '+t.confluences.join(', ')+'\n';
+    if(t.psychTags&&t.psychTags.length) td+='Mistakes: '+t.psychTags.join(', ')+'\n';
+    // Context
+    var allWR=trades.filter(function(x){return(x.pnl||0)>0;}).length/trades.length*100;
+    td+='\nContext: '+trades.length+' total trades, overall WR '+allWR.toFixed(0)+'%';
+    var pairTrades=trades.filter(function(x){return x.pair===t.pair;});
+    var pairWR=pairTrades.length>0?(pairTrades.filter(function(x){return(x.pnl||0)>0;}).length/pairTrades.length*100):0;
+    td+=', '+t.pair+' WR '+pairWR.toFixed(0)+'% ('+pairTrades.length+' trades)';
+
+    if(AI_WORKER_URL.indexOf('CHANGE-ME')!==-1){
+      // Algorithmic fallback
+      var rv=document.getElementById('ai-trade-review');if(rv) rv.innerHTML=_algoTradeReview(t,rr2);
+      return;
+    }
+
+    fetch(AI_WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'daily',focus:'trade-review',tradeData:td})})
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var rv2=document.getElementById('ai-trade-review');if(!rv2)return;
+      if(data.error){rv2.innerHTML=_algoTradeReview(t,rr2);return;}
+      var a=data.format==='json'?data.analysis:null;
+      if(a&&typeof a==='object'){
+        var h='<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:14px">🧠</span><span style="font-size:11px;font-weight:700;color:var(--accent3);letter-spacing:.5px">AI TRADE REVIEW</span></div>';
+        // Render whatever Claude returns - handle both formats
+        if(a.grade) h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div style="width:36px;height:36px;border-radius:8px;background:rgba(124,90,240,.08);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:200;color:var(--accent3)">'+(a.grade||'?')+'</div><div style="font-size:13px;font-weight:600;color:var(--text)">'+(a.verdict||a.headline||'')+'</div></div>';
+        if(a.analysis||a.psychology||a.coachNote){
+          var txt=a.analysis||'';
+          if(a.psychology) txt+=(txt?'\n\n':'')+a.psychology;
+          if(a.coachNote) txt+=(txt?'\n\n':'')+a.coachNote;
+          txt=txt.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+          h+='<div style="font-size:11px;color:var(--text2);line-height:1.7">'+txt+'</div>';
+        }
+        // Actions
+        if(a.actionPlan||a.actions){
+          var acts=a.actionPlan||a.actions||[];
+          h+='<div style="margin-top:10px">';
+          acts.forEach(function(ac){h+='<div style="font-size:10px;color:var(--text2);padding:4px 8px;margin-bottom:3px;border-left:2px solid var(--accent);background:rgba(124,90,240,.02);border-radius:0 4px 4px 0">'+ac.action+'</div>';});
+          h+='</div>';
+        }
+        h+='<div style="font-size:8px;color:var(--text3);margin-top:8px;text-align:right">Claude AI · '+new Date().toLocaleTimeString()+'</div>';
+        rv2.innerHTML=h;
+      } else {
+        var txt2=typeof data.analysis==='string'?data.analysis:JSON.stringify(data.analysis);
+        txt2=txt2.replace(/## (.*)/g,'<div style="font-size:12px;font-weight:700;color:var(--accent3);margin:8px 0 4px">$1</div>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/- (.*)/g,'<div style="padding:2px 0 2px 10px;border-left:2px solid rgba(124,90,240,.1);font-size:11px">• $1</div>').replace(/\n/g,'<br>');
+        rv2.innerHTML='<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="font-size:14px">🧠</span><span style="font-size:11px;font-weight:700;color:var(--accent3)">AI TRADE REVIEW</span></div><div style="font-size:11px;color:var(--text2);line-height:1.6">'+txt2+'</div>';
+      }
+    })
+    .catch(function(e){var rv3=document.getElementById('ai-trade-review');if(rv3)rv3.innerHTML=_algoTradeReview(t,rr2);});
+  }
+  window.aiReviewTrade=aiReviewTrade;
+
+  function _algoTradeReview(t,rr){
+    var p=t.pnl||0;var isWin=p>0;
+    var h='<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="font-size:14px">🧠</span><span style="font-size:11px;font-weight:700;color:var(--accent3)">TRADE REVIEW</span></div>';
+    h+='<div style="font-size:11px;color:var(--text2);line-height:1.7">';
+    if(isWin) h+='<strong style="color:var(--green)">Winner</strong> — ';
+    else h+='<strong style="color:var(--red)">Loser</strong> — ';
+    h+=t.pair+' '+(t.direction||'buy')+' for '+(p>=0?'+':'')+p.toFixed(2)+' ('+rr+').<br>';
+    if(t.planFollowed==='yes') h+='<span style="color:var(--green)">✓</span> Plan was followed — good discipline.<br>';
+    else if(t.planFollowed==='no') h+='<span style="color:var(--red)">✗</span> Plan NOT followed — this is a leak in your process.<br>';
+    if(t.emotion==='Revenge'||t.emotion==='FOMO') h+='<span style="color:var(--red)">⚠️</span> '+t.emotion+' emotion detected — likely an impulsive entry.<br>';
+    if(t.grade==='A'||t.grade==='A+') h+='Grade '+t.grade+' — excellent execution. Replicate this.<br>';
+    else if(t.grade==='C'||t.grade==='D'||t.grade==='F') h+='Grade '+t.grade+' — review what went wrong in execution.<br>';
+    h+='</div>';
+    return h;
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // AI AUTO-GRADE — algorithmic grading for each trade
+  // ═══════════════════════════════════════════════════════
+  function aiAutoGrade(t){
+    var score=50;
+    // Plan followed
+    if(t.planFollowed==='yes') score+=15;
+    else if(t.planFollowed==='no') score-=15;
+    // R:R check
+    if(t.entry&&t.sl&&t.exit){
+      var risk=Math.abs(t.entry-t.sl);
+      if(risk>0.00001){
+        var rr3=Math.abs(t.exit-t.entry)/risk;
+        if(rr3>=2) score+=15;
+        else if(rr3>=1) score+=5;
+        else score-=5;
+      }
+    }
+    // Emotion
+    if(t.emotion==='Calm'||t.emotion==='Focused'||t.emotion==='Confident') score+=10;
+    else if(t.emotion==='Revenge'||t.emotion==='FOMO'||t.emotion==='Frustrated') score-=15;
+    else if(t.emotion==='Anxious'||t.emotion==='Fearful') score-=5;
+    // Confluences
+    if(t.confluences&&t.confluences.length>=3) score+=10;
+    else if(t.confluences&&t.confluences.length>=2) score+=5;
+    // Win/Loss
+    if((t.pnl||0)>0) score+=10;
+    else score-=5;
+    // Grade mapping
+    score=Math.max(0,Math.min(100,score));
+    if(score>=90) return 'A+';
+    if(score>=80) return 'A';
+    if(score>=70) return 'B+';
+    if(score>=60) return 'B';
+    if(score>=50) return 'C+';
+    if(score>=40) return 'C';
+    if(score>=30) return 'D';
+    return 'F';
+  }
+  window.aiAutoGrade=aiAutoGrade;
+
+  // ═══════════════════════════════════════════════════════
+  // AI POSITION SIZER — Kelly-based lot recommendation
+  // ═══════════════════════════════════════════════════════
+  function aiPositionSize(pair,balance,riskPct){
+    var trades=getTradesArr();
+    var pairT=trades.filter(function(x){return x.pair===pair;});
+    if(pairT.length<10) pairT=trades; // fallback to all trades
+    var wins=pairT.filter(function(x){return(x.pnl||0)>0;});
+    var losses=pairT.filter(function(x){return(x.pnl||0)<0;});
+    var wr=pairT.length>0?wins.length/pairT.length:0.5;
+    var avgW=wins.length>0?wins.reduce(function(a,t){return a+(t.pnl||0);},0)/wins.length:0;
+    var avgL=losses.length>0?Math.abs(losses.reduce(function(a,t){return a+(t.pnl||0);},0)/losses.length):1;
+    var wlr=avgL>0?avgW/avgL:1;
+    var kelly=wr-(1-wr)/wlr;
+    var optimalRisk=Math.max(0.5,Math.min(kelly*100*0.25,5)); // quarter-Kelly, capped 0.5-5%
+    var recommendedRisk=Math.min(riskPct||1,optimalRisk);
+    return {
+      kellyFull:(kelly*100).toFixed(1)+'%',
+      kellyQuarter:(kelly*25).toFixed(1)+'%',
+      optimalRisk:optimalRisk.toFixed(1)+'%',
+      recommendedRisk:recommendedRisk.toFixed(1)+'%',
+      pairWR:(wr*100).toFixed(0)+'%',
+      pairTrades:pairT.length,
+      edge:kelly>0?'positive':'negative',
+      warning:kelly<=0?'⚠️ Negative edge on this pair — reduce size or skip':'',
+      dollarRisk:(balance*(recommendedRisk/100)).toFixed(2)
+    };
+  }
+  window.aiPositionSize=aiPositionSize;
 
   // ── Export CSV ──
   function jrExportCSV(){
@@ -10810,7 +10993,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   window.ptRender=ptRender;
-  setTimeout(function(){ptRender();ptInitReviews();if(typeof aiGenerateDaily==='function')aiGenerateDaily();if(typeof aiGenerateWeekly==='function')aiGenerateWeekly();},650);
+  setTimeout(function(){ptRender();ptInitReviews();if(typeof aiGenerateDaily==='function')aiGenerateDaily();if(typeof aiGenerateWeekly==='function')aiGenerateWeekly();
+    // Set default date on AI filter to avoid Russian placeholder
+    var aiDate=document.getElementById('ai-filter-date');if(aiDate&&!aiDate.value)aiDate.value=new Date().toISOString().slice(0,10);
+  },650);
 
   // ── Monthly Report Card ──
   function ptInitReviews(){
@@ -11176,59 +11362,129 @@ document.addEventListener('DOMContentLoaded', function() {
       // JSON structured render
       if(data.format==='json'&&typeof a==='object'){
         var vc=a.verdict&&a.verdict.indexOf('Green')!==-1?'var(--green)':'var(--red)';
-        var gc={'A+':'var(--green)','A':'var(--green)','A-':'var(--green)','B+':'#60a5fa','B':'#60a5fa','B-':'#60a5fa','C+':'var(--yellow)','C':'var(--yellow)','C-':'var(--yellow)','D':'var(--red)','F':'var(--red)'};
+        var _sc=function(s){return s==='good'?'var(--green)':s==='warning'?'var(--yellow)':'var(--red)';};
+        var _sb=function(s){return s==='good'?'rgba(46,204,138,.06)':s==='warning'?'rgba(240,180,41,.06)':'rgba(224,92,122,.06)';};
+        var _pc=function(p){return p==='critical'?'#e05c7a':p==='high'?'#ef9f27':p==='medium'?'#60a5fa':'var(--text3)';};
+        var _pb=function(p){return p==='critical'?'rgba(224,92,122,.06)':p==='high'?'rgba(240,180,41,.06)':p==='medium'?'rgba(96,165,250,.06)':'rgba(124,90,240,.03)';};
         var h='';
-        // Top: verdict + grade + headline
-        h+='<div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">';
-        h+='<div style="width:52px;height:52px;border-radius:12px;background:'+(vc==='var(--green)'?'rgba(46,204,138,.08)':'rgba(224,92,122,.08)')+';display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:200;color:'+vc+'">'+(a.grade||'?')+'</div>';
-        h+='<div><div style="font-size:16px;font-weight:700;color:'+vc+'">'+(a.verdict||'')+(a.pnl?' — '+a.pnl:'')+'</div>';
-        h+='<div style="font-size:11px;color:var(--text3);margin-top:2px">'+(a.headline||'')+'</div></div></div>';
-        // Metrics row
-        if(a.metrics&&a.metrics.length){
-          h+='<div style="display:grid;grid-template-columns:repeat('+Math.min(a.metrics.length,4)+',1fr);gap:6px;margin-bottom:14px">';
-          a.metrics.forEach(function(m){var sc=m.status==='good'?'var(--green)':m.status==='warning'?'var(--yellow)':'var(--red)';var sb=m.status==='good'?'rgba(46,204,138,.06)':m.status==='warning'?'rgba(240,180,41,.06)':'rgba(224,92,122,.06)';
-            h+='<div style="text-align:center;padding:10px 6px;border-radius:8px;background:'+sb+';border:1px solid '+sc.replace('var(','rgba(').replace(')',',0.12)')+'"><div style="font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">'+m.label+'</div><div style="font-size:15px;font-weight:600;color:'+sc+'">'+m.value+'</div></div>';
+
+        // ═══ HEADER: Grade + Verdict ═══
+        h+='<div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid rgba(124,90,240,.06)">';
+        h+='<div style="width:56px;height:56px;border-radius:14px;background:'+(vc==='var(--green)'?'rgba(46,204,138,.08)':'rgba(224,92,122,.08)')+';display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:200;color:'+vc+';flex-shrink:0">'+(a.grade||'?')+'</div>';
+        h+='<div style="flex:1"><div style="font-size:18px;font-weight:700;color:'+vc+'">'+(a.verdict||'')+(a.pnl?' — '+a.pnl:'')+'</div>';
+        h+='<div style="font-size:11px;color:var(--text3);margin-top:3px">'+(a.headline||'')+'</div></div></div>';
+
+        // ═══ QUANTITATIVE METRICS ═══
+        if(a.quantMetrics&&a.quantMetrics.length){
+          h+='<div style="margin-bottom:16px"><div style="font-size:9px;font-weight:700;color:var(--accent3);margin-bottom:8px;letter-spacing:.5px;display:flex;align-items:center;gap:6px"><span>📊</span> QUANTITATIVE METRICS</div>';
+          h+='<div style="display:grid;grid-template-columns:repeat('+Math.min(a.quantMetrics.length,3)+',1fr);gap:6px">';
+          a.quantMetrics.forEach(function(m){
+            h+='<div style="padding:10px;border-radius:8px;background:'+_sb(m.status)+';border:1px solid '+_sc(m.status).replace('var(','rgba(').replace(')',',0.1)')+'">';
+            h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><span style="font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px">'+m.label+'</span><span style="font-size:7px;color:var(--text3)">bench: '+m.benchmark+'</span></div>';
+            h+='<div style="font-size:17px;font-weight:600;color:'+_sc(m.status)+'">'+m.value+'</div>';
+            if(m.explanation) h+='<div style="font-size:8px;color:var(--text3);margin-top:3px;line-height:1.3">'+m.explanation+'</div>';
+            h+='</div>';
+          });h+='</div></div>';
+        }
+
+        // ═══ EDGE ANALYSIS ═══
+        if(a.edgeAnalysis){
+          var ea=a.edgeAnalysis;
+          h+='<div style="padding:12px 14px;border-radius:10px;background:linear-gradient(135deg,rgba(124,90,240,.04),rgba(46,204,138,.02));border:1px solid rgba(124,90,240,.06);margin-bottom:16px">';
+          h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:9px;font-weight:700;color:var(--accent3);letter-spacing:.5px">⚡ EDGE ANALYSIS</div>';
+          h+='<div style="display:flex;align-items:center;gap:6px"><span style="font-size:9px;color:var(--text3)">Edge Score</span><span style="font-size:16px;font-weight:200;color:'+(ea.edgeScore>=6?'var(--green)':ea.edgeScore>=4?'var(--yellow)':'var(--red)')+'">'+(ea.edgeScore||'?')+'/10</span></div></div>';
+          h+='<div style="font-size:11px;color:var(--text2);line-height:1.6;margin-bottom:10px">'+(ea.summary||'')+'</div>';
+          if(ea.bestEdge||ea.worstLeak){
+            h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
+            if(ea.bestEdge) h+='<div style="padding:8px 10px;border-radius:6px;background:rgba(46,204,138,.04);border-left:3px solid var(--green)"><div style="font-size:8px;color:var(--green);font-weight:600;margin-bottom:3px">STRONGEST EDGE</div><div style="font-size:12px;font-weight:600;color:var(--text)">'+ea.bestEdge.factor+'</div><div style="font-size:9px;color:var(--text3);margin-top:2px">'+ea.bestEdge.winRate+' WR · '+ea.bestEdge.avgR+' avg · '+ea.bestEdge.trades+' trades</div></div>';
+            if(ea.worstLeak) h+='<div style="padding:8px 10px;border-radius:6px;background:rgba(224,92,122,.04);border-left:3px solid var(--red)"><div style="font-size:8px;color:var(--red);font-weight:600;margin-bottom:3px">BIGGEST LEAK</div><div style="font-size:12px;font-weight:600;color:var(--text)">'+ea.worstLeak.factor+'</div><div style="font-size:9px;color:var(--text3);margin-top:2px">'+ea.worstLeak.winRate+' WR · '+ea.worstLeak.avgR+' avg · '+ea.worstLeak.trades+' trades</div></div>';
+            h+='</div>';
+          }
+          h+='</div>';
+        }
+
+        // ═══ RISK PROFILE ═══
+        if(a.riskProfile){
+          var rp=a.riskProfile;
+          var rc=rp.riskRating==='Conservative'?'var(--green)':rp.riskRating==='Moderate'?'var(--yellow)':'var(--red)';
+          h+='<div style="padding:12px 14px;border-radius:10px;background:rgba(224,92,122,.02);border:1px solid rgba(224,92,122,.06);margin-bottom:16px">';
+          h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:9px;font-weight:700;color:var(--red);letter-spacing:.5px">🛡️ RISK PROFILE</div><span style="font-size:11px;font-weight:600;color:'+rc+'">'+rp.riskRating+'</span></div>';
+          h+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">';
+          [{l:'Max Drawdown',v:rp.maxDrawdownPct},{l:'Avg Risk/Trade',v:rp.avgRiskPerTrade},{l:'Ruin Probability',v:rp.ruinProbability},{l:'Kelly Fraction',v:rp.kellyFraction},{l:'Kelly Usage',v:rp.currentKellyUsage},{l:'DD Recovery',v:rp.drawdownRecovery}].forEach(function(x){
+            h+='<div style="padding:6px 8px;border-radius:6px;background:rgba(224,92,122,.03)"><div style="font-size:7px;color:var(--text3);text-transform:uppercase;margin-bottom:2px">'+x.l+'</div><div style="font-size:11px;font-weight:600;color:var(--text)">'+x.v+'</div></div>';
+          });h+='</div></div>';
+        }
+
+        // ═══ BEHAVIORAL ANALYSIS ═══
+        if(a.behavioralAnalysis){
+          var ba=a.behavioralAnalysis;
+          h+='<div style="padding:12px 14px;border-radius:10px;background:rgba(240,180,41,.02);border:1px solid rgba(240,180,41,.06);margin-bottom:16px">';
+          h+='<div style="font-size:9px;font-weight:700;color:var(--yellow);letter-spacing:.5px;margin-bottom:8px">🧠 BEHAVIORAL ANALYSIS</div>';
+          h+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px">';
+          [{l:'Tilt Risk',v:ba.tiltProbability},{l:'Revenge Rate',v:ba.revengeTradeRate},{l:'Overtrade',v:ba.overtradeScore+'/10'},{l:'Plan Adherence',v:ba.planAdherence}].forEach(function(x){
+            h+='<div style="text-align:center;padding:6px;border-radius:6px;background:rgba(240,180,41,.04)"><div style="font-size:7px;color:var(--text3);text-transform:uppercase">'+x.l+'</div><div style="font-size:13px;font-weight:600;color:var(--text)">'+x.v+'</div></div>';
+          });h+='</div>';
+          if(ba.emotionPnLCorrelation) h+='<div style="font-size:10px;color:var(--text2);padding:6px 8px;background:rgba(240,180,41,.03);border-radius:4px;margin-bottom:4px">📈 '+ba.emotionPnLCorrelation+'</div>';
+          if(ba.timeDecay) h+='<div style="font-size:10px;color:var(--text2);padding:6px 8px;background:rgba(224,92,122,.03);border-radius:4px;margin-bottom:4px">⏰ '+ba.timeDecay+'</div>';
+          if(ba.summary) h+='<div style="font-size:11px;color:var(--text2);margin-top:6px;line-height:1.5">'+ba.summary+'</div>';
+          h+='</div>';
+        }
+
+        // ═══ SETUP + SESSION BREAKDOWN ═══
+        if(a.setupBreakdown&&a.setupBreakdown.length){
+          h+='<div style="margin-bottom:16px"><div style="font-size:9px;font-weight:700;color:var(--accent3);margin-bottom:8px;letter-spacing:.5px">📋 SETUP PERFORMANCE</div>';
+          a.setupBreakdown.forEach(function(s){var sc2=s.pnl&&s.pnl.indexOf('-')===-1?'var(--green)':'var(--red)';
+            h+='<div style="display:grid;grid-template-columns:140px 50px 50px 70px 1fr;gap:8px;align-items:center;padding:6px 8px;border-radius:6px;margin-bottom:3px;background:rgba(124,90,240,.02);font-size:10px">';
+            h+='<div style="font-weight:600;color:var(--text)">'+s.setup+'</div><div style="color:var(--text3)">'+s.trades+'t</div><div style="color:var(--text3)">'+s.winRate+'</div><div style="font-weight:600;color:'+sc2+'">'+s.pnl+'</div><div style="font-size:9px;color:var(--text3);font-style:italic">'+s.verdict+'</div></div>';
           });h+='</div>';
         }
-        // Best / Worst trade
+
+        // ═══ BEST / WORST TRADE ═══
         if(a.bestTrade||a.worstTrade){
-          h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">';
-          if(a.bestTrade) h+='<div style="padding:10px 12px;border-radius:8px;background:rgba(46,204,138,.04);border-left:3px solid var(--green)"><div style="font-size:8px;color:var(--green);font-weight:600;letter-spacing:.5px;margin-bottom:4px">BEST TRADE</div><div style="font-size:14px;font-weight:700;color:var(--green);margin-bottom:2px">'+a.bestTrade.pair+' '+a.bestTrade.pnl+'</div><div style="font-size:10px;color:var(--text3)">'+a.bestTrade.reason+'</div></div>';
-          if(a.worstTrade) h+='<div style="padding:10px 12px;border-radius:8px;background:rgba(224,92,122,.04);border-left:3px solid var(--red)"><div style="font-size:8px;color:var(--red);font-weight:600;letter-spacing:.5px;margin-bottom:4px">WORST TRADE</div><div style="font-size:14px;font-weight:700;color:var(--red);margin-bottom:2px">'+a.worstTrade.pair+' '+a.worstTrade.pnl+'</div><div style="font-size:10px;color:var(--text3)">'+a.worstTrade.reason+'</div></div>';
+          h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">';
+          if(a.bestTrade) h+='<div style="padding:10px 12px;border-radius:8px;background:rgba(46,204,138,.04);border-left:3px solid var(--green)"><div style="font-size:8px;color:var(--green);font-weight:600;letter-spacing:.5px;margin-bottom:3px">BEST TRADE'+(a.bestTrade.date?' · '+a.bestTrade.date:'')+'</div><div style="font-size:14px;font-weight:700;color:var(--green);margin-bottom:3px">'+a.bestTrade.pair+' '+a.bestTrade.pnl+'</div><div style="font-size:10px;color:var(--text3);line-height:1.4">'+(a.bestTrade.analysis||a.bestTrade.reason||'')+'</div></div>';
+          if(a.worstTrade) h+='<div style="padding:10px 12px;border-radius:8px;background:rgba(224,92,122,.04);border-left:3px solid var(--red)"><div style="font-size:8px;color:var(--red);font-weight:600;letter-spacing:.5px;margin-bottom:3px">WORST TRADE'+(a.worstTrade.date?' · '+a.worstTrade.date:'')+'</div><div style="font-size:14px;font-weight:700;color:var(--red);margin-bottom:3px">'+a.worstTrade.pair+' '+a.worstTrade.pnl+'</div><div style="font-size:10px;color:var(--text3);line-height:1.4">'+(a.worstTrade.analysis||a.worstTrade.reason||'')+'</div></div>';
           h+='</div>';
         }
-        // Strengths / Weaknesses
-        if(a.strengths&&a.strengths.length||a.weaknesses&&a.weaknesses.length){
-          h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">';
-          h+='<div style="padding:10px 12px;border-radius:8px;background:rgba(46,204,138,.03)"><div style="font-size:9px;font-weight:700;color:var(--green);margin-bottom:6px;letter-spacing:.5px">✓ STRENGTHS</div>';
-          (a.strengths||[]).forEach(function(s){h+='<div style="font-size:11px;color:var(--text2);margin-bottom:4px;padding-left:10px;border-left:2px solid rgba(46,204,138,.15)">'+s+'</div>';});
-          h+='</div>';
-          h+='<div style="padding:10px 12px;border-radius:8px;background:rgba(224,92,122,.03)"><div style="font-size:9px;font-weight:700;color:var(--red);margin-bottom:6px;letter-spacing:.5px">✗ WEAKNESSES</div>';
-          (a.weaknesses||[]).forEach(function(w){h+='<div style="font-size:11px;color:var(--text2);margin-bottom:4px;padding-left:10px;border-left:2px solid rgba(224,92,122,.15)">'+w+'</div>';});
-          h+='</div></div>';
-        }
-        // Patterns
+
+        // ═══ PATTERNS ═══
         if(a.patterns&&a.patterns.length){
-          h+='<div style="padding:10px 12px;border-radius:8px;background:rgba(124,90,240,.03);margin-bottom:14px"><div style="font-size:9px;font-weight:700;color:var(--accent3);margin-bottom:6px;letter-spacing:.5px">⚡ PATTERNS DETECTED</div>';
-          a.patterns.forEach(function(p){h+='<div style="font-size:11px;color:var(--text2);margin-bottom:3px">• '+p+'</div>';});
+          h+='<div style="padding:10px 12px;border-radius:10px;background:rgba(124,90,240,.03);border:1px solid rgba(124,90,240,.06);margin-bottom:16px"><div style="font-size:9px;font-weight:700;color:var(--accent3);margin-bottom:6px;letter-spacing:.5px">🔍 PATTERNS DETECTED</div>';
+          a.patterns.forEach(function(p){h+='<div style="font-size:11px;color:var(--text2);margin-bottom:4px;padding-left:10px;border-left:2px solid rgba(124,90,240,.15)">'+p+'</div>';});
           h+='</div>';
         }
-        // Psychology
-        if(a.psychology){
-          h+='<div style="padding:10px 12px;border-radius:8px;background:rgba(240,180,41,.03);border-left:3px solid var(--yellow);margin-bottom:14px"><div style="font-size:9px;font-weight:700;color:var(--yellow);margin-bottom:4px;letter-spacing:.5px">🧠 PSYCHOLOGY</div><div style="font-size:11px;color:var(--text2);line-height:1.6">'+a.psychology+'</div></div>';
-        }
-        // Action items
-        if(a.actions&&a.actions.length){
-          h+='<div style="margin-bottom:14px"><div style="font-size:9px;font-weight:700;color:var(--accent3);margin-bottom:8px;letter-spacing:.5px">🎯 ACTION PLAN</div>';
-          a.actions.forEach(function(ac){var pc=ac.priority==='high'?'var(--red)':ac.priority==='medium'?'var(--yellow)':'var(--text3)';var pb=ac.priority==='high'?'rgba(224,92,122,.06)':ac.priority==='medium'?'rgba(240,180,41,.06)':'rgba(124,90,240,.03)';
-            h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;padding:6px 10px;border-radius:6px;background:'+pb+'"><span style="font-size:8px;font-weight:700;color:'+pc+';text-transform:uppercase;min-width:45px">'+ac.priority+'</span><span style="font-size:11px;color:var(--text2)">'+ac.action+'</span></div>';
+
+        // ═══ ACTION PLAN ═══
+        if(a.actionPlan&&a.actionPlan.length){
+          h+='<div style="margin-bottom:16px"><div style="font-size:9px;font-weight:700;color:var(--accent3);margin-bottom:8px;letter-spacing:.5px">🎯 ACTION PLAN</div>';
+          a.actionPlan.forEach(function(ac){
+            h+='<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:5px;padding:8px 10px;border-radius:6px;background:'+_pb(ac.priority)+'">';
+            h+='<span style="font-size:7px;font-weight:700;color:'+_pc(ac.priority)+';text-transform:uppercase;min-width:48px;padding-top:2px">'+ac.priority+'</span>';
+            h+='<div style="flex:1"><div style="font-size:11px;color:var(--text2)">'+ac.action+'</div>';
+            if(ac.expectedImpact) h+='<div style="font-size:9px;color:var(--green);margin-top:2px">→ '+ac.expectedImpact+'</div>';
+            h+='</div></div>';
           });h+='</div>';
         }
-        // Coach note
-        if(a.coachNote){
-          h+='<div style="padding:12px 14px;border-radius:10px;background:linear-gradient(135deg,rgba(124,90,240,.04),rgba(46,204,138,.03));border:1px solid rgba(124,90,240,.08)"><div style="font-size:9px;font-weight:700;color:var(--accent3);margin-bottom:4px;letter-spacing:.5px">💬 COACH\'S NOTE</div><div style="font-size:12px;color:var(--text);line-height:1.6;font-style:italic">'+a.coachNote+'</div></div>';
+        // Fallback to old actions format
+        if(!a.actionPlan&&a.actions&&a.actions.length){
+          h+='<div style="margin-bottom:16px"><div style="font-size:9px;font-weight:700;color:var(--accent3);margin-bottom:8px;letter-spacing:.5px">🎯 ACTION PLAN</div>';
+          a.actions.forEach(function(ac){h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;padding:6px 10px;border-radius:6px;background:'+_pb(ac.priority)+'"><span style="font-size:7px;font-weight:700;color:'+_pc(ac.priority)+';text-transform:uppercase;min-width:48px">'+ac.priority+'</span><span style="font-size:11px;color:var(--text2)">'+ac.action+'</span></div>';});
+          h+='</div>';
         }
-        h+='<div style="margin-top:10px;font-size:9px;color:var(--text3);text-align:right">Claude AI · '+new Date().toLocaleTimeString()+' · '+focus+'</div>';
+
+        // ═══ WEEKLY FOCUS ═══
+        if(a.weeklyFocus){
+          h+='<div style="padding:8px 12px;border-radius:6px;background:rgba(96,165,250,.04);border:1px solid rgba(96,165,250,.08);margin-bottom:16px;display:flex;align-items:center;gap:8px"><span style="font-size:14px">🎯</span><div><div style="font-size:8px;color:#60a5fa;font-weight:600;letter-spacing:.4px">THIS WEEK\'S FOCUS</div><div style="font-size:12px;color:var(--text);font-weight:500">'+a.weeklyFocus+'</div></div></div>';
+        }
+
+        // ═══ COACH NOTE ═══
+        if(a.coachNote){
+          h+='<div style="padding:14px 16px;border-radius:12px;background:linear-gradient(135deg,rgba(124,90,240,.04),rgba(46,204,138,.03));border:1px solid rgba(124,90,240,.08)">';
+          h+='<div style="font-size:9px;font-weight:700;color:var(--accent3);margin-bottom:6px;letter-spacing:.5px">💬 COACH\'S NOTE</div>';
+          h+='<div style="font-size:12px;color:var(--text);line-height:1.7;font-style:italic">'+a.coachNote+'</div></div>';
+        }
+
+        h+='<div style="margin-top:12px;font-size:9px;color:var(--text3);text-align:right">Claude AI · '+new Date().toLocaleTimeString()+' · '+focus+'</div>';
         el6.innerHTML=h;
       } else {
         // Fallback: text/markdown render
@@ -11265,10 +11521,76 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     var btn=document.querySelector('.ai-tab[data-tab="'+tab+'"]');
     if(btn){btn.classList.add('active');btn.style.background='var(--accent)';btn.style.color='white';}
-    document.getElementById('ai-panel-daily').style.display=tab==='daily'?'block':'none';
-    document.getElementById('ai-panel-weekly').style.display=tab==='weekly'?'block':'none';
+    ['daily','weekly','ask','whatif'].forEach(function(p){
+      var panel=document.getElementById('ai-panel-'+p);
+      if(panel) panel.style.display=p===tab?'block':'none';
+    });
   }
   window.aiSwitchTab=aiSwitchTab;
+
+  // ── ASK AI — conversational Q&A ──
+  function aiAskQuestion(){
+    var q=document.getElementById('ai-ask-input').value.trim();
+    if(!q)return;
+    var resp=document.getElementById('ai-ask-response');
+    resp.innerHTML='<div class="skeleton" style="height:80px;width:100%"></div>';
+    var trades=getTradesArr();
+    var td='TRADER DATA SUMMARY:\n'+trades.length+' total trades\n';
+    var sorted5=trades.slice().sort(function(a,b){return(a.date||'').localeCompare(b.date||'');});
+    // Compact summary
+    var pairs2={},sessions5={},setups5={},emotions5={};
+    sorted5.forEach(function(t){
+      var p=t.pair||'Other';if(!pairs2[p])pairs2[p]={pnl:0,c:0,w:0};pairs2[p].pnl+=(t.pnl||0);pairs2[p].c++;if((t.pnl||0)>0)pairs2[p].w++;
+      var s=t.session||'Other';if(!sessions5[s])sessions5[s]={pnl:0,c:0,w:0};sessions5[s].pnl+=(t.pnl||0);sessions5[s].c++;if((t.pnl||0)>0)sessions5[s].w++;
+      var st=t.setup||'None';if(!setups5[st])setups5[st]={pnl:0,c:0,w:0};setups5[st].pnl+=(t.pnl||0);setups5[st].c++;if((t.pnl||0)>0)setups5[st].w++;
+      if(t.emotion){emotions5[t.emotion]=(emotions5[t.emotion]||0)+1;}
+    });
+    td+='Pairs: '+Object.keys(pairs2).map(function(p){return p+'('+pairs2[p].c+'t,'+Math.round(pairs2[p].w/pairs2[p].c*100)+'%WR,$'+pairs2[p].pnl.toFixed(0)+')';}).join(', ')+'\n';
+    td+='Sessions: '+Object.keys(sessions5).map(function(s){return s+'('+sessions5[s].c+'t,'+Math.round(sessions5[s].w/sessions5[s].c*100)+'%WR,$'+sessions5[s].pnl.toFixed(0)+')';}).join(', ')+'\n';
+    td+='Setups: '+Object.keys(setups5).map(function(s){return s+'('+setups5[s].c+'t,$'+setups5[s].pnl.toFixed(0)+')';}).join(', ')+'\n';
+    if(Object.keys(emotions5).length) td+='Emotions: '+Object.entries(emotions5).map(function(e){return e[0]+'('+e[1]+')';}).join(', ')+'\n';
+    // Recent trades
+    td+='\nLast 20 trades:\n';
+    sorted5.slice(-20).forEach(function(t,i){td+=(i+1)+'. '+t.date+' '+t.pair+' '+(t.direction||'')+' $'+(t.pnl||0).toFixed(2)+' '+(t.session||'')+' '+(t.setup||'')+' '+(t.emotion||'')+' Plan:'+(t.planFollowed||'?')+'\n';});
+    td+='\nUSER QUESTION: '+q;
+
+    if(AI_WORKER_URL.indexOf('CHANGE-ME')!==-1){resp.innerHTML='<div style="color:var(--text3)">Connect AI Worker to use Ask AI</div>';return;}
+    fetch(AI_WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'daily',focus:'ask',tradeData:td})})
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var a=data.analysis;var txt=typeof a==='object'?(a.coachNote||a.headline||a.psychology||JSON.stringify(a)):a;
+      txt=txt.replace(/## (.*)/g,'<div style="font-size:12px;font-weight:700;color:var(--accent3);margin:10px 0 4px">$1</div>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/- (.*)/g,'<div style="padding:2px 0 2px 10px;border-left:2px solid rgba(124,90,240,.1)">• $1</div>').replace(/\n/g,'<br>');
+      resp.innerHTML='<div style="padding:12px 14px;border-radius:10px;background:rgba(124,90,240,.03);border:1px solid rgba(124,90,240,.06)"><div style="font-size:9px;color:var(--accent3);font-weight:600;margin-bottom:6px">💬 '+q+'</div><div style="font-size:12px;color:var(--text);line-height:1.7">'+txt+'</div><div style="font-size:8px;color:var(--text3);margin-top:6px;text-align:right">Claude AI · '+new Date().toLocaleTimeString()+'</div></div>';
+    })
+    .catch(function(e){resp.innerHTML='<div style="color:var(--red);font-size:11px">'+e.message+'</div>';});
+  }
+  window.aiAskQuestion=aiAskQuestion;
+
+  // ── WHAT-IF ANALYSIS ──
+  function aiWhatIf(){
+    var q=document.getElementById('ai-whatif-input').value.trim();
+    if(!q)return;
+    var resp=document.getElementById('ai-whatif-response');
+    resp.innerHTML='<div class="skeleton" style="height:80px;width:100%"></div>';
+    var trades=getTradesArr();
+    var sorted6=trades.slice().sort(function(a,b){return(a.date||'').localeCompare(b.date||'');});
+    var td='WHAT-IF SIMULATION REQUEST\nCurrent portfolio: '+trades.length+' trades, Net P&L: $'+trades.reduce(function(a,t){return a+(t.pnl||0);},0).toFixed(2)+'\n';
+    td+='All trades:\n';
+    sorted6.forEach(function(t,i){td+=(i+1)+'. '+t.date+' '+t.pair+' '+(t.direction||'')+' $'+(t.pnl||0).toFixed(2)+' Session:'+(t.session||'?')+' Setup:'+(t.setup||'?')+' Grade:'+(t.grade||'?')+' Emotion:'+(t.emotion||'?')+' Plan:'+(t.planFollowed||'?')+' Lots:'+(t.lots||'?')+'\n';});
+    td+='\nWHAT-IF SCENARIO: '+q;
+    td+='\n\nCalculate the EXACT impact: filter/modify the trades according to the scenario, show before vs after P&L, trade count, win rate. Be specific with numbers.';
+
+    if(AI_WORKER_URL.indexOf('CHANGE-ME')!==-1){resp.innerHTML='<div style="color:var(--text3)">Connect AI Worker to use What-If</div>';return;}
+    fetch(AI_WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'daily',focus:'whatif',tradeData:td})})
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var a=data.analysis;var txt=typeof a==='object'?(a.coachNote||a.headline||JSON.stringify(a)):a;
+      txt=txt.replace(/## (.*)/g,'<div style="font-size:12px;font-weight:700;color:var(--accent3);margin:10px 0 4px">$1</div>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/- (.*)/g,'<div style="padding:2px 0 2px 10px;border-left:2px solid rgba(124,90,240,.1)">• $1</div>').replace(/\n/g,'<br>');
+      resp.innerHTML='<div style="padding:12px 14px;border-radius:10px;background:rgba(240,180,41,.03);border:1px solid rgba(240,180,41,.06)"><div style="font-size:9px;color:var(--yellow);font-weight:600;margin-bottom:6px">🔮 '+q+'</div><div style="font-size:12px;color:var(--text);line-height:1.7">'+txt+'</div><div style="font-size:8px;color:var(--text3);margin-top:6px;text-align:right">Claude AI · '+new Date().toLocaleTimeString()+'</div></div>';
+    })
+    .catch(function(e){resp.innerHTML='<div style="color:var(--red);font-size:11px">'+e.message+'</div>';});
+  }
+  window.aiWhatIf=aiWhatIf;
 
   function aiDownloadAnalysis(type){
     var el5=document.getElementById('ai-'+type+'-analysis');if(!el5)return;
@@ -13906,12 +14228,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Update split bar with animation
     setTimeout(function(){
-      var bw = document.getElementById('dash-bar-w'); if(bw) bw.style.width = wPct.toFixed(1)+'%';
-      var bb = document.getElementById('dash-bar-b'); if(bb) bb.style.width = bPct > 0 ? bPct.toFixed(1)+'%' : '0';
-      var bl = document.getElementById('dash-bar-l'); if(bl) bl.style.width = lPct.toFixed(1)+'%';
-      var bwp = document.getElementById('dash-bar-w-pct'); if(bwp) bwp.textContent = wPct.toFixed(0)+'%';
-      var bbp = document.getElementById('dash-bar-b-pct'); if(bbp) bbp.textContent = bPct > 0 ? bPct.toFixed(0)+'%' : '';
-      var blp = document.getElementById('dash-bar-l-pct'); if(blp) blp.textContent = lPct.toFixed(0)+'%';
+      var _w=parseFloat(wPct)||0,_b=parseFloat(bPct)||0,_l=parseFloat(lPct)||0;
+      var bw = document.getElementById('dash-bar-w'); if(bw) bw.style.width = _w.toFixed(1)+'%';
+      var bb = document.getElementById('dash-bar-b'); if(bb) bb.style.width = _b > 0 ? _b.toFixed(1)+'%' : '0';
+      var bl = document.getElementById('dash-bar-l'); if(bl) bl.style.width = _l.toFixed(1)+'%';
+      var bwp = document.getElementById('dash-bar-w-pct'); if(bwp) bwp.textContent = _w.toFixed(0)+'%';
+      var bbp = document.getElementById('dash-bar-b-pct'); if(bbp) bbp.textContent = _b > 0 ? _b.toFixed(0)+'%' : '';
+      var blp = document.getElementById('dash-bar-l-pct'); if(blp) blp.textContent = _l.toFixed(0)+'%';
     }, 200);
 
     // Update elements
@@ -16581,7 +16904,11 @@ document.addEventListener('DOMContentLoaded', function() {
       <div style="font-weight:700;margin-bottom:6px">Drop your CSV file here</div>
       <div style="font-size:12px;color:var(--text3);margin-bottom:14px">or click below — supports MT5 HTML report or CSV format</div>
       <div style="display:flex;gap:8px;justify-content:center;align-items:center">
-        <input type="file" id="csv-file-input" accept=".csv,.html,.htm" style="font-size:12px;color:var(--text);font-family:'Inter',sans-serif;max-width:240px">
+        <label style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;border:1px dashed var(--border);cursor:pointer;font-size:12px;color:var(--text2);font-family:'Inter',sans-serif">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+          <span id="csv-file-label">Choose file</span>
+          <input type="file" id="csv-file-input" accept=".csv,.html,.htm" style="display:none" onchange="var l=document.getElementById('csv-file-label');if(this.files[0])l.textContent=this.files[0].name;else l.textContent='Choose file';">
+        </label>
         <button class="btn btn-ghost" id="btn-download-template" style="font-size:11px;color:var(--text3)">⬇ Download Template</button>
       </div>
     </div>
@@ -16608,10 +16935,10 @@ document.addEventListener('DOMContentLoaded', function() {
     <div style="padding:20px 24px">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
         <div><label style="font-size:9px;color:var(--text3);font-weight:600;display:block;margin-bottom:4px">DATE FROM</label>
-          <input type="date" id="pdf-date-from" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px">
+          <input type="date" id="pdf-date-from" lang="en-US" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px">
         </div>
         <div><label style="font-size:9px;color:var(--text3);font-weight:600;display:block;margin-bottom:4px">DATE TO</label>
-          <input type="date" id="pdf-date-to" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px">
+          <input type="date" id="pdf-date-to" lang="en-US" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px">
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
