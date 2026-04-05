@@ -11359,8 +11359,10 @@ document.addEventListener('DOMContentLoaded', function() {
     .then(function(data){
       if(data.error)throw new Error(data.error);
       var a=data.analysis;
+      // Parse if string
+      if(typeof a==='string'){try{a=JSON.parse(a);}catch(e){}}
       // JSON structured render
-      if(data.format==='json'&&typeof a==='object'){
+      if(typeof a==='object'&&a!==null&&a.verdict){
         var vc=a.verdict&&a.verdict.indexOf('Green')!==-1?'var(--green)':'var(--red)';
         var _sc=function(s){return s==='good'?'var(--green)':s==='warning'?'var(--yellow)':'var(--red)';};
         var _sb=function(s){return s==='good'?'rgba(46,204,138,.06)':s==='warning'?'rgba(240,180,41,.06)':'rgba(224,92,122,.06)';};
