@@ -11168,13 +11168,74 @@ document.addEventListener('DOMContentLoaded', function() {
     else if(focus==='risk') tradeData+='\n\nFOCUS ON RISK: position sizing, SL discipline, drawdown, risk per trade, lot sizes, overexposure.';
     else if(focus==='setups') tradeData+='\n\nFOCUS ON SETUPS: which work, which fail, confluences, entry quality, exit timing, R:R achieved vs planned.';
     var type2=period==='day'?'daily':'weekly';
-    fetch(AI_WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:type2,tradeData:tradeData})})
+    fetch(AI_WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:type2,tradeData:tradeData,focus:focus})})
     .then(function(res){if(!res.ok)throw new Error('Worker error: '+res.status);return res.json();})
     .then(function(data){
       if(data.error)throw new Error(data.error);
-      var t2=data.analysis||'No response';
-      var h2=t2.replace(/## (.*)/g,'<div style="font-size:13px;font-weight:700;color:var(--accent3);margin:14px 0 6px">$1</div>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/- (.*)/g,'<div style="padding:4px 0 4px 12px;border-left:2px solid rgba(124,90,240,.1)">• $1</div>').replace(/\n\n/g,'<div style="height:8px"></div>').replace(/\n/g,'<br>');
-      el6.innerHTML='<div style="padding:4px 0">'+h2+'</div><div style="margin-top:10px;font-size:9px;color:var(--text3);text-align:right">Claude AI · '+new Date().toLocaleTimeString()+' · '+focus+'</div>';
+      var a=data.analysis;
+      // JSON structured render
+      if(data.format==='json'&&typeof a==='object'){
+        var vc=a.verdict&&a.verdict.indexOf('Green')!==-1?'var(--green)':'var(--red)';
+        var gc={'A+':'var(--green)','A':'var(--green)','A-':'var(--green)','B+':'#60a5fa','B':'#60a5fa','B-':'#60a5fa','C+':'var(--yellow)','C':'var(--yellow)','C-':'var(--yellow)','D':'var(--red)','F':'var(--red)'};
+        var h='';
+        // Top: verdict + grade + headline
+        h+='<div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">';
+        h+='<div style="width:52px;height:52px;border-radius:12px;background:'+(vc==='var(--green)'?'rgba(46,204,138,.08)':'rgba(224,92,122,.08)')+';display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:200;color:'+vc+'">'+(a.grade||'?')+'</div>';
+        h+='<div><div style="font-size:16px;font-weight:700;color:'+vc+'">'+(a.verdict||'')+(a.pnl?' — '+a.pnl:'')+'</div>';
+        h+='<div style="font-size:11px;color:var(--text3);margin-top:2px">'+(a.headline||'')+'</div></div></div>';
+        // Metrics row
+        if(a.metrics&&a.metrics.length){
+          h+='<div style="display:grid;grid-template-columns:repeat('+Math.min(a.metrics.length,4)+',1fr);gap:6px;margin-bottom:14px">';
+          a.metrics.forEach(function(m){var sc=m.status==='good'?'var(--green)':m.status==='warning'?'var(--yellow)':'var(--red)';var sb=m.status==='good'?'rgba(46,204,138,.06)':m.status==='warning'?'rgba(240,180,41,.06)':'rgba(224,92,122,.06)';
+            h+='<div style="text-align:center;padding:10px 6px;border-radius:8px;background:'+sb+';border:1px solid '+sc.replace('var(','rgba(').replace(')',',0.12)')+'"><div style="font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">'+m.label+'</div><div style="font-size:15px;font-weight:600;color:'+sc+'">'+m.value+'</div></div>';
+          });h+='</div>';
+        }
+        // Best / Worst trade
+        if(a.bestTrade||a.worstTrade){
+          h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">';
+          if(a.bestTrade) h+='<div style="padding:10px 12px;border-radius:8px;background:rgba(46,204,138,.04);border-left:3px solid var(--green)"><div style="font-size:8px;color:var(--green);font-weight:600;letter-spacing:.5px;margin-bottom:4px">BEST TRADE</div><div style="font-size:14px;font-weight:700;color:var(--green);margin-bottom:2px">'+a.bestTrade.pair+' '+a.bestTrade.pnl+'</div><div style="font-size:10px;color:var(--text3)">'+a.bestTrade.reason+'</div></div>';
+          if(a.worstTrade) h+='<div style="padding:10px 12px;border-radius:8px;background:rgba(224,92,122,.04);border-left:3px solid var(--red)"><div style="font-size:8px;color:var(--red);font-weight:600;letter-spacing:.5px;margin-bottom:4px">WORST TRADE</div><div style="font-size:14px;font-weight:700;color:var(--red);margin-bottom:2px">'+a.worstTrade.pair+' '+a.worstTrade.pnl+'</div><div style="font-size:10px;color:var(--text3)">'+a.worstTrade.reason+'</div></div>';
+          h+='</div>';
+        }
+        // Strengths / Weaknesses
+        if(a.strengths&&a.strengths.length||a.weaknesses&&a.weaknesses.length){
+          h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">';
+          h+='<div style="padding:10px 12px;border-radius:8px;background:rgba(46,204,138,.03)"><div style="font-size:9px;font-weight:700;color:var(--green);margin-bottom:6px;letter-spacing:.5px">✓ STRENGTHS</div>';
+          (a.strengths||[]).forEach(function(s){h+='<div style="font-size:11px;color:var(--text2);margin-bottom:4px;padding-left:10px;border-left:2px solid rgba(46,204,138,.15)">'+s+'</div>';});
+          h+='</div>';
+          h+='<div style="padding:10px 12px;border-radius:8px;background:rgba(224,92,122,.03)"><div style="font-size:9px;font-weight:700;color:var(--red);margin-bottom:6px;letter-spacing:.5px">✗ WEAKNESSES</div>';
+          (a.weaknesses||[]).forEach(function(w){h+='<div style="font-size:11px;color:var(--text2);margin-bottom:4px;padding-left:10px;border-left:2px solid rgba(224,92,122,.15)">'+w+'</div>';});
+          h+='</div></div>';
+        }
+        // Patterns
+        if(a.patterns&&a.patterns.length){
+          h+='<div style="padding:10px 12px;border-radius:8px;background:rgba(124,90,240,.03);margin-bottom:14px"><div style="font-size:9px;font-weight:700;color:var(--accent3);margin-bottom:6px;letter-spacing:.5px">⚡ PATTERNS DETECTED</div>';
+          a.patterns.forEach(function(p){h+='<div style="font-size:11px;color:var(--text2);margin-bottom:3px">• '+p+'</div>';});
+          h+='</div>';
+        }
+        // Psychology
+        if(a.psychology){
+          h+='<div style="padding:10px 12px;border-radius:8px;background:rgba(240,180,41,.03);border-left:3px solid var(--yellow);margin-bottom:14px"><div style="font-size:9px;font-weight:700;color:var(--yellow);margin-bottom:4px;letter-spacing:.5px">🧠 PSYCHOLOGY</div><div style="font-size:11px;color:var(--text2);line-height:1.6">'+a.psychology+'</div></div>';
+        }
+        // Action items
+        if(a.actions&&a.actions.length){
+          h+='<div style="margin-bottom:14px"><div style="font-size:9px;font-weight:700;color:var(--accent3);margin-bottom:8px;letter-spacing:.5px">🎯 ACTION PLAN</div>';
+          a.actions.forEach(function(ac){var pc=ac.priority==='high'?'var(--red)':ac.priority==='medium'?'var(--yellow)':'var(--text3)';var pb=ac.priority==='high'?'rgba(224,92,122,.06)':ac.priority==='medium'?'rgba(240,180,41,.06)':'rgba(124,90,240,.03)';
+            h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;padding:6px 10px;border-radius:6px;background:'+pb+'"><span style="font-size:8px;font-weight:700;color:'+pc+';text-transform:uppercase;min-width:45px">'+ac.priority+'</span><span style="font-size:11px;color:var(--text2)">'+ac.action+'</span></div>';
+          });h+='</div>';
+        }
+        // Coach note
+        if(a.coachNote){
+          h+='<div style="padding:12px 14px;border-radius:10px;background:linear-gradient(135deg,rgba(124,90,240,.04),rgba(46,204,138,.03));border:1px solid rgba(124,90,240,.08)"><div style="font-size:9px;font-weight:700;color:var(--accent3);margin-bottom:4px;letter-spacing:.5px">💬 COACH\'S NOTE</div><div style="font-size:12px;color:var(--text);line-height:1.6;font-style:italic">'+a.coachNote+'</div></div>';
+        }
+        h+='<div style="margin-top:10px;font-size:9px;color:var(--text3);text-align:right">Claude AI · '+new Date().toLocaleTimeString()+' · '+focus+'</div>';
+        el6.innerHTML=h;
+      } else {
+        // Fallback: text/markdown render
+        var t2=typeof a==='string'?a:JSON.stringify(a);
+        var h2=t2.replace(/## (.*)/g,'<div style="font-size:13px;font-weight:700;color:var(--accent3);margin:14px 0 6px">$1</div>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/- (.*)/g,'<div style="padding:4px 0 4px 12px;border-left:2px solid rgba(124,90,240,.1)">• $1</div>').replace(/\n\n/g,'<div style="height:8px"></div>').replace(/\n/g,'<br>');
+        el6.innerHTML='<div style="padding:4px 0">'+h2+'</div><div style="margin-top:10px;font-size:9px;color:var(--text3);text-align:right">Claude AI · '+new Date().toLocaleTimeString()+'</div>';
+      }
       if(loadMsg)loadMsg.style.display='none';
     })
     .catch(function(err){
