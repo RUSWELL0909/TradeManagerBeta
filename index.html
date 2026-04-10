@@ -3106,6 +3106,10 @@ document.addEventListener('DOMContentLoaded', function() {
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
       Progress Tracker
     </div>
+    <div class="nav-item" id="nav-aicoach">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2a4 4 0 014 4v1a2 2 0 012 2v1a2 2 0 01-2 2H8a2 2 0 01-2-2V9a2 2 0 012-2V6a4 4 0 014-4z"/><path d="M6 12v2a6 6 0 0012 0v-2"/><path d="M12 18v4"/></svg>
+      AI Coach
+    </div>
     <div class="nav-item" id="nav-resources">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>
       Resources
@@ -6104,6 +6108,15 @@ document.addEventListener('DOMContentLoaded', function() {
       </div>
     </div>
 
+  </div>
+
+
+  <!-- ═══ AI COACH ═══ -->
+  <div id="page-aicoach" class="page">
+    <div class="page-header">
+      <div><div class="page-title">AI Coach</div><div class="page-sub">Mentor-style trade analysis · powered by Claude</div></div>
+    </div>
+
     <!-- AI TRADE ANALYST — consolidated -->
     <div style="background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px 24px;margin-top:18px;position:relative;overflow:hidden">
       
@@ -6522,7 +6535,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var prevPage = 'dashboard';
   window.showPage = showPage;
 
-  ['dashboard','dayview','journal','notebook','reports','playbook','riskmonitor','accounts','trademanager','casestudies','progress','resources','cockpit','news'].forEach(function(id) {
+  ['dashboard','dayview','journal','notebook','reports','playbook','riskmonitor','accounts','trademanager','casestudies','progress','resources','cockpit','news','aicoach'].forEach(function(id) {
     var el = $('nav-' + id);
     if (el) el.addEventListener('click', function(){ showPage(id); });
   });
