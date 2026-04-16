@@ -564,6 +564,55 @@
 [data-theme="light-b"] .ck-upload-zone { border-color: var(--border) !important; }
 [data-theme="light-c"] .ck-upload-zone { border-color: rgba(138,122,64,.1) !important; }
 
+/* ── LIGHT THEMES: Cockpit active button states ── */
+[data-theme="light-a"] .ck-btn.on,
+[data-theme="light-b"] .ck-btn.on,
+[data-theme="light-c"] .ck-btn.on,
+[data-theme="light-a"] .ck-btn-sm.on,
+[data-theme="light-b"] .ck-btn-sm.on,
+[data-theme="light-c"] .ck-btn-sm.on {
+  background: var(--accent) !important;
+  color: white !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 2px 8px rgba(124,90,240,.25) !important;
+}
+[data-theme="light-a"] .ck-btn.on-green,
+[data-theme="light-b"] .ck-btn.on-green,
+[data-theme="light-c"] .ck-btn.on-green,
+[data-theme="light-a"] .ck-btn-sm.on-green,
+[data-theme="light-b"] .ck-btn-sm.on-green,
+[data-theme="light-c"] .ck-btn-sm.on-green {
+  background: var(--green) !important;
+  color: white !important;
+  border-color: var(--green) !important;
+  box-shadow: 0 2px 8px rgba(46,204,138,.25) !important;
+}
+[data-theme="light-a"] .ck-btn.on-red,
+[data-theme="light-b"] .ck-btn.on-red,
+[data-theme="light-c"] .ck-btn.on-red,
+[data-theme="light-a"] .ck-btn-sm.on-red,
+[data-theme="light-b"] .ck-btn-sm.on-red,
+[data-theme="light-c"] .ck-btn-sm.on-red {
+  background: var(--red) !important;
+  color: white !important;
+  border-color: var(--red) !important;
+  box-shadow: 0 2px 8px rgba(224,92,122,.25) !important;
+}
+[data-theme="light-a"] .ck-pill.on,
+[data-theme="light-b"] .ck-pill.on,
+[data-theme="light-c"] .ck-pill.on {
+  background: rgba(46,204,138,.12) !important;
+  border-color: rgba(46,204,138,.35) !important;
+  color: var(--green) !important;
+}
+[data-theme="light-a"] .ck-pill.warn,
+[data-theme="light-b"] .ck-pill.warn,
+[data-theme="light-c"] .ck-pill.warn {
+  background: rgba(224,92,122,.12) !important;
+  border-color: rgba(224,92,122,.35) !important;
+  color: var(--red) !important;
+}
+
 /* Light-a: Spider card special glow */
 [data-theme="light-a"] #rossfx-score-widget {
   background: linear-gradient(135deg, rgba(124,90,240,.02) 0%, var(--card) 60%) !important;
@@ -6192,7 +6241,8 @@ document.addEventListener('DOMContentLoaded', function() {
           <button onclick="document.getElementById('ai-ask-input').value=this.textContent;aiAskQuestion()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:9px;cursor:pointer;font-family:'Inter',sans-serif">Revenge trade pattern?</button>
           <button onclick="document.getElementById('ai-ask-input').value=this.textContent;aiAskQuestion()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:9px;cursor:pointer;font-family:'Inter',sans-serif">My edge vs my leak?</button>
         </div>
-        <div id="ai-ask-response" style="font-size:12px;color:var(--text2);line-height:1.7"></div>
+        <div style="display:flex;justify-content:flex-end;margin-top:6px"><button onclick="aiAskClear()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text3);font-size:9px;cursor:pointer;font-family:'Inter',sans-serif">🗑 Clear chat</button></div>
+        <div id="ai-ask-response" style="font-size:12px;color:var(--text2);line-height:1.7;margin-top:8px;display:flex;flex-direction:column;gap:8px"></div>
       </div>
       <div id="ai-panel-whatif" style="display:none">
         <div style="font-size:11px;color:var(--text3);margin-bottom:10px">Explore hypothetical scenarios. What would your P&L be if you changed something?</div>
@@ -6205,7 +6255,8 @@ document.addEventListener('DOMContentLoaded', function() {
           <button onclick="document.getElementById('ai-whatif-input').value=this.textContent;aiWhatIf()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:9px;cursor:pointer;font-family:'Inter',sans-serif">What if I only took A-grade setups?</button>
           <button onclick="document.getElementById('ai-whatif-input').value=this.textContent;aiWhatIf()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:9px;cursor:pointer;font-family:'Inter',sans-serif">What if I doubled my lot size?</button>
         </div>
-        <div id="ai-whatif-response" style="font-size:12px;color:var(--text2);line-height:1.7"></div>
+        <div style="display:flex;justify-content:flex-end;margin-top:6px"><button onclick="aiWhatIfClear()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text3);font-size:9px;cursor:pointer;font-family:'Inter',sans-serif">🗑 Clear chat</button></div>
+        <div id="ai-whatif-response" style="font-size:12px;color:var(--text2);line-height:1.7;margin-top:8px;display:flex;flex-direction:column;gap:8px"></div>
       </div>
     </div>
   </div>
@@ -12509,16 +12560,13 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   window.aiSwitchTab=aiSwitchTab;
 
-  // ── ASK AI — conversational Q&A ──
-  function aiAskQuestion(){
-    var q=document.getElementById('ai-ask-input').value.trim();
-    if(!q)return;
-    var resp=document.getElementById('ai-ask-response');
-    resp.innerHTML='<div class="skeleton" style="height:80px;width:100%"></div>';
+  // ── ASK AI — true conversational chat with memory ──
+  var askChatHistory=[]; // [{role:'user'|'assistant', content:'...'}]
+
+  function aiBuildTraderContext(){
     var trades=getTradesArr();
     var td='TRADER DATA SUMMARY:\n'+trades.length+' total trades\n';
     var sorted5=trades.slice().sort(function(a,b){return(a.date||'').localeCompare(b.date||'');});
-    // Compact summary
     var pairs2={},sessions5={},setups5={},emotions5={};
     sorted5.forEach(function(t){
       var p=t.pair||'Other';if(!pairs2[p])pairs2[p]={pnl:0,c:0,w:0};pairs2[p].pnl+=(t.pnl||0);pairs2[p].c++;if((t.pnl||0)>0)pairs2[p].w++;
@@ -12526,52 +12574,137 @@ document.addEventListener('DOMContentLoaded', function() {
       var st=t.setup||'None';if(!setups5[st])setups5[st]={pnl:0,c:0,w:0};setups5[st].pnl+=(t.pnl||0);setups5[st].c++;if((t.pnl||0)>0)setups5[st].w++;
       if(t.emotion){emotions5[t.emotion]=(emotions5[t.emotion]||0)+1;}
     });
+    td+='Total P&L: $'+trades.reduce(function(a,t){return a+(t.pnl||0);},0).toFixed(2)+'\n';
     td+='Pairs: '+Object.keys(pairs2).map(function(p){return p+'('+pairs2[p].c+'t,'+Math.round(pairs2[p].w/pairs2[p].c*100)+'%WR,$'+pairs2[p].pnl.toFixed(0)+')';}).join(', ')+'\n';
     td+='Sessions: '+Object.keys(sessions5).map(function(s){return s+'('+sessions5[s].c+'t,'+Math.round(sessions5[s].w/sessions5[s].c*100)+'%WR,$'+sessions5[s].pnl.toFixed(0)+')';}).join(', ')+'\n';
     td+='Setups: '+Object.keys(setups5).map(function(s){return s+'('+setups5[s].c+'t,$'+setups5[s].pnl.toFixed(0)+')';}).join(', ')+'\n';
     if(Object.keys(emotions5).length) td+='Emotions: '+Object.entries(emotions5).map(function(e){return e[0]+'('+e[1]+')';}).join(', ')+'\n';
-    // Recent trades
     td+='\nLast 20 trades:\n';
     sorted5.slice(-20).forEach(function(t,i){td+=(i+1)+'. '+t.date+' '+t.pair+' '+(t.direction||'')+' $'+(t.pnl||0).toFixed(2)+' '+(t.session||'')+' '+(t.setup||'')+' '+(t.emotion||'')+' Plan:'+(t.planFollowed||'?')+'\n';});
-    td+='\nUSER QUESTION: '+q;
+    return td;
+  }
 
-    if(AI_WORKER_URL.indexOf('CHANGE-ME')!==-1){resp.innerHTML='<div style="color:var(--text3)">Connect AI Worker to use Ask AI</div>';return;}
-    fetch(AI_WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'daily',focus:'ask',tradeData:td})})
+  function aiFmt(txt){
+    return txt.replace(/## (.*)/g,'<div style="font-size:12px;font-weight:700;color:var(--accent3);margin:10px 0 4px">$1</div>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/^- (.*)/gm,'<div style="padding:2px 0 2px 10px;border-left:2px solid rgba(124,90,240,.1)">• $1</div>').replace(/\n/g,'<br>');
+  }
+
+  function aiRenderAskChat(loading){
+    var resp=document.getElementById('ai-ask-response');
+    var html='';
+    askChatHistory.forEach(function(m){
+      if(m.role==='user'){
+        html+='<div style="align-self:flex-end;max-width:80%;padding:8px 12px;border-radius:10px 10px 2px 10px;background:rgba(124,90,240,.12);border:1px solid rgba(124,90,240,.2);font-size:12px;color:var(--text)">'+m.content.replace(/</g,'&lt;')+'</div>';
+      } else {
+        html+='<div style="align-self:flex-start;max-width:90%;padding:10px 14px;border-radius:10px 10px 10px 2px;background:rgba(124,90,240,.03);border:1px solid rgba(124,90,240,.08);font-size:12px;color:var(--text);line-height:1.7"><div style="font-size:8px;color:var(--accent3);font-weight:600;margin-bottom:4px">CLAUDE</div>'+aiFmt(m.content)+'</div>';
+      }
+    });
+    if(loading){html+='<div style="align-self:flex-start;max-width:60%;padding:10px 14px;border-radius:10px 10px 10px 2px;background:rgba(124,90,240,.03);border:1px solid rgba(124,90,240,.08)"><div class="skeleton" style="height:14px;width:100%"></div></div>';}
+    resp.innerHTML=html;
+  }
+
+  function aiAskQuestion(){
+    var inp=document.getElementById('ai-ask-input');
+    var q=inp.value.trim();
+    if(!q)return;
+    if(AI_WORKER_URL.indexOf('CHANGE-ME')!==-1){document.getElementById('ai-ask-response').innerHTML='<div style="color:var(--text3)">Connect AI Worker to use Ask AI</div>';return;}
+
+    askChatHistory.push({role:'user',content:q});
+    inp.value='';
+    aiRenderAskChat(true);
+
+    var systemPrompt='You are an experienced trading mentor talking with a trader who follows the WWA methodology (daily bias, HTF trend, market phase, LTF confirmations, POI types, playbook models). You are having an ongoing conversation — remember everything the user has said in this conversation and reference it when relevant.\n\nBe direct, supportive, and concise. Use specific numbers from their data. Avoid generic advice. When the user asks a follow-up question, build on what was discussed earlier in this chat.\n\nTRADER DATA (current snapshot):\n'+aiBuildTraderContext();
+
+    fetch(AI_WORKER_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        type:'chat',
+        system:systemPrompt,
+        messages:askChatHistory
+      })
+    })
     .then(function(r){return r.json();})
     .then(function(data){
-      var a=data.analysis;var txt=typeof a==='object'?(a.coachNote||a.headline||a.psychology||JSON.stringify(a)):a;
-      txt=txt.replace(/## (.*)/g,'<div style="font-size:12px;font-weight:700;color:var(--accent3);margin:10px 0 4px">$1</div>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/- (.*)/g,'<div style="padding:2px 0 2px 10px;border-left:2px solid rgba(124,90,240,.1)">• $1</div>').replace(/\n/g,'<br>');
-      resp.innerHTML='<div style="padding:12px 14px;border-radius:10px;background:rgba(124,90,240,.03);border:1px solid rgba(124,90,240,.06)"><div style="font-size:9px;color:var(--accent3);font-weight:600;margin-bottom:6px">💬 '+q+'</div><div style="font-size:12px;color:var(--text);line-height:1.7">'+txt+'</div><div style="font-size:8px;color:var(--text3);margin-top:6px;text-align:right">Claude AI · '+new Date().toLocaleTimeString()+'</div></div>';
+      if(data.error){throw new Error(data.error);}
+      var a=data.analysis;
+      var txt=typeof a==='object'?(a.coachNote||a.headline||a.psychology||JSON.stringify(a)):(a||'(empty response)');
+      askChatHistory.push({role:'assistant',content:txt});
+      aiRenderAskChat(false);
     })
-    .catch(function(e){resp.innerHTML='<div style="color:var(--red);font-size:11px">'+e.message+'</div>';});
+    .catch(function(e){
+      askChatHistory.push({role:'assistant',content:'⚠️ Error: '+e.message});
+      aiRenderAskChat(false);
+    });
   }
   window.aiAskQuestion=aiAskQuestion;
 
-  // ── WHAT-IF ANALYSIS ──
-  function aiWhatIf(){
-    var q=document.getElementById('ai-whatif-input').value.trim();
-    if(!q)return;
-    var resp=document.getElementById('ai-whatif-response');
-    resp.innerHTML='<div class="skeleton" style="height:80px;width:100%"></div>';
+  function aiAskClear(){askChatHistory=[];aiRenderAskChat(false);}
+  window.aiAskClear=aiAskClear;
+
+  // ── WHAT-IF — true conversational simulation chat with memory ──
+  var whatIfChatHistory=[];
+
+  function aiBuildFullTradesContext(){
     var trades=getTradesArr();
     var sorted6=trades.slice().sort(function(a,b){return(a.date||'').localeCompare(b.date||'');});
-    var td='WHAT-IF SIMULATION REQUEST\nCurrent portfolio: '+trades.length+' trades, Net P&L: $'+trades.reduce(function(a,t){return a+(t.pnl||0);},0).toFixed(2)+'\n';
+    var td='Current portfolio: '+trades.length+' trades, Net P&L: $'+trades.reduce(function(a,t){return a+(t.pnl||0);},0).toFixed(2)+'\n';
     td+='All trades:\n';
     sorted6.forEach(function(t,i){td+=(i+1)+'. '+t.date+' '+t.pair+' '+(t.direction||'')+' $'+(t.pnl||0).toFixed(2)+' Session:'+(t.session||'?')+' Setup:'+(t.setup||'?')+' Grade:'+(t.grade||'?')+' Emotion:'+(t.emotion||'?')+' Plan:'+(t.planFollowed||'?')+' Lots:'+(t.lots||'?')+'\n';});
-    td+='\nWHAT-IF SCENARIO: '+q;
-    td+='\n\nCalculate the EXACT impact: filter/modify the trades according to the scenario, show before vs after P&L, trade count, win rate. Be specific with numbers.';
+    return td;
+  }
 
-    if(AI_WORKER_URL.indexOf('CHANGE-ME')!==-1){resp.innerHTML='<div style="color:var(--text3)">Connect AI Worker to use What-If</div>';return;}
-    fetch(AI_WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'daily',focus:'whatif',tradeData:td})})
+  function aiRenderWhatIfChat(loading){
+    var resp=document.getElementById('ai-whatif-response');
+    var html='';
+    whatIfChatHistory.forEach(function(m){
+      if(m.role==='user'){
+        html+='<div style="align-self:flex-end;max-width:80%;padding:8px 12px;border-radius:10px 10px 2px 10px;background:rgba(240,180,41,.12);border:1px solid rgba(240,180,41,.25);font-size:12px;color:var(--text)">'+m.content.replace(/</g,'&lt;')+'</div>';
+      } else {
+        html+='<div style="align-self:flex-start;max-width:90%;padding:10px 14px;border-radius:10px 10px 10px 2px;background:rgba(240,180,41,.03);border:1px solid rgba(240,180,41,.1);font-size:12px;color:var(--text);line-height:1.7"><div style="font-size:8px;color:var(--yellow);font-weight:600;margin-bottom:4px">CLAUDE — SIMULATION</div>'+aiFmt(m.content)+'</div>';
+      }
+    });
+    if(loading){html+='<div style="align-self:flex-start;max-width:60%;padding:10px 14px;border-radius:10px 10px 10px 2px;background:rgba(240,180,41,.03);border:1px solid rgba(240,180,41,.1)"><div class="skeleton" style="height:14px;width:100%"></div></div>';}
+    resp.innerHTML=html;
+  }
+
+  function aiWhatIf(){
+    var inp=document.getElementById('ai-whatif-input');
+    var q=inp.value.trim();
+    if(!q)return;
+    if(AI_WORKER_URL.indexOf('CHANGE-ME')!==-1){document.getElementById('ai-whatif-response').innerHTML='<div style="color:var(--text3)">Connect AI Worker to use What-If</div>';return;}
+
+    whatIfChatHistory.push({role:'user',content:q});
+    inp.value='';
+    aiRenderWhatIfChat(true);
+
+    var systemPrompt='You are a quantitative trading analyst running What-If simulations on a trader\'s historical data. The trader follows the WWA methodology.\n\nFor each scenario the user proposes, calculate the EXACT impact: filter or modify the trades according to the scenario, show before vs after with specific numbers (P&L, trade count, win rate, avg R:R). Be concrete with math.\n\nThis is an ongoing conversation — remember previous scenarios in this chat so the user can iterate (e.g. "now combine that with my previous filter" or "what if we also add X to the previous scenario"). Reference earlier scenarios by name when the user builds on them.\n\nFULL TRADE HISTORY:\n'+aiBuildFullTradesContext();
+
+    fetch(AI_WORKER_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        type:'chat',
+        system:systemPrompt,
+        messages:whatIfChatHistory
+      })
+    })
     .then(function(r){return r.json();})
     .then(function(data){
-      var a=data.analysis;var txt=typeof a==='object'?(a.coachNote||a.headline||JSON.stringify(a)):a;
-      txt=txt.replace(/## (.*)/g,'<div style="font-size:12px;font-weight:700;color:var(--accent3);margin:10px 0 4px">$1</div>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/- (.*)/g,'<div style="padding:2px 0 2px 10px;border-left:2px solid rgba(124,90,240,.1)">• $1</div>').replace(/\n/g,'<br>');
-      resp.innerHTML='<div style="padding:12px 14px;border-radius:10px;background:rgba(240,180,41,.03);border:1px solid rgba(240,180,41,.06)"><div style="font-size:9px;color:var(--yellow);font-weight:600;margin-bottom:6px">🔮 '+q+'</div><div style="font-size:12px;color:var(--text);line-height:1.7">'+txt+'</div><div style="font-size:8px;color:var(--text3);margin-top:6px;text-align:right">Claude AI · '+new Date().toLocaleTimeString()+'</div></div>';
+      if(data.error){throw new Error(data.error);}
+      var a=data.analysis;
+      var txt=typeof a==='object'?(a.coachNote||a.headline||JSON.stringify(a)):(a||'(empty response)');
+      whatIfChatHistory.push({role:'assistant',content:txt});
+      aiRenderWhatIfChat(false);
     })
-    .catch(function(e){resp.innerHTML='<div style="color:var(--red);font-size:11px">'+e.message+'</div>';});
+    .catch(function(e){
+      whatIfChatHistory.push({role:'assistant',content:'⚠️ Error: '+e.message});
+      aiRenderWhatIfChat(false);
+    });
   }
   window.aiWhatIf=aiWhatIf;
+
+  function aiWhatIfClear(){whatIfChatHistory=[];aiRenderWhatIfChat(false);}
+  window.aiWhatIfClear=aiWhatIfClear;
 
   function aiDownloadAnalysis(type){
     var el5=document.getElementById('ai-'+type+'-analysis');if(!el5)return;
