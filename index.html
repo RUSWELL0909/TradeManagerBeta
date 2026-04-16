@@ -3069,8 +3069,68 @@ document.addEventListener('DOMContentLoaded', function() {
   } catch(e) {}
 });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
+
+<!-- ══ SUPABASE AUTH OVERLAY ══ -->
+<style>
+#tq-auth-overlay{position:fixed;inset:0;z-index:99999;background:var(--bg);display:flex;align-items:center;justify-content:center;opacity:1;transition:opacity .4s}
+#tq-auth-overlay.hidden{opacity:0;pointer-events:none}
+.tq-auth-box{width:380px;max-width:92vw;padding:40px 32px;border-radius:20px;background:var(--card);border:1px solid var(--border);text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.tq-auth-logo{margin-bottom:24px}
+.tq-auth-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:6px}
+.tq-auth-sub{font-size:12px;color:var(--text3);margin-bottom:28px;font-family:'Inter',sans-serif}
+.tq-auth-input{width:100%;padding:12px 16px;border-radius:10px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:13px;font-family:'Inter',sans-serif;margin-bottom:12px;outline:none;transition:border-color .2s}
+.tq-auth-input:focus{border-color:var(--accent)}
+.tq-auth-input::placeholder{color:var(--text3)}
+.tq-auth-btn{width:100%;padding:12px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;margin-top:4px;transition:opacity .2s}
+.tq-auth-btn:hover{opacity:.85}
+.tq-auth-btn:disabled{opacity:.5;cursor:not-allowed}
+.tq-auth-toggle{margin-top:18px;font-size:12px;color:var(--text3);font-family:'Inter',sans-serif}
+.tq-auth-toggle a{color:var(--accent);cursor:pointer;text-decoration:none;font-weight:600}
+.tq-auth-toggle a:hover{text-decoration:underline}
+.tq-auth-msg{font-size:11px;margin-top:10px;min-height:16px;font-family:'Inter',sans-serif}
+.tq-auth-msg.error{color:var(--red)}
+.tq-auth-msg.success{color:var(--green)}
+.tq-auth-skip{margin-top:14px;font-size:11px;color:var(--text3);font-family:'Inter',sans-serif}
+.tq-auth-skip a{color:var(--text3);cursor:pointer;text-decoration:underline;opacity:.6}
+.tq-auth-skip a:hover{opacity:1}
+.tq-auth-divider{display:flex;align-items:center;gap:12px;margin:18px 0;font-size:10px;color:var(--text3);font-family:'Inter',sans-serif;text-transform:uppercase;letter-spacing:1px}
+.tq-auth-divider::before,.tq-auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.tq-user-bar{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;background:var(--bg2);border:1px solid var(--border);margin-top:8px;cursor:default}
+.tq-user-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0}
+.tq-user-email{font-size:10px;color:var(--text2);font-family:'Inter',sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.tq-user-logout{background:none;border:none;color:var(--text3);font-size:9px;cursor:pointer;font-family:'Inter',sans-serif;padding:2px 6px;border-radius:4px}
+.tq-user-logout:hover{color:var(--red);background:rgba(224,92,122,.1)}
+.tq-sync-indicator{font-size:9px;color:var(--text3);font-family:'Inter',sans-serif;padding:4px 10px;display:flex;align-items:center;gap:5px}
+.tq-sync-indicator .dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+.tq-sync-indicator .dot.syncing{background:var(--yellow);animation:pulse 1s infinite}
+.tq-sync-indicator .dot.error{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+</style>
+
+<div id="tq-auth-overlay">
+  <div class="tq-auth-box">
+    <div class="tq-auth-logo">
+      <svg viewBox="251 270 522 367" width="64" height="64"><path d="M 262 325 C 263 319 267 314 273 313 C 276 312 280 312 284 312 C 286 312 288 312 290 312 C 290 312 291 313 292 312 C 292 306 292 300 292 293 C 292 290 292 286 292 282 C 293 281 295 282 297 281 C 301 281 304 281 308 281 C 321 280 335 280 348 280 C 389 283 430 291 466 311 C 477 316 488 323 497 330 C 502 334 506 338 511 342 C 512 341 513 340 513 339 C 516 337 518 335 521 333 C 529 327 537 321 546 316 C 557 311 567 305 578 301 C 610 288 644 282 678 280 C 692 280 706 280 719 281 C 722 282 726 282 729 282 C 730 282 732 282 732 283 C 733 293 732 303 732 313 C 733 313 734 313 735 313 C 737 313 739 313 741 313 C 748 313 755 313 760 320 C 763 325 762 332 762 338 C 762 351 762 364 762 377 C 762 425 762 474 762 523 C 762 540 762 558 762 576 C 762 584 763 592 756 597 C 750 601 743 600 736 600 C 723 600 710 600 697 600 C 663 600 629 600 594 600 C 578 600 562 599 545 600 C 545 606 540 612 535 616 C 522 626 504 627 490 619 C 485 616 481 611 478 605 C 477 604 477 602 476 600 C 476 599 474 600 473 600 C 470 600 467 600 464 600 C 451 600 439 600 426 600 C 390 600 355 600 319 600 C 309 600 298 600 288 600 C 283 600 277 601 272 599 C 267 597 264 593 262 587 C 262 584 262 581 262 578 C 262 563 262 548 262 533 C 262 488 262 442 262 397 C 262 381 262 365 262 349 C 262 341 261 333 262 325 Z" fill="var(--accent)" opacity="0.63" fill-rule="evenodd"/></svg>
+    </div>
+    <div class="tq-auth-title">TradeQuill</div>
+    <div class="tq-auth-sub" id="tq-auth-subtitle">Your edge, written.</div>
+    <div id="tq-auth-form">
+      <input class="tq-auth-input" id="tq-auth-email" type="email" placeholder="Email" autocomplete="email">
+      <input class="tq-auth-input" id="tq-auth-pass" type="password" placeholder="Password" autocomplete="current-password">
+      <button class="tq-auth-btn" id="tq-auth-submit" onclick="tqAuth()">Sign In</button>
+      <div class="tq-auth-msg" id="tq-auth-msg"></div>
+      <div class="tq-auth-toggle">
+        <span id="tq-auth-toggle-text">Don't have an account?</span>
+        <a onclick="tqToggleAuth()"><span id="tq-auth-toggle-link">Sign Up</span></a>
+      </div>
+      <div class="tq-auth-divider">or</div>
+      <div class="tq-auth-skip"><a onclick="tqSkipAuth()">Continue offline without account</a></div>
+    </div>
+  </div>
+</div>
 <nav class="sidebar">
   <div class="logo">
     <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
@@ -6362,6 +6422,453 @@ document.addEventListener('DOMContentLoaded', function() {
     delete _rfxMem[key];
   }
   window.rfxGet=rfxGet; window.rfxSet=rfxSet; window.rfxRemove=rfxRemove;
+
+  // ══════════════════════════════════════════════════════════════
+  // ██  SUPABASE MODULE — Auth + Cloud Sync (Phase 1)
+  // ══════════════════════════════════════════════════════════════
+  var TQ_SUPA_URL = 'https://ngneipmcivxcuwhnxvvj.supabase.co';
+  var TQ_SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5nbmVpcG1jaXZ4Y3V3aG54dnZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzODEyNTAsImV4cCI6MjA5MTk1NzI1MH0.OhTlRoLa-cx9c3Tud0B5PAISkYMOqOCIufuNUYeVuF0';
+  var _tqSupa = null;
+  var _tqUser = null;
+  var _tqSyncBusy = false;
+
+  // Init Supabase client
+  function tqInitSupabase(){
+    if(typeof supabase !== 'undefined' && supabase.createClient){
+      _tqSupa = supabase.createClient(TQ_SUPA_URL, TQ_SUPA_KEY);
+      console.log('TradeQuill: Supabase client ready');
+      // Check existing session
+      _tqSupa.auth.getSession().then(function(res){
+        if(res.data && res.data.session){
+          _tqUser = res.data.session.user;
+          console.log('TradeQuill: Session restored for', _tqUser.email);
+          tqHideAuth();
+          tqShowUserBar();
+          tqPullTrades(); // sync on load
+        }
+      });
+      // Listen for auth changes
+      _tqSupa.auth.onAuthStateChange(function(event, session){
+        if(session && session.user){
+          _tqUser = session.user;
+          tqHideAuth();
+          tqShowUserBar();
+        } else {
+          _tqUser = null;
+          tqHideUserBar();
+        }
+      });
+    } else {
+      console.warn('TradeQuill: Supabase JS not loaded, running offline');
+      // Hide auth overlay if Supabase not available
+      tqHideAuth();
+    }
+  }
+
+  // ── Auth UI ──
+  var _tqAuthMode = 'signin'; // or 'signup'
+
+  function tqToggleAuth(){
+    _tqAuthMode = _tqAuthMode === 'signin' ? 'signup' : 'signin';
+    document.getElementById('tq-auth-submit').textContent = _tqAuthMode === 'signin' ? 'Sign In' : 'Sign Up';
+    document.getElementById('tq-auth-toggle-text').textContent = _tqAuthMode === 'signin' ? "Don't have an account?" : 'Already have an account?';
+    document.getElementById('tq-auth-toggle-link').textContent = _tqAuthMode === 'signin' ? 'Sign Up' : 'Sign In';
+    document.getElementById('tq-auth-msg').textContent = '';
+    document.getElementById('tq-auth-msg').className = 'tq-auth-msg';
+  }
+  window.tqToggleAuth = tqToggleAuth;
+
+  function tqAuth(){
+    if(!_tqSupa){tqShowMsg('Supabase not loaded','error');return;}
+    var email = document.getElementById('tq-auth-email').value.trim();
+    var pass = document.getElementById('tq-auth-pass').value;
+    if(!email||!pass){tqShowMsg('Enter email and password','error');return;}
+    if(pass.length < 6){tqShowMsg('Password must be at least 6 characters','error');return;}
+    var btn = document.getElementById('tq-auth-submit');
+    btn.disabled = true;
+    btn.textContent = 'Loading...';
+
+    var promise;
+    if(_tqAuthMode === 'signup'){
+      promise = _tqSupa.auth.signUp({email:email,password:pass});
+    } else {
+      promise = _tqSupa.auth.signInWithPassword({email:email,password:pass});
+    }
+    promise.then(function(res){
+      btn.disabled = false;
+      btn.textContent = _tqAuthMode === 'signin' ? 'Sign In' : 'Sign Up';
+      if(res.error){
+        tqShowMsg(res.error.message,'error');
+      } else if(_tqAuthMode === 'signup' && res.data && !res.data.session){
+        tqShowMsg('Check your email to confirm your account!','success');
+      } else {
+        _tqUser = res.data.user;
+        tqHideAuth();
+        tqShowUserBar();
+        tqPullTrades();
+      }
+    }).catch(function(e){
+      btn.disabled = false;
+      btn.textContent = _tqAuthMode === 'signin' ? 'Sign In' : 'Sign Up';
+      tqShowMsg('Connection error','error');
+    });
+  }
+  window.tqAuth = tqAuth;
+
+  function tqSkipAuth(){
+    tqHideAuth();
+  }
+  window.tqSkipAuth = tqSkipAuth;
+
+  function tqLogout(){
+    if(_tqSupa) _tqSupa.auth.signOut();
+    _tqUser = null;
+    tqHideUserBar();
+    // Show auth overlay again
+    var ov = document.getElementById('tq-auth-overlay');
+    if(ov){ov.classList.remove('hidden');ov.style.display='flex';}
+  }
+  window.tqLogout = tqLogout;
+
+  function tqShowMsg(msg, type){
+    var el = document.getElementById('tq-auth-msg');
+    if(el){el.textContent=msg;el.className='tq-auth-msg '+(type||'');}
+  }
+
+  function tqHideAuth(){
+    var ov = document.getElementById('tq-auth-overlay');
+    if(ov){ov.classList.add('hidden');setTimeout(function(){ov.style.display='none';},400);}
+  }
+
+  // ── User bar in sidebar ──
+  function tqShowUserBar(){
+    if(!_tqUser) return;
+    var existing = document.getElementById('tq-user-bar');
+    if(existing) existing.remove();
+    var bar = document.createElement('div');
+    bar.id = 'tq-user-bar';
+    bar.className = 'tq-user-bar';
+    bar.innerHTML = '<span class="tq-user-dot"></span>'+
+      '<span class="tq-user-email">'+(_tqUser.email||'User')+'</span>'+
+      '<button class="tq-user-logout" onclick="tqLogout()">Logout</button>';
+    // Insert at bottom of sidebar
+    var sidebar = document.querySelector('.sidebar');
+    if(sidebar) sidebar.appendChild(bar);
+
+    // Also add sync indicator
+    var syncEl = document.getElementById('tq-sync-status');
+    if(!syncEl){
+      syncEl = document.createElement('div');
+      syncEl.id = 'tq-sync-status';
+      syncEl.className = 'tq-sync-indicator';
+      syncEl.innerHTML = '<span class="dot"></span> Synced';
+      if(sidebar) sidebar.appendChild(syncEl);
+    }
+  }
+
+  function tqHideUserBar(){
+    var bar = document.getElementById('tq-user-bar');
+    if(bar) bar.remove();
+    var sync = document.getElementById('tq-sync-status');
+    if(sync) sync.remove();
+  }
+
+  function tqSetSyncStatus(state, msg){
+    var el = document.getElementById('tq-sync-status');
+    if(!el) return;
+    var dot = el.querySelector('.dot');
+    if(dot){dot.className='dot';if(state!=='ok')dot.classList.add(state);}
+    el.lastChild.textContent = ' '+(msg||'Synced');
+  }
+
+  // ══ TRADE FIELD MAPPING: Portal ↔ Supabase ══
+  function tqTradeToRow(t){
+    // Map portal trade object → Supabase trades row
+    var row = {
+      external_id: t.id || null,
+      date: t.date || null,
+      pair: t.pair || t.symbol || '',
+      direction: t.direction || null,
+      session: t.session || null,
+      setup: t.setup || null,
+      entry_price: parseFloat(t.entry) || null,
+      exit_price: parseFloat(t.exit) || null,
+      sl_price: parseFloat(t.sl) || null,
+      tp_price: parseFloat(t.tp) || null,
+      lots: parseFloat(t.lots) || null,
+      pnl: parseFloat(t.pnl) || null,
+      rr: parseFloat(t.rrTarget) || null,
+      duration: null,
+      grade: t.grade || null,
+      emotion: t.emotion || null,
+      plan_followed: t.planFollowed || null,
+      notes: t.notes || null,
+      screenshots: t.screenshots || [],
+      cockpit_snapshot: t.cockpitSnapshot || null,
+      source: 'portal',
+      extra: {
+        account: t.account||'',
+        symbol: t.symbol||'',
+        setupId: t.setupId||'',
+        confluences: t.confluences||[],
+        contextValues: t.contextValues||{},
+        trigger: t.trigger||'',
+        dailyBias: t.dailyBias||'',
+        htfTrend: t.htfTrend||'',
+        marketPhase: t.marketPhase||'',
+        condition: t.condition||'',
+        model: t.model||'',
+        trendAlignment: t.trendAlignment||'',
+        execType: t.execType||'',
+        ltfConfirmations: t.ltfConfirmations||[],
+        poiTypes: t.poiTypes||[],
+        riskPct: t.riskPct||'',
+        pips: t.pips||'',
+        mfe: t.mfe||'',
+        mae: t.mae||'',
+        highestPrice: t.highestPrice||'',
+        lowestPrice: t.lowestPrice||'',
+        validity: t.validity||'',
+        status: t.status||'',
+        psychTags: t.psychTags||[],
+        customTags: t.customTags||[],
+        psychNote: t.psychNote||'',
+        grossPnl: t.grossPnl||'',
+        commission: t.commission||0,
+        entryHour: t.entryHour||'',
+        entryTime: t.entryTime||'',
+        exitTime: t.exitTime||'',
+        tvLink: t.tvLink||'',
+        tvImage: t.tvImage||''
+      }
+    };
+    return row;
+  }
+
+  function tqRowToTrade(row){
+    // Map Supabase row → portal trade object
+    var ex = row.extra || {};
+    return {
+      id: row.external_id || row.id,
+      _supaId: row.id,
+      date: row.date||'',
+      pair: row.pair||'',
+      symbol: ex.symbol || row.pair||'',
+      account: ex.account||'',
+      direction: row.direction||'buy',
+      setup: row.setup||'',
+      setupId: ex.setupId||'',
+      confluences: ex.confluences||[],
+      contextValues: ex.contextValues||{},
+      trigger: ex.trigger||'',
+      dailyBias: ex.dailyBias||'',
+      htfTrend: ex.htfTrend||'',
+      marketPhase: ex.marketPhase||'',
+      condition: ex.condition||'',
+      model: ex.model||'',
+      trendAlignment: ex.trendAlignment||'',
+      execType: ex.execType||'',
+      ltfConfirmations: ex.ltfConfirmations||[],
+      poiTypes: ex.poiTypes||[],
+      rrTarget: row.rr ? String(row.rr) : '',
+      riskPct: ex.riskPct||'',
+      pips: ex.pips||'',
+      mfe: ex.mfe||'',
+      mae: ex.mae||'',
+      highestPrice: ex.highestPrice||'',
+      lowestPrice: ex.lowestPrice||'',
+      emotion: row.emotion||'',
+      validity: ex.validity||'',
+      status: ex.status||'',
+      grade: row.grade||'',
+      planFollowed: row.plan_followed||'',
+      psychTags: ex.psychTags||[],
+      customTags: ex.customTags||[],
+      psychNote: ex.psychNote||'',
+      entry: row.entry_price||'',
+      sl: row.sl_price||'',
+      tp: row.tp_price||'',
+      exit: row.exit_price||'',
+      lots: row.lots||'',
+      pnl: row.pnl||0,
+      grossPnl: ex.grossPnl||row.pnl||0,
+      commission: ex.commission||0,
+      entryHour: ex.entryHour||12,
+      entryTime: ex.entryTime||'',
+      exitTime: ex.exitTime||'',
+      session: row.session||'',
+      notes: row.notes||'',
+      screenshots: row.screenshots||[],
+      tvLink: ex.tvLink||'',
+      tvImage: ex.tvImage||'',
+      created: row.created_at||new Date().toISOString(),
+      cockpitSnapshot: row.cockpit_snapshot||null
+    };
+  }
+
+  // ══ SYNC: Push single trade to Supabase ══
+  function tqPushTrade(trade){
+    if(!_tqSupa || !_tqUser) return Promise.resolve();
+    var row = tqTradeToRow(trade);
+    row.user_id = _tqUser.id;
+    tqSetSyncStatus('syncing','Syncing...');
+
+    // Upsert by external_id
+    return _tqSupa.from('trades')
+      .upsert(row, {onConflict:'user_id,external_id'})
+      .then(function(res){
+        if(res.error){
+          console.error('TradeQuill sync push error:', res.error);
+          tqSetSyncStatus('error','Sync error');
+        } else {
+          tqSetSyncStatus('ok','Synced');
+          console.log('TradeQuill: Trade pushed →', trade.id);
+        }
+      }).catch(function(e){
+        console.error('TradeQuill sync error:', e);
+        tqSetSyncStatus('error','Sync error');
+      });
+  }
+  window.tqPushTrade = tqPushTrade;
+
+  // ══ SYNC: Delete trade from Supabase ══
+  function tqDeleteTrade(tradeId){
+    if(!_tqSupa || !_tqUser) return Promise.resolve();
+    tqSetSyncStatus('syncing','Syncing...');
+    return _tqSupa.from('trades')
+      .delete()
+      .eq('user_id', _tqUser.id)
+      .eq('external_id', tradeId)
+      .then(function(res){
+        if(res.error){
+          console.error('TradeQuill sync delete error:', res.error);
+          tqSetSyncStatus('error','Sync error');
+        } else {
+          tqSetSyncStatus('ok','Synced');
+          console.log('TradeQuill: Trade deleted ←', tradeId);
+        }
+      }).catch(function(e){
+        tqSetSyncStatus('error','Sync error');
+      });
+  }
+  window.tqDeleteTrade = tqDeleteTrade;
+
+  // ══ SYNC: Pull all trades from Supabase on login ══
+  function tqPullTrades(){
+    if(!_tqSupa || !_tqUser) return;
+    tqSetSyncStatus('syncing','Pulling...');
+    _tqSupa.from('trades')
+      .select('*')
+      .eq('user_id', _tqUser.id)
+      .order('date', {ascending:false})
+      .then(function(res){
+        if(res.error){
+          console.error('TradeQuill pull error:', res.error);
+          tqSetSyncStatus('error','Pull failed');
+          return;
+        }
+        var cloudTrades = res.data || [];
+        if(cloudTrades.length === 0){
+          // No cloud trades: push local trades up
+          tqPushAllLocal();
+          return;
+        }
+        // Merge strategy: cloud wins for conflicts, keep local-only trades
+        var localTrades = JSON.parse(rfxGet('rf_trades')||'[]');
+        var cloudMap = {};
+        cloudTrades.forEach(function(row){
+          if(row.external_id) cloudMap[row.external_id] = row;
+        });
+        var localMap = {};
+        localTrades.forEach(function(t){ localMap[t.id] = t; });
+
+        var merged = [];
+        // Add all cloud trades (converted to portal format)
+        cloudTrades.forEach(function(row){
+          merged.push(tqRowToTrade(row));
+        });
+        // Add local-only trades (not in cloud) and push them up
+        var toPush = [];
+        localTrades.forEach(function(t){
+          if(!cloudMap[t.id]){
+            merged.push(t);
+            toPush.push(t);
+          }
+        });
+
+        rfxSet('rf_trades', JSON.stringify(merged));
+        tqSetSyncStatus('ok', merged.length + ' trades synced');
+        console.log('TradeQuill: Merged', merged.length, 'trades ('+cloudTrades.length+' cloud + '+toPush.length+' local-only)');
+
+        // Push local-only trades to cloud
+        if(toPush.length > 0){
+          tqSetSyncStatus('syncing','Pushing '+toPush.length+'...');
+          var rows = toPush.map(function(t){
+            var r = tqTradeToRow(t);
+            r.user_id = _tqUser.id;
+            return r;
+          });
+          _tqSupa.from('trades').upsert(rows, {onConflict:'user_id,external_id'}).then(function(r2){
+            if(r2.error) console.error('Batch push error:', r2.error);
+            else console.log('TradeQuill: Pushed', toPush.length, 'local trades to cloud');
+            tqSetSyncStatus('ok','Synced');
+          });
+        }
+
+        // Refresh UI
+        if(typeof renderJournal==='function') renderJournal();
+        if(typeof updateDashboard==='function') updateDashboard();
+      }).catch(function(e){
+        console.error('TradeQuill pull error:', e);
+        tqSetSyncStatus('error','Pull failed');
+      });
+  }
+
+  // Push all local trades to cloud (first-time sync)
+  function tqPushAllLocal(){
+    if(!_tqSupa || !_tqUser) return;
+    var localTrades = JSON.parse(rfxGet('rf_trades')||'[]');
+    if(localTrades.length === 0){
+      tqSetSyncStatus('ok','No trades to sync');
+      return;
+    }
+    tqSetSyncStatus('syncing','Uploading '+localTrades.length+' trades...');
+    var rows = localTrades.map(function(t){
+      var r = tqTradeToRow(t);
+      r.user_id = _tqUser.id;
+      return r;
+    });
+    _tqSupa.from('trades').upsert(rows, {onConflict:'user_id,external_id'}).then(function(res){
+      if(res.error){
+        console.error('Batch push error:', res.error);
+        tqSetSyncStatus('error','Upload failed');
+      } else {
+        tqSetSyncStatus('ok', localTrades.length+' trades uploaded');
+        console.log('TradeQuill: Uploaded', localTrades.length, 'trades to cloud');
+      }
+    }).catch(function(e){
+      tqSetSyncStatus('error','Upload failed');
+    });
+  }
+
+  // Enter key support for login form
+  document.addEventListener('keydown', function(e){
+    if(e.key==='Enter'){
+      var ov = document.getElementById('tq-auth-overlay');
+      if(ov && !ov.classList.contains('hidden')){
+        tqAuth();
+      }
+    }
+  });
+
+  // Init Supabase when DOM is ready
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded', tqInitSupabase);
+  } else {
+    setTimeout(tqInitSupabase, 100);
+  }
+
+  // ══ END SUPABASE MODULE ══
 
   // ── VERSION RESET: Clear stale data from previous versions ──
   var _TQ_VERSION = 'v16';
@@ -9702,6 +10209,8 @@ document.addEventListener('DOMContentLoaded', function() {
     var trades=JSON.parse(rfxGet('rf_trades')||'[]');
     trades=trades.filter(function(t){return !jrSelected[t.id];});
     rfxSet('rf_trades',JSON.stringify(trades));
+    // Supabase: delete each selected trade
+    Object.keys(jrSelected).forEach(function(tid){tqDeleteTrade(tid);});
     jrSelected={};
     document.getElementById('jr-bulk-bar').className='jr-bulk-bar';
     renderJournal();
@@ -10610,6 +11119,8 @@ document.addEventListener('DOMContentLoaded', function() {
       setTimeout(function(){notif.remove();},5000);
       // Track imported trades for backup reminder
       if(added>0){var bc=parseInt(rfxGet('rf_backup_counter')||'0',10)+added;rfxSet('rf_backup_counter',String(bc));}
+      // Push imported trades to Supabase
+      if(added>0 && typeof tqPushAllLocal==='function') tqPushAllLocal();
       renderJournal();
       if(typeof updateDashboard==='function')updateDashboard();
       if(typeof dvRender==='function')dvRender();
@@ -10729,6 +11240,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     rfxSet('rf_trades', JSON.stringify(trades));
     if(!jrEditId) rfxTrackBackupReminder(); // Track new trade for backup reminder
+    tqPushTrade(trade); // ← Supabase sync
     closeJrModal();
     renderJournal();
   }
@@ -10740,6 +11252,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var trades = JSON.parse(rfxGet('rf_trades')||'[]');
     trades = trades.filter(function(t){return t.id!==id;});
     rfxSet('rf_trades', JSON.stringify(trades));
+    tqDeleteTrade(id); // ← Supabase sync
     renderJournal();
   }
   window.jrDeleteTrade = jrDeleteTrade;
@@ -18590,6 +19103,7 @@ document.addEventListener('DOMContentLoaded', function() {
       });
       rfxSet('tb_trades', JSON.stringify(existing));
       rfxSet('rf_trades', JSON.stringify(rfTrades));
+      if(typeof tqPushAllLocal==='function') tqPushAllLocal(); // Supabase sync
 
       // ── Sync account stats after import ──────────────────
       accounts = JSON.parse(rfxGet('rf_accounts') || '[]');
