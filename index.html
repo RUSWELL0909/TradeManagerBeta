@@ -3069,7 +3069,11 @@ document.addEventListener('DOMContentLoaded', function() {
   } catch(e) {}
 });
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script type="module">
+import{createClient}from'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+window.supabase={createClient:createClient};
+window.dispatchEvent(new Event('supabase-ready'));
+</script>
 </head>
 <body>
 
@@ -6861,11 +6865,25 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Init Supabase when DOM is ready
+  // Init Supabase when ESM module loads (fires 'supabase-ready' event)
+  function _tqWaitForSupabase(){
+    if(typeof supabase !== 'undefined' && supabase.createClient){
+      tqInitSupabase();
+    } else {
+      window.addEventListener('supabase-ready', tqInitSupabase, {once:true});
+      // Fallback: if event never fires, hide auth after 5s
+      setTimeout(function(){
+        if(!_tqSupa){
+          console.warn('TradeQuill: Supabase not loaded after 5s, running offline');
+          tqHideAuth();
+        }
+      }, 5000);
+    }
+  }
   if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded', tqInitSupabase);
+    document.addEventListener('DOMContentLoaded', _tqWaitForSupabase);
   } else {
-    setTimeout(tqInitSupabase, 100);
+    _tqWaitForSupabase();
   }
 
   // ══ END SUPABASE MODULE ══
