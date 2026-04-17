@@ -6448,7 +6448,7 @@ window.dispatchEvent(new Event('supabase-ready'));
           console.log('TradeQuill: Session restored for', _tqUser.email);
           tqHideAuth();
           tqShowUserBar();
-          tqPullTrades(); // sync on load
+          tqPullAll(); // sync all on load
         }
       });
       // Listen for auth changes
@@ -6509,7 +6509,7 @@ window.dispatchEvent(new Event('supabase-ready'));
         _tqUser = res.data.user;
         tqHideAuth();
         tqShowUserBar();
-        tqPullTrades();
+        tqPullAll();
       }
     }).catch(function(e){
       btn.disabled = false;
@@ -6885,6 +6885,210 @@ window.dispatchEvent(new Event('supabase-ready'));
   } else {
     _tqWaitForSupabase();
   }
+
+  // ══ NOTEBOOK SYNC ══
+  function tqNoteToRow(n){
+    return {
+      external_id: n.id||null,
+      title: n.title||'Untitled',
+      content: n.content||'',
+      tags: {type:n.type||'free',pinned:!!n.pinned,mood:n.mood||0,date:n.date||''},
+      images: n.images||[],
+      created_at: n.created||new Date().toISOString(),
+      updated_at: n.updated||new Date().toISOString()
+    };
+  }
+  function tqRowToNote(row){
+    var tags=row.tags||{};
+    return {
+      id:row.external_id||row.id,
+      _supaId:row.id,
+      type:tags.type||'free',
+      date:tags.date||'',
+      title:row.title||'',
+      content:row.content||'',
+      pinned:!!tags.pinned,
+      mood:tags.mood||0,
+      images:row.images||[],
+      created:row.created_at||'',
+      updated:row.updated_at||''
+    };
+  }
+  function tqPushNotebook(note){
+    if(!_tqSupa||!_tqUser)return;
+    var row=tqNoteToRow(note);row.user_id=_tqUser.id;
+    _tqSupa.from('notebooks').upsert(row,{onConflict:'user_id,external_id'}).then(function(r){
+      if(r.error)console.error('Notebook push error:',r.error);
+      else console.log('TradeQuill: Notebook pushed →',note.id);
+    });
+  }
+  window.tqPushNotebook=tqPushNotebook;
+  function tqDeleteNotebook(noteId){
+    if(!_tqSupa||!_tqUser)return;
+    _tqSupa.from('notebooks').delete().eq('user_id',_tqUser.id).eq('external_id',noteId).then(function(r){
+      if(r.error)console.error('Notebook delete error:',r.error);
+    });
+  }
+  window.tqDeleteNotebook=tqDeleteNotebook;
+  function tqPullNotebooks(){
+    if(!_tqSupa||!_tqUser)return;
+    _tqSupa.from('notebooks').select('*').eq('user_id',_tqUser.id).order('created_at',{ascending:false}).then(function(res){
+      if(res.error){console.error('Notebook pull error:',res.error);return;}
+      var cloud=res.data||[];
+      var local=JSON.parse(rfxGet('rossfx-notebook')||'[]');
+      if(cloud.length===0&&local.length>0){
+        // Push local up
+        var rows=local.map(function(n){var r=tqNoteToRow(n);r.user_id=_tqUser.id;return r;});
+        _tqSupa.from('notebooks').upsert(rows,{onConflict:'user_id,external_id'}).then(function(r2){
+          if(!r2.error)console.log('TradeQuill: Pushed',local.length,'notebooks to cloud');
+        });
+        return;
+      }
+      var cloudMap={};cloud.forEach(function(r){if(r.external_id)cloudMap[r.external_id]=r;});
+      var merged=[];var toPush=[];
+      cloud.forEach(function(r){merged.push(tqRowToNote(r));});
+      local.forEach(function(n){if(!cloudMap[n.id]){merged.push(n);toPush.push(n);}});
+      rfxSet('rossfx-notebook',JSON.stringify(merged));
+      console.log('TradeQuill: Merged',merged.length,'notebooks');
+      if(toPush.length>0){
+        var rows=toPush.map(function(n){var r=tqNoteToRow(n);r.user_id=_tqUser.id;return r;});
+        _tqSupa.from('notebooks').upsert(rows,{onConflict:'user_id,external_id'});
+      }
+      if(typeof nbRender==='function')nbRender();
+    });
+  }
+
+  // ══ PLAYBOOK SYNC ══
+  function tqSetupToRow(s){
+    return {
+      external_id:s.id||null,
+      name:s.name||'Untitled',
+      data:s,
+      created_at:s.created||new Date().toISOString(),
+      updated_at:new Date().toISOString()
+    };
+  }
+  function tqRowToSetup(row){
+    var d=row.data||{};
+    d._supaId=row.id;
+    if(!d.id)d.id=row.external_id||row.id;
+    return d;
+  }
+  function tqPushPlaybook(setup){
+    if(!_tqSupa||!_tqUser)return;
+    var row=tqSetupToRow(setup);row.user_id=_tqUser.id;
+    _tqSupa.from('playbook_models').upsert(row,{onConflict:'user_id,external_id'}).then(function(r){
+      if(r.error)console.error('Playbook push error:',r.error);
+      else console.log('TradeQuill: Playbook pushed →',setup.name);
+    });
+  }
+  window.tqPushPlaybook=tqPushPlaybook;
+  function tqDeletePlaybook(setupId){
+    if(!_tqSupa||!_tqUser)return;
+    _tqSupa.from('playbook_models').delete().eq('user_id',_tqUser.id).eq('external_id',setupId).then(function(r){
+      if(r.error)console.error('Playbook delete error:',r.error);
+    });
+  }
+  window.tqDeletePlaybook=tqDeletePlaybook;
+  function tqPullPlaybooks(){
+    if(!_tqSupa||!_tqUser)return;
+    _tqSupa.from('playbook_models').select('*').eq('user_id',_tqUser.id).then(function(res){
+      if(res.error){console.error('Playbook pull error:',res.error);return;}
+      var cloud=res.data||[];
+      var local=JSON.parse(rfxGet('rossfx-playbook')||'[]');
+      if(cloud.length===0&&local.length>0){
+        var rows=local.map(function(s){var r=tqSetupToRow(s);r.user_id=_tqUser.id;return r;});
+        _tqSupa.from('playbook_models').upsert(rows,{onConflict:'user_id,external_id'}).then(function(r2){
+          if(!r2.error)console.log('TradeQuill: Pushed',local.length,'playbooks to cloud');
+        });
+        return;
+      }
+      var cloudMap={};cloud.forEach(function(r){if(r.external_id)cloudMap[r.external_id]=r;});
+      var merged=[];var toPush=[];
+      cloud.forEach(function(r){merged.push(tqRowToSetup(r));});
+      local.forEach(function(s){if(!cloudMap[s.id]){merged.push(s);toPush.push(s);}});
+      rfxSet('rossfx-playbook',JSON.stringify(merged));
+      console.log('TradeQuill: Merged',merged.length,'playbooks');
+      if(toPush.length>0){
+        var rows=toPush.map(function(s){var r=tqSetupToRow(s);r.user_id=_tqUser.id;return r;});
+        _tqSupa.from('playbook_models').upsert(rows,{onConflict:'user_id,external_id'});
+      }
+      if(typeof renderPbCards==='function')renderPbCards();
+    });
+  }
+
+  // ══ ACCOUNTS SYNC ══
+  function tqAccToRow(a){
+    return {
+      external_id:a.id||null,
+      name:a.name||'',
+      broker:a.broker||null,
+      platform:a.platform||null,
+      account_number:a.accountNumber||null,
+      currency:a.currency||'USD',
+      initial_balance:parseFloat(a.startingBalance||a.balance)||0,
+      is_prop:a.type==='prop'||a.type==='challenge',
+      prop_firm:a.propFirm||null,
+      is_active:a.active!==false
+    };
+  }
+  function tqRowToAcc(row){
+    return {
+      id:row.external_id||row.id,
+      _supaId:row.id,
+      name:row.name||'',
+      broker:row.broker||'',
+      type:row.is_prop?'prop':'funded',
+      balance:parseFloat(row.initial_balance)||0,
+      startingBalance:parseFloat(row.initial_balance)||0,
+      currency:row.currency||'USD',
+      platform:row.platform||'',
+      accountNumber:row.account_number||'',
+      propFirm:row.prop_firm||'',
+      active:row.is_active!==false
+    };
+  }
+  function tqPushAccounts(){
+    if(!_tqSupa||!_tqUser)return;
+    var accs=JSON.parse(rfxGet('rf_accounts')||'[]');
+    if(accs.length===0)return;
+    var rows=accs.map(function(a){var r=tqAccToRow(a);r.user_id=_tqUser.id;return r;});
+    _tqSupa.from('accounts').upsert(rows,{onConflict:'user_id,external_id'}).then(function(r){
+      if(r.error)console.error('Accounts push error:',r.error);
+      else console.log('TradeQuill: Pushed',accs.length,'accounts to cloud');
+    });
+  }
+  window.tqPushAccounts=tqPushAccounts;
+  function tqPullAccounts(){
+    if(!_tqSupa||!_tqUser)return;
+    _tqSupa.from('accounts').select('*').eq('user_id',_tqUser.id).then(function(res){
+      if(res.error){console.error('Accounts pull error:',res.error);return;}
+      var cloud=res.data||[];
+      var local=JSON.parse(rfxGet('rf_accounts')||'[]');
+      if(cloud.length===0&&local.length>0){tqPushAccounts();return;}
+      var cloudMap={};cloud.forEach(function(r){if(r.external_id)cloudMap[r.external_id]=r;});
+      var merged=[];
+      cloud.forEach(function(r){merged.push(tqRowToAcc(r));});
+      local.forEach(function(a){if(!cloudMap[a.id])merged.push(a);});
+      rfxSet('rf_accounts',JSON.stringify(merged));
+      console.log('TradeQuill: Merged',merged.length,'accounts');
+      if(typeof renderAccountsPage==='function')renderAccountsPage();
+    });
+  }
+
+  // ══ MASTER PULL — called on login ══
+  function tqPullAll(){
+    tqPullTrades();
+    setTimeout(tqPullNotebooks, 500);
+    setTimeout(tqPullPlaybooks, 1000);
+    setTimeout(tqPullAccounts, 1500);
+  }
+
+  // Export all sync functions to window
+  window.tqPullNotebooks=tqPullNotebooks;
+  window.tqPullPlaybooks=tqPullPlaybooks;
+  window.tqPullAccounts=tqPullAccounts;
+  window.tqPullAll=tqPullAll;
 
   // ══ END SUPABASE MODULE ══
 
@@ -14511,7 +14715,7 @@ window.dispatchEvent(new Event('supabase-ready'));
     var note={id:nbEditId||('nb_'+Date.now()),type:document.getElementById('nb-type').value,date:document.getElementById('nb-date').value,title:document.getElementById('nb-title').value.trim()||'Untitled',content:document.getElementById('nb-content').value,pinned:document.getElementById('nb-pinned').checked,mood:nbMoodVal,images:nbImages.slice(),updated:new Date().toISOString()};
     if(nbEditId){var idx=notes.findIndex(function(n){return n.id===nbEditId;});if(idx>=0)notes[idx]=Object.assign(notes[idx],note);}
     else{note.created=new Date().toISOString();notes.unshift(note);}
-    nbSaveNotes(notes);nbCloseModal();nbRender();
+    nbSaveNotes(notes);if(typeof tqPushNotebook==='function')tqPushNotebook(note);nbCloseModal();nbRender();
   }
   window.nbSave=nbSave;
 
@@ -14533,7 +14737,7 @@ window.dispatchEvent(new Event('supabase-ready'));
   }
   window.nbEdit=nbEdit;
 
-  function nbDelete(){if(!nbEditId||!confirm('Delete this note?'))return;var notes=nbGetNotes().filter(function(n){return n.id!==nbEditId;});nbSaveNotes(notes);nbCloseModal();nbRender();}
+  function nbDelete(){if(!nbEditId||!confirm('Delete this note?'))return;var delId=nbEditId;var notes=nbGetNotes().filter(function(n){return n.id!==delId;});nbSaveNotes(notes);if(typeof tqDeleteNotebook==='function')tqDeleteNotebook(delId);nbCloseModal();nbRender();}
   window.nbDelete=nbDelete;
 
   function nbFilter(type,btn){nbFilterType=type;document.querySelectorAll('.nb-type-btn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');nbRender();}
@@ -14951,7 +15155,14 @@ window.dispatchEvent(new Event('supabase-ready'));
   };
 
   function getPlaybooks(){ try{return JSON.parse(rfxGet(PB_KEY)||'[]');}catch(e){return [];} }
-  function savePlaybooks(arr){ rfxSet(PB_KEY, JSON.stringify(arr)); }
+  function savePlaybooks(arr){
+    rfxSet(PB_KEY, JSON.stringify(arr));
+    // Supabase: push all playbooks
+    if(typeof _tqSupa!=='undefined'&&_tqSupa&&_tqUser){
+      var rows=arr.map(function(s){var r=tqSetupToRow(s);r.user_id=_tqUser.id;return r;});
+      if(rows.length>0)_tqSupa.from('playbook_models').upsert(rows,{onConflict:'user_id,external_id'}).then(function(r){if(r.error)console.error('Playbook sync error:',r.error);else console.log('TradeQuill: Playbooks synced');});
+    }
+  }
 
   // ── Tab switching ──
   function pbTab(id, btn){
@@ -15157,6 +15368,7 @@ window.dispatchEvent(new Event('supabase-ready'));
       rfxSet('rf_trades', JSON.stringify(trades));
     }
     setups = setups.filter(function(x){return x.id!==pbDetailId;});
+    if(typeof tqDeletePlaybook==='function')tqDeletePlaybook(pbDetailId);
     savePlaybooks(setups);
     closePbDetail();
     renderPbCards();
@@ -18624,6 +18836,7 @@ window.dispatchEvent(new Event('supabase-ready'));
     };
     accs.push(acc);
     rfxSet('rf_accounts', JSON.stringify(accs));
+    if(typeof tqPushAccounts==='function')tqPushAccounts();
     window._lastCreatedAccId = acc.id;
     var s3name = document.getElementById('acc-step3-name');
     if(s3name) s3name.textContent = '"' + acc.name + '" created!';
@@ -18733,6 +18946,8 @@ window.dispatchEvent(new Event('supabase-ready'));
       rfxSet('rf_trades', JSON.stringify(cleanTr));
       accs = accs.filter(function(a){ return a.id !== id; });
       rfxSet('rf_accounts', JSON.stringify(accs));
+      if(typeof tqPushAccounts==='function')tqPushAccounts();
+      if(typeof tqPushAllLocal==='function')tqPushAllLocal(); // re-sync trades after orphan removal
       if(window.renderAccountsPage) window.renderAccountsPage();
     }
   }
