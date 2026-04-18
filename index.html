@@ -632,6 +632,34 @@
 }
 /* Forms */
 
+/* ── NOTEBOOK filters — Light theme: solid active state ── */
+[data-theme="light"] .nb-type-btn {
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: var(--text2) !important;
+}
+[data-theme="light"] .nb-type-btn:hover {
+  border-color: rgba(124,90,240,.4) !important;
+  color: var(--text) !important;
+  background: rgba(124,90,240,.04) !important;
+}
+[data-theme="light"] .nb-type-btn.active {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(124,90,240,.2) !important;
+}
+
+/* Mood buttons in Notebook modal */
+[data-theme="light"] .nb-mood {
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+}
+[data-theme="light"] .nb-mood:hover {
+  border-color: rgba(124,90,240,.4) !important;
+  background: rgba(124,90,240,.04) !important;
+}
+
 /* ── JOURNAL page — Light theme refinements ── */
 [data-theme="light"] .jr-stat {
   border: 1px solid #cbd5e1 !important;
@@ -5073,7 +5101,7 @@ window.dispatchEvent(new Event('supabase-ready'));
       <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;position:relative;overflow:hidden"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(124,90,240,.08),transparent)"></div><div style="font-size:9px;color:var(--text3);font-family:'Inter',sans-serif;font-weight:600;letter-spacing:.3px">TOTAL NOTES</div><div style="font-size:22px;font-weight:200;margin-top:4px" id="nb-stat-total">0</div></div>
       <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;position:relative;overflow:hidden"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(124,90,240,.08),transparent)"></div><div style="font-size:9px;color:var(--text3);font-family:'Inter',sans-serif;font-weight:600;letter-spacing:.3px">THIS WEEK</div><div style="font-size:22px;font-weight:200;margin-top:4px" id="nb-stat-week">0</div></div>
       <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;position:relative;overflow:hidden"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(124,90,240,.08),transparent)"></div><div style="font-size:9px;color:var(--text3);font-family:'Inter',sans-serif;font-weight:600;letter-spacing:.3px">THIS MONTH</div><div style="font-size:22px;font-weight:200;margin-top:4px" id="nb-stat-month">0</div></div>
-      <div style="background:linear-gradient(135deg,rgba(46,204,138,.03),var(--card));border:1px solid rgba(46,204,138,.06);border-radius:14px;padding:14px 16px;position:relative;overflow:hidden"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(46,204,138,.15),transparent)"></div><div style="font-size:9px;color:var(--text3);font-family:'Inter',sans-serif;font-weight:600;letter-spacing:.3px">JOURNAL STREAK</div><div style="font-size:22px;font-weight:200;margin-top:4px" id="nb-stat-streak"><span id="nb-streak-num">0</span> <span style="font-size:12px;color:var(--text3)">days</span></div></div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;position:relative;overflow:hidden"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(124,90,240,.18),transparent)"></div><div style="font-size:9px;color:var(--text3);font-family:'Inter',sans-serif;font-weight:600;letter-spacing:.3px">JOURNAL STREAK</div><div style="font-size:22px;font-weight:200;margin-top:4px" id="nb-stat-streak"><span id="nb-streak-num">0</span> <span style="font-size:12px;color:var(--text3)">days</span></div></div>
       <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;position:relative;overflow:hidden"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(124,90,240,.08),transparent)"></div><div style="font-size:9px;color:var(--text3);font-family:'Inter',sans-serif;font-weight:600;letter-spacing:.3px">AVG WORDS</div><div style="font-size:22px;font-weight:200;margin-top:4px" id="nb-stat-words">0</div></div>
     </div>
     <div class="nb-toolbar">
