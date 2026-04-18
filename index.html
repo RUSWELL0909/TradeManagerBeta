@@ -17891,17 +17891,19 @@ window.dispatchEvent(new Event('supabase-ready'));
     var s = document.createElement('style');
     s.id = 'news-styles';
     s.textContent = ''
-      + '.news-row{position:relative;display:grid;grid-template-columns:78px 120px 1fr 110px 110px 110px;gap:14px;align-items:center;padding:14px 22px 14px 28px;background:var(--bg2);border:1px solid var(--border);border-radius:11px;margin-bottom:5px;font-family:"Inter",sans-serif;font-size:12px;transition:transform .15s,background .15s,border-color .15s,box-shadow .15s;overflow:hidden}'
+      + '.news-row{position:relative;display:grid;grid-template-columns:78px 120px 1fr 110px 110px 110px;gap:14px;align-items:center;padding:14px 22px 14px 28px;background:var(--card);border:1px solid var(--border);border-radius:11px;margin-bottom:5px;font-family:"Inter",sans-serif;font-size:12px;transition:transform .15s,background .15s,border-color .15s,box-shadow .15s;overflow:hidden}'
+      + '[data-theme="dark"] .news-row{background:var(--bg2)}'
       + '.news-row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:11px 0 0 11px;background:transparent;transition:width .15s}'
       + '.news-row.imp-high::before{background:linear-gradient(180deg,#ff6b8a,#e05c7a);box-shadow:0 0 12px rgba(224,92,122,.35)}'
       + '.news-row.imp-medium::before{background:linear-gradient(180deg,#ffc954,#f0b429)}'
       + '.news-row.imp-low::before{background:rgba(138,148,166,.35)}'
       + '.news-row.imp-holiday::before{background:linear-gradient(180deg,#9d7af5,#7c5af0)}'
-      + '.news-row:hover{background:rgba(124,90,240,.05);border-color:rgba(124,90,240,.22);transform:translateX(2px);box-shadow:0 4px 14px rgba(0,0,0,.18)}'
+      + '.news-row:hover{background:rgba(124,90,240,.04);border-color:rgba(124,90,240,.28);transform:translateX(2px);box-shadow:0 4px 14px rgba(124,90,240,.08)}'
+      + '[data-theme="dark"] .news-row:hover{background:rgba(124,90,240,.05);box-shadow:0 4px 14px rgba(0,0,0,.18)}'
       + '.news-row:hover::before{width:4px}'
-      + '.news-row.past{opacity:.45}'
-      + '.news-row.past:hover{opacity:.85}'
-      + '.news-row.live{border-color:rgba(224,92,122,.55);background:rgba(224,92,122,.05);animation:newsLivePulse 2s ease-in-out infinite}'
+      + '.news-row.past{opacity:.55}'
+      + '.news-row.past:hover{opacity:.9}'
+      + '.news-row.live{border-color:rgba(224,92,122,.55);background:rgba(224,92,122,.04);animation:newsLivePulse 2s ease-in-out infinite}'
       + '@keyframes newsLivePulse{0%,100%{box-shadow:0 0 0 0 rgba(224,92,122,.22),0 0 18px rgba(224,92,122,.12)}50%{box-shadow:0 0 0 5px rgba(224,92,122,.04),0 0 24px rgba(224,92,122,.18)}}'
       + '.news-day-card{padding:13px 14px;background:var(--card);border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:all .18s ease;text-align:center;position:relative;overflow:hidden}'
       + '[data-theme="dark"] .news-day-card{background:linear-gradient(180deg,var(--bg2) 0%,rgba(20,16,40,.4) 100%)}'
@@ -18243,16 +18245,29 @@ window.dispatchEvent(new Event('supabase-ready'));
 
     var statusClass = status === 'past' ? 'past' : status === 'live' ? 'live' : '';
 
+    // Actual vs forecast: color based on deviation
+    var actualColor = 'var(--text3)';
+    var actualWeight = '600';
+    if(actual !== '—' && forecast !== '—'){
+      var a = parseFloat(String(actual).replace(/[^0-9.-]/g,''));
+      var f = parseFloat(String(forecast).replace(/[^0-9.-]/g,''));
+      if(!isNaN(a) && !isNaN(f)){
+        if(a > f){ actualColor = 'var(--green)'; actualWeight = '700'; }
+        else if(a < f){ actualColor = 'var(--red)'; actualWeight = '700'; }
+        else { actualColor = 'var(--text)'; actualWeight = '600'; }
+      }
+    }
+
     return '<div class="news-row '+impClass+' '+statusClass+'" title="'+e.title.replace(/"/g,'&quot;')+' · '+(e.impact||'')+' impact">'
-      + '<div style="font-size:12px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums;letter-spacing:.3px">'+time+'</div>'
-      + '<div style="display:flex;align-items:center;gap:8px;font-weight:600;color:var(--text);font-size:11px"><span style="font-size:16px;line-height:1">'+flag+'</span>'+e.country+'</div>'
+      + '<div style="font-size:12px;font-weight:700;color:var(--accent3);font-variant-numeric:tabular-nums;letter-spacing:.3px;font-family:\'DM Mono\',monospace">'+time+'</div>'
+      + '<div style="display:flex;align-items:center;gap:8px;font-weight:600;color:var(--text2);font-size:11px;letter-spacing:.3px"><span style="font-size:16px;line-height:1">'+flag+'</span><span style="color:var(--text);font-weight:700">'+e.country+'</span></div>'
       + '<div style="display:flex;align-items:center;font-size:12px;color:var(--text);overflow:hidden">'
       +   '<span class="news-event-dot" style="background:'+impColor+';'+dotShadow+'"></span>'
       +   '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500">'+e.title+'</span>'
       + '</div>'
-      + '<div style="text-align:right;font-size:12px;color:var(--text3);font-weight:600;font-variant-numeric:tabular-nums">'+actual+'</div>'
-      + '<div style="text-align:right;font-size:12px;color:var(--text2);font-variant-numeric:tabular-nums">'+forecast+'</div>'
-      + '<div style="text-align:right;font-size:11px;color:var(--text3);font-variant-numeric:tabular-nums">'+previous+'</div>'
+      + '<div style="text-align:right;font-size:13px;color:'+actualColor+';font-weight:'+actualWeight+';font-variant-numeric:tabular-nums;font-family:\'DM Mono\',monospace">'+actual+'</div>'
+      + '<div style="text-align:right;font-size:12px;color:var(--text2);font-weight:500;font-variant-numeric:tabular-nums;font-family:\'DM Mono\',monospace">'+forecast+'</div>'
+      + '<div style="text-align:right;font-size:11px;color:var(--text3);font-variant-numeric:tabular-nums;font-family:\'DM Mono\',monospace">'+previous+'</div>'
       + '</div>';
   }
 
