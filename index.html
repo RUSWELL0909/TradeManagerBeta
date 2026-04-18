@@ -7215,6 +7215,8 @@ window.dispatchEvent(new Event('supabase-ready'));
     setTimeout(tqPullPlaybooks, 1000);
     setTimeout(tqPullAccounts, 1500);
     setTimeout(tqPullSettings, 2000);
+    setTimeout(tqPullCockpit, 2500);
+    setTimeout(tqPullCaseStudies, 3000);
   }
 
   // Export all sync functions to window
@@ -7222,7 +7224,127 @@ window.dispatchEvent(new Event('supabase-ready'));
   window.tqPullPlaybooks=tqPullPlaybooks;
   window.tqPullAccounts=tqPullAccounts;
   window.tqPullSettings=tqPullSettings;
+  window.tqPullCockpit=tqPullCockpit;
+  window.tqPullCaseStudies=tqPullCaseStudies;
   window.tqPullAll=tqPullAll;
+
+  // ══ COCKPIT SESSIONS SYNC ══
+  function tqCkToRow(d){
+    return {
+      external_id: d.date||new Date().toISOString().slice(0,10),
+      date: d.date||new Date().toISOString().slice(0,10),
+      session_name: d.session||'',
+      data: d
+    };
+  }
+  function tqPushCockpit(){
+    if(!_tqSupa||!_tqUser)return;
+    var d=null;try{d=JSON.parse(rfxGet('rossfx-cockpit3'));}catch(e){}
+    if(!d||!d.date)return;
+    var row=tqCkToRow(d);row.user_id=_tqUser.id;
+    _tqSupa.from('cockpit_sessions').upsert(row,{onConflict:'user_id,external_id'}).then(function(r){
+      if(r.error)console.error('Cockpit push error:',r.error);
+      else console.log('TradeQuill: Cockpit session synced');
+    });
+  }
+  window.tqPushCockpit=tqPushCockpit;
+  function tqPullCockpit(){
+    if(!_tqSupa||!_tqUser)return;
+    var today=new Date().toISOString().slice(0,10);
+    _tqSupa.from('cockpit_sessions').select('*').eq('user_id',_tqUser.id).eq('date',today).maybeSingle().then(function(res){
+      if(res.error||!res.data)return;
+      var local=null;try{local=JSON.parse(rfxGet('rossfx-cockpit3'));}catch(e){}
+      if(!local||local.date!==today){
+        rfxSet('rossfx-cockpit3',JSON.stringify(res.data.data));
+        console.log('TradeQuill: Cockpit session pulled from cloud');
+        if(typeof ckRender==='function')ckRender();
+      }
+    });
+  }
+  window.tqPullCockpit=tqPullCockpit;
+
+  // ══ CASE STUDIES SYNC (via resources table) ══
+  function tqCsToRow(cs){
+    return {
+      external_id: String(cs.id),
+      category: 'case_study',
+      title: cs.title||'Untitled',
+      description: JSON.stringify({pair:cs.pair||'',session:cs.session||'',date:cs.date||'',outcome:cs.outcome||'',notes:cs.notes||''}),
+      url: (cs.image&&typeof cs.image==='string'&&cs.image.indexOf('data:')!==0)?cs.image:null
+    };
+  }
+  function tqRowToCs(row){
+    var meta={};try{meta=JSON.parse(row.description||'{}');}catch(e){}
+    return {
+      id: parseInt(row.external_id)||Date.now(),
+      _supaId: row.id,
+      pair: meta.pair||'',
+      session: meta.session||'',
+      date: meta.date||'',
+      outcome: meta.outcome||'',
+      title: row.title||'',
+      notes: meta.notes||'',
+      image: row.url||null
+    };
+  }
+  function tqPushCaseStudies(){
+    if(!_tqSupa||!_tqUser)return;
+    var cs=JSON.parse(rfxGet('tb_cs')||'[]');
+    if(cs.length===0)return;
+    var rows=cs.map(function(c){var r=tqCsToRow(c);r.user_id=_tqUser.id;return r;});
+    _tqSupa.from('resources').upsert(rows,{onConflict:'user_id,external_id'}).then(function(r){
+      if(r.error)console.error('Case studies push error:',r.error);
+      else console.log('TradeQuill: Pushed',cs.length,'case studies');
+    });
+  }
+  window.tqPushCaseStudies=tqPushCaseStudies;
+  function tqPullCaseStudies(){
+    if(!_tqSupa||!_tqUser)return;
+    _tqSupa.from('resources').select('*').eq('user_id',_tqUser.id).eq('category','case_study').then(function(res){
+      if(res.error){console.error('CS pull error:',res.error);return;}
+      var cloud=res.data||[];
+      var local=JSON.parse(rfxGet('tb_cs')||'[]');
+      if(cloud.length===0&&local.length>0){tqPushCaseStudies();return;}
+      var cloudMap={};cloud.forEach(function(r){if(r.external_id)cloudMap[r.external_id]=r;});
+      var merged=[];
+      cloud.forEach(function(r){merged.push(tqRowToCs(r));});
+      local.forEach(function(c){if(!cloudMap[String(c.id)])merged.push(c);});
+      rfxSet('tb_cs',JSON.stringify(merged));
+      console.log('TradeQuill: Merged',merged.length,'case studies');
+      if(typeof renderCS==='function')renderCS();
+    });
+  }
+  window.tqPullCaseStudies=tqPullCaseStudies;
+
+  // ══ MIGRATE BASE64 SCREENSHOTS TO CDN ══
+  function tqMigrateScreenshots(){
+    if(!_tqSupa||!_tqUser){console.log('TradeQuill: Not logged in, skip migration');return;}
+    var trades=JSON.parse(rfxGet('rf_trades')||'[]');
+    var toMigrate=trades.filter(function(t){
+      return t.screenshots&&t.screenshots.length>0&&t.screenshots.some(tqIsBase64);
+    });
+    if(toMigrate.length===0){console.log('TradeQuill: No base64 screenshots to migrate');return;}
+    console.log('TradeQuill: Migrating '+toMigrate.length+' trades with base64 screenshots...');
+    tqSetSyncStatus('syncing','Migrating screenshots...');
+    var chain=Promise.resolve();
+    var done=0;
+    toMigrate.forEach(function(trade){
+      chain=chain.then(function(){
+        return tqUploadTradeScreenshots(trade).then(function(){
+          done++;
+          tqSetSyncStatus('syncing','Migrating '+done+'/'+toMigrate.length+'...');
+        });
+      });
+    });
+    chain.then(function(){
+      console.log('TradeQuill: Migration complete — '+done+' trades updated');
+      tqSetSyncStatus('ok','Migration complete');
+    }).catch(function(e){
+      console.error('Migration error:',e);
+      tqSetSyncStatus('error','Migration error');
+    });
+  }
+  window.tqMigrateScreenshots=tqMigrateScreenshots;
 
   // ══ SCREENSHOT STORAGE (Supabase Storage CDN) ══
   var TQ_STORAGE_BUCKET = 'screenshots';
@@ -9979,6 +10101,7 @@ window.dispatchEvent(new Event('supabase-ready'));
     };
     caseStudies.unshift(cs);
     rfxSet('tb_cs', JSON.stringify(caseStudies));
+    if(typeof tqPushCaseStudies==='function')tqPushCaseStudies();
     closeModal('addCS');
     renderCS();
     updateDashboard();
@@ -10814,7 +10937,7 @@ window.dispatchEvent(new Event('supabase-ready'));
 
     // Screenshots
     if(t.screenshots&&t.screenshots.length>0){
-      h+='<div class="jr-detail-screenshots">'+t.screenshots.map(function(s){return '<img class="jr-detail-img" src="'+s+'" onclick="window.open(this.src)">';}).join('')+'</div>';
+      h+='<div class="jr-detail-screenshots">'+t.screenshots.map(function(s){return '<img class="jr-detail-img" src="'+s+'" onclick="openLightbox(this.src)">';}).join('')+'</div>';
     }
 
     // ── Cockpit Snapshot (Pre-trade Plan) ──
@@ -12485,7 +12608,7 @@ window.dispatchEvent(new Event('supabase-ready'));
     if(ssImages.length>0){
       ssContainer.style.display='block';
       ssContainer.innerHTML='<div class="dv-spark-label">TRADE SCREENSHOTS</div><div class="dv-ss-grid">'+ssImages.map(function(s){
-        return '<img class="dv-ss-thumb" src="'+s.src+'" alt="'+s.pair+'" title="'+s.pair+'" onclick="window.open(this.src,\'_blank\')">';
+        return '<img class="dv-ss-thumb" src="'+s.src+'" alt="'+s.pair+'" title="'+s.pair+'" onclick="openLightbox(this.src)">';
       }).join('')+'</div>';
     } else ssContainer.style.display='none';
 
@@ -13818,6 +13941,9 @@ window.dispatchEvent(new Event('supabase-ready'));
       ckData.pairs[pair]=p;
     });
     rfxSet(CK_KEY,JSON.stringify(ckData));
+    // Debounced Supabase sync (5s delay to avoid spam)
+    clearTimeout(window._ckSyncTimer);
+    window._ckSyncTimer=setTimeout(function(){if(typeof tqPushCockpit==='function')tqPushCockpit();},5000);
   }
   window.ckAutoSave=ckAutoSave;
 
