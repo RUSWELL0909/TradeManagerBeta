@@ -6626,6 +6626,7 @@ window.dispatchEvent(new Event('supabase-ready'));
   window.tqSkipAuth = tqSkipAuth;
 
   function tqLogout(){
+    tqUnsubscribeRealtime();
     if(_tqSupa) _tqSupa.auth.signOut();
     _tqUser = null;
     tqHideUserBar();
@@ -6810,6 +6811,7 @@ window.dispatchEvent(new Event('supabase-ready'));
   // ══ SYNC: Push single trade to Supabase ══
   function tqPushTrade(trade){
     if(!_tqSupa || !_tqUser) return Promise.resolve();
+    if(trade && trade.id) _tqOwnWrites[trade.id] = Date.now();
     var row = tqTradeToRow(trade);
     row.user_id = _tqUser.id;
     tqSetSyncStatus('syncing','Syncing...');
@@ -6835,6 +6837,7 @@ window.dispatchEvent(new Event('supabase-ready'));
   // ══ SYNC: Delete trade from Supabase ══
   function tqDeleteTrade(tradeId){
     if(!_tqSupa || !_tqUser) return Promise.resolve();
+    if(tradeId) _tqOwnWrites[tradeId] = Date.now();
     tqSetSyncStatus('syncing','Syncing...');
     return _tqSupa.from('trades')
       .delete()
@@ -6884,15 +6887,21 @@ window.dispatchEvent(new Event('supabase-ready'));
         localTrades.forEach(function(t){ localMap[t.id] = t; });
 
         var merged = [];
+        var mergedIds = {};
         // Add all cloud trades (converted to portal format)
         cloudTrades.forEach(function(row){
-          merged.push(tqRowToTrade(row));
+          var t = tqRowToTrade(row);
+          if(!mergedIds[t.id]){
+            merged.push(t);
+            mergedIds[t.id] = true;
+          }
         });
-        // Add local-only trades (not in cloud) and push them up
+        // Add local-only trades (not in cloud, not already merged)
         var toPush = [];
         localTrades.forEach(function(t){
-          if(!cloudMap[t.id]){
+          if(!cloudMap[t.id] && !mergedIds[t.id] && !t._supaId){
             merged.push(t);
+            mergedIds[t.id] = true;
             toPush.push(t);
           }
         });
@@ -6925,6 +6934,85 @@ window.dispatchEvent(new Event('supabase-ready'));
       });
   }
 
+  // ══════════════════════════════════════════════════════════════
+  // ██  REALTIME — Phase 2: Live sync across tabs/devices
+  // ══════════════════════════════════════════════════════════════
+  var _tqChannel = null;
+  var _tqOwnWrites = {};   // trade.id → ts (echo-prevention)
+  var _tqLastHidden = 0;   // for visibility-based safety pull
+
+  function tqSubscribeRealtime(){
+    if(!_tqSupa || !_tqUser) return;
+    if(_tqChannel) tqUnsubscribeRealtime();
+
+    _tqChannel = _tqSupa
+      .channel('trades_rt_'+_tqUser.id)
+      .on('postgres_changes',
+        {event:'*', schema:'public', table:'trades', filter:'user_id=eq.'+_tqUser.id},
+        function(payload){ tqHandleRealtimeTrade(payload); })
+      .subscribe(function(status){
+        console.log('TradeQuill realtime:', status);
+        if(status==='SUBSCRIBED') tqSetSyncStatus('ok','● Live');
+        else if(status==='CHANNEL_ERROR' || status==='TIMED_OUT') tqSetSyncStatus('error','Live off');
+      });
+  }
+
+  function tqUnsubscribeRealtime(){
+    if(_tqChannel && _tqSupa){
+      try{ _tqSupa.removeChannel(_tqChannel); }catch(e){}
+      _tqChannel = null;
+    }
+  }
+
+  function tqHandleRealtimeTrade(payload){
+    var evt = payload.eventType; // INSERT | UPDATE | DELETE
+    var row = payload.new && payload.new.external_id ? payload.new
+            : payload.old && payload.old.external_id ? payload.old : null;
+    if(!row) return;
+
+    // Ignore own writes (this tab just pushed, don't loop)
+    var tradeId = row.external_id;
+    var ownTs = _tqOwnWrites[tradeId];
+    if(ownTs && Date.now() - ownTs < 4000){
+      delete _tqOwnWrites[tradeId];
+      return;
+    }
+
+    var local = JSON.parse(rfxGet('rf_trades')||'[]');
+
+    if(evt === 'DELETE'){
+      var before = local.length;
+      local = local.filter(function(t){ return t.id !== tradeId; });
+      if(local.length === before) return; // wasn't here, nothing to do
+    } else {
+      var trade = tqRowToTrade(row);
+      var idx = -1;
+      for(var i=0;i<local.length;i++){ if(local[i].id === trade.id){idx=i;break;} }
+      if(idx >= 0) local[idx] = trade; else local.unshift(trade);
+    }
+
+    rfxSet('rf_trades', JSON.stringify(local));
+    if(typeof renderJournal === 'function') renderJournal();
+    if(typeof updateDashboard === 'function') updateDashboard();
+    tqSetSyncStatus('ok','↻ Synced from other tab');
+    // Restore 'Live' badge after 2s
+    setTimeout(function(){
+      if(_tqChannel) tqSetSyncStatus('ok','● Live');
+    }, 2000);
+  }
+
+  // Safety net: when tab becomes visible after being hidden >60s, pull fresh
+  document.addEventListener('visibilitychange', function(){
+    if(document.hidden){
+      _tqLastHidden = Date.now();
+    } else if(_tqLastHidden && Date.now() - _tqLastHidden > 60000 && _tqSupa && _tqUser){
+      console.log('TradeQuill: Tab visible after long hide, refreshing');
+      tqPullTrades();
+      _tqLastHidden = 0;
+    }
+  });
+  // ══ END REALTIME MODULE ══
+
   // Push all local trades to cloud (first-time sync)
   function tqPushAllLocal(){
     if(!_tqSupa || !_tqUser) return;
@@ -6951,6 +7039,7 @@ window.dispatchEvent(new Event('supabase-ready'));
       tqSetSyncStatus('error','Upload failed');
     });
   }
+  window.tqPushAllLocal=tqPushAllLocal;
 
   // Enter key support for login form
   document.addEventListener('keydown', function(e){
@@ -7216,6 +7305,7 @@ window.dispatchEvent(new Event('supabase-ready'));
     setTimeout(tqPullAccounts, 1500);
     setTimeout(tqPullSettings, 2000);
     setTimeout(tqPullCockpit, 2500);
+    setTimeout(tqSubscribeRealtime, 3000); // ← realtime after initial pull
     setTimeout(tqPullCaseStudies, 3000);
   }
 
@@ -19086,1242 +19176,4 @@ window.dispatchEvent(new Event('supabase-ready'));
   calcAll();
   calcDaily();
   fetchLiveRates();
-  setInterval(fetchLiveRates, 30000);
-})();
-
-  // ── ACCOUNT STEP FLOW — GLOBAL ─────────────────────────
-  var accSelectedType = '';
-  var accSelectedFirm = '';
-  var propFirms = [
-    'FTMO', 'MyFXBook', 'FundedNext', 'The Funded Trader',
-    'Apex Trader', 'TopStep', 'E8 Funding', 'True Forex Funds',
-    'Funding Pips', 'Blue Guardian', 'Alpha Capital', 'Maven Trading'
-  ];
-
-  var accBrokers=[
-    {name:'MetaTrader 4',icon:'MT4',cat:'broker'},{name:'MetaTrader 5',icon:'MT5',cat:'broker'},
-    {name:'cTrader',icon:'cT',cat:'broker'},{name:'TradeLocker',icon:'TL',cat:'broker'},
-    {name:'Interactive Brokers',icon:'IB',cat:'broker'},{name:'Thinkorswim',icon:'ToS',cat:'broker'},
-    {name:'Tradovate',icon:'TV',cat:'broker'},{name:'NinjaTrader',icon:'NT',cat:'broker'},
-    {name:'DXtrade',icon:'DX',cat:'broker'},{name:'Bybit',icon:'BB',cat:'broker'}
-  ];
-  var accPropFirms=[
-    {name:'FTMO',icon:'FT',cat:'prop'},{name:'FundedNext',icon:'FN',cat:'prop'},
-    {name:'TopstepX',icon:'TS',cat:'prop'},{name:'The5ers',icon:'5s',cat:'prop'},
-    {name:'MyFundedFX',icon:'MF',cat:'prop'},{name:'Funding Pips',icon:'FP',cat:'prop'},
-    {name:'Alpha Capital',icon:'AC',cat:'prop'},{name:'Apex Trader',icon:'AT',cat:'prop'}
-  ];
-  var accSelectedBroker='';
-
-  function buildBrokerBtn(b){
-    return '<button class="prop-firm-btn" onclick="accPickBroker(\''+b.name+'\')" style="display:flex;align-items:center;gap:10px;padding:10px 14px;text-align:left">'
-      +'<div style="width:32px;height:32px;border-radius:8px;background:rgba(124,90,240,.08);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:var(--accent);flex-shrink:0">'+b.icon+'</div>'
-      +'<span style="font-size:12px;font-weight:600">'+b.name+'</span></button>';
-  }
-
-  function renderBrokerGrids(fltr){
-    var f=(fltr||'').toLowerCase();
-    var _brokers=accBrokers||[{name:'MetaTrader 4',icon:'MT4'},{name:'MetaTrader 5',icon:'MT5'},{name:'cTrader',icon:'cT'},{name:'TradeLocker',icon:'TL'},{name:'Interactive Brokers',icon:'IB'},{name:'Thinkorswim',icon:'ToS'},{name:'Tradovate',icon:'TV'},{name:'NinjaTrader',icon:'NT'},{name:'DXtrade',icon:'DX'},{name:'Bybit',icon:'BB'}];
-    var _props=accPropFirms||[{name:'FTMO',icon:'FT'},{name:'FundedNext',icon:'FN'},{name:'TopstepX',icon:'TS'},{name:'The5ers',icon:'5s'},{name:'MyFundedFX',icon:'MF'},{name:'Funding Pips',icon:'FP'},{name:'Alpha Capital',icon:'AC'},{name:'Apex Trader',icon:'AT'}];
-    var bg=document.getElementById('acc-broker-grid');
-    var pg=document.getElementById('acc-prop-grid');
-    if(bg) bg.innerHTML=_brokers.filter(function(b){return !f||b.name.toLowerCase().indexOf(f)>=0;}).map(buildBrokerBtn).join('');
-    if(pg) pg.innerHTML=_props.filter(function(b){return !f||b.name.toLowerCase().indexOf(f)>=0;}).map(buildBrokerBtn).join('');
-  }
-
-  function filterAccBrokers(val){ renderBrokerGrids(val); }
-  window.filterAccBrokers=filterAccBrokers;
-
-  function accPickBroker(name){
-    if(!name)return;
-    accSelectedBroker=name;
-    var el2=document.getElementById('acc-step2-broker');
-    if(el2) el2.textContent=name;
-    var ni=document.getElementById('acc-name');
-    if(ni&&!ni.value) ni.value=name+' ';
-    goAccStep(2);
-  }
-  window.accPickBroker=accPickBroker;
-
-  function goAccStep(n) {
-    [1,2,3].forEach(function(i){
-      var el = document.getElementById('acc-step-' + i);
-      if (el) el.style.display = i === n ? '' : 'none';
-    });
-    var prog=document.getElementById('acc-progress');
-    if(prog) prog.style.width=(n*33)+'%';
-    var title=document.getElementById('acc-modal-title');
-    if(title){
-      if(n===1) title.textContent='Choose Broker or Platform';
-      else if(n===2) title.textContent='Account Details';
-      else if(n===3) title.textContent='Select Import Method';
-    }
-    if(n===1) renderBrokerGrids('');
-  }
-
-  function selectAccType(type) {
-    accSelectedType = type;
-    document.querySelectorAll('#acc-step-2 .acc-type-card').forEach(function(c){
-      c.classList.toggle('selected', c.dataset.type === type);
-    });
-  }
-  window.goAccStep = goAccStep;
-  window.selectAccType = selectAccType;
-
-  function openAddAccountModal(){
-    accSelectedType = 'funded';
-    accSelectedBroker = '';
-    var ni = document.getElementById('acc-name'); if (ni) ni.value = '';
-    var bi = document.getElementById('acc-balance'); if (bi) bi.value = '';
-    var si = document.getElementById('acc-broker-search'); if (si) si.value = '';
-    var mi = document.getElementById('acc-broker-manual'); if (mi) mi.value = '';
-    document.querySelectorAll('#acc-step-2 .acc-type-card').forEach(function(c){ c.classList.toggle('selected', c.dataset.type==='funded'); });
-    goAccStep(1);
-    var modal=document.getElementById('modal-addAccount');
-    if(modal) modal.classList.add('show');
-  }
-  window.openAddAccountModal = openAddAccountModal;
-
-  function saveNewAccount(){
-    var name = document.getElementById('acc-name').value.trim();
-    if (!name) { document.getElementById('acc-name').style.borderColor = 'var(--red)'; return; }
-    var broker = accSelectedBroker || (document.getElementById('acc-broker-manual')?document.getElementById('acc-broker-manual').value.trim():'') || '';
-    var accs = [];
-    try { accs = JSON.parse(rfxGet('rf_accounts') || '[]'); } catch(e){}
-    var acc = {
-      id: 'acc_' + Date.now(),
-      name: name,
-      broker: broker,
-      type: accSelectedType || 'funded',
-      balance: parseFloat(document.getElementById('acc-balance').value) || 0,
-      currency: document.getElementById('acc-currency').value
-    };
-    accs.push(acc);
-    rfxSet('rf_accounts', JSON.stringify(accs));
-    if(typeof tqPushAccounts==='function')tqPushAccounts();
-    window._lastCreatedAccId = acc.id;
-    var s3name = document.getElementById('acc-step3-name');
-    if(s3name) s3name.textContent = '"' + acc.name + '" created!';
-    goAccStep(3);
-    if(window.renderAccountsPage) window.renderAccountsPage();
-  }
-  window.saveNewAccount = saveNewAccount;
-
-  function accImportMethod(method) {
-    var accId = window._lastCreatedAccId || '';
-    document.getElementById('modal-addAccount').classList.remove('show');
-    if (method === 'csv') {
-      // Open CSV upload modal with this account pre-selected
-      setTimeout(function(){
-        document.getElementById('csv-target-account').value = accId;
-        document.getElementById('csv-preview').style.display = 'none';
-        document.getElementById('import-csv-btn').disabled = true;
-        document.getElementById('csv-file-input').value = '';
-        document.getElementById('modal-csvUpload').classList.add('show');
-      }, 200);
-    } else if (method === 'manual') {
-      // Go to Journal and open Add Trade with account pre-selected
-      setTimeout(function(){
-        showPage('journal');
-        setTimeout(function(){
-          openJrModal();
-          setTimeout(function(){
-            var accSel = document.getElementById('jr-account');
-            if (accSel && accId) accSel.value = accId;
-          }, 100);
-        }, 150);
-      }, 200);
-    }
-    // 'skip' just closes — already handled above
-    window._lastCreatedAccId = null;
-  }
-  window.accImportMethod = accImportMethod;
-
-  function toggleAccMenu(id){
-    var dd = document.getElementById('dd-' + id);
-    if(!dd) return;
-    var wasOpen = dd.classList.contains('open');
-    document.querySelectorAll('.acc-dropdown').forEach(function(d){ d.classList.remove('open'); });
-    if(!wasOpen){
-      var btn = dd.previousElementSibling;
-      if(btn){
-        var rect = btn.getBoundingClientRect();
-        dd.style.top = (rect.bottom + 4) + 'px';
-        dd.style.right = '20px';
-        dd.style.left = 'auto';
-      }
-      dd.classList.add('open');
-    }
-  }
-  window.toggleAccMenu = toggleAccMenu;
-
-  function accAction(action, id){
-    document.querySelectorAll('.acc-dropdown').forEach(function(d){ d.classList.remove('open'); });
-    var accs = JSON.parse(rfxGet('rf_accounts') || '[]');
-    var acc = accs.find(function(a){ return a.id === id; });
-    if(!acc) return;
-    if(action === 'edit'){
-      document.getElementById('edit-acc-id').value = id;
-      document.getElementById('edit-acc-name').value = acc.name;
-      document.getElementById('edit-acc-broker').value = acc.broker || '';
-      document.getElementById('edit-acc-type').value = acc.type || 'live';
-      document.getElementById('modal-editAccount').classList.add('show');
-    } else if(action === 'balance'){
-      document.getElementById('edit-balance-id').value = id;
-      document.getElementById('edit-acc-balance').value = acc.balance || '';
-      document.getElementById('modal-editBalance').classList.add('show');
-    } else if(action === 'upload'){
-      document.getElementById('csv-target-account').value = id;
-      document.getElementById('csv-preview').style.display = 'none';
-      document.getElementById('import-csv-btn').disabled = true;
-      document.getElementById('csv-file-input').value = '';
-      document.getElementById('modal-csvUpload').classList.add('show');
-    } else if(action === 'manual'){
-      showPage('journal');
-      setTimeout(function(){
-        openJrModal();
-        setTimeout(function(){
-          var accSel = document.getElementById('jr-account');
-          if(accSel) accSel.value = id;
-        }, 100);
-      }, 150);
-    } else if(action === 'archive'){
-      acc.archived = !acc.archived;
-      acc.status = acc.archived ? 'archived' : 'active';
-      rfxSet('rf_accounts', JSON.stringify(accs));
-      if(window.renderAccountsPage) window.renderAccountsPage();
-      if(window.rfxToast) rfxToast('"' + acc.name + '" ' + (acc.archived ? 'archived' : 'restored'));
-    } else if(action === 'clear'){
-      if(!acc) return;
-      var allT = JSON.parse(rfxGet('rf_trades') || '[]');
-      var count = allT.filter(function(t){ return t.account === id; }).length;
-      if(!confirm('Clear ' + count + ' trades from "' + acc.name + '"?')) return;
-      var filtered = allT.filter(function(t){ return t.account !== id; });
-      rfxSet('rf_trades', JSON.stringify(filtered));
-      if(window.renderAccountsPage) window.renderAccountsPage();
-      if(window.rfxToast) rfxToast('Cleared trades from "' + acc.name + '"');
-    } else if(action === 'delete'){
-      if(!confirm('Delete "' + acc.name + '" and all its trades? This cannot be undone.')) return;
-      // Also remove orphaned trades
-      var allTr = JSON.parse(rfxGet('rf_trades') || '[]');
-      var cleanTr = allTr.filter(function(t){ return t.account !== id; });
-      rfxSet('rf_trades', JSON.stringify(cleanTr));
-      accs = accs.filter(function(a){ return a.id !== id; });
-      rfxSet('rf_accounts', JSON.stringify(accs));
-      if(typeof tqPushAccounts==='function')tqPushAccounts();
-      if(typeof tqPushAllLocal==='function')tqPushAllLocal(); // re-sync trades after orphan removal
-      if(window.renderAccountsPage) window.renderAccountsPage();
-    }
-  }
-  window.accAction = accAction;
-
-  document.addEventListener('click', function(){ document.querySelectorAll('.acc-dropdown').forEach(function(d){ d.classList.remove('open'); }); });
-
-
-  // Run after DOM ready — handle case where DOMContentLoaded already fired
-  function _accDOMInit() {
-
-    // ── localStorage health check ──
-    // Test directly (not through rfxGet/rfxSet) to catch Chrome file:// quirks
-    var _lsOK2 = false;
-    try {
-      localStorage.setItem('_rfx_hc','1');
-      _lsOK2 = (localStorage.getItem('_rfx_hc')==='1');
-      localStorage.removeItem('_rfx_hc');
-    } catch(e){ _lsOK2 = false; }
-    if(!_lsOK2){
-      // Downgrade to memory-only mode — portal still works for the session
-      _rfxLocalOK = false;
-      // Only show warning inside sandboxed iframes (Claude preview, CodePen, etc.)
-      var inIframe = false; try { inIframe = window.self !== window.top; } catch(e){ inIframe = true; }
-      if(inIframe){
-        var warn=document.createElement('div');
-        warn.style.cssText='position:fixed;top:0;left:0;right:0;padding:12px 20px;background:#e05c7a;color:white;font-size:13px;font-weight:600;font-family:Inter,sans-serif;z-index:99999;text-align:center';
-        warn.innerHTML='⚠️ localStorage is blocked in this environment. <strong>Download this file and open in Chrome</strong> for full functionality (import, save trades, themes).';
-        document.body.appendChild(warn);
-      }
-    }
-
-    // ── ACCOUNTS ──────────────────────────────────────────
-    var accounts = JSON.parse(rfxGet('rf_accounts') || '[]');
-
-    function saveAccounts() {
-      rfxSet('rf_accounts', JSON.stringify(accounts));
-    }
-
-    function renderAccountsPage() {
-      accounts = JSON.parse(rfxGet('rf_accounts') || '[]');
-      var tbody = document.getElementById('accounts-table-body');
-      var empty = document.getElementById('accounts-empty');
-      if (!tbody) return;
-      document.querySelectorAll('.acc-dropdown').forEach(function(d){ d.classList.remove('open'); });
-      if (!accounts.length) {
-        tbody.innerHTML = '';
-        if (empty) empty.style.display = '';
-        return;
-      }
-      if (empty) empty.style.display = 'none';
-      tbody.innerHTML = '';
-
-      accounts.forEach(function(acc) {
-        var isArchived = acc.archived || false;
-        var typeColor = acc.type === 'funded' ? 'var(--accent3)' : acc.type === 'live' ? 'var(--green)' : 'var(--yellow)';
-        var typeLabel = acc.type === 'funded' ? 'Funded / Prop' : acc.type === 'live' ? 'Live Capital' : 'Backtest';
-        var pnl = acc.totalPnl || 0;
-        var pnlColor = pnl >= 0 ? 'var(--green)' : 'var(--red)';
-        var pnlStr = (pnl >= 0 ? '+' : '') + '$' + Math.abs(pnl).toFixed(2);
-        var subtitle = '';
-        if (acc.tradeCount) subtitle += acc.tradeCount + ' trades';
-        if (acc.lastSync) subtitle += (subtitle ? ' · ' : '') + 'synced ' + acc.lastSync;
-
-        var row = document.createElement('div');
-        row.className='acc-table-row';
-        row.style.cssText = 'display:grid;grid-template-columns:2fr 1fr 1fr 1fr 80px 44px;padding:14px 20px;border-bottom:1px solid var(--border);align-items:center' + (isArchived ? ';opacity:.45' : '');
-
-        var nameDiv = document.createElement('div');
-        nameDiv.innerHTML =
-          '<div style="font-weight:700;font-size:14px">' + acc.name + '</div>' +
-          (subtitle ? '<div style="font-size:11px;color:var(--text3);margin-top:2px">' + subtitle + '</div>' : '');
-
-        var brokerDiv = document.createElement('div');
-        brokerDiv.style.cssText = 'color:var(--text2);font-size:13px';
-        brokerDiv.textContent = acc.broker || '—';
-
-        var balDiv = document.createElement('div');
-        balDiv.innerHTML =
-          '<div style="font-weight:700;font-size:14px">$' + parseFloat(acc.balance || 0).toLocaleString('en-US') + '</div>' +
-          (acc.totalPnl !== undefined ? '<div style="font-size:11px;margin-top:2px;color:' + pnlColor + '">' + pnlStr + ' P&L</div>' : '');
-
-        var typeDiv = document.createElement('div');
-        typeDiv.innerHTML = '<span style="background:rgba(124,90,240,.06);color:' + typeColor + ';padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700">' + typeLabel + '</span>';
-
-        var statusDiv = document.createElement('div');
-        if(isArchived){
-          statusDiv.style.cssText = 'color:var(--text3);font-size:11px;font-weight:600';
-          statusDiv.textContent = '◻ Archived';
-        } else {
-          statusDiv.style.cssText = 'color:var(--green);font-size:11px;font-weight:600';
-          statusDiv.textContent = '● Active';
-        }
-
-        var menuDiv = document.createElement('div');
-        menuDiv.className = 'acc-menu';
-        menuDiv.innerHTML =
-          '<button class="acc-menu-btn" onclick="event.stopPropagation();toggleAccMenu(\''+acc.id+'\')">⋯</button>' +
-          '<div class="acc-dropdown" id="dd-' + acc.id + '">' +
-            '<div class="acc-dropdown-item" onclick="accAction(\'edit\',\''+acc.id+'\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit</div>' +
-            '<div class="acc-dropdown-item" onclick="accAction(\'upload\',\''+acc.id+'\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> File upload</div>' +
-            '<div class="acc-dropdown-item" onclick="accAction(\'manual\',\''+acc.id+'\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Manual upload</div>' +
-            '<div class="acc-dropdown-item" style="opacity:.35;cursor:not-allowed;pointer-events:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6M3 12a9 9 0 0115.36-6.36L21 8M3 22v-6h6M21 12a9 9 0 01-15.36 6.36L3 16"/></svg> Auto-sync <span style="font-size:9px;background:rgba(124,90,240,.1);color:var(--accent);padding:1px 6px;border-radius:4px;margin-left:4px">Soon</span></div>' +
-            '<div class="acc-dropdown-item" onclick="accAction(\'balance\',\''+acc.id+'\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg> Edit balance</div>' +
-            '<hr class="acc-dropdown-divider">' +
-            '<div class="acc-dropdown-item" onclick="accAction(\'archive\',\''+acc.id+'\')" style="color:var(--text3)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="5" rx="1"/><path d="M4 8v11a2 2 0 002 2h12a2 2 0 002-2V8M10 12h4"/></svg> '+(acc.archived?'Unarchive':'Archive')+' account</div>' +
-            '<div class="acc-dropdown-item" onclick="accAction(\'clear\',\''+acc.id+'\')" style="color:var(--yellow)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg> Clear trades</div>' +
-            '<div class="acc-dropdown-item danger" onclick="accAction(\'delete\',\''+acc.id+'\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9l6 6M15 9l-6 6"/></svg> Delete account</div>' +
-          '</div>';
-
-        row.appendChild(nameDiv);
-        row.appendChild(brokerDiv);
-        row.appendChild(balDiv);
-        row.appendChild(typeDiv);
-        row.appendChild(statusDiv);
-        row.appendChild(menuDiv);
-        tbody.appendChild(row);
-      });
-
-    }
-
-    // Make renderAccountsPage accessible to showPage
-    window.renderAccountsPage = renderAccountsPage;
-
-    // Back button
-    var backBtn = document.getElementById('btn-accounts-back');
-    if (backBtn) backBtn.addEventListener('click', function(){ showPage(prevPage || 'dashboard'); });
-
-    // ── EDIT ACCOUNT ──────────────────────────────────────
-    document.getElementById('close-editaccount-modal').addEventListener('click', function(){ document.getElementById('modal-editAccount').classList.remove('show'); });
-    document.getElementById('cancel-editaccount-modal').addEventListener('click', function(){ document.getElementById('modal-editAccount').classList.remove('show'); });
-    document.getElementById('save-edit-account-btn').addEventListener('click', function(){
-      var id = document.getElementById('edit-acc-id').value;
-      var accs = JSON.parse(rfxGet('rf_accounts') || '[]');
-      var acc = accs.find(function(a){ return a.id === id; });
-      if (!acc) return;
-      acc.name = document.getElementById('edit-acc-name').value.trim() || acc.name;
-      acc.broker = document.getElementById('edit-acc-broker').value.trim();
-      acc.type = document.getElementById('edit-acc-type').value;
-      rfxSet('rf_accounts', JSON.stringify(accs));
-      document.getElementById('modal-editAccount').classList.remove('show');
-      renderAccountsPage();
-    });
-
-    // ── EDIT BALANCE ──────────────────────────────────────
-    document.getElementById('close-editbalance-modal').addEventListener('click', function(){ document.getElementById('modal-editBalance').classList.remove('show'); });
-    document.getElementById('cancel-editbalance-modal').addEventListener('click', function(){ document.getElementById('modal-editBalance').classList.remove('show'); });
-    document.getElementById('save-edit-balance-btn').addEventListener('click', function(){
-      var id = document.getElementById('edit-balance-id').value;
-      var accs = JSON.parse(rfxGet('rf_accounts') || '[]');
-      var acc = accs.find(function(a){ return a.id === id; });
-      if (!acc) return;
-      var val = parseFloat(document.getElementById('edit-acc-balance').value);
-      if (!isNaN(val)) acc.balance = val;
-      rfxSet('rf_accounts', JSON.stringify(accs));
-      document.getElementById('modal-editBalance').classList.remove('show');
-      renderAccountsPage();
-    });
-
-    // ── CSV UPLOAD ─────────────────────────────────────────
-    document.getElementById('close-csv-modal').addEventListener('click', function(){ document.getElementById('modal-csvUpload').classList.remove('show'); });
-    document.getElementById('cancel-csv-modal').addEventListener('click', function(){ document.getElementById('modal-csvUpload').classList.remove('show'); });
-
-    var csvParsed = [];
-
-    // ── SMART PARSER: MT5 HTML or CSV ─────────────────────
-    // Smart date normalize: handles YYYY.MM.DD, DD.MM.YYYY, YYYY-MM-DD, DD-MM-YYYY
-    function normDate(raw){
-      if(!raw) return '';
-      var d=raw.split(' ')[0].replace(/\./g,'-').replace(/\//g,'-');
-      var parts=d.split('-');
-      if(parts.length!==3) return d;
-      // If first part is 4 digits → YYYY-MM-DD (correct)
-      if(parts[0].length===4) return d;
-      // If last part is 4 digits → DD-MM-YYYY → flip to YYYY-MM-DD
-      if(parts[2].length===4) return parts[2]+'-'+parts[1]+'-'+parts[0];
-      return d;
-    }
-
-    function parseMT5Html(html) {
-      var trades = [];
-      // MT5 report has two sections: Positions (closed trades) and Deals
-      // We only want Positions section
-      var posIdx = html.search(/\u041f\u043e\u0437\u0438\u0446\u0438\u0438|Positions/i);
-      var dealIdx = html.search(/\u0421\u0434\u0435\u043b\u043a\u0438|Deals/i);
-      var section = (posIdx >= 0 && dealIdx > posIdx) ? html.slice(posIdx, dealIdx) : html;
-
-      var rowRe = /<tr[^>]*bgcolor="#(?:FFFFFF|F7F7F7)"[^>]*>([\s\S]*?)<\/tr>/gi;
-      var tagRe = /<[^>]+>/g;
-      var row;
-
-      function sf(s) { try { return parseFloat((s||'0').replace(/\s/g,'').replace(',','.')) || 0; } catch(e){ return 0; } }
-
-      while ((row = rowRe.exec(section)) !== null) {
-        var cells = [];
-        var tdRe2 = /<td[^>]*>([\s\S]*?)<\/td>/gi;
-        var td;
-        while ((td = tdRe2.exec(row[1])) !== null) {
-          var val = td[1].replace(tagRe,'').replace(/&nbsp;/g,' ').trim();
-          if (val) cells.push(val);
-        }
-        if (cells.length < 10) continue;
-        var type = (cells[3]||'').toLowerCase();
-        if (type !== 'buy' && type !== 'sell') continue;
-
-        var profit = sf(cells[12]);
-        var swap   = sf(cells[11]);
-        var comm   = sf(cells[10]);
-        var net    = parseFloat((profit + swap + comm).toFixed(2));
-
-        trades.push({
-          id: 'tr_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
-          account: '',
-          pair: (cells[2]||'').toUpperCase(),
-          symbol: (cells[2]||'').toUpperCase(),
-          direction: type,
-          date: normDate(cells[0]||''),
-          entryTime: (cells[0]||'').split(' ')[1] || '',
-          entry: sf(cells[5]),
-          exit:  sf(cells[9]),
-          sl:    sf(cells[6]),
-          tp:    sf(cells[7]),
-          lots:  sf(cells[4]),
-          pnl:   net,
-          commission: comm,
-          swap: swap,
-          positionId: cells[1] || '',
-          closeDate: normDate(cells[8]||''),
-          exitTime: (cells[8]||'').split(' ')[1] || '',
-          notes: ''
-        });
-      }
-      return trades;
-    }
-
-    function parseCSV(text) {
-      var lines = text.trim().split(/\r?\n/);
-      if (lines.length < 2) return [];
-      var headers = lines[0].split(',').map(function(h){ return h.trim().replace(/^"|"$/g,'').toLowerCase(); });
-      return lines.slice(1).map(function(line){
-        var vals = line.split(',').map(function(v){ return v.trim().replace(/^"|"$/g,''); });
-        var obj = {};
-        headers.forEach(function(h,i){ obj[h] = vals[i] || ''; });
-        return obj;
-      }).filter(function(r){ return Object.values(r).some(function(v){ return v; }); });
-    }
-
-    function csvRowToTrade(row, accountId) {
-      var symbol = row['symbol'] || row['pair'] || row['instrument'] || '';
-      var type = (row['type'] || row['direction'] || row['action'] || '').toLowerCase();
-      var direction = type.includes('buy') || type === 'long' ? 'buy' : 'sell';
-      var openTime = row['open time'] || row['opentime'] || row['open_time'] || row['time'] || row['date'] || '';
-      var closeTime = row['close time'] || row['closetime'] || row['close_time'] || '';
-      var openPrice = parseFloat(row['open price'] || row['openprice'] || row['entry'] || row['open'] || 0);
-      var closePrice = parseFloat(row['close price'] || row['closeprice'] || row['exit'] || row['close'] || 0);
-      var profit = parseFloat(row['profit'] || row['pnl'] || row['p&l'] || row['net p&l'] || 0);
-      var comm = parseFloat(row['commission'] || row['comm'] || 0);
-      var swap = parseFloat(row['swap'] || 0);
-      var lots = parseFloat(row['volume'] || row['lots'] || row['size'] || row['quantity'] || 0);
-      var sl = parseFloat(row['s/l'] || row['sl'] || row['stop loss'] || row['stoploss'] || 0);
-      var tp = parseFloat(row['t/p'] || row['tp'] || row['take profit'] || row['takeprofit'] || 0);
-      var grossPnl = parseFloat(row['gross p&l'] || row['gross pnl'] || 0) || profit;
-      return {
-        id: 'tr_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
-        account: accountId,
-        positionId: row['position'] || row['ticket'] || row['order'] || '',
-        pair: symbol.toUpperCase(),
-        symbol: symbol.toUpperCase(),
-        direction: direction,
-        date: normDate(openTime),
-        entryTime: openTime.split(' ')[1] || row['entry time'] || '',
-        closeDate: normDate(closeTime),
-        exitTime: closeTime.split(' ')[1] || row['exit time'] || '',
-        entry: openPrice,
-        exit: closePrice,
-        sl: sl,
-        tp: tp,
-        lots: lots,
-        pnl: profit + comm + swap,
-        grossPnl: grossPnl,
-        commission: comm,
-        swap: swap,
-        setup: row['setup'] || '',
-        grade: row['grade'] || '',
-        emotion: row['emotion'] || '',
-        planFollowed: row['plan followed'] || '',
-        session: row['session'] || '',
-        notes: row['notes'] || ''
-      };
-    }
-
-    var csvFileInput = document.getElementById('csv-file-input');
-    if (csvFileInput) {
-      csvFileInput.addEventListener('change', function(){
-        var file = this.files[0];
-        if (!file) return;
-        var reader = new FileReader();
-        reader.onload = function(e){
-          try{
-          var text = e.target.result;
-          var isHtml = file.name.toLowerCase().endsWith('.html') || file.name.toLowerCase().endsWith('.htm') || text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html') || text.includes('<table');
-          if (isHtml) {
-            csvParsed = parseMT5Html(text);
-          } else {
-            var rawRows = parseCSV(text);
-            csvParsed = rawRows.map(function(r){ return csvRowToTrade(r, ''); });
-          }
-          var label = document.getElementById('csv-preview-label');
-          var table = document.getElementById('csv-preview-table');
-          var preview = document.getElementById('csv-preview');
-          var importBtn = document.getElementById('import-csv-btn');
-          if (!csvParsed.length) {
-            label.textContent = 'Could not parse file. Check format.';
-            table.innerHTML = '';
-            preview.style.display = '';
-            importBtn.disabled = true;
-            return;
-          }
-          label.textContent = csvParsed.length + ' trades found in "' + file.name + '" — ready to import';
-          var cols = Object.keys(csvParsed[0]).slice(0,6);
-          var html = '<table style="border-collapse:collapse;width:100%">';
-          html += '<tr>' + cols.map(function(c){ return '<th style="padding:3px 8px;color:var(--text3);text-align:left;border-bottom:1px solid var(--border)">' + c + '</th>'; }).join('') + '</tr>';
-          csvParsed.slice(0,5).forEach(function(row){
-            html += '<tr>' + cols.map(function(c){ return '<td style="padding:3px 8px;color:var(--text2)">' + (row[c]||'') + '</td>'; }).join('') + '</tr>';
-          });
-          html += '</table>';
-          if (csvParsed.length > 5) html += '<div style="padding:4px 8px;color:var(--text3)">... and ' + (csvParsed.length-5) + ' more rows</div>';
-          table.innerHTML = html;
-          preview.style.display = '';
-          importBtn.disabled = false;
-          }catch(err){alert('CSV parse error: '+err.message);}
-        };
-        if (file.name.toLowerCase().endsWith('.html') || file.name.toLowerCase().endsWith('.htm')) {
-          reader.readAsText(file, 'UTF-16');
-        } else {
-          reader.readAsText(file);
-        }
-      });
-    } else {
-      console.error('csv-file-input not found!');
-    }
-
-    // Download CSV template
-    var dlBtn = document.getElementById('btn-download-template');
-    if (dlBtn) dlBtn.addEventListener('click', function(){
-      var headers = ['Open Time','Symbol','Type','Volume','Open Price','S/L','T/P','Close Time','Close Price','Commission','Swap','Profit'];
-      var examples = [
-        ['2024.01.15 09:30:00','GOLD','buy','0.01','2020.50','2010.00','2040.00','2024.01.15 14:22:00','2038.75','0.00','0.00','18.25'],
-        ['2024.01.15 11:05:00','EURUSD','sell','0.05','1.09250','1.09500','1.08900','2024.01.15 16:47:00','1.08920','0.00','0.00','16.50'],
-        ['2024.01.16 08:15:00','XAUUSD','buy','0.02','2025.30','2015.00','2050.00','2024.01.16 13:10:00','2014.80','0.00','-0.12','-21.12']
-      ];
-      var csv = [headers].concat(examples).map(function(r){ return r.join(','); }).join('\n');
-      var blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
-      var a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'TradeQuill_Trade_Template.csv';
-      a.click();
-    });
-
-    // Drop zone
-    var dropZone = document.getElementById('csv-drop-zone');
-    if (dropZone) {
-      dropZone.addEventListener('dragover', function(e){ e.preventDefault(); this.style.borderColor='var(--accent)'; });
-      dropZone.addEventListener('dragleave', function(){ this.style.borderColor=''; });
-      dropZone.addEventListener('drop', function(e){
-        e.preventDefault(); this.style.borderColor='';
-        var f = e.dataTransfer.files[0];
-        if (f) {
-          var dt = new DataTransfer();
-          dt.items.add(f);
-          csvFileInput.files = dt.files;
-          csvFileInput.dispatchEvent(new Event('change'));
-        }
-      });
-    }
-
-    document.getElementById('import-csv-btn').addEventListener('click', function(){
-      var accountId = document.getElementById('csv-target-account').value;
-      if (!csvParsed.length) return;
-      var existing = JSON.parse(rfxGet('tb_trades') || '[]');
-      var rfTrades = JSON.parse(rfxGet('rf_trades') || '[]');
-      csvParsed.forEach(function(t){
-        t.account = accountId;
-        existing.push(t);
-        rfTrades.push(t);
-      });
-      rfxSet('tb_trades', JSON.stringify(existing));
-      rfxSet('rf_trades', JSON.stringify(rfTrades));
-      if(typeof tqPushAllLocal==='function') tqPushAllLocal(); // Supabase sync
-
-      // ── Sync account stats after import ──────────────────
-      accounts = JSON.parse(rfxGet('rf_accounts') || '[]');
-      var acc = accounts.find(function(a){ return a.id === accountId; });
-      if (acc) {
-        var accTrades = rfTrades.filter(function(t){ return t.account === accountId; });
-
-        // Starting balance = first balance row or current balance
-        var totalPnl = accTrades.reduce(function(s,t){ return s + (parseFloat(t.pnl)||0); }, 0);
-
-        // Try to get broker from parsed MT5 data if available
-        if (!acc.broker && csvParsed[0] && csvParsed[0].broker) {
-          acc.broker = csvParsed[0].broker;
-        }
-
-        // Update trade count and last sync time
-        acc.tradeCount = accTrades.length;
-        acc.totalPnl = parseFloat(totalPnl.toFixed(2));
-        acc.lastSync = new Date().toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'});
-
-        // Update current balance = starting balance + total pnl
-        if (acc.startingBalance) {
-          acc.balance = parseFloat((acc.startingBalance + totalPnl).toFixed(2));
-        } else {
-          // Save starting balance on first import
-          acc.startingBalance = acc.balance || 0;
-          acc.balance = parseFloat(((acc.startingBalance) + totalPnl).toFixed(2));
-        }
-
-        rfxSet('rf_accounts', JSON.stringify(accounts));
-        renderAccountsPage();
-      }
-
-      document.getElementById('modal-csvUpload').classList.remove('show');
-      // Track imported trades for backup counter (UI surfaces in future version)
-      var importCount = csvParsed.length;
-      var counter = parseInt(rfxGet('rf_backup_counter') || '0', 10) + importCount;
-      rfxSet('rf_backup_counter', String(counter));
-      var msg = csvParsed.length + ' trades imported!';
-      if (acc) msg += '\nBalance updated: $' + acc.balance.toLocaleString('en-US');
-      alert(msg);
-      csvParsed = [];
-    });
-
-    // Close dropdowns on outside click
-    document.addEventListener('click', function(){ document.querySelectorAll('.acc-dropdown').forEach(function(d){ d.classList.remove('open'); }); });
-
-  }
-  window._accDOMInit = _accDOMInit;
-
-
-  // ── Theme switcher ──────────────────────────
-  // ═══ MOBILE SIDEBAR TOGGLE ═══
-  function toggleSidebar(){
-    var sb=document.querySelector('.sidebar');
-    var ov=document.getElementById('sidebar-overlay');
-    if(sb.classList.contains('open')){sb.classList.remove('open');ov.classList.remove('open');}
-    else{sb.classList.add('open');ov.classList.add('open');}
-  }
-  window.toggleSidebar=toggleSidebar;
-  // Close sidebar when nav item clicked on mobile
-  document.querySelectorAll('.nav-item').forEach(function(n){n.addEventListener('click',function(){if(window.innerWidth<=1024){var sb=document.querySelector('.sidebar');var ov=document.getElementById('sidebar-overlay');sb.classList.remove('open');ov.classList.remove('open');}});});
-
-  function setTheme(theme, btn) {
-    document.documentElement.setAttribute('data-theme', theme);
-    document.querySelectorAll('.theme-btn').forEach(function(b){ b.classList.remove('active'); });
-    if (btn) btn.classList.add('active');
-    rfxSet('rf_theme', theme);
-    if(typeof tqPushSettings==='function')tqPushSettings(); // sync to cloud
-    var labels = {'dark':'Dark','light-a':'Light Violet','light-b':'Light Warm','light-c':'Warm Sand'};
-    var lbl = document.getElementById('theme-label');
-    if (lbl) lbl.textContent = labels[theme] || theme;
-    document.querySelectorAll('.theme-opt').forEach(function(o){ o.classList.toggle('active', o.getAttribute('data-theme')===theme); });
-    var drop = document.getElementById('theme-drop');
-    if (drop) drop.classList.remove('show');
-    // Update chart grid/tick colors in-place (no destroy needed)
-    var textColor = getComputedStyle(document.documentElement).getPropertyValue('--text3').trim();
-    var gridColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-bg').trim();
-    var tooltipBg = getComputedStyle(document.documentElement).getPropertyValue('--tooltip-bg').trim();
-    var tooltipBorder = getComputedStyle(document.documentElement).getPropertyValue('--tooltip-border').trim();
-    ['dash-cum-chart','dash-bar-chart','dash-balance-chart','dash-drawdown-chart','dash-pnl-sparkline'].forEach(function(id){
-      var el = document.getElementById(id);
-      if (!el || !el._chart) return;
-      var c = el._chart;
-      if (c.options.scales) {
-        if (c.options.scales.x && c.options.scales.x.ticks) c.options.scales.x.ticks.color = textColor;
-        if (c.options.scales.y && c.options.scales.y.ticks) c.options.scales.y.ticks.color = textColor;
-        if (c.options.scales.y && c.options.scales.y.grid) c.options.scales.y.grid.color = gridColor;
-        if (c.options.scales.y1 && c.options.scales.y1.ticks) c.options.scales.y1.ticks.color = textColor;
-      }
-      if (c.options.plugins && c.options.plugins.tooltip) {
-        c.options.plugins.tooltip.backgroundColor = tooltipBg;
-        c.options.plugins.tooltip.borderColor = tooltipBorder;
-      }
-      c.update('none');
-    });
-    if (typeof updateSpiderWidget === 'function') setTimeout(updateSpiderWidget, 50);
-    if (typeof renderDashCalendar === 'function') setTimeout(function(){ renderDashCalendar(); }, 100);
-  }
-  window.pickTheme = function(el) { setTheme(el.getAttribute('data-theme')); };
-  window.setTheme = setTheme;
-  // Close dropdown on outside click
-  document.addEventListener('click', function(e) {
-    var wrap = document.getElementById('theme-wrap');
-    var drop = document.getElementById('theme-drop');
-    if (wrap && drop && !wrap.contains(e.target)) drop.classList.remove('show');
-  });
-  // Load saved theme
-  (function(){
-    var saved = rfxGet('rf_theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', saved);
-    function _themeInit(){
-      var labels = {'dark':'Dark','light-a':'Light Violet','light-b':'Light Warm','light-c':'Warm Sand'};
-      var lbl = document.getElementById('theme-label');
-      if (lbl) lbl.textContent = labels[saved] || saved;
-      document.querySelectorAll('.theme-opt').forEach(function(o){ o.classList.toggle('active', o.getAttribute('data-theme')===saved); });
-    }
-    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',_themeInit);
-    else _themeInit();
-  })();
-</script>
-
-<!-- MODAL: ADD ACCOUNT -->
-<div id="modal-addAccount" class="modal-overlay">
-  <div class="modal" style="max-width:560px">
-    <div class="modal-header" style="position:relative">
-      <!-- Progress bar -->
-      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--border);border-radius:3px 3px 0 0">
-        <div id="acc-progress" style="height:100%;width:33%;background:var(--accent);border-radius:3px;transition:width .3s"></div>
-      </div>
-      <div>
-        <div style="font-size:10px;color:var(--accent);font-weight:600;letter-spacing:.5px;margin-bottom:2px">ADD ACCOUNT</div>
-        <div class="modal-title" id="acc-modal-title">Choose Broker or Platform</div>
-      </div>
-      <button class="modal-close" id="close-addaccount-modal" onclick="document.getElementById('modal-addAccount').classList.remove('show')">✕</button>
-    </div>
-
-    <!-- STEP 1: Choose Broker / Platform -->
-    <div id="acc-step-1">
-      <input class="form-input" id="acc-broker-search" placeholder="Start typing broker, prop firm or platform..." style="margin-bottom:16px;font-size:13px" oninput="filterAccBrokers(this.value)">
-      
-      <div style="font-size:11px;font-weight:700;color:var(--text3);margin-bottom:10px;letter-spacing:.5px">POPULAR BROKERS</div>
-      <div id="acc-broker-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px"></div>
-      
-      <div style="font-size:11px;font-weight:700;color:var(--text3);margin-bottom:10px;letter-spacing:.5px">PROP FIRMS</div>
-      <div id="acc-prop-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px"></div>
-
-      <div style="border-top:1px solid var(--border);padding-top:12px">
-        <div style="font-size:11px;color:var(--text3);margin-bottom:6px">Don't see yours? Enter manually:</div>
-        <div style="display:flex;gap:8px">
-          <input class="form-input" id="acc-broker-manual" placeholder="Broker or platform name..." style="flex:1">
-          <button class="btn btn-primary" style="padding:8px 16px;font-size:12px" onclick="accPickBroker(document.getElementById('acc-broker-manual').value.trim())">Continue</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- STEP 2: Account Details -->
-    <div id="acc-step-2" style="display:none">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-        <button onclick="goAccStep(1)" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:20px;padding:0">←</button>
-        <div>
-          <div style="font-size:12px;color:var(--accent);font-weight:600" id="acc-step2-broker">MetaTrader 5</div>
-          <div style="font-size:11px;color:var(--text3)">Fill in your account details</div>
-        </div>
-      </div>
-
-      <!-- Account type cards -->
-      <div style="font-size:11px;font-weight:700;color:var(--text3);margin-bottom:8px;letter-spacing:.5px">ACCOUNT TYPE</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">
-        <div class="acc-type-card selected" data-type="funded" onclick="selectAccType('funded')">
-          <div style="margin-bottom:6px"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z" stroke="var(--accent)" fill="rgba(124,90,240,.1)"/><path d="M12 8l1.5 3 3.5.5-2.5 2.5.5 3.5L12 16l-3 1.5.5-3.5L7 11.5l3.5-.5L12 8z" stroke="var(--yellow)" fill="rgba(240,180,41,.15)"/></svg></div>
-          <div style="font-weight:700;font-size:12px">Prop / Funded</div>
-        </div>
-        <div class="acc-type-card" data-type="live" onclick="selectAccType('live')">
-          <div style="margin-bottom:6px"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke-width="1.5"><circle cx="12" cy="12" r="9" stroke="var(--green)" fill="rgba(46,204,138,.08)"/><path d="M12 7v10M15 9.5c0-1.38-1.34-2.5-3-2.5s-3 1.12-3 2.5 1.34 2.5 3 2.5 3 1.12 3 2.5-1.34 2.5-3 2.5" stroke="var(--green)"/></svg></div>
-          <div style="font-weight:700;font-size:12px">Live</div>
-        </div>
-        <div class="acc-type-card" data-type="backtest" onclick="selectAccType('backtest')">
-          <div style="margin-bottom:6px"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M9 3h6v5a3 3 0 01-6 0V3z" stroke="var(--text3)" fill="rgba(124,90,240,.06)"/><path d="M12 8v4" stroke="var(--text3)"/><path d="M8 12l-2 8h12l-2-8" stroke="var(--text3)" fill="rgba(124,90,240,.04)"/><line x1="7" y1="20" x2="17" y2="20" stroke="var(--text3)"/><line x1="10" y1="3" x2="14" y2="3" stroke="var(--text3)" stroke-width="2"/></svg></div>
-          <div style="font-weight:700;font-size:12px">Demo</div>
-        </div>
-      </div>
-
-      <div class="form-grid">
-        <div class="form-group full">
-          <label class="form-label">Account Name</label>
-          <input class="form-input" id="acc-name" placeholder="e.g. FTMO $50K Phase 1">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Account Size ($)</label>
-          <input class="form-input" id="acc-balance" type="number" placeholder="50000">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Currency</label>
-          <select class="form-select" id="acc-currency">
-            <option value="USD">USD</option><option value="EUR">EUR</option><option value="GBP">GBP</option>
-          </select>
-        </div>
-      </div>
-      <button class="btn btn-primary" style="width:100%;margin-top:12px" id="save-account-btn" onclick="saveNewAccount()">Create Account & Continue →</button>
-    </div>
-
-    <!-- STEP 3: Select Import Method -->
-    <div id="acc-step-3" style="display:none">
-      <div style="text-align:center;margin-bottom:20px">
-        <div style="width:48px;height:48px;border-radius:50%;background:rgba(46,204,138,.1);display:flex;align-items:center;justify-content:center;margin:0 auto 12px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2ecc8a" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
-        <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px" id="acc-step3-name">Account created!</div>
-        <div style="font-size:12px;color:var(--text3)">Select Import Method</div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">
-        <div class="acc-type-card" onclick="accImportMethod('csv')" style="cursor:pointer">
-          <div style="margin-bottom:8px"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
-          <div style="font-weight:700;font-size:13px">File Upload</div>
-          <div style="font-size:11px;color:var(--text3);margin-top:4px">Upload broker CSV with your trading history</div>
-        </div>
-        <div class="acc-type-card" onclick="accImportMethod('manual')" style="cursor:pointer">
-          <div style="margin-bottom:8px"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><path d="M12 5v14M5 12h14"/></svg></div>
-          <div style="font-weight:700;font-size:13px">Add Manually</div>
-          <div style="font-size:11px;color:var(--text3);margin-top:4px">Add trades one by one in Journal</div>
-        </div>
-        <div class="acc-type-card" style="opacity:.35;cursor:not-allowed;pointer-events:none;position:relative">
-          <div style="position:absolute;top:8px;right:8px;font-size:8px;background:rgba(124,90,240,.15);color:var(--accent);padding:2px 6px;border-radius:4px;font-weight:700">SOON</div>
-          <div style="margin-bottom:8px"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="1.5"><path d="M21 2v6h-6M3 12a9 9 0 0115.36-6.36L21 8M3 22v-6h6M21 12a9 9 0 01-15.36 6.36L3 16"/></svg></div>
-          <div style="font-weight:700;font-size:13px">Auto-sync</div>
-          <div style="font-size:11px;color:var(--text3);margin-top:4px">Connect broker directly</div>
-        </div>
-      </div>
-      <button class="btn btn-ghost" style="width:100%;font-size:12px" onclick="accImportMethod('skip')">Skip for now — I'll add trades later</button>
-    </div>
-
-  </div>
-</div>
-<div id="modal-editAccount" class="modal-overlay">
-  <div class="modal" style="max-width:420px">
-    <div class="modal-header">
-      <div class="modal-title">Edit Account</div>
-      <button class="modal-close" id="close-editaccount-modal">✕</button>
-    </div>
-    <div class="form-grid">
-      <div class="form-group full"><label class="form-label">Account Name</label><input class="form-input" id="edit-acc-name"></div>
-      <div class="form-group"><label class="form-label">Broker</label><input class="form-input" id="edit-acc-broker"></div>
-      <div class="form-group"><label class="form-label">Type</label>
-        <select class="form-select" id="edit-acc-type">
-          <option value="funded">Funded / Prop</option>
-          <option value="live">Live Capital</option>
-          <option value="backtest">Backtest / Demo</option>
-        </select>
-      </div>
-    </div>
-    <input type="hidden" id="edit-acc-id">
-    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px">
-      <button class="btn btn-ghost" id="cancel-editaccount-modal">Cancel</button>
-      <button class="btn btn-primary" id="save-edit-account-btn">Save Changes</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL: EDIT BALANCE -->
-<div id="modal-editBalance" class="modal-overlay">
-  <div class="modal" style="max-width:360px">
-    <div class="modal-header">
-      <div class="modal-title">Edit Balance</div>
-      <button class="modal-close" id="close-editbalance-modal">✕</button>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Account Balance ($)</label>
-      <input class="form-input" id="edit-acc-balance" type="number" placeholder="50000">
-    </div>
-    <input type="hidden" id="edit-balance-id">
-    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px">
-      <button class="btn btn-ghost" id="cancel-editbalance-modal">Cancel</button>
-      <button class="btn btn-primary" id="save-edit-balance-btn">Save Balance</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL: DASHBOARD CUSTOMIZE -->
-<div id="modal-dashCustomize" class="modal-overlay">
-  <div class="modal" style="max-width:560px">
-    <div class="modal-header">
-      <div class="modal-title">Customize Dashboard</div>
-      <button class="modal-close" onclick="dashCustomizeClose()">✕</button>
-    </div>
-    <!-- Template selector -->
-    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:16px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <div style="font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;text-transform:uppercase">Template</div>
-        <button onclick="dashTemplateSaveNew()" style="font-size:10px;padding:4px 10px;background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--accent);cursor:pointer;font-family:'Inter',sans-serif;font-weight:600">+ Save as new</button>
-      </div>
-      <div style="display:flex;gap:6px;align-items:center">
-        <select id="dash-template-select" onchange="dashTemplateLoad(this.value)" style="flex:1;padding:7px 10px;border-radius:7px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px;font-family:'Inter',sans-serif"></select>
-        <button onclick="dashTemplateDelete()" title="Delete current template" style="padding:7px 10px;background:transparent;border:1px solid var(--border);border-radius:7px;color:var(--red);cursor:pointer;font-size:11px">🗑</button>
-      </div>
-    </div>
-    <div style="font-size:12px;color:var(--text3);margin-bottom:12px;line-height:1.5">Toggle widgets on or off. Changes save automatically to the active template.</div>
-    <div id="dash-customize-list" style="display:flex;flex-direction:column;gap:6px;max-height:45vh;overflow-y:auto"></div>
-    <div style="display:flex;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
-      <button class="btn btn-ghost" style="flex:1;font-size:12px;padding:9px" onclick="dashCustomizeReset()">Reset to default</button>
-      <button class="btn btn-primary" style="flex:1;font-size:12px;padding:9px" onclick="dashCustomizeClose()">Done</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL: CSV UPLOAD -->
-<div id="modal-csvUpload" class="modal-overlay">
-  <div class="modal" style="max-width:500px">
-    <div class="modal-header">
-      <div class="modal-title">Import Trades from CSV</div>
-      <button class="modal-close" id="close-csv-modal">✕</button>
-    </div>
-    <div style="background:var(--bg2);border:2px dashed var(--border);border-radius:14px;padding:32px;text-align:center;margin-bottom:16px;transition:border-color .2s" id="csv-drop-zone">
-      <div style="font-size:32px;margin-bottom:10px">📂</div>
-      <div style="font-weight:700;margin-bottom:6px">Drop your CSV file here</div>
-      <div style="font-size:12px;color:var(--text3);margin-bottom:14px">or click below — supports MT5 HTML report or CSV format</div>
-      <div style="display:flex;gap:8px;justify-content:center;align-items:center">
-        <label style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;border:1px dashed var(--border);cursor:pointer;font-size:12px;color:var(--text2);font-family:'Inter',sans-serif">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-          <span id="csv-file-label">Choose file</span>
-          <input type="file" id="csv-file-input" accept=".csv,.html,.htm" style="display:none" onchange="var l=document.getElementById('csv-file-label');if(this.files[0])l.textContent=this.files[0].name;else l.textContent='Choose file';">
-        </label>
-        <button class="btn btn-ghost" id="btn-download-template" style="font-size:11px;color:var(--text3)">⬇ Download Template</button>
-      </div>
-    </div>
-    <div id="csv-preview" style="display:none">
-      <div style="font-size:12px;color:var(--text3);margin-bottom:8px" id="csv-preview-label"></div>
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;max-height:180px;overflow-y:auto;font-size:11px;font-family:"Inter",sans-serif;color:var(--text2)" id="csv-preview-table"></div>
-    </div>
-    <input type="hidden" id="csv-target-account">
-    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px">
-      <button class="btn btn-ghost" id="cancel-csv-modal">Cancel</button>
-      <button class="btn btn-primary" id="import-csv-btn" disabled>Import Trades</button>
-    </div>
-  </div>
-</div>
-
-<script>if(typeof _accDOMInit==='function')_accDOMInit();</script>
-<!-- MODAL: PDF Export Filters -->
-<div id="modal-pdfExport" class="modal-overlay">
-  <div class="modal" style="max-width:420px">
-    <div class="modal-header">
-      <div class="modal-title">Export PDF Report</div>
-      <button class="modal-close" onclick="document.getElementById('modal-pdfExport').classList.remove('show')">✕</button>
-    </div>
-    <div style="padding:20px 24px">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
-        <div><label style="font-size:9px;color:var(--text3);font-weight:600;display:block;margin-bottom:4px">DATE FROM</label>
-          <input type="date" id="pdf-date-from" lang="en-US" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px">
-        </div>
-        <div><label style="font-size:9px;color:var(--text3);font-weight:600;display:block;margin-bottom:4px">DATE TO</label>
-          <input type="date" id="pdf-date-to" lang="en-US" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px">
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
-        <div><label style="font-size:9px;color:var(--text3);font-weight:600;display:block;margin-bottom:4px">PAIR</label>
-          <select id="pdf-pair" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px"><option value="">All Pairs</option></select>
-        </div>
-        <div><label style="font-size:9px;color:var(--text3);font-weight:600;display:block;margin-bottom:4px">ACCOUNT</label>
-          <select id="pdf-account" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px"><option value="">All Accounts</option></select>
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px">
-        <div><label style="font-size:9px;color:var(--text3);font-weight:600;display:block;margin-bottom:4px">DIRECTION</label>
-          <select id="pdf-dir" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px"><option value="">All</option><option value="buy">Long Only</option><option value="sell">Short Only</option></select>
-        </div>
-        <div><label style="font-size:9px;color:var(--text3);font-weight:600;display:block;margin-bottom:4px">SETUP</label>
-          <select id="pdf-setup" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px"><option value="">All Setups</option></select>
-        </div>
-      </div>
-      <div id="pdf-trade-count" style="font-size:11px;color:var(--text3);margin-bottom:14px;text-align:center"></div>
-    </div>
-    <div style="padding:0 24px 20px;display:flex;justify-content:flex-end;gap:8px">
-      <button class="btn btn-ghost" onclick="document.getElementById('modal-pdfExport').classList.remove('show')">Cancel</button>
-      <button class="btn btn-primary" onclick="exportReports()">Generate PDF</button>
-    </div>
-  </div>
-</div>
-
-<div id="rf-tooltip"></div>
-<script>
-(function(){
-  var tip = document.getElementById('rf-tooltip');
-  var hideTimer;
-  document.addEventListener('mouseover', function(e){
-    var icon = e.target.closest('.info-icon');
-    if (!icon) return;
-    clearTimeout(hideTimer);
-    var text = icon.getAttribute('data-tip');
-    if (!text) return;
-    tip.textContent = text;
-    tip.classList.add('visible');
-    positionTip(icon);
-  });
-  document.addEventListener('mousemove', function(e){
-    if (!tip.classList.contains('visible')) return;
-    var icon = e.target.closest('.info-icon');
-    if (icon) positionTip(icon);
-  });
-  document.addEventListener('mouseout', function(e){
-    var icon = e.target.closest('.info-icon');
-    if (!icon) return;
-    hideTimer = setTimeout(function(){ tip.classList.remove('visible'); }, 80);
-  });
-  function positionTip(icon) {
-    var r = icon.getBoundingClientRect();
-    var tw = tip.offsetWidth || 220;
-    var th = tip.offsetHeight || 60;
-    var left = r.left + r.width/2 - tw/2;
-    var top  = r.top - th - 10;
-    // keep inside viewport
-    left = Math.max(8, Math.min(left, window.innerWidth - tw - 8));
-    if (top < 8) top = r.bottom + 10; // flip below if too close to top
-    tip.style.left = left + 'px';
-    tip.style.top  = top  + 'px';
-  }
-})();
-</script>
-
-<script>
-// Floating particles
-(function(){
-  var c = document.getElementById('quote-particles');
-  if (!c) return;
-  var ctx = c.getContext('2d');
-  var dpr = window.devicePixelRatio || 1;
-  var particles = [];
-  var count = 20;
-
-  function resize(){
-    var r = c.getBoundingClientRect();
-    c.width = r.width * dpr;
-    c.height = r.height * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }
-  resize();
-  window.addEventListener('resize', resize);
-
-  for (var i = 0; i < count; i++){
-    particles.push({
-      x: Math.random() * c.width / dpr,
-      y: Math.random() * c.height / dpr,
-      r: Math.random() * 1.5 + 0.4,
-      dx: (Math.random() - 0.5) * 0.25,
-      dy: (Math.random() - 0.5) * 0.12,
-      o: Math.random() * 0.25 + 0.05
-    });
-  }
-
-  function draw(){
-    var w = c.width / dpr, h = c.height / dpr;
-    ctx.clearRect(0, 0, w, h);
-    for (var i = 0; i < particles.length; i++){
-      var p = particles[i];
-      p.x += p.dx; p.y += p.dy;
-      if (p.x < -5) p.x = w + 5;
-      if (p.x > w + 5) p.x = -5;
-      if (p.y < -5) p.y = h + 5;
-      if (p.y > h + 5) p.y = -5;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = (document.documentElement.getAttribute('data-theme')||'').indexOf('light') >= 0
-        ? 'rgba(124,90,240,' + p.o + ')'
-        : 'rgba(184,160,255,' + p.o + ')';
-      ctx.fill();
-    }
-    requestAnimationFrame(draw);
-  }
-  draw();
-})();
-</script>
-
-<script>
-(function(){
-  var quotes = [
-    { text: "The goal isn\u2019t to be perfect. The goal is to be disciplined.", author: "Process over outcome" },
-    { text: "Cut your losses short, let your winners run.", author: "First rule of trading" },
-    { text: "Success is the sum of small efforts, repeated day in and day out.", author: "Robert Collier" },
-    { text: "It\u2019s not about being right. It\u2019s about how much you make when you\u2019re right.", author: "George Soros" },
-    { text: "The market transfers money from the impatient to the patient.", author: "Warren Buffett" },
-    { text: "Risk comes from not knowing what you\u2019re doing.", author: "Warren Buffett" },
-    { text: "Every master was once a disaster.", author: "Progress mindset" },
-    { text: "Protect your capital. The opportunities will come.", author: "Trading wisdom" },
-    { text: "Discipline is choosing between what you want now and what you want most.", author: "Abraham Lincoln" },
-    { text: "The harder you work, the luckier you get.", author: "Gary Player" },
-    { text: "Don\u2019t focus on making money. Focus on protecting what you have.", author: "Paul Tudor Jones" },
-    { text: "Consistency beats intensity. Show up every day.", author: "Daily grind" },
-    { text: "Your edge is your process. Trust it.", author: "Trading psychology" },
-    { text: "Losses are the cost of doing business. Control them.", author: "Risk management" },
-    { text: "One good trade won\u2019t make you. One bad habit will break you.", author: "Journal truth" },
-    { text: "The best trade is the one you didn\u2019t take.", author: "Patience pays" },
-    { text: "Compound small wins. That\u2019s the entire game.", author: "Long-term thinking" },
-    { text: "Fear and greed move markets. Discipline moves accounts.", author: "Trading edge" },
-    { text: "Plan your trade. Trade your plan. Review. Repeat.", author: "The cycle" },
-    { text: "You don\u2019t need to trade every day. You need to trade well.", author: "Quality over quantity" }
-  ];
-
-  var idx = Math.floor(Math.random() * quotes.length);
-  var textEl = document.getElementById('quote-text');
-  var authEl = document.getElementById('quote-author');
-  if (!textEl || !authEl) return;
-
-  var typeTimer = null;
-
-  function typewrite(el, text, speed, cb) {
-    var i = 0;
-    el.textContent = '';
-    el.style.opacity = '1';
-    clearInterval(typeTimer);
-    typeTimer = setInterval(function(){
-      if (i < text.length) {
-        el.textContent += text.charAt(i);
-        i++;
-      } else {
-        clearInterval(typeTimer);
-        if (cb) cb();
-      }
-    }, speed);
-  }
-
-  function showQuote() {
-    textEl.style.opacity = '0';
-    authEl.style.opacity = '0';
-    setTimeout(function(){
-      textEl.textContent = '';
-      authEl.textContent = '';
-      typewrite(textEl, quotes[idx].text, 35, function(){
-        authEl.textContent = '— ' + quotes[idx].author;
-        authEl.style.opacity = '1';
-      });
-      idx = (idx + 1) % quotes.length;
-    }, 900);
-  }
-
-  showQuote();
-  setInterval(showQuote, 60000);
-})();
-</script>
-
-
-<script type="application/json" id="rfx-embedded-data">[]</script>
-<div class="ck-toast" id="ck-toast"></div>
-<div class="ck-lightbox" id="ck-lightbox">
-  <div class="ck-lightbox-wrap" id="ck-lb-wrap">
-    <img id="ck-lightbox-img" src="">
-  </div>
-  <button class="ck-lightbox-close" onclick="closeLightbox()">✕</button>
-  <div class="ck-lightbox-hint">Scroll to zoom · Double-click to reset · Click outside to close</div>
-</div>
-<script>
-// ── PWA: Manifest + Service Worker + Install Prompt ──
-(function(){
-  // 1. Dynamic manifest
-  var manifest = {
-    name: 'TradeQuill',
-    short_name: 'TradeQuill',
-    description: 'Free offline trading journal — plan, trade, review',
-    start_url: location.href,
-    display: 'standalone',
-    background_color: '#0a0814',
-    theme_color: '#0a0814',
-    orientation: 'any',
-    icons: [{
-      src: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#0a0814"/><path d="M160 380V160c0-12 8-24 20-28l100-36c8-3 16 3 16 12v240" stroke="#7c5af0" stroke-width="20" fill="none" stroke-linecap="round"/><path d="M296 200l60-20v180" stroke="#2ecc8a" stroke-width="14" fill="none" stroke-linecap="round"/></svg>'),
-      sizes: '512x512',
-      type: 'image/svg+xml',
-      purpose: 'any maskable'
-    }]
-  };
-  var blob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
-  var link = document.createElement('link');
-  link.rel = 'manifest';
-  link.href = URL.createObjectURL(blob);
-  document.head.appendChild(link);
-
-  // 2. Service Worker for offline caching
-  if ('serviceWorker' in navigator) {
-    var swCode = "self.addEventListener('install',function(e){self.skipWaiting();});"
-      + "self.addEventListener('activate',function(e){e.waitUntil(clients.claim());});"
-      + "self.addEventListener('fetch',function(e){"
-      + "  e.respondWith(caches.open('tq-v1').then(function(cache){"
-      + "    return cache.match(e.request).then(function(r){"
-      + "      var fetchP=fetch(e.request).then(function(res){"
-      + "        if(res.ok)cache.put(e.request,res.clone());"
-      + "        return res;"
-      + "      }).catch(function(){return r;});"
-      + "      return r||fetchP;"
-      + "    });"
-      + "  }));"
-      + "});";
-    var swBlob = new Blob([swCode], {type:'application/javascript'});
-    var swUrl = URL.createObjectURL(swBlob);
-    navigator.serviceWorker.register(swUrl, {scope: location.pathname}).catch(function(){});
-  }
-
-  // 3. Install prompt
-  var deferredPrompt = null;
-  window.addEventListener('beforeinstallprompt', function(e){
-    e.preventDefault();
-    deferredPrompt = e;
-    showInstallBanner();
-  });
-
-  function showInstallBanner(){
-    if(document.getElementById('pwa-install-banner')) return;
-    var bar = document.createElement('div');
-    bar.id = 'pwa-install-banner';
-    bar.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--card,#181430);border:1px solid var(--accent,#7c5af0);border-radius:14px;padding:12px 20px;display:flex;align-items:center;gap:14px;z-index:99999;box-shadow:0 8px 32px rgba(0,0,0,.5);font-family:Inter,sans-serif;max-width:420px';
-    bar.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#7c5af0" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>'
-      + '<div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--text,#e0ddd4)">Install TradeQuill</div><div style="font-size:11px;color:var(--text3,#888)">Add to home screen for app-like experience</div></div>'
-      + '<button onclick="installPWA()" style="background:var(--accent,#7c5af0);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:Inter,sans-serif">Install</button>'
-      + '<button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--text3,#888);cursor:pointer;font-size:16px;padding:0 0 0 4px">✕</button>';
-    document.body.appendChild(bar);
-  }
-
-  window.installPWA = function(){
-    if(!deferredPrompt) return;
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.then(function(){
-      deferredPrompt = null;
-      var banner = document.getElementById('pwa-install-banner');
-      if(banner) banner.remove();
-    });
-  };
-})();
-</script>
-</body>
-</html>
+ 
