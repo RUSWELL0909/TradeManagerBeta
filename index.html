@@ -68,19 +68,12 @@
 }
 
 /* ── Light theme overrides ─────────────────── */
-[data-theme="light"], [data-theme="light"] {
-
+[data-theme="light"] {
   color-scheme: light;
 }
 [data-theme="light"] body {
-  background: linear-gradient(135deg, #ece6fc 0%, #e6f4ef 30%, #e6ecfc 60%, #f0eafc 100%);
-  background-attachment: fixed;
-}
-[data-theme="light"] body {
   background: var(--bg);
-}
-[data-theme="light"] body {
-  background: linear-gradient(180deg, #f2efe6 0%, #fafafa 40%, #f7f5ef 100%);
+  background-image: none;
 }
 /* Sidebar */
 /* ── SIDEBAR — Light theme: DARK VIOLET gradient (brand accent, like Dark mode) ── */
@@ -600,16 +593,42 @@
   background: none;
 }
 /* Buttons */
-[data-theme="light"] .btn-ghost, [data-theme="light"] .btn-ghost {
-
-  border-color: var(--border);
+[data-theme="light"] .btn-ghost {
+  border: 1px solid #cbd5e1 !important;
   color: var(--text2);
+  background: var(--card) !important;
 }
-[data-theme="light"] .btn-ghost:hover, [data-theme="light"] .btn-ghost:hover {
-
+[data-theme="light"] .btn-ghost:hover {
   background: var(--bg3);
-  border-color: var(--accent);
+  border-color: var(--accent) !important;
   color: var(--accent);
+}
+/* All secondary interactive surfaces need a visible border on white bg */
+[data-theme="light"] select,
+[data-theme="light"] input[type="text"],
+[data-theme="light"] input[type="number"],
+[data-theme="light"] input[type="email"],
+[data-theme="light"] input[type="password"],
+[data-theme="light"] input[type="date"],
+[data-theme="light"] textarea,
+[data-theme="light"] .form-input,
+[data-theme="light"] .form-select,
+[data-theme="light"] .form-textarea,
+[data-theme="light"] .dash-period-btn,
+[data-theme="light"] .rpt-select,
+[data-theme="light"] .pb-input,
+[data-theme="light"] .tm-result-box {
+  border: 1px solid #cbd5e1 !important;
+  background: var(--card) !important;
+}
+[data-theme="light"] select:focus,
+[data-theme="light"] input:focus,
+[data-theme="light"] textarea:focus,
+[data-theme="light"] .form-input:focus,
+[data-theme="light"] .form-select:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px rgba(124,90,240,.1) !important;
+  outline: none !important;
 }
 /* Forms */
 [data-theme="light"] .form-input, [data-theme="light"] .form-select,
@@ -3096,7 +3115,7 @@ window.dispatchEvent(new Event('supabase-ready'));
   </div>
 </div>
 <nav class="sidebar">
-  <div class="logo">
+  <div class="logo" onclick="showPage('dashboard')" style="cursor:pointer" title="Go to Dashboard">
     <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
       <svg viewBox="251 270 522 367" width="96" height="96" style="flex-shrink:0">
 <path d="M 262 325 C 263 319 267 314 273 313 C 276 312 280 312 284 312 C 286 312 288 312 290 312 C 290 312 291 313 292 312 C 292 306 292 300 292 293 C 292 290 292 286 292 282 C 293 281 295 282 297 281 C 301 281 304 281 308 281 C 321 280 335 280 348 280 C 389 283 430 291 466 311 C 477 316 488 323 497 330 C 502 334 506 338 511 342 C 512 341 513 340 513 339 C 516 337 518 335 521 333 C 529 327 537 321 546 316 C 557 311 567 305 578 301 C 610 288 644 282 678 280 C 692 280 706 280 719 281 C 722 282 726 282 729 282 C 730 282 732 282 732 283 C 733 293 732 303 732 313 C 733 313 734 313 735 313 C 737 313 739 313 741 313 C 748 313 755 313 760 320 C 763 325 762 332 762 338 C 762 351 762 364 762 377 C 762 425 762 474 762 523 C 762 540 762 558 762 576 C 762 584 763 592 756 597 C 750 601 743 600 736 600 C 723 600 710 600 697 600 C 663 600 629 600 594 600 C 578 600 562 599 545 600 C 545 606 540 612 535 616 C 522 626 504 627 490 619 C 485 616 481 611 478 605 C 477 604 477 602 476 600 C 476 599 474 600 473 600 C 470 600 467 600 464 600 C 451 600 439 600 426 600 C 390 600 355 600 319 600 C 309 600 298 600 288 600 C 283 600 277 601 272 599 C 267 597 264 593 262 587 C 262 584 262 581 262 578 C 262 563 262 548 262 533 C 262 488 262 442 262 397 C 262 381 262 365 262 349 C 262 341 261 333 262 325 Z M 281 333 C 282 389 281 445 281 501 C 281 519 281 537 281 554 C 281 560 281 565 281 571 C 281 574 281 577 281 580 C 315 579 349 580 382 580 C 393 580 405 580 416 580 C 419 580 423 580 427 580 C 428 580 429 580 431 580 C 431 580 433 580 432 580 C 430 578 426 578 423 577 C 415 575 407 573 399 572 C 391 570 383 568 375 567 C 366 566 357 565 347 564 C 339 563 331 563 324 563 C 313 563 302 562 292 563 C 292 562 292 560 292 558 C 292 554 292 550 292 547 C 292 535 292 523 292 511 C 292 470 292 429 292 388 C 292 375 292 362 292 350 C 292 346 292 342 292 338 C 292 336 292 334 292 332 C 289 332 287 332 285 332 C 283 332 282 331 281 332 C 281 332 281 332 281 333 Z M 311 344 C 310 360 311 376 311 392 C 311 422 311 452 311 482 C 311 496 311 510 311 524 C 311 528 311 533 311 537 C 311 539 311 541 311 542 C 316 542 320 542 324 542 C 340 542 355 544 370 547 C 410 554 448 567 484 587 C 490 591 495 594 501 598 C 504 601 507 604 511 606 C 514 603 518 600 522 597 C 528 592 535 588 542 584 C 582 563 626 549 671 544 C 685 543 699 542 713 542 C 712 535 713 528 713 522 C 713 508 713 495 713 482 C 713 440 713 397 713 355 C 713 340 713 325 713 311 C 713 306 713 301 713 296 C 713 294 713 291 713 289 C 703 288 693 287 683 288 C 639 289 595 299 555 320 C 545 325 534 332 525 339 C 520 343 516 348 511 351 C 506 347 501 342 496 338 C 489 332 481 327 473 322 C 439 303 401 294 363 289 C 350 288 337 287 324 288 C 321 288 318 288 315 288 C 314 288 312 288 311 288 C 311 293 311 298 311 302 C 311 311 311 319 311 328 C 311 333 312 339 311 344 Z M 590 580 C 590 580 590 580 590 580 C 592 580 594 580 596 580 C 600 580 604 580 608 580 C 619 580 630 580 641 580 C 664 580 687 580 710 580 C 721 580 732 581 743 580 C 743 578 743 575 743 573 C 743 568 743 563 743 558 C 743 542 743 526 743 509 C 743 470 743 431 743 392 C 743 379 743 365 743 352 C 743 345 742 339 743 332 C 739 331 736 332 732 332 C 733 338 732 345 732 351 C 732 366 732 381 732 396 C 732 436 732 475 732 515 C 732 531 732 547 732 563 C 724 563 716 563 708 563 C 680 563 651 565 623 571 C 616 573 608 575 601 577 C 598 578 594 578 590 580 Z" fill="var(--sidebar-logo)" opacity="0.63" fill-rule="evenodd"/>
