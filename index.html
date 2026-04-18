@@ -3112,25 +3112,58 @@ window.dispatchEvent(new Event('supabase-ready'));
 .tq-sync-indicator .dot.syncing{background:var(--yellow);animation:pulse 1s infinite}
 .tq-sync-indicator .dot.error{background:var(--red)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.tq-eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:4px;opacity:.5;transition:opacity .2s;margin-top:-6px}
+.tq-eye-btn:hover{opacity:1}
+.tq-pass-strength{display:flex;align-items:center;gap:8px;margin:-6px 0 10px;padding:0 2px}
+.tq-str-bar{flex:1;height:3px;border-radius:2px;background:var(--border);overflow:hidden}
+.tq-str-fill{height:100%;border-radius:2px;transition:width .3s,background .3s;width:0}
+.tq-pass-strength span{font-size:9px;font-weight:600;letter-spacing:.5px;min-width:40px;text-align:right}
+.tq-auth-forgot{margin-top:8px;font-size:11px;font-family:'Inter',sans-serif}
+.tq-auth-forgot a{color:var(--text3);cursor:pointer;text-decoration:none;transition:color .2s}
+.tq-auth-forgot a:hover{color:var(--accent)}
+.tq-auth-google{width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;background:var(--bg2);color:var(--text);font-size:12px;font-weight:500;font-family:'Inter',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;margin-bottom:12px}
+.tq-auth-google:hover{border-color:var(--accent);background:var(--card)}
 </style>
 
 <div id="tq-auth-overlay">
   <div class="tq-auth-box">
     <div class="tq-auth-logo">
-      <svg viewBox="251 270 522 367" width="64" height="64"><path d="M 262 325 C 263 319 267 314 273 313 C 276 312 280 312 284 312 C 286 312 288 312 290 312 C 290 312 291 313 292 312 C 292 306 292 300 292 293 C 292 290 292 286 292 282 C 293 281 295 282 297 281 C 301 281 304 281 308 281 C 321 280 335 280 348 280 C 389 283 430 291 466 311 C 477 316 488 323 497 330 C 502 334 506 338 511 342 C 512 341 513 340 513 339 C 516 337 518 335 521 333 C 529 327 537 321 546 316 C 557 311 567 305 578 301 C 610 288 644 282 678 280 C 692 280 706 280 719 281 C 722 282 726 282 729 282 C 730 282 732 282 732 283 C 733 293 732 303 732 313 C 733 313 734 313 735 313 C 737 313 739 313 741 313 C 748 313 755 313 760 320 C 763 325 762 332 762 338 C 762 351 762 364 762 377 C 762 425 762 474 762 523 C 762 540 762 558 762 576 C 762 584 763 592 756 597 C 750 601 743 600 736 600 C 723 600 710 600 697 600 C 663 600 629 600 594 600 C 578 600 562 599 545 600 C 545 606 540 612 535 616 C 522 626 504 627 490 619 C 485 616 481 611 478 605 C 477 604 477 602 476 600 C 476 599 474 600 473 600 C 470 600 467 600 464 600 C 451 600 439 600 426 600 C 390 600 355 600 319 600 C 309 600 298 600 288 600 C 283 600 277 601 272 599 C 267 597 264 593 262 587 C 262 584 262 581 262 578 C 262 563 262 548 262 533 C 262 488 262 442 262 397 C 262 381 262 365 262 349 C 262 341 261 333 262 325 Z" fill="var(--accent)" opacity="0.63" fill-rule="evenodd"/></svg>
+      <svg viewBox="251 270 522 367" width="80" height="80">
+<path d="M 262 325 C 263 319 267 314 273 313 C 276 312 280 312 284 312 C 286 312 288 312 290 312 C 290 312 291 313 292 312 C 292 306 292 300 292 293 C 292 290 292 286 292 282 C 293 281 295 282 297 281 C 301 281 304 281 308 281 C 321 280 335 280 348 280 C 389 283 430 291 466 311 C 477 316 488 323 497 330 C 502 334 506 338 511 342 C 512 341 513 340 513 339 C 516 337 518 335 521 333 C 529 327 537 321 546 316 C 557 311 567 305 578 301 C 610 288 644 282 678 280 C 692 280 706 280 719 281 C 722 282 726 282 729 282 C 730 282 732 282 732 283 C 733 293 732 303 732 313 C 733 313 734 313 735 313 C 737 313 739 313 741 313 C 748 313 755 313 760 320 C 763 325 762 332 762 338 C 762 351 762 364 762 377 C 762 425 762 474 762 523 C 762 540 762 558 762 576 C 762 584 763 592 756 597 C 750 601 743 600 736 600 C 723 600 710 600 697 600 C 663 600 629 600 594 600 C 578 600 562 599 545 600 C 545 606 540 612 535 616 C 522 626 504 627 490 619 C 485 616 481 611 478 605 C 477 604 477 602 476 600 C 476 599 474 600 473 600 C 470 600 467 600 464 600 C 451 600 439 600 426 600 C 390 600 355 600 319 600 C 309 600 298 600 288 600 C 283 600 277 601 272 599 C 267 597 264 593 262 587 C 262 584 262 581 262 578 C 262 563 262 548 262 533 C 262 488 262 442 262 397 C 262 381 262 365 262 349 C 262 341 261 333 262 325 Z M 281 333 C 282 389 281 445 281 501 C 281 519 281 537 281 554 C 281 560 281 565 281 571 C 281 574 281 577 281 580 C 315 579 349 580 382 580 C 393 580 405 580 416 580 C 419 580 423 580 427 580 C 428 580 429 580 431 580 C 431 580 433 580 432 580 C 430 578 426 578 423 577 C 415 575 407 573 399 572 C 391 570 383 568 375 567 C 366 566 357 565 347 564 C 339 563 331 563 324 563 C 313 563 302 562 292 563 C 292 562 292 560 292 558 C 292 554 292 550 292 547 C 292 535 292 523 292 511 C 292 470 292 429 292 388 C 292 375 292 362 292 350 C 292 346 292 342 292 338 C 292 336 292 334 292 332 C 289 332 287 332 285 332 C 283 332 282 331 281 332 C 281 332 281 332 281 333 Z M 311 344 C 310 360 311 376 311 392 C 311 422 311 452 311 482 C 311 496 311 510 311 524 C 311 528 311 533 311 537 C 311 539 311 541 311 542 C 316 542 320 542 324 542 C 340 542 355 544 370 547 C 410 554 448 567 484 587 C 490 591 495 594 501 598 C 504 601 507 604 511 606 C 514 603 518 600 522 597 C 528 592 535 588 542 584 C 582 563 626 549 671 544 C 685 543 699 542 713 542 C 712 535 713 528 713 522 C 713 508 713 495 713 482 C 713 440 713 397 713 355 C 713 340 713 325 713 311 C 713 306 713 301 713 296 C 713 294 713 291 713 289 C 703 288 693 287 683 288 C 639 289 595 299 555 320 C 545 325 534 332 525 339 C 520 343 516 348 511 351 C 506 347 501 342 496 338 C 489 332 481 327 473 322 C 439 303 401 294 363 289 C 350 288 337 287 324 288 C 321 288 318 288 315 288 C 314 288 312 288 311 288 C 311 293 311 298 311 302 C 311 311 311 319 311 328 C 311 333 312 339 311 344 Z M 590 580 C 590 580 590 580 590 580 C 592 580 594 580 596 580 C 600 580 604 580 608 580 C 619 580 630 580 641 580 C 664 580 687 580 710 580 C 721 580 732 581 743 580 C 743 578 743 575 743 573 C 743 568 743 563 743 558 C 743 542 743 526 743 509 C 743 470 743 431 743 392 C 743 379 743 365 743 352 C 743 345 742 339 743 332 C 739 331 736 332 732 332 C 733 338 732 345 732 351 C 732 366 732 381 732 396 C 732 436 732 475 732 515 C 732 531 732 547 732 563 C 724 563 716 563 708 563 C 680 563 651 565 623 571 C 616 573 608 575 601 577 C 598 578 594 578 590 580 Z" fill="var(--accent)" opacity="0.63" fill-rule="evenodd"/>
+<path d="M 342 468 C 343 467 344 467 346 467 C 348 466 351 465 354 465 C 362 462 370 459 378 455 C 402 444 422 426 437 405 C 442 399 447 391 450 384 C 446 383 442 381 438 380 C 437 380 435 380 435 378 C 440 375 445 372 449 370 C 455 366 461 363 466 359 C 469 358 471 356 474 355 C 474 354 476 353 476 353 C 478 365 480 376 482 388 C 483 393 484 397 484 402 C 483 402 481 401 480 400 C 477 398 474 395 470 393 C 466 401 460 409 454 417 C 434 439 409 455 380 463 C 371 466 362 467 353 468 C 351 468 348 468 346 468 C 345 468 343 468 342 468 Z" fill="var(--accent)" opacity="0.86" fill-rule="evenodd"/>
+<path d="M 342 477 C 347 476 351 477 355 477 C 359 476 363 475 366 475 C 366 484 366 493 366 502 C 358 503 351 502 343 502 C 342 499 342 496 342 493 C 342 488 342 483 342 477 Z" fill="var(--accent)" opacity="0.6" fill-rule="evenodd"/>
+<path d="M 379 472 C 383 471 387 470 390 469 C 394 467 398 466 402 464 C 403 473 402 482 402 492 C 402 495 402 499 402 502 C 397 502 391 502 386 502 C 384 502 381 503 379 502 C 379 492 379 482 379 472 Z" fill="var(--accent)" opacity="0.61" fill-rule="evenodd"/>
+<path d="M 415 458 C 420 455 424 452 429 449 C 432 447 435 444 439 442 C 439 444 439 446 439 447 C 438 451 438 455 438 459 C 438 473 438 488 438 502 C 433 502 427 502 421 502 C 420 502 417 503 415 502 C 415 492 415 482 415 473 C 415 469 415 466 415 462 C 415 461 415 459 415 458 Z" fill="var(--accent)" opacity="0.64" fill-rule="evenodd"/>
+<path d="M 451 431 C 452 429 456 426 457 425 C 461 421 464 417 467 413 C 469 410 471 407 474 406 C 475 415 474 425 474 434 C 474 457 474 480 474 502 C 471 502 467 502 463 502 C 460 502 455 502 451 502 C 451 502 451 499 451 498 C 451 493 451 489 451 484 C 451 467 450 449 451 431 Z" fill="var(--accent)" opacity="0.72" fill-rule="evenodd"/>
+<path d="M 534 467 C 534 466 534 466 535 467 C 537 468 539 472 541 473 C 540 470 539 467 538 464 C 537 457 536 449 537 442 C 537 440 537 436 539 434 C 540 434 541 437 541 438 C 543 442 544 448 547 451 C 547 449 546 447 546 445 C 546 441 546 436 546 432 C 548 418 552 405 559 393 C 561 390 563 387 565 383 C 566 382 567 380 569 380 C 570 382 571 386 571 389 C 572 390 572 392 573 392 C 574 386 572 379 574 373 C 575 370 576 369 578 367 C 581 362 585 358 588 354 C 602 338 618 323 637 315 C 646 311 655 308 665 307 C 669 307 674 308 677 312 C 679 317 678 324 677 329 C 673 342 666 355 660 368 C 658 371 656 374 655 376 C 654 378 653 381 651 382 C 650 383 648 384 646 385 C 642 388 638 390 633 393 C 631 394 628 396 627 398 C 628 398 631 397 632 396 C 637 395 642 393 647 392 C 646 395 644 397 643 400 C 640 405 638 410 635 414 C 626 432 615 450 600 464 C 597 466 593 469 590 472 C 587 473 584 474 581 476 C 581 477 584 477 585 477 C 589 476 593 476 597 475 C 597 476 595 477 595 477 C 593 479 591 481 588 482 C 581 487 575 490 567 494 C 565 495 562 496 560 498 C 559 498 558 498 557 499 C 555 502 554 506 552 510 C 549 518 547 526 544 534 C 543 537 542 541 541 544 C 541 546 540 548 540 549 C 539 549 539 551 539 550 C 539 549 539 548 539 547 C 540 544 540 541 541 538 C 543 528 546 519 549 509 C 552 496 557 484 562 471 C 573 444 586 418 602 393 C 610 379 620 367 630 354 C 632 351 635 348 637 345 C 638 345 640 343 640 343 C 640 342 637 344 637 345 C 634 347 631 350 628 353 C 626 356 623 359 620 362 C 616 367 612 372 609 377 C 589 402 573 430 561 460 C 558 467 555 474 553 481 C 551 484 550 488 549 491 C 549 493 549 495 548 496 C 547 495 546 494 546 494 C 544 491 543 489 542 487 C 538 481 536 474 534 467 Z" fill="var(--accent)" opacity="0.87" fill-rule="evenodd"/>
+</svg>
     </div>
     <div class="tq-auth-title">TradeQuill</div>
     <div class="tq-auth-sub" id="tq-auth-subtitle">Your edge, written.</div>
     <div id="tq-auth-form">
       <input class="tq-auth-input" id="tq-auth-email" type="email" placeholder="Email" autocomplete="email">
-      <input class="tq-auth-input" id="tq-auth-pass" type="password" placeholder="Password" autocomplete="current-password">
+      <div style="position:relative">
+        <input class="tq-auth-input" id="tq-auth-pass" type="password" placeholder="Password" autocomplete="current-password" style="padding-right:40px" oninput="tqCheckStrength()">
+        <button type="button" class="tq-eye-btn" onclick="tqToggleEye()" tabindex="-1" aria-label="Toggle password visibility">
+          <svg id="tq-eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <div id="tq-pass-strength" class="tq-pass-strength" style="display:none">
+        <div class="tq-str-bar"><div class="tq-str-fill" id="tq-str-fill"></div></div>
+        <span id="tq-str-label"></span>
+      </div>
       <button class="tq-auth-btn" id="tq-auth-submit" onclick="tqAuth()">Sign In</button>
       <div class="tq-auth-msg" id="tq-auth-msg"></div>
+      <div id="tq-forgot-link" class="tq-auth-forgot"><a onclick="tqForgotPassword()">Forgot password?</a></div>
       <div class="tq-auth-toggle">
         <span id="tq-auth-toggle-text">Don't have an account?</span>
         <a onclick="tqToggleAuth()"><span id="tq-auth-toggle-link">Sign Up</span></a>
       </div>
       <div class="tq-auth-divider">or</div>
+      <button class="tq-auth-google" onclick="tqGoogleAuth()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        Continue with Google
+      </button>
       <div class="tq-auth-skip"><a onclick="tqSkipAuth()">Continue offline without account</a></div>
     </div>
   </div>
@@ -6469,6 +6502,67 @@ window.dispatchEvent(new Event('supabase-ready'));
     }
   }
 
+  // ── Eye toggle ──
+  function tqToggleEye(){
+    var inp=document.getElementById('tq-auth-pass');
+    var ico=document.getElementById('tq-eye-icon');
+    if(inp.type==='password'){
+      inp.type='text';
+      ico.innerHTML='<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke="var(--text3)" stroke-width="1.5" fill="none"/><line x1="1" y1="1" x2="23" y2="23" stroke="var(--text3)" stroke-width="1.5"/>';
+    } else {
+      inp.type='password';
+      ico.innerHTML='<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="var(--text3)" stroke-width="1.5" fill="none"/><circle cx="12" cy="12" r="3" stroke="var(--text3)" stroke-width="1.5" fill="none"/>';
+    }
+  }
+  window.tqToggleEye=tqToggleEye;
+
+  // ── Password strength ──
+  function tqCheckStrength(){
+    var el=document.getElementById('tq-pass-strength');
+    var fill=document.getElementById('tq-str-fill');
+    var label=document.getElementById('tq-str-label');
+    if(!el||_tqAuthMode!=='signup'){if(el)el.style.display='none';return;}
+    var pass=document.getElementById('tq-auth-pass').value;
+    if(!pass){el.style.display='none';return;}
+    el.style.display='flex';
+    var score=0;
+    if(pass.length>=6)score++;
+    if(pass.length>=10)score++;
+    if(/[A-Z]/.test(pass))score++;
+    if(/[0-9]/.test(pass))score++;
+    if(/[^A-Za-z0-9]/.test(pass))score++;
+    var pct=[0,20,40,60,80,100][score];
+    var colors=['var(--red)','var(--red)','var(--yellow)','var(--yellow)','var(--green)','var(--green)'];
+    var labels=['','Weak','Fair','Good','Strong','Excellent'];
+    fill.style.width=pct+'%';fill.style.background=colors[score];
+    label.textContent=labels[score];label.style.color=colors[score];
+  }
+  window.tqCheckStrength=tqCheckStrength;
+
+  // ── Forgot password ──
+  function tqForgotPassword(){
+    if(!_tqSupa){tqShowMsg('Supabase not loaded','error');return;}
+    var email=document.getElementById('tq-auth-email').value.trim();
+    if(!email){tqShowMsg('Enter your email first','error');return;}
+    _tqSupa.auth.resetPasswordForEmail(email,{
+      redirectTo:'https://ruswell0909.github.io/TradeManagerBeta/'
+    }).then(function(res){
+      if(res.error) tqShowMsg(res.error.message,'error');
+      else tqShowMsg('Password reset email sent! Check your inbox.','success');
+    });
+  }
+  window.tqForgotPassword=tqForgotPassword;
+
+  // ── Google OAuth ──
+  function tqGoogleAuth(){
+    if(!_tqSupa){tqShowMsg('Supabase not loaded','error');return;}
+    _tqSupa.auth.signInWithOAuth({
+      provider:'google',
+      options:{redirectTo:'https://ruswell0909.github.io/TradeManagerBeta/'}
+    });
+  }
+  window.tqGoogleAuth=tqGoogleAuth;
+
   // ── Auth UI ──
   var _tqAuthMode = 'signin'; // or 'signup'
 
@@ -6479,6 +6573,13 @@ window.dispatchEvent(new Event('supabase-ready'));
     document.getElementById('tq-auth-toggle-link').textContent = _tqAuthMode === 'signin' ? 'Sign Up' : 'Sign In';
     document.getElementById('tq-auth-msg').textContent = '';
     document.getElementById('tq-auth-msg').className = 'tq-auth-msg';
+    // Toggle forgot password link visibility
+    var forgot=document.getElementById('tq-forgot-link');
+    if(forgot)forgot.style.display=_tqAuthMode==='signin'?'':'none';
+    // Toggle password strength
+    var str=document.getElementById('tq-pass-strength');
+    if(str)str.style.display='none';
+    tqCheckStrength();
   }
   window.tqToggleAuth = tqToggleAuth;
 
@@ -6547,34 +6648,30 @@ window.dispatchEvent(new Event('supabase-ready'));
   // ── User bar in sidebar ──
   function tqShowUserBar(){
     if(!_tqUser) return;
-    var existing = document.getElementById('tq-user-bar');
+    var existing = document.getElementById('tq-user-section');
     if(existing) existing.remove();
-    var bar = document.createElement('div');
-    bar.id = 'tq-user-bar';
-    bar.className = 'tq-user-bar';
-    bar.innerHTML = '<span class="tq-user-dot"></span>'+
-      '<span class="tq-user-email">'+(_tqUser.email||'User')+'</span>'+
-      '<button class="tq-user-logout" onclick="tqLogout()">Logout</button>';
-    // Insert at bottom of sidebar
+    var email = _tqUser.email||'User';
+    var initial = email.charAt(0).toUpperCase();
+    var section = document.createElement('div');
+    section.id = 'tq-user-section';
+    section.style.cssText = 'padding:8px 12px;margin-top:auto;border-top:1px solid var(--border)';
+    section.innerHTML = '<div class="tq-user-bar" style="margin-top:0">' +
+      '<div style="width:28px;height:28px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;font-family:Inter,sans-serif;flex-shrink:0">'+initial+'</div>' +
+      '<div style="flex:1;min-width:0">' +
+        '<div style="font-size:10px;font-weight:600;color:var(--text);font-family:Inter,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+email+'</div>' +
+        '<div style="font-size:8px;color:var(--green);font-weight:600;letter-spacing:.5px;font-family:Inter,sans-serif;margin-top:1px">CLOUD SYNC ON</div>' +
+      '</div>' +
+      '<button class="tq-user-logout" onclick="tqLogout()" title="Sign Out">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>' +
+      '</button></div>' +
+      '<div id="tq-sync-status" class="tq-sync-indicator" style="padding:4px 0 0"><span class="dot"></span> Synced</div>';
     var sidebar = document.querySelector('.sidebar');
-    if(sidebar) sidebar.appendChild(bar);
-
-    // Also add sync indicator
-    var syncEl = document.getElementById('tq-sync-status');
-    if(!syncEl){
-      syncEl = document.createElement('div');
-      syncEl.id = 'tq-sync-status';
-      syncEl.className = 'tq-sync-indicator';
-      syncEl.innerHTML = '<span class="dot"></span> Synced';
-      if(sidebar) sidebar.appendChild(syncEl);
-    }
+    if(sidebar) sidebar.appendChild(section);
   }
 
   function tqHideUserBar(){
-    var bar = document.getElementById('tq-user-bar');
-    if(bar) bar.remove();
-    var sync = document.getElementById('tq-sync-status');
-    if(sync) sync.remove();
+    var section = document.getElementById('tq-user-section');
+    if(section) section.remove();
   }
 
   function tqSetSyncStatus(state, msg){
@@ -7076,19 +7173,154 @@ window.dispatchEvent(new Event('supabase-ready'));
     });
   }
 
+  // ══ SETTINGS SYNC (theme, custom tags, timezone) ══
+  function tqPushSettings(){
+    if(!_tqSupa||!_tqUser)return;
+    var settings={
+      theme:rfxGet('rf_theme')||'dark',
+      customTags:JSON.parse(rfxGet('rf_custom_tags')||'[]'),
+      timezone:rfxGet('rossfx-tz')||'',
+      dashView:rfxGet('rf_dash_view')||'',
+      dashWidgets:rfxGet('rf_dash_widgets')||'',
+      newsCcy:rfxGet('rf_news_ccy')||'',
+      newsFilter:rfxGet('rf_news_filter')||''
+    };
+    _tqSupa.from('profiles').upsert({
+      id:_tqUser.id,
+      data:settings,
+      updated_at:new Date().toISOString()
+    },{onConflict:'id'}).then(function(r){
+      if(r.error)console.error('Settings push error:',r.error);
+      else console.log('TradeQuill: Settings synced');
+    });
+  }
+  window.tqPushSettings=tqPushSettings;
+
+  function tqPullSettings(){
+    if(!_tqSupa||!_tqUser)return;
+    _tqSupa.from('profiles').select('data').eq('id',_tqUser.id).single().then(function(res){
+      if(res.error||!res.data||!res.data.data)return;
+      var s=res.data.data;
+      if(s.theme){rfxSet('rf_theme',s.theme);if(typeof setTheme==='function')setTheme(s.theme);}
+      if(s.customTags)rfxSet('rf_custom_tags',JSON.stringify(s.customTags));
+      if(s.timezone)rfxSet('rossfx-tz',s.timezone);
+      console.log('TradeQuill: Settings pulled from cloud');
+    });
+  }
+
   // ══ MASTER PULL — called on login ══
   function tqPullAll(){
     tqPullTrades();
     setTimeout(tqPullNotebooks, 500);
     setTimeout(tqPullPlaybooks, 1000);
     setTimeout(tqPullAccounts, 1500);
+    setTimeout(tqPullSettings, 2000);
   }
 
   // Export all sync functions to window
   window.tqPullNotebooks=tqPullNotebooks;
   window.tqPullPlaybooks=tqPullPlaybooks;
   window.tqPullAccounts=tqPullAccounts;
+  window.tqPullSettings=tqPullSettings;
   window.tqPullAll=tqPullAll;
+
+  // ══ SCREENSHOT STORAGE (Supabase Storage CDN) ══
+  var TQ_STORAGE_BUCKET = 'screenshots';
+
+  // Convert base64 data URL to Blob
+  function tqBase64ToBlob(dataUrl){
+    var parts = dataUrl.split(',');
+    var mime = parts[0].match(/:(.*?);/)[1];
+    var raw = atob(parts[1]);
+    var arr = new Uint8Array(raw.length);
+    for(var i=0;i<raw.length;i++) arr[i]=raw.charCodeAt(i);
+    return new Blob([arr],{type:mime});
+  }
+
+  // Check if string is a base64 data URL (not already a CDN URL)
+  function tqIsBase64(str){
+    return typeof str==='string' && str.indexOf('data:image')===0;
+  }
+
+  // Upload single screenshot to Supabase Storage, returns CDN URL
+  function tqUploadScreenshot(base64, tradeId, index){
+    if(!_tqSupa||!_tqUser||!tqIsBase64(base64)) return Promise.resolve(base64);
+    var blob = tqBase64ToBlob(base64);
+    var ext = blob.type==='image/png'?'png':'jpg';
+    var path = _tqUser.id+'/'+tradeId+'/'+index+'_'+Date.now()+'.'+ext;
+    return _tqSupa.storage.from(TQ_STORAGE_BUCKET)
+      .upload(path, blob, {contentType:blob.type, upsert:true})
+      .then(function(res){
+        if(res.error){
+          console.error('Screenshot upload error:', res.error);
+          return base64; // fallback to base64
+        }
+        // Get public URL
+        var urlRes = _tqSupa.storage.from(TQ_STORAGE_BUCKET).getPublicUrl(path);
+        var url = urlRes.data.publicUrl;
+        console.log('TradeQuill: Screenshot uploaded →', path);
+        return url;
+      }).catch(function(e){
+        console.error('Screenshot upload failed:', e);
+        return base64;
+      });
+  }
+
+  // Upload all screenshots for a trade, replace base64 with CDN URLs
+  function tqUploadTradeScreenshots(trade){
+    if(!_tqSupa||!_tqUser||!trade.screenshots||trade.screenshots.length===0) return Promise.resolve(trade);
+    var hasBase64 = trade.screenshots.some(tqIsBase64);
+    if(!hasBase64) return Promise.resolve(trade); // already CDN URLs
+
+    var promises = trade.screenshots.map(function(s, i){
+      return tqUploadScreenshot(s, trade.id, i);
+    });
+    return Promise.all(promises).then(function(urls){
+      trade.screenshots = urls;
+      // Update local storage with CDN URLs
+      var trades = JSON.parse(rfxGet('rf_trades')||'[]');
+      var idx = trades.findIndex(function(t){return t.id===trade.id;});
+      if(idx>=0){
+        trades[idx].screenshots = urls;
+        rfxSet('rf_trades', JSON.stringify(trades));
+      }
+      // Re-push to Supabase with CDN URLs
+      tqPushTrade(trade);
+      console.log('TradeQuill: '+urls.length+' screenshots uploaded to CDN');
+      return trade;
+    });
+  }
+  window.tqUploadTradeScreenshots=tqUploadTradeScreenshots;
+
+  // Upload notebook images to Storage
+  function tqUploadNoteImages(note){
+    if(!_tqSupa||!_tqUser||!note.images||note.images.length===0) return Promise.resolve(note);
+    var hasBase64 = note.images.some(tqIsBase64);
+    if(!hasBase64) return Promise.resolve(note);
+
+    var promises = note.images.map(function(s, i){
+      if(!tqIsBase64(s)) return Promise.resolve(s);
+      var blob = tqBase64ToBlob(s);
+      var ext = blob.type==='image/png'?'png':'jpg';
+      var path = _tqUser.id+'/notes/'+note.id+'/'+i+'_'+Date.now()+'.'+ext;
+      return _tqSupa.storage.from(TQ_STORAGE_BUCKET)
+        .upload(path, blob, {contentType:blob.type, upsert:true})
+        .then(function(res){
+          if(res.error) return s;
+          return _tqSupa.storage.from(TQ_STORAGE_BUCKET).getPublicUrl(path).data.publicUrl;
+        }).catch(function(){return s;});
+    });
+    return Promise.all(promises).then(function(urls){
+      note.images = urls;
+      var notes = JSON.parse(rfxGet('rossfx-notebook')||'[]');
+      var idx = notes.findIndex(function(n){return n.id===note.id;});
+      if(idx>=0){notes[idx].images=urls;rfxSet('rossfx-notebook',JSON.stringify(notes));}
+      tqPushNotebook(note);
+      console.log('TradeQuill: '+urls.length+' note images uploaded to CDN');
+      return note;
+    });
+  }
+  window.tqUploadNoteImages=tqUploadNoteImages;
 
   // ══ END SUPABASE MODULE ══
 
@@ -10017,7 +10249,7 @@ window.dispatchEvent(new Event('supabase-ready'));
 
   // ═══ CUSTOM TAGS ═══
   function jrGetCustomTagDefs(){return JSON.parse(rfxGet('rf_custom_tags')||'[]');}
-  function jrSaveCustomTagDefs(tags){rfxSet('rf_custom_tags',JSON.stringify(tags));}
+  function jrSaveCustomTagDefs(tags){rfxSet('rf_custom_tags',JSON.stringify(tags));if(typeof tqPushSettings==='function')tqPushSettings();}
 
   function jrRenderCustomTags(activeTags){
     var row=document.getElementById('jr-custom-tags-row');if(!row)return;
@@ -11463,6 +11695,10 @@ window.dispatchEvent(new Event('supabase-ready'));
     rfxSet('rf_trades', JSON.stringify(trades));
     if(!jrEditId) rfxTrackBackupReminder(); // Track new trade for backup reminder
     tqPushTrade(trade); // ← Supabase sync
+    // Upload screenshots to CDN (background, replaces base64 with URLs)
+    if(trade.screenshots&&trade.screenshots.length>0&&typeof tqUploadTradeScreenshots==='function'){
+      tqUploadTradeScreenshots(trade);
+    }
     closeJrModal();
     renderJournal();
   }
@@ -14715,7 +14951,7 @@ window.dispatchEvent(new Event('supabase-ready'));
     var note={id:nbEditId||('nb_'+Date.now()),type:document.getElementById('nb-type').value,date:document.getElementById('nb-date').value,title:document.getElementById('nb-title').value.trim()||'Untitled',content:document.getElementById('nb-content').value,pinned:document.getElementById('nb-pinned').checked,mood:nbMoodVal,images:nbImages.slice(),updated:new Date().toISOString()};
     if(nbEditId){var idx=notes.findIndex(function(n){return n.id===nbEditId;});if(idx>=0)notes[idx]=Object.assign(notes[idx],note);}
     else{note.created=new Date().toISOString();notes.unshift(note);}
-    nbSaveNotes(notes);if(typeof tqPushNotebook==='function')tqPushNotebook(note);nbCloseModal();nbRender();
+    nbSaveNotes(notes);if(typeof tqPushNotebook==='function')tqPushNotebook(note);if(note.images&&note.images.length>0&&typeof tqUploadNoteImages==='function')tqUploadNoteImages(note);nbCloseModal();nbRender();
   }
   window.nbSave=nbSave;
 
@@ -19405,7 +19641,7 @@ window.dispatchEvent(new Event('supabase-ready'));
     document.querySelectorAll('.theme-btn').forEach(function(b){ b.classList.remove('active'); });
     if (btn) btn.classList.add('active');
     rfxSet('rf_theme', theme);
-    // Update dropdown label + active state
+    if(typeof tqPushSettings==='function')tqPushSettings(); // sync to cloud
     var labels = {'dark':'Dark','light-a':'Light Violet','light-b':'Light Warm','light-c':'Warm Sand'};
     var lbl = document.getElementById('theme-label');
     if (lbl) lbl.textContent = labels[theme] || theme;
