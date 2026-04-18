@@ -34,37 +34,37 @@
   --topbar-bg:rgba(13,10,26,.95);
 }
 
-/* ── LIGHT THEME: Bright sister of Dark — white canvas + violet accents ── */
+/* ── LIGHT THEME: TradeZella-inspired — neutral slate, violet accent only on active ── */
 [data-theme="light"] {
-  /* Surfaces: clean whites with a barely-there violet tint */
-  --bg:#f7f5fc;           /* page — softest violet haze */
-  --bg2:#efecf8;          /* sidebar, subtle panels */
-  --bg3:#ffffff;          /* elevated surfaces */
+  /* Surfaces: pure neutral, no violet wash */
+  --bg:#fafafa;           /* page — near-white */
+  --bg2:#f4f4f6;          /* sidebar + subtle panels */
+  --bg3:#ffffff;          /* elevated */
   --card:#ffffff;         /* cards */
-  --border:#e2dcf2;       /* borders with violet whisper */
+  --border:#e5e7eb;       /* neutral gray-200 */
 
-  /* Accent: same violet family as Dark */
+  /* Accent: brand violet — only on active states */
   --accent:#7c5af0; --accent2:#9b7ef8; --accent3:#6a45e8;
 
-  /* Semantic colors */
-  --green:#10b981; --red:#ef4444; --yellow:#f59e0b;
+  /* Semantic — deep, readable on white */
+  --green:#059669; --red:#dc2626; --yellow:#d97706;
 
-  /* Text: near-black → medium-violet-gray → soft-violet-gray */
-  --text:#1a1830;         /* primary — dark violet-black */
-  --text2:#55516e;        /* secondary */
-  --text3:#9690b0;        /* tertiary/meta */
+  /* Text: slate hierarchy — zinc-900 → slate-500 → slate-400 */
+  --text:#18181b;         /* primary */
+  --text2:#6b7280;        /* secondary */
+  --text3:#9ca3af;        /* tertiary/meta */
 
   --sidebar-logo:#7c5af0;
-  --chart-bg:rgba(124,90,240,.04);
-  --body-bg-grad1:rgba(124,90,240,.04); --body-bg-grad2:rgba(124,90,240,.02);
-  --circle-track:rgba(124,90,240,.12);
-  --sparkline:rgba(124,90,240,.15);
+  --chart-bg:rgba(0,0,0,.02);
+  --body-bg-grad1:transparent; --body-bg-grad2:transparent;
+  --circle-track:rgba(0,0,0,.06);
+  --sparkline:rgba(124,90,240,.1);
   --tooltip-bg:#ffffff;
-  --tooltip-border:rgba(124,90,240,.2);
-  --nav-active-bg:rgba(124,90,240,.1);
+  --tooltip-border:#e5e7eb;
+  --nav-active-bg:rgba(124,90,240,.08);
   --nav-active-border:#7c5af0;
-  --section-label:rgba(26,24,48,.4);
-  --topbar-bg:rgba(247,245,252,.9);
+  --section-label:rgba(24,24,27,.45);
+  --topbar-bg:rgba(250,250,250,.9);
 }
 
 /* ── Light theme overrides ─────────────────── */
@@ -83,127 +83,86 @@
   background: linear-gradient(180deg, #f2efe6 0%, #fafafa 40%, #f7f5ef 100%);
 }
 /* Sidebar */
-[data-theme="light"] .sidebar, [data-theme="light"] .sidebar {
-
-  background: linear-gradient(180deg,#18141e,#0e0c14);
-  box-shadow: inset -1px 0 30px rgba(124,90,240,.02), 4px 0 16px rgba(0,0,0,.08);
-  border-right: none;
+/* ── SIDEBAR — Light theme: soft gradient with violet accent ── */
+[data-theme="light"] .sidebar {
+  background: linear-gradient(180deg, #f7f6fb 0%, #f1eef8 100%) !important;
+  box-shadow: inset -1px 0 0 rgba(0,0,0,.04), 1px 0 0 #e5e7eb !important;
+  border-right: none !important;
 }
-[data-theme="light"] .sidebar::after, [data-theme="light"] .sidebar::after {
-
+[data-theme="light"] .sidebar::after {
   content: '';
   position: absolute;
   right: 0; top: 0; bottom: 0;
   width: 1px;
-  background: linear-gradient(180deg, transparent 10%, rgba(124,90,240,.08) 50%, transparent 90%);
+  background: linear-gradient(180deg, transparent 5%, rgba(124,90,240,.12) 50%, transparent 95%) !important;
 }
-/* Light-C: warm brown sidebar override */
-[data-theme="light"] .sidebar {
-  background: linear-gradient(180deg,#18141e,#0e0c14) !important;
-  box-shadow: inset -1px 0 30px rgba(124,90,240,.03), 4px 0 16px rgba(0,0,0,.08) !important;
-}
-[data-theme="light"] .sidebar::after {
-  background: linear-gradient(180deg, transparent 10%, rgba(124,90,240,.12) 50%, transparent 90%) !important;
-}
+
+/* Logo — TradeQuill */
 [data-theme="light"] .logo-text {
-  color: #f0eaff !important;
+  color: #18181b !important;
 }
 [data-theme="light"] .logo-sub {
-  color: rgba(255,255,255,.3) !important;
+  color: #9ca3af !important;
 }
-[data-theme="light"] .nav-item.active {
-  background: rgba(255,255,255,.12) !important;
-  border-left-color: #b8a0ff !important;
-  color: #fff !important;
-}
-[data-theme="light"] .nav-item.active svg {
-  stroke: #fff !important;
-}
+
+/* Nav items — slate text */
 [data-theme="light"] .nav-item {
-  color: rgba(255,255,255,.7) !important;
+  color: #52525b !important;
+  background: transparent !important;
 }
 [data-theme="light"] .nav-item:hover {
-  color: #fff !important;
-  background: rgba(255,255,255,.08) !important;
+  color: #18181b !important;
+  background: rgba(124,90,240,.05) !important;
+}
+[data-theme="light"] .nav-item.active {
+  background: rgba(124,90,240,.1) !important;
+  border-left-color: #7c5af0 !important;
+  color: #7c5af0 !important;
+}
+[data-theme="light"] .nav-item.active svg {
+  stroke: #7c5af0 !important;
 }
 [data-theme="light"] .nav-item svg {
-  stroke: rgba(255,255,255,.5) !important;
+  stroke: #9ca3af !important;
 }
 [data-theme="light"] .nav-item:hover svg {
-  stroke: rgba(255,255,255,.85) !important;
+  stroke: #52525b !important;
 }
 [data-theme="light"] .nav-label {
-  color: rgba(255,255,255,.35) !important;
+  color: #6b7280 !important;
 }
-/* Logo */
-[data-theme="light"] .logo-text, [data-theme="light"] .logo-text {
 
-  color: #d4c0ff !important;
+/* Section labels — soft gray */
+[data-theme="light"] .nav-section-label {
+  color: rgba(24,24,27,.4) !important;
 }
-[data-theme="light"] .logo-sub, [data-theme="light"] .logo-sub {
 
-  color: rgba(255,255,255,.25) !important;
-}
-/* Nav items */
-[data-theme="light"] .nav-item, [data-theme="light"] .nav-item {
-
-  color: rgba(255,255,255,.4);
-}
-[data-theme="light"] .nav-item:hover, [data-theme="light"] .nav-item:hover {
-
-  background: rgba(124,90,240,.04);
-  color: rgba(255,255,255,.85);
-}
-[data-theme="light"] .nav-item.active, [data-theme="light"] .nav-item.active {
-
-  background: linear-gradient(90deg,rgba(124,90,240,.08),transparent);
-  border-left-color: #9b7ef8;
-  color: #e8e0ff;
-}
-/* Nav icons */
-[data-theme="light"] .nav-item svg, [data-theme="light"] .nav-item svg {
-
-  stroke: rgba(255,255,255,.35);
-}
-[data-theme="light"] .nav-item.active svg, [data-theme="light"] .nav-item.active svg {
-
-  stroke: #9b7ef8;
-}
-/* Section labels */
-[data-theme="light"] .nav-section-label, [data-theme="light"] .nav-section-label {
-
-  color: rgba(255,255,255,.2);
-}
 /* Theme section border */
-[data-theme="light"] .sidebar [style*="border-bottom"],
 [data-theme="light"] .sidebar [style*="border-bottom"] {
-
-  border-color: rgba(255,255,255,.06) !important;
+  border-color: #e5e7eb !important;
 }
-/* Theme buttons on dark sidebar */
-[data-theme="light"] .theme-btn,
+
+/* Theme buttons — light sidebar variant */
 [data-theme="light"] .theme-btn {
-
-  border-color: rgba(255,255,255,.1);
-  background: rgba(255,255,255,.04);
+  border-color: #e5e7eb !important;
+  background: #ffffff !important;
+  color: #52525b !important;
 }
-[data-theme="light"] .theme-btn:hover,
 [data-theme="light"] .theme-btn:hover {
-
-  background: rgba(255,255,255,.08);
+  background: #f9fafb !important;
+  border-color: #d4d4d8 !important;
 }
-[data-theme="light"] .theme-btn.active,
 [data-theme="light"] .theme-btn.active {
-
-  background: var(--accent);
-  border-color: var(--accent);
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: #ffffff !important;
 }
-/* Theme label text */
-[data-theme="light"] .sidebar [style*="color:var(--text3)"],
+
+/* Theme label text in sidebar */
 [data-theme="light"] .sidebar [style*="color:var(--text3)"] {
-
-  color: rgba(255,255,255,.2) !important;
+  color: #6b7280 !important;
 }
+
 /* Cards */
 [data-theme="light"] .card, [data-theme="light"] .dash-card {
   background: rgba(255,255,255,.82);
@@ -255,13 +214,7 @@
   background: linear-gradient(135deg, var(--accent), var(--accent2)) !important;
   box-shadow: 0 2px 8px rgba(124,90,240,.3) !important;
 }
-[data-theme="light"] .nav-item.active {
-  background: linear-gradient(135deg,rgba(124,90,240,.12),rgba(124,90,240,.04)) !important;
-  color: var(--accent3) !important;
-  border-color: rgba(124,90,240,.3) !important;
-  box-shadow: inset 0 0 20px rgba(124,90,240,.06) !important;
-}
-/* ══ LIGHT-C: Comprehensive olive overrides (all pages) ══ */
+/* ══ LIGHT THEME: subtle violet accents on cards/pills ══ */
 /* Stat cards */
 [data-theme="light"] .stat-card:hover {
   box-shadow: 0 8px 32px rgba(124,90,240,.12) !important;
@@ -711,7 +664,7 @@
   background: linear-gradient(90deg,transparent 30%,rgba(124,90,240,.02) 50%,transparent 70%) !important;
 }
 [data-theme="light"] #quote-text {
-  color: #e8e0ff !important;
+  color: var(--text) !important;
 }
 [data-theme="light"] #quote-text {
   color: var(--text) !important;
@@ -843,7 +796,7 @@
   box-shadow: 0 4px 20px rgba(124,90,240,.06), 0 1px 3px rgba(0,0,0,.08);
 }
 [data-theme="light"] #quote-text {
-  color: #e8e0ff !important;
+  color: var(--text) !important;
 }
 [data-theme="light"] #quote-author {
   color: #9b7ef8 !important;
@@ -858,7 +811,7 @@
   background: radial-gradient(ellipse at 50% 0%,rgba(124,90,240,.04),transparent 65%) !important;
 }
 [data-theme="light"] #quote-text {
-  color: #f2ecd4 !important;
+  color: var(--text) !important;
 }
 [data-theme="light"] #quote-author {
   color: #7c5af0 !important;
