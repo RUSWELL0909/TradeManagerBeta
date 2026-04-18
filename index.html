@@ -343,9 +343,31 @@
   background: rgba(124,90,240,.04) !important;
 }
 /* Day View */
+[data-theme="light"] .dv-day {
+  background: var(--card) !important;
+  border: 1px solid var(--border) !important;
+}
+[data-theme="light"] .dv-day.win {
+  background: var(--card) !important;
+  border-color: var(--border) !important;
+  box-shadow: inset 0 -3px 0 #10b981 !important;
+}
+[data-theme="light"] .dv-day.loss {
+  background: var(--card) !important;
+  border-color: var(--border) !important;
+  box-shadow: inset 0 -3px 0 #ef4444 !important;
+}
 [data-theme="light"] .dv-day:hover {
-  border-color: rgba(124,90,240,.15) !important;
-  background: rgba(124,90,240,.03) !important;
+  border-color: rgba(124,90,240,.35) !important;
+  background: var(--card) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(124,90,240,.08) !important;
+}
+[data-theme="light"] .dv-day.win:hover {
+  box-shadow: inset 0 -3px 0 #10b981, 0 4px 14px rgba(16,185,129,.12) !important;
+}
+[data-theme="light"] .dv-day.loss:hover {
+  box-shadow: inset 0 -3px 0 #ef4444, 0 4px 14px rgba(239,68,68,.12) !important;
 }
 [data-theme="light"] .dv-day.selected {
   box-shadow: 0 0 12px rgba(124,90,240,.08) !important;
@@ -353,8 +375,9 @@
   border-color: var(--accent) !important;
 }
 [data-theme="light"] .dv-day.today {
-  border-color: rgba(124,90,240,.2) !important;
-  box-shadow: 0 0 14px rgba(124,90,240,.06) !important;
+  border-color: var(--accent) !important;
+  background: var(--card) !important;
+  box-shadow: 0 0 0 1px rgba(124,90,240,.2), 0 4px 12px rgba(124,90,240,.08) !important;
 }
 [data-theme="light"] .dv-trade-row:hover {
   background: rgba(124,90,240,.02) !important;
@@ -849,51 +872,40 @@
   border-color: var(--border) !important;
 }
 /* ── LIGHT THEME: Calendar cells — softer backgrounds ── */
+/* ── CALENDAR CELLS — Light theme: premium minimal (white + bottom accent) ── */
 [data-theme="light"] .dash-cal-cell {
-  background: rgba(124,90,240,.03) !important;
-  border: 2px solid rgba(0,0,0,.1) !important;
+  background: var(--card) !important;
+  border: 1px solid var(--border) !important;
+  position: relative !important;
 }
 [data-theme="light"] .dash-cal-cell.win {
-  background: rgba(13,150,104,.2) !important;
-  border-color: rgba(13,150,104,.5) !important;
+  background: var(--card) !important;
+  border-color: var(--border) !important;
+  box-shadow: inset 0 -3px 0 #10b981 !important;
 }
 [data-theme="light"] .dash-cal-cell.loss {
-  background: rgba(220,38,38,.16) !important;
-  border-color: rgba(220,38,38,.45) !important;
+  background: var(--card) !important;
+  border-color: var(--border) !important;
+  box-shadow: inset 0 -3px 0 #ef4444 !important;
 }
-[data-theme="light"] .dash-cal-cell-pnl.win { color: #0a7a50 !important; font-weight: 700 !important; }
-[data-theme="light"] .dash-cal-cell-pnl.loss { color: #b91c1c !important; font-weight: 700 !important; }
-[data-theme="light"] .dash-cal-empty { border: 2px solid rgba(0,0,0,.08) !important; opacity: .6 !important; }
-[data-theme="light"] .dash-cal-cell {
-  background: var(--bg2) !important;
-  border: 2px solid rgba(0,0,0,.1) !important;
+[data-theme="light"] .dash-cal-cell:hover {
+  border-color: rgba(124,90,240,.35) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(124,90,240,.08) !important;
 }
-[data-theme="light"] .dash-cal-cell.win {
-  background: rgba(15,138,85,.18) !important;
-  border-color: rgba(15,138,85,.45) !important;
+[data-theme="light"] .dash-cal-cell.win:hover {
+  box-shadow: inset 0 -3px 0 #10b981, 0 4px 14px rgba(16,185,129,.12) !important;
 }
-[data-theme="light"] .dash-cal-cell.loss {
-  background: rgba(192,32,64,.14) !important;
-  border-color: rgba(192,32,64,.4) !important;
+[data-theme="light"] .dash-cal-cell.loss:hover {
+  box-shadow: inset 0 -3px 0 #ef4444, 0 4px 14px rgba(239,68,68,.12) !important;
 }
-[data-theme="light"] .dash-cal-cell-pnl.win { color: #0a7a50 !important; font-weight: 700 !important; }
-[data-theme="light"] .dash-cal-cell-pnl.loss { color: #9b1c31 !important; font-weight: 700 !important; }
-[data-theme="light"] .dash-cal-empty { border: 2px solid rgba(0,0,0,.08) !important; opacity: .55 !important; }
-[data-theme="light"] .dash-cal-cell {
-  background: rgba(124,90,240,.04) !important;
-  border: 2px solid rgba(0,0,0,.1) !important;
+[data-theme="light"] .dash-cal-cell-pnl.win { color: #059669 !important; font-weight: 700 !important; }
+[data-theme="light"] .dash-cal-cell-pnl.loss { color: #dc2626 !important; font-weight: 700 !important; }
+[data-theme="light"] .dash-cal-empty {
+  background: transparent !important;
+  border: 1px dashed rgba(148,163,184,.3) !important;
+  opacity: .5 !important;
 }
-[data-theme="light"] .dash-cal-cell.win {
-  background: rgba(15,138,85,.18) !important;
-  border-color: rgba(15,138,85,.45) !important;
-}
-[data-theme="light"] .dash-cal-cell.loss {
-  background: rgba(184,48,80,.14) !important;
-  border-color: rgba(184,48,80,.4) !important;
-}
-[data-theme="light"] .dash-cal-cell-pnl.win { color: #0a7a50 !important; font-weight: 700 !important; }
-[data-theme="light"] .dash-cal-cell-pnl.loss { color: #9b1c31 !important; font-weight: 700 !important; }
-[data-theme="light"] .dash-cal-empty { border: 2px solid rgba(0,0,0,.08) !important; opacity: .55 !important; }
 [data-theme="light"] #rossfx-score-widget {
   background: linear-gradient(135deg, rgba(124,90,240,.03) 0%, var(--card) 60%) !important;
   border-color: rgba(124,90,240,.1) !important;
@@ -2581,12 +2593,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .dv-day:hover .dv-day-tip{opacity:1}
 [data-theme="light"] .dv-day-tip{background:var(--card);border-color:rgba(124,90,240,.12);color:var(--text);box-shadow:0 4px 16px rgba(0,0,0,.12)}
 [data-theme="light"] .dv-day-tip{background:var(--card);border-color:var(--border);color:var(--text);box-shadow:0 4px 16px rgba(0,0,0,.1)}
-/* Light theme Day View calendar — stronger colors */
-[data-theme="light"] .dv-day,[data-theme="light"] .dv-day,[data-theme="light"] .dv-day{border: 2px solid rgba(0,0,0,.1)}
-[data-theme="light"] .dv-day.win,[data-theme="light"] .dv-day.win,[data-theme="light"] .dv-day.win{background:rgba(13,150,104,.18);border-color:rgba(13,150,104,.45)}
-[data-theme="light"] .dv-day.loss,[data-theme="light"] .dv-day.loss,[data-theme="light"] .dv-day.loss{background:rgba(220,38,38,.14);border-color:rgba(220,38,38,.4)}
-[data-theme="light"] .dv-day.today,[data-theme="light"] .dv-day.today{border-color:rgba(124,90,240,.4)}
-[data-theme="light"] .dv-day:hover,[data-theme="light"] .dv-day:hover{border-color:rgba(124,90,240,.25)}
 /* Polish: sparkline area fill */
 .dv-spark-fill{opacity:.08}
 /* Polish: empty month message */
