@@ -1997,10 +1997,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 
 /* ═══ JOURNAL ═══ */
 .jr-stats{display:flex;align-items:stretch;gap:12px;margin-bottom:18px}
-.jr-hero{flex:1.3;background:linear-gradient(135deg,rgba(46,204,138,.08),rgba(46,204,138,.02));border:1px solid rgba(46,204,138,.15);border-radius:16px;padding:20px 24px;position:relative;overflow:hidden}
-.jr-hero.neg{background:linear-gradient(135deg,rgba(224,92,122,.08),rgba(224,92,122,.02));border-color:rgba(224,92,122,.15)}
-.jr-hero::before{content:'';position:absolute;top:-30%;right:-15%;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(46,204,138,.06),transparent 70%);pointer-events:none}
-.jr-hero.neg::before{background:radial-gradient(circle,rgba(224,92,122,.06),transparent 70%)}
+.jr-hero{flex:1.3;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px 24px;position:relative;overflow:hidden}
+.jr-hero.neg{background:var(--card);border-color:var(--border)}
+.jr-hero::before{content:'';position:absolute;top:-30%;right:-15%;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(124,90,240,.04),transparent 70%);pointer-events:none}
+.jr-hero.neg::before{background:radial-gradient(circle,rgba(124,90,240,.04),transparent 70%)}
 .jr-hero-val{font-size:36px;font-weight:200;letter-spacing:-2px;line-height:1}
 .jr-hero-sub{font-size:10px;font-family:'Inter',sans-serif;color:var(--text3);margin-top:6px}
 .jr-hero-badge{position:absolute;top:14px;right:16px;padding:4px 10px;border-radius:6px;font-size:9px;font-family:'Inter',sans-serif;font-weight:600}
@@ -2075,8 +2075,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .dv-side-label{font-size:8px;color:var(--text3);font-family:'Inter',sans-serif;font-weight:600;letter-spacing:.5px;margin-bottom:5px}
 .dv-side-val{font-size:22px;font-weight:200;letter-spacing:-1px}
 .dv-side-sub{font-size:9px;color:var(--text3);font-family:'Inter',sans-serif;margin-top:2px}
-.dv-side-hero{background:linear-gradient(135deg,rgba(46,204,138,.05),var(--card));border-color:rgba(46,204,138,.1)}
-.dv-side-hero.neg{background:linear-gradient(135deg,rgba(224,92,122,.05),var(--card));border-color:rgba(224,92,122,.1)}
+.dv-side-hero{background:var(--card);border-color:var(--border)}
+.dv-side-hero.neg{background:var(--card);border-color:var(--border)}
 .dv-month-nav{display:flex;align-items:center;gap:14px;margin-bottom:16px}
 .dv-month-title{font-size:18px;font-weight:700;font-family:'Syne',sans-serif;min-width:180px;text-align:center}
 .dv-arrow{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
@@ -5114,14 +5114,14 @@ window.dispatchEvent(new Event('supabase-ready'));
     <div class="rpt-kpi-row">
       <!-- Hero row: P&L + Best/Worst -->
       <div class="rpt-hero-row rpt-anim rpt-d0">
-        <div class="rpt-hero" id="rpt-hero-pnl" style="background:linear-gradient(135deg,rgba(224,92,122,.08),rgba(224,92,122,.02));border:1px solid rgba(224,92,122,.15)">
-          <div style="position:absolute;top:-40%;right:-20%;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(224,92,122,.06),transparent 70%);pointer-events:none"></div>
+        <div class="rpt-hero" id="rpt-hero-pnl" style="background:var(--card);border:1px solid var(--border)">
+          <div style="position:absolute;top:-40%;right:-20%;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(124,90,240,.04),transparent 70%);pointer-events:none"></div>
           <div style="font-size:10px;color:var(--text3);margin-bottom:12px;display:flex;align-items:center;gap:4px">Total P&L <span class="info-icon" data-tip="Total realized P&L across all filtered trades">i</span></div>
           <div class="rpt-hero-pnl" style="color:var(--red)" id="rpt-pnl">—</div>
           <div class="rpt-hero-sub" id="rpt-pnl-sub">—</div>
           <div class="rpt-hero-badge" id="rpt-pnl-badge" style="background:rgba(224,92,122,.12);color:var(--red);border:1px solid rgba(224,92,122,.15)">LOSING</div>
         </div>
-        <div class="rpt-hero" style="background:linear-gradient(135deg,rgba(124,90,240,.03),rgba(46,204,138,.03));border:1px solid rgba(124,90,240,.06)">
+        <div class="rpt-hero" style="background:var(--card);border:1px solid var(--border)">
           <div style="position:absolute;top:-40%;left:-10%;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(124,90,240,.03),transparent 70%);pointer-events:none"></div>
           <div style="font-size:10px;color:var(--text3);margin-bottom:12px;display:flex;align-items:center;gap:4px">Best / Worst Day <span class="info-icon" data-tip="Best and worst single-day P&L">i</span></div>
           <div style="display:flex;gap:24px;align-items:baseline">
@@ -9207,16 +9207,11 @@ window.dispatchEvent(new Event('supabase-ready'));
     if(el('rpt-trade-count')) el('rpt-trade-count').textContent = (total < allTrades.length) ? total + ' of ' + allTrades.length : total;
     if(el('rpt-pnl')){ el('rpt-pnl').textContent = (netPnl<0?'-':'+') + '$' + Math.abs(netPnl).toLocaleString('en-US'); el('rpt-pnl').style.color = netPnl>=0?'var(--green)':'var(--red)'; }
     if(el('rpt-pnl-sub')) el('rpt-pnl-sub').textContent = (netPnl<0?'\u2193':'\u2191') + ' $' + Math.abs(exp).toFixed(0) + ' avg per trade · ' + Object.keys(byDay||{}).length + ' trading days';
-    // Hero card gradient + badge
+    // Hero card — neutral background, only badge changes color
     var heroCard = el('rpt-hero-pnl');
     if(heroCard){
-      if(netPnl>=0){
-        heroCard.style.background='linear-gradient(135deg,rgba(46,204,138,.08),rgba(46,204,138,.02))';
-        heroCard.style.borderColor='rgba(46,204,138,.15)';
-      } else {
-        heroCard.style.background='linear-gradient(135deg,rgba(224,92,122,.08),rgba(224,92,122,.02))';
-        heroCard.style.borderColor='rgba(224,92,122,.15)';
-      }
+      heroCard.style.background='var(--card)';
+      heroCard.style.borderColor='var(--border)';
     }
     if(el('rpt-pnl-badge')){
       if(netPnl>=0){
