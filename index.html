@@ -83,10 +83,10 @@
   background: linear-gradient(180deg, #f2efe6 0%, #fafafa 40%, #f7f5ef 100%);
 }
 /* Sidebar */
-/* ── SIDEBAR — Light theme: soft gradient with violet accent ── */
+/* ── SIDEBAR — Light theme: DARK VIOLET gradient (brand accent, like Dark mode) ── */
 [data-theme="light"] .sidebar {
-  background: linear-gradient(180deg, #f7f6fb 0%, #f1eef8 100%) !important;
-  box-shadow: inset -1px 0 0 rgba(0,0,0,.04), 1px 0 0 #e5e7eb !important;
+  background: linear-gradient(180deg, #1a1330 0%, #0d0820 100%) !important;
+  box-shadow: inset -1px 0 30px rgba(124,90,240,.06), 4px 0 16px rgba(0,0,0,.12) !important;
   border-right: none !important;
 }
 [data-theme="light"] .sidebar::after {
@@ -94,63 +94,63 @@
   position: absolute;
   right: 0; top: 0; bottom: 0;
   width: 1px;
-  background: linear-gradient(180deg, transparent 5%, rgba(124,90,240,.12) 50%, transparent 95%) !important;
+  background: linear-gradient(180deg, transparent 5%, rgba(124,90,240,.25) 50%, transparent 95%) !important;
 }
 
-/* Logo — TradeQuill */
+/* Logo — light on dark sidebar */
 [data-theme="light"] .logo-text {
-  color: #18181b !important;
+  color: #f0eaff !important;
 }
 [data-theme="light"] .logo-sub {
-  color: #9ca3af !important;
+  color: rgba(240,234,255,.35) !important;
 }
 
-/* Nav items — slate text */
+/* Nav items — light slate text on dark sidebar */
 [data-theme="light"] .nav-item {
-  color: #52525b !important;
+  color: rgba(240,234,255,.65) !important;
   background: transparent !important;
 }
 [data-theme="light"] .nav-item:hover {
-  color: #18181b !important;
-  background: rgba(124,90,240,.05) !important;
+  color: #ffffff !important;
+  background: rgba(124,90,240,.12) !important;
 }
 [data-theme="light"] .nav-item.active {
-  background: rgba(124,90,240,.1) !important;
-  border-left-color: #7c5af0 !important;
-  color: #7c5af0 !important;
+  background: rgba(124,90,240,.18) !important;
+  border-left-color: #b8a0ff !important;
+  color: #ffffff !important;
 }
 [data-theme="light"] .nav-item.active svg {
-  stroke: #7c5af0 !important;
+  stroke: #b8a0ff !important;
 }
 [data-theme="light"] .nav-item svg {
-  stroke: #9ca3af !important;
+  stroke: rgba(240,234,255,.5) !important;
 }
 [data-theme="light"] .nav-item:hover svg {
-  stroke: #52525b !important;
+  stroke: #ffffff !important;
 }
 [data-theme="light"] .nav-label {
-  color: #6b7280 !important;
+  color: rgba(240,234,255,.55) !important;
 }
 
-/* Section labels — soft gray */
+/* Section labels — soft violet-white */
 [data-theme="light"] .nav-section-label {
-  color: rgba(24,24,27,.4) !important;
+  color: rgba(240,234,255,.35) !important;
 }
 
-/* Theme section border */
+/* Theme section border — subtle violet */
 [data-theme="light"] .sidebar [style*="border-bottom"] {
-  border-color: #e5e7eb !important;
+  border-color: rgba(124,90,240,.15) !important;
 }
 
-/* Theme buttons — light sidebar variant */
+/* Theme buttons on dark sidebar */
 [data-theme="light"] .theme-btn {
-  border-color: #e5e7eb !important;
-  background: #ffffff !important;
-  color: #52525b !important;
+  border-color: rgba(124,90,240,.2) !important;
+  background: rgba(124,90,240,.08) !important;
+  color: rgba(240,234,255,.8) !important;
 }
 [data-theme="light"] .theme-btn:hover {
-  background: #f9fafb !important;
-  border-color: #d4d4d8 !important;
+  background: rgba(124,90,240,.14) !important;
+  border-color: rgba(124,90,240,.35) !important;
 }
 [data-theme="light"] .theme-btn.active {
   background: var(--accent) !important;
@@ -160,7 +160,7 @@
 
 /* Theme label text in sidebar */
 [data-theme="light"] .sidebar [style*="color:var(--text3)"] {
-  color: #6b7280 !important;
+  color: rgba(240,234,255,.5) !important;
 }
 
 /* Cards */
@@ -802,23 +802,23 @@
   color: #9b7ef8 !important;
 }
 [data-theme="light"] #quote-banner {
-  background: var(--card) !important;
-  border-color: var(--border) !important;
-  box-shadow: 0 1px 3px rgba(0,0,0,.04), 0 1px 8px rgba(0,0,0,.03);
-}
-/* Quote banner — Light theme uses clean card surface */
-[data-theme="light"] #quote-banner > div:first-child {
-  background: radial-gradient(ellipse at 50% 0%,rgba(124,90,240,.04),transparent 65%) !important;
+  background: linear-gradient(135deg, #1a1330 0%, #0d0820 100%) !important;
+  border-color: rgba(124,90,240,.2) !important;
+  box-shadow: 0 4px 24px rgba(124,90,240,.15), 0 1px 3px rgba(0,0,0,.08) !important;
 }
 [data-theme="light"] #quote-text {
-  color: var(--text) !important;
+  color: #f0eaff !important;
 }
 [data-theme="light"] #quote-author {
-  color: #7c5af0 !important;
+  color: #b8a0ff !important;
+}
+/* Quote banner — Light theme uses dark violet gradient (like Dark mode) */
+[data-theme="light"] #quote-banner > div:first-child {
+  background: radial-gradient(ellipse at 50% 0%,rgba(124,90,240,.08),transparent 65%) !important;
 }
 [data-theme="light"] #quote-banner .q-shimmer,
 [data-theme="light"] #quote-banner [style*="quoteShimmer"] {
-  opacity: .15 !important;
+  opacity: .25 !important;
 }
 [data-theme="light"] #quote-particles {
   opacity: .3 !important;
