@@ -627,6 +627,20 @@
 }
 /* Forms */
 
+/* ── PROGRESS TRACKER — milestones & review prompts Light ── */
+[data-theme="light"] .pt-ms-badge {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+}
+[data-theme="light"] .pt-ms-badge.earned {
+  background: rgba(240,180,41,.08) !important;
+  border: 1px solid rgba(240,180,41,.25) !important;
+}
+[data-theme="light"] .pt-review-row {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
 /* ── ECONOMIC CALENDAR column header — theme-aware ── */
 .news-col-header-themed {
   background: linear-gradient(180deg,rgba(28,22,52,.96) 0%,rgba(20,16,40,.92) 100%);
@@ -10927,16 +10941,60 @@ window.dispatchEvent(new Event('supabase-ready'));
     if(mel) mel.addEventListener('click', function(e){ if (e.target === mel) closeModal(id); });
   });
 
+  // IMAGE COMPRESS helper — max 1920x1080, JPEG quality 0.92
+  function csCompressImage(file, cb){
+    var r = new FileReader();
+    r.onload = function(e){
+      var img = new Image();
+      img.onload = function(){
+        var maxW = 1920, maxH = 1080;
+        var w = img.width, h = img.height;
+        if(w > maxW || h > maxH){
+          var ratio = Math.min(maxW/w, maxH/h);
+          w = Math.round(w * ratio);
+          h = Math.round(h * ratio);
+        }
+        var canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        var ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, 0, 0, w, h);
+        var dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+        cb(dataUrl);
+      };
+      img.src = e.target.result;
+    };
+    r.readAsDataURL(file);
+  }
+
+  // LIGHTBOX — full-screen image viewer
+  window.csLightbox = function(src){
+    var lb = document.createElement('div');
+    lb.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:2000;display:flex;align-items:center;justify-content:center;cursor:zoom-out;padding:20px';
+    lb.onclick = function(){ lb.remove(); };
+    var img = document.createElement('img');
+    img.src = src;
+    img.style.cssText = 'max-width:100%;max-height:100%;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,.5)';
+    img.onclick = function(e){ e.stopPropagation(); };
+    var closeBtn = document.createElement('div');
+    closeBtn.textContent = '✕';
+    closeBtn.style.cssText = 'position:absolute;top:20px;right:24px;color:white;font-size:28px;cursor:pointer;opacity:.7;transition:opacity .15s';
+    closeBtn.onmouseover = function(){ this.style.opacity='1'; };
+    closeBtn.onmouseout = function(){ this.style.opacity='.7'; };
+    lb.appendChild(img);
+    lb.appendChild(closeBtn);
+    document.body.appendChild(lb);
+  };
+
   // IMAGE PREVIEW
   var csImg=$('cs-image');
   if(csImg) csImg.addEventListener('change', function(){
     if (this.files && this.files[0]) {
-      var r = new FileReader();
-      r.onload = function(e){
-        csImageData = e.target.result;
-        $('cs-image-preview').innerHTML = '<img src="' + csImageData + '" style="max-height:80px;border-radius:4px">';
-      };
-      r.readAsDataURL(this.files[0]);
+      csCompressImage(this.files[0], function(dataUrl){
+        csImageData = dataUrl;
+        $('cs-image-preview').innerHTML = '<img src="' + dataUrl + '" style="max-width:100%;max-height:400px;border-radius:8px;object-fit:contain;display:block;margin:0 auto;cursor:zoom-in" onclick="event.stopPropagation();csLightbox(this.src)">';
+      });
     }
   });
 
@@ -11037,8 +11095,8 @@ window.dispatchEvent(new Event('supabase-ready'));
       return;
     }
     grid.innerHTML = filtered.map(function(cs){
-      return '<div class="cs-card" onclick="csOpen('+cs.id+')">' +
-        '<div class="cs-img">' + (cs.image ? '<img src="' + cs.image + '">' : '<div style="font-size:32px;opacity:.3">📊</div>') + '</div>' +
+      return '<div class="cs-card" data-csid="'+cs.id+'">' +
+        '<div class="cs-img"' + (cs.image ? ' data-lightbox="1"' : '') + '>' + (cs.image ? '<img src="' + cs.image + '">' : '<div style="font-size:32px;opacity:.3">📊</div>') + '</div>' +
         '<div class="cs-body">' +
         '<div class="cs-pair">' + cs.pair + '</div>' +
         '<div class="cs-tags"><span class="cs-tag">' + cs.session + '</span><span class="cs-tag" style="color:' + outcomeColor[cs.outcome] + '">' + cs.outcome.toUpperCase() + '</span></div>' +
@@ -11046,6 +11104,21 @@ window.dispatchEvent(new Event('supabase-ready'));
         '<div class="cs-date">' + cs.date + '</div>' +
         '</div></div>';
     }).join('');
+
+    // Attach click handlers — card opens edit, image opens lightbox
+    grid.querySelectorAll('.cs-card').forEach(function(card){
+      var csId = parseInt(card.getAttribute('data-csid'), 10);
+      var imgEl = card.querySelector('[data-lightbox="1"]');
+      if(imgEl){
+        imgEl.style.cursor = 'zoom-in';
+        imgEl.addEventListener('click', function(e){
+          e.stopPropagation();
+          var cs = caseStudies.find(function(x){return x.id===csId;});
+          if(cs && cs.image) csLightbox(cs.image);
+        });
+      }
+      card.addEventListener('click', function(){ csOpen(csId); });
+    });
   }
 
   // OPEN existing case study for view/edit
@@ -11061,7 +11134,7 @@ window.dispatchEvent(new Event('supabase-ready'));
     $('cs-title').value = cs.title;
     $('cs-notes').value = cs.notes || '';
     csImageData = cs.image || null;
-    $('cs-image-preview').innerHTML = cs.image ? '<img src="'+cs.image+'" style="max-width:100%;max-height:200px;border-radius:8px">' : '📎 Click to upload chart screenshot';
+    $('cs-image-preview').innerHTML = cs.image ? '<img src="'+cs.image+'" style="max-width:100%;max-height:400px;border-radius:8px;object-fit:contain;display:block;margin:0 auto;cursor:zoom-in" onclick="event.stopPropagation();csLightbox(this.src)">' : '📎 Click to upload chart screenshot';
     // Change modal title + show Delete button
     var mt = document.querySelector('#modal-addCS .modal-title');
     if(mt) mt.textContent = 'Edit Case Study';
@@ -14163,11 +14236,11 @@ window.dispatchEvent(new Event('supabase-ready'));
       +'<div style="text-align:center"><div style="font-size:9px;color:var(--text3);margin-bottom:4px">DISCIPLINE</div><div style="font-size:20px;font-weight:200;color:'+(planPct>=70?'var(--green)':'var(--yellow)')+'">'+planPct+'%</div></div></div>'
       +'<div style="font-size:11px;font-weight:600;margin-bottom:8px;color:var(--text)">Review Prompts</div>'
       +'<div style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--text2);line-height:1.6">'
-      +'<div style="padding:10px 14px;background:var(--bg);border-radius:8px;border-left:3px solid var(--green)"><strong style="color:var(--green)">Best day:</strong> '+(bestDay?new Date(bestDay).toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'})+' (+$'+bestDayPnl.toFixed(0)+')':'—')+' — What did you do right?</div>'
-      +'<div style="padding:10px 14px;background:var(--bg);border-radius:8px;border-left:3px solid var(--red)"><strong style="color:var(--red)">Worst day:</strong> '+(worstDay?new Date(worstDay).toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'})+' (-$'+Math.abs(worstDayPnl).toFixed(0)+')':'—')+' — What triggered the loss?</div>'
-      +'<div style="padding:10px 14px;background:var(--bg);border-radius:8px;border-left:3px solid var(--accent)"><strong style="color:var(--accent)">Top setup:</strong> '+(topSetup?topSetup[0]+' ('+(topSetup[1]>=0?'+':'-')+'$'+Math.abs(topSetup[1]).toFixed(0)+')':'—')+' — Should you trade this more?</div>'
-      +'<div style="padding:10px 14px;background:var(--bg);border-radius:8px;border-left:3px solid var(--yellow)"><strong style="color:var(--yellow)">Dominant emotion:</strong> '+(topEmo?topEmo[0]+' ('+topEmo[1]+' trades)':'—')+' — Is this helping or hurting?</div>'
-      +'<div style="padding:10px 14px;background:var(--bg);border-radius:8px;border-left:3px solid var(--text3)"><strong>Plan adherence:</strong> '+planPct+'% — '+(planPct>=80?'Great discipline. Keep it up.':planPct>=60?'Room to improve. Re-read your rules before Monday.':'Low adherence. Consider reducing size next week until discipline improves.')+'</div></div>';
+      +'<div class="pt-review-row" style="padding:10px 14px;background:var(--bg2);border-radius:8px;border-left:3px solid var(--green)"><strong style="color:var(--green)">Best day:</strong> '+(bestDay?new Date(bestDay).toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'})+' (+$'+bestDayPnl.toFixed(0)+')':'—')+' — What did you do right?</div>'
+      +'<div class="pt-review-row" style="padding:10px 14px;background:var(--bg2);border-radius:8px;border-left:3px solid var(--red)"><strong style="color:var(--red)">Worst day:</strong> '+(worstDay?new Date(worstDay).toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'})+' (-$'+Math.abs(worstDayPnl).toFixed(0)+')':'—')+' — What triggered the loss?</div>'
+      +'<div class="pt-review-row" style="padding:10px 14px;background:var(--bg2);border-radius:8px;border-left:3px solid var(--accent)"><strong style="color:var(--accent)">Top setup:</strong> '+(topSetup?topSetup[0]+' ('+(topSetup[1]>=0?'+':'-')+'$'+Math.abs(topSetup[1]).toFixed(0)+')':'—')+' — Should you trade this more?</div>'
+      +'<div class="pt-review-row" style="padding:10px 14px;background:var(--bg2);border-radius:8px;border-left:3px solid var(--yellow)"><strong style="color:var(--yellow)">Dominant emotion:</strong> '+(topEmo?topEmo[0]+' ('+topEmo[1]+' trades)':'—')+' — Is this helping or hurting?</div>'
+      +'<div class="pt-review-row" style="padding:10px 14px;background:var(--bg2);border-radius:8px;border-left:3px solid var(--text3)"><strong>Plan adherence:</strong> '+planPct+'% — '+(planPct>=80?'Great discipline. Keep it up.':planPct>=60?'Room to improve. Re-read your rules before Monday.':'Low adherence. Consider reducing size next week until discipline improves.')+'</div></div>';
   }
   window.ptRenderWeekReview=ptRenderWeekReview;
 
@@ -14518,7 +14591,15 @@ window.dispatchEvent(new Event('supabase-ready'));
         // ═══ PATTERNS ═══
         if(a.patterns&&a.patterns.length){
           h+='<div style="padding:10px 12px;border-radius:10px;background:rgba(124,90,240,.03);border:1px solid rgba(124,90,240,.06);margin-bottom:16px"><div style="font-size:11px;font-weight:700;color:var(--accent3);margin-bottom:8px;letter-spacing:.5px">🔍 PATTERNS DETECTED</div>';
-          a.patterns.forEach(function(p){h+='<div style="font-size:13px;color:var(--text2);margin-bottom:6px;padding-left:12px;border-left:2px solid rgba(124,90,240,.15)">'+p+'</div>';});
+          a.patterns.forEach(function(p){
+            // Handle both string and {pattern, priority} shapes
+            var pText = typeof p === 'string' ? p : (p.pattern || p.text || '');
+            var pPri = (typeof p === 'object' && p.priority) ? p.priority : '';
+            var priColor = _pc(pPri);
+            var priBg = _pb(pPri);
+            var priBadge = pPri ? '<span style="display:inline-block;padding:2px 8px;border-radius:4px;background:'+priBg+';color:'+priColor+';font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-right:8px;vertical-align:middle">'+pPri+'</span>' : '';
+            h+='<div style="font-size:13px;color:var(--text2);margin-bottom:6px;padding-left:12px;border-left:2px solid '+(pPri?priColor:'rgba(124,90,240,.15)')+'">'+priBadge+pText+'</div>';
+          });
           h+='</div>';
         }
 
