@@ -8951,6 +8951,7 @@ window.dispatchEvent(new Event('supabase-ready'));
     if (id === 'resources' && window.rsRender) setTimeout(rsRender, 100);
     if (id === 'cockpit' && window.ckRender) setTimeout(ckRender, 100);
     if (id === 'news' && window.newsLoadWidget && !_newsLoaded) setTimeout(newsLoadWidget, 150);
+    if (id === 'aicoach' && window.aiCoachInit) setTimeout(aiCoachInit, 150);
   }
 
   var prevPage = 'dashboard';
@@ -15133,6 +15134,9 @@ window.dispatchEvent(new Event('supabase-ready'));
     inp.value='';
     aiRenderAskChat(true);
 
+    // Persist user message to Supabase
+    if(typeof tqPushAIMessage==='function'){ tqPushAIMessage(null, 'user', q); }
+
     var systemPrompt='You are an experienced trading mentor talking with a trader who follows the WWA methodology (daily bias, HTF trend, market phase, LTF confirmations, POI types, playbook models). You are having an ongoing conversation — remember everything the user has said in this conversation and reference it when relevant.\n\nBe direct, supportive, and concise. Use specific numbers from their data. Avoid generic advice. When the user asks a follow-up question, build on what was discussed earlier in this chat.\n\nTRADER DATA (current snapshot):\n'+aiBuildTraderContext();
 
     fetch(AI_WORKER_URL,{
@@ -15151,6 +15155,8 @@ window.dispatchEvent(new Event('supabase-ready'));
       var txt=typeof a==='object'?(a.coachNote||a.headline||a.psychology||JSON.stringify(a)):(a||'(empty response)');
       askChatHistory.push({role:'assistant',content:txt});
       aiRenderAskChat(false);
+      // Persist assistant reply to Supabase
+      if(typeof tqPushAIMessage==='function'){ tqPushAIMessage(null, 'assistant', txt); }
     })
     .catch(function(e){
       askChatHistory.push({role:'assistant',content:'⚠️ Error: '+e.message});
@@ -15159,8 +15165,33 @@ window.dispatchEvent(new Event('supabase-ready'));
   }
   window.aiAskQuestion=aiAskQuestion;
 
-  function aiAskClear(){askChatHistory=[];aiRenderAskChat(false);}
+  function aiAskClear(){
+    if(askChatHistory.length===0)return;
+    if(!confirm('Clear this conversation permanently? This cannot be undone.'))return;
+    askChatHistory=[];
+    aiRenderAskChat(false);
+    if(typeof tqDeleteAIConversation==='function'){ tqDeleteAIConversation(null); }
+  }
   window.aiAskClear=aiAskClear;
+
+  // Load AI Coach chat history from Supabase on first mount
+  async function aiLoadChatHistory(){
+    if(typeof tqPullAIConversation !== 'function') return;
+    try {
+      var rows = await tqPullAIConversation(null);
+      if(rows && rows.length > 0){
+        askChatHistory = rows.map(function(r){ return {role: r.role, content: r.content}; });
+        aiRenderAskChat(false);
+      }
+    } catch(e){ console.error('AI Coach history load error:', e); }
+  }
+  // Run when page shows
+  var _aiHistLoaded = false;
+  window.aiCoachInit = function(){
+    if(_aiHistLoaded) return;
+    _aiHistLoaded = true;
+    aiLoadChatHistory();
+  };
 
   // ── WHAT-IF — true conversational simulation chat with memory ──
   var whatIfChatHistory=[];
