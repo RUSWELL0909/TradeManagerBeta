@@ -6589,6 +6589,363 @@ window.dispatchEvent(new Event('supabase-ready'));
   </div>
 </div>
 
+<!-- MODAL: DASHBOARD CUSTOMIZE -->
+<div id="modal-dashCustomize" class="modal-overlay">
+  <div class="modal" style="max-width:640px;width:92%">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Customize Dashboard</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px">Toggle widgets on or off to personalize your view</div>
+      </div>
+      <button class="modal-close" onclick="dashCustomizeClose()">✕</button>
+    </div>
+    <div style="max-height:60vh;overflow-y:auto;padding-right:8px">
+      <div id="dash-customize-list" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:space-between;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
+      <button class="btn btn-ghost" onclick="dashCustomizeReset()" style="font-size:11px">Reset to defaults</button>
+      <button class="btn btn-primary" onclick="dashCustomizeClose()" style="font-size:11px">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: SETTINGS -->
+<div id="modal-settings" class="modal-overlay">
+  <div class="modal" style="max-width:560px;width:92%">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Settings</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px">Account, sync, data & preferences</div>
+      </div>
+      <button class="modal-close" onclick="settingsClose()">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;max-height:70vh;overflow-y:auto;padding-right:4px">
+      <!-- Account section -->
+      <div style="padding:14px 16px;background:var(--bg2);border-radius:10px;border:1px solid var(--border)">
+        <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.5px;margin-bottom:8px">ACCOUNT</div>
+        <div id="settings-email" style="font-size:13px;font-weight:600;color:var(--text)">—</div>
+        <div id="settings-sync-status" style="font-size:10px;color:var(--text3);margin-top:4px">Cloud sync status</div>
+      </div>
+
+      <!-- Theme section -->
+      <div style="padding:14px 16px;background:var(--bg2);border-radius:10px;border:1px solid var(--border)">
+        <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.5px;margin-bottom:10px">THEME</div>
+        <div style="display:flex;gap:8px">
+          <button onclick="setTheme('dark');document.querySelectorAll('.settings-theme-btn').forEach(function(b){b.classList.remove('active')});this.classList.add('active')" class="settings-theme-btn" id="set-theme-dark" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card);cursor:pointer;font-size:12px;color:var(--text);font-weight:600">🌙 Dark</button>
+          <button onclick="setTheme('light');document.querySelectorAll('.settings-theme-btn').forEach(function(b){b.classList.remove('active')});this.classList.add('active')" class="settings-theme-btn" id="set-theme-light" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card);cursor:pointer;font-size:12px;color:var(--text);font-weight:600">☀️ Light</button>
+        </div>
+      </div>
+
+      <!-- Data section -->
+      <div style="padding:14px 16px;background:var(--bg2);border-radius:10px;border:1px solid var(--border)">
+        <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.5px;margin-bottom:10px">YOUR DATA</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2)"><span>Trades</span><span id="settings-stat-trades" style="font-weight:600;color:var(--text)">—</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2)"><span>Notes</span><span id="settings-stat-notes" style="font-weight:600;color:var(--text)">—</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2)"><span>Playbook setups</span><span id="settings-stat-setups" style="font-weight:600;color:var(--text)">—</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2)"><span>Case studies</span><span id="settings-stat-cs" style="font-weight:600;color:var(--text)">—</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2)"><span>localStorage used</span><span id="settings-stat-storage" style="font-weight:600;color:var(--text)">—</span></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button onclick="settingsExport()" style="flex:1;padding:8px;border-radius:6px;border:1px solid var(--border);background:var(--card);cursor:pointer;font-size:11px;color:var(--text);font-weight:600">💾 Export JSON</button>
+          <button onclick="settingsClearConfirm()" style="flex:1;padding:8px;border-radius:6px;border:1px solid rgba(224,92,122,.3);background:rgba(224,92,122,.05);cursor:pointer;font-size:11px;color:var(--red);font-weight:600">🗑 Clear local data</button>
+        </div>
+      </div>
+
+      <!-- About section -->
+      <div style="padding:14px 16px;background:var(--bg2);border-radius:10px;border:1px solid var(--border)">
+        <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.5px;margin-bottom:8px">ABOUT</div>
+        <div style="font-size:12px;color:var(--text);font-weight:600">TradeQuill</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">Your edge, written.</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:6px">Build: Apr 2026 · v2.0 · Built for WWA community</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // Settings modal functions
+  window.settingsOpen = function(){
+    var m = document.getElementById('modal-settings'); if(!m) return;
+    // Populate data
+    try {
+      var email = localStorage.getItem('tq_user_email') || 'Not signed in';
+      var elEmail = document.getElementById('settings-email'); if(elEmail) elEmail.textContent = email;
+      var sync = document.querySelector('.sidebar-footer .sync-status')?.textContent || 'Local only';
+      var elSync = document.getElementById('settings-sync-status'); if(elSync) elSync.textContent = sync;
+      var trades = JSON.parse(localStorage.getItem('rf_trades')||'[]');
+      var notes = JSON.parse(localStorage.getItem('rf_notes')||'[]');
+      var setups = JSON.parse(localStorage.getItem('rf_playbook')||'[]');
+      var cs = JSON.parse(localStorage.getItem('tb_cs')||'[]');
+      document.getElementById('settings-stat-trades').textContent = trades.length;
+      document.getElementById('settings-stat-notes').textContent = notes.length;
+      document.getElementById('settings-stat-setups').textContent = setups.length;
+      document.getElementById('settings-stat-cs').textContent = cs.length;
+      // Calc storage
+      var total = 0;
+      for(var k in localStorage){ if(localStorage.hasOwnProperty(k)) total += (localStorage[k].length + k.length); }
+      document.getElementById('settings-stat-storage').textContent = (total/1024).toFixed(1) + ' KB';
+    } catch(e){ console.error(e); }
+    // Mark active theme
+    var theme = document.documentElement.getAttribute('data-theme') || 'dark';
+    document.querySelectorAll('.settings-theme-btn').forEach(function(b){b.classList.remove('active');});
+    var active = document.getElementById('set-theme-'+theme); if(active) active.classList.add('active');
+    m.classList.add('show');
+  };
+  window.settingsClose = function(){
+    document.getElementById('modal-settings').classList.remove('show');
+  };
+  window.settingsExport = function(){
+    try {
+      var all = {};
+      for(var k in localStorage){
+        if(localStorage.hasOwnProperty(k) && (k.startsWith('rf_') || k.startsWith('tb_') || k.startsWith('tq_'))){
+          all[k] = localStorage[k];
+        }
+      }
+      var blob = new Blob([JSON.stringify(all, null, 2)], {type:'application/json'});
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'tradequill-backup-'+new Date().toISOString().slice(0,10)+'.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch(e){ alert('Export failed: '+e.message); }
+  };
+  window.settingsClearConfirm = function(){
+    if(!confirm('⚠ This will permanently delete ALL your local data (trades, notes, playbook, case studies, settings). Cloud-synced data will remain. Continue?')) return;
+    if(!confirm('Are you absolutely sure? This cannot be undone.')) return;
+    var keys = [];
+    for(var k in localStorage){
+      if(localStorage.hasOwnProperty(k) && (k.startsWith('rf_') || k.startsWith('tb_') || k.startsWith('rossfx-'))){
+        keys.push(k);
+      }
+    }
+    keys.forEach(function(k){ localStorage.removeItem(k); });
+    alert('Local data cleared. Reloading...');
+    location.reload();
+  };
+  // Active style for theme buttons
+  var st = document.createElement('style');
+  st.textContent = '.settings-theme-btn.active{background:rgba(124,90,240,.1)!important;border-color:var(--accent)!important;color:var(--accent)!important}';
+  document.head.appendChild(st);
+})();
+</script>
+
+<!-- MODAL: AI CHAT (Ask AI about a trade or general) -->
+<div id="modal-aichat" class="modal-overlay">
+  <div class="modal" style="max-width:720px;width:92%;display:flex;flex-direction:column;max-height:85vh">
+    <div class="modal-header" style="flex-shrink:0">
+      <div>
+        <div class="modal-title" id="aichat-title">Ask AI about this trade</div>
+        <div id="aichat-subtitle" style="font-size:11px;color:var(--text3);margin-top:4px">Powered by Claude · with full trade context</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button onclick="aiChatClear()" title="Clear conversation" style="background:none;border:1px solid var(--border);border-radius:6px;padding:6px 10px;cursor:pointer;font-size:11px;color:var(--text2);font-weight:500">🗑 New</button>
+        <button class="modal-close" onclick="aiChatClose()">✕</button>
+      </div>
+    </div>
+
+    <!-- Trade context card -->
+    <div id="aichat-trade-card" style="flex-shrink:0;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;font-size:12px;color:var(--text2);display:none"></div>
+
+    <!-- Messages container -->
+    <div id="aichat-messages" style="flex:1;overflow-y:auto;padding:8px 4px;display:flex;flex-direction:column;gap:12px;min-height:260px">
+      <div id="aichat-empty" style="text-align:center;padding:40px 20px;color:var(--text3);font-size:13px">
+        <div style="font-size:36px;margin-bottom:10px">✨</div>
+        <div>Ask Claude anything about this trade.</div>
+        <div style="font-size:11px;margin-top:6px;color:var(--text3)">Example: "Was this setup valid?" · "What mistakes did I make?" · "How should I have managed this?"</div>
+      </div>
+    </div>
+
+    <!-- Input -->
+    <div style="flex-shrink:0;display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+      <textarea id="aichat-input" placeholder="Ask anything about this trade..." style="flex:1;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;font-family:inherit;resize:none;min-height:44px;max-height:120px"></textarea>
+      <button onclick="aiChatSend()" id="aichat-send-btn" class="btn btn-primary" style="align-self:stretch;padding:0 18px;white-space:nowrap">Send &rarr;</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var AI_WORKER_URL = 'https://tradequill-ai.gaipov-rustam.workers.dev';
+  var currentTradeId = null;
+  var currentMessages = [];
+
+  window.aiChatOpen = async function(tradeId){
+    currentTradeId = tradeId;
+    currentMessages = [];
+    var modal = document.getElementById('modal-aichat');
+    var msgs = document.getElementById('aichat-messages');
+    var empty = document.getElementById('aichat-empty');
+    var card = document.getElementById('aichat-trade-card');
+    var input = document.getElementById('aichat-input');
+    if(input) input.value = '';
+
+    // Find trade
+    var trades = JSON.parse(localStorage.getItem('rf_trades')||'[]');
+    var trade = trades.find(function(t){return String(t.id)===String(tradeId);});
+
+    if(tradeId && trade){
+      document.getElementById('aichat-title').textContent = '✨ Ask AI about ' + (trade.pair || 'Trade');
+      // Build context summary card
+      var pnl = trade.pnl || 0;
+      var summary = '<strong style="color:var(--text)">'+(trade.pair||'—')+'</strong> · ' + (trade.direction||'—') + ' · ' + (trade.setup||'—')
+        + ' · <span style="color:'+(pnl>=0?'var(--green)':'var(--red)')+';font-weight:600">'+(pnl>=0?'+':'')+'$'+Math.abs(pnl).toFixed(2)+'</span>'
+        + ' · Grade ' + (trade.grade||'—') + ' · Emotion: ' + (trade.emotion||'—');
+      card.innerHTML = summary;
+      card.style.display = 'block';
+    } else {
+      document.getElementById('aichat-title').textContent = '✨ Ask AI Coach';
+      card.style.display = 'none';
+    }
+
+    modal.classList.add('show');
+    input && input.focus();
+
+    // Load history from Supabase
+    empty.style.display = 'none';
+    msgs.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:11px">Loading history...</div>';
+    try {
+      var history = (typeof tqPullAIConversation === 'function') ? await tqPullAIConversation(tradeId) : [];
+      msgs.innerHTML = '';
+      if(history.length === 0){
+        empty.style.display = 'block';
+        msgs.appendChild(empty);
+      } else {
+        history.forEach(function(m){
+          currentMessages.push({role:m.role, content:m.content});
+          _aiChatAppendMessage(m.role, m.content, false);
+        });
+      }
+    } catch(e){
+      msgs.innerHTML = '';
+      empty.style.display = 'block';
+      msgs.appendChild(empty);
+      console.error('AI history load error:', e);
+    }
+  };
+
+  window.aiChatClose = function(){
+    document.getElementById('modal-aichat').classList.remove('show');
+    currentTradeId = null;
+    currentMessages = [];
+  };
+
+  window.aiChatClear = async function(){
+    if(!confirm('Clear this conversation? This permanently deletes all messages for this '+(currentTradeId?'trade':'chat')+'.')) return;
+    if(typeof tqDeleteAIConversation === 'function'){
+      await tqDeleteAIConversation(currentTradeId);
+    }
+    currentMessages = [];
+    var msgs = document.getElementById('aichat-messages');
+    msgs.innerHTML = '';
+    var empty = document.getElementById('aichat-empty');
+    empty.style.display = 'block';
+    msgs.appendChild(empty);
+  };
+
+  function _aiChatAppendMessage(role, content, scroll){
+    var msgs = document.getElementById('aichat-messages');
+    var empty = document.getElementById('aichat-empty');
+    if(empty && empty.parentNode === msgs) empty.style.display = 'none';
+    var bubble = document.createElement('div');
+    var isUser = role === 'user';
+    bubble.style.cssText = 'max-width:85%;padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.5;word-wrap:break-word;'
+      + (isUser
+        ? 'align-self:flex-end;background:var(--accent);color:#fff'
+        : 'align-self:flex-start;background:var(--bg2);color:var(--text);border:1px solid var(--border)');
+    // Simple markdown: **bold** and \n
+    var safe = content.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    safe = safe.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+    bubble.innerHTML = safe;
+    msgs.appendChild(bubble);
+    if(scroll !== false) msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  window.aiChatSend = async function(){
+    var input = document.getElementById('aichat-input');
+    var sendBtn = document.getElementById('aichat-send-btn');
+    var text = input.value.trim();
+    if(!text) return;
+
+    // Render user message
+    _aiChatAppendMessage('user', text, true);
+    currentMessages.push({role:'user', content:text});
+    input.value = '';
+    sendBtn.disabled = true;
+    sendBtn.textContent = '...';
+
+    // Persist user message to Supabase
+    if(typeof tqPushAIMessage === 'function'){
+      tqPushAIMessage(currentTradeId, 'user', text);
+    }
+
+    // Build system prompt with trade context
+    var system = 'You are an elite trading coach. The trader follows Win With Awareness (WWA) methodology under Waqar Asim (Dubai). You understand: liquidity sweeps, FVG, POI types, HTF bias, session KTW (Asia/London/NY), plan adherence. Be direct, honest, data-grounded. No fluff. Reference specific numbers.';
+    if(currentTradeId){
+      var trades = JSON.parse(localStorage.getItem('rf_trades')||'[]');
+      var t = trades.find(function(x){return String(x.id)===String(currentTradeId);});
+      if(t){
+        system += '\n\n═══ TRADE CONTEXT ═══\n';
+        system += 'Pair: '+(t.pair||'—')+' | Direction: '+(t.direction||'—')+' | Setup: '+(t.setup||'—')+'\n';
+        system += 'Date: '+(t.date||'—')+' | Session: '+(t.session||'—')+'\n';
+        system += 'Entry: '+(t.entry||'—')+' | SL: '+(t.sl||'—')+' | TP: '+(t.tp||'—')+' | Exit: '+(t.exit||'—')+'\n';
+        system += 'P&L: '+((t.pnl>=0?'+$':'-$')+Math.abs(t.pnl||0).toFixed(2))+' | R:R: '+(t.rr||'—')+' | Risk: '+(t.risk||'—')+'\n';
+        system += 'Result: '+(t.result||'—')+' | Grade: '+(t.grade||'—')+' | Emotion: '+(t.emotion||'—')+'\n';
+        system += 'Plan followed: '+(t.planFollowed?'Yes':'No')+' | Confluences: '+(t.confluences||[]).join(', ')+'\n';
+        if(t.notes) system += 'Trader notes: '+t.notes+'\n';
+        if(t.mistakes && t.mistakes.length) system += 'Tagged mistakes: '+t.mistakes.join(', ')+'\n';
+      }
+    }
+
+    // Call worker
+    try {
+      var response = await fetch(AI_WORKER_URL, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          type:'chat',
+          system: system,
+          messages: currentMessages
+        })
+      });
+      var data = await response.json();
+      if(data.error){
+        _aiChatAppendMessage('assistant', '⚠ Error: '+data.error, true);
+      } else {
+        var reply = data.analysis || 'No response.';
+        _aiChatAppendMessage('assistant', reply, true);
+        currentMessages.push({role:'assistant', content:reply});
+        if(typeof tqPushAIMessage === 'function'){
+          tqPushAIMessage(currentTradeId, 'assistant', reply);
+        }
+      }
+    } catch(e){
+      _aiChatAppendMessage('assistant', '⚠ Network error: '+e.message, true);
+    } finally {
+      sendBtn.disabled = false;
+      sendBtn.textContent = 'Send →';
+      input.focus();
+    }
+  };
+
+  // Enter to send (Shift+Enter for newline)
+  document.addEventListener('DOMContentLoaded', function(){
+    var input = document.getElementById('aichat-input');
+    if(input){
+      input.addEventListener('keydown', function(e){
+        if(e.key === 'Enter' && !e.shiftKey){
+          e.preventDefault();
+          aiChatSend();
+        }
+      });
+    }
+  });
+})();
+</script>
+
 <script>
 (function() {
   // Prevent scroll wheel from changing number inputs
@@ -6818,6 +7175,9 @@ window.dispatchEvent(new Event('supabase-ready'));
         '<div style="font-size:10px;font-weight:600;color:var(--text);font-family:Inter,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+email+'</div>' +
         '<div style="font-size:8px;color:var(--green);font-weight:600;letter-spacing:.5px;font-family:Inter,sans-serif;margin-top:1px">CLOUD SYNC ON</div>' +
       '</div>' +
+      '<button class="tq-user-logout" onclick="settingsOpen()" title="Settings" style="margin-right:4px">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>' +
+      '</button>' +
       '<button class="tq-user-logout" onclick="tqLogout()" title="Sign Out">' +
         '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>' +
       '</button></div>' +
@@ -8054,6 +8414,50 @@ window.dispatchEvent(new Event('supabase-ready'));
       if(typeof renderAccountsPage==='function')renderAccountsPage();
     });
   }
+
+  // ══ AI CONVERSATIONS SYNC (chat history with Claude) ══
+  function tqPushAIMessage(tradeId, role, content){
+    return new Promise(function(resolve){
+      if(!_tqSupa||!_tqUser){ resolve({error:'not_authed'}); return; }
+      var row = {
+        user_id: _tqUser.id,
+        trade_id: tradeId || null,
+        role: role,
+        content: content
+      };
+      _tqSupa.from('ai_conversations').insert(row).select().single().then(function(r){
+        if(r.error){ console.error('AI push error:', r.error); resolve({error:r.error}); }
+        else { resolve({data:r.data}); }
+      });
+    });
+  }
+  window.tqPushAIMessage = tqPushAIMessage;
+
+  function tqPullAIConversation(tradeId){
+    return new Promise(function(resolve){
+      if(!_tqSupa||!_tqUser){ resolve([]); return; }
+      var q = _tqSupa.from('ai_conversations').select('*').eq('user_id',_tqUser.id);
+      q = tradeId ? q.eq('trade_id', tradeId) : q.is('trade_id', null);
+      q.order('created_at',{ascending:true}).then(function(r){
+        if(r.error){ console.error('AI pull error:', r.error); resolve([]); }
+        else { resolve(r.data||[]); }
+      });
+    });
+  }
+  window.tqPullAIConversation = tqPullAIConversation;
+
+  function tqDeleteAIConversation(tradeId){
+    return new Promise(function(resolve){
+      if(!_tqSupa||!_tqUser){ resolve({error:'not_authed'}); return; }
+      var q = _tqSupa.from('ai_conversations').delete().eq('user_id',_tqUser.id);
+      q = tradeId ? q.eq('trade_id', tradeId) : q.is('trade_id', null);
+      q.then(function(r){
+        if(r.error){ console.error('AI delete error:', r.error); resolve({error:r.error}); }
+        else { resolve({ok:true}); }
+      });
+    });
+  }
+  window.tqDeleteAIConversation = tqDeleteAIConversation;
 
   // ══ SETTINGS SYNC (theme, custom tags, timezone) ══
   function tqPushSettings(){
@@ -13239,7 +13643,7 @@ window.dispatchEvent(new Event('supabase-ready'));
             +'<td style="font-weight:600;font-family:\'Inter\',sans-serif;color:'+(pnl2>=0?'var(--green)':'var(--red)')+'">'+(pnl2>=0?'+':'')+' $'+Math.abs(pnl2).toLocaleString('en-US')+'</td>'
             +'<td class="jr-running" style="color:'+(running>=0?'var(--green)':'var(--red)')+'">'+(running>=0?'+':'')+' $'+Math.abs(running).toLocaleString('en-US')+'</td>'
             +'<td><span class="jr-pill '+resultCls+'">'+result+'</span></td>'
-            +'<td onclick="event.stopPropagation()"><button style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;padding:4px" onclick="jrDeleteTrade(\''+tr.id+'\')">✕</button></td>'
+            +'<td onclick="event.stopPropagation()" style="white-space:nowrap"><button style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:13px;padding:4px 6px" onclick="aiChatOpen(\''+tr.id+'\')" title="Ask AI about this trade">✨</button><button style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;padding:4px" onclick="jrDeleteTrade(\''+tr.id+'\')" title="Delete trade">✕</button></td>'
             +'</tr>';
         });
       });
@@ -14860,7 +15264,7 @@ window.dispatchEvent(new Event('supabase-ready'));
       Dashboard:'<svg viewBox="0 0 200 100" style="width:100%;height:auto;border-radius:6px;overflow:hidden;background:rgba(124,90,240,.04)"><rect width="200" height="100" fill="none" rx="6"/><rect x="8" y="8" width="42" height="22" rx="4" fill="var(--green)" opacity=".2" stroke="var(--green)" stroke-width=".5" opacity=".3"/><rect x="54" y="8" width="42" height="22" rx="4" fill="var(--accent)" opacity=".15" stroke="var(--accent)" stroke-width=".5" opacity=".2"/><rect x="100" y="8" width="42" height="22" rx="4" fill="var(--accent)" opacity=".15" stroke="var(--accent)" stroke-width=".5" opacity=".2"/><rect x="146" y="8" width="42" height="22" rx="4" fill="var(--green)" opacity=".2" stroke="var(--green)" stroke-width=".5" opacity=".3"/><text x="16" y="22" font-size="7" fill="var(--green)" font-family="sans-serif" font-weight="bold">+$73</text><text x="62" y="22" font-size="7" fill="var(--accent)" font-family="sans-serif" font-weight="bold">60%</text><text x="108" y="22" font-size="7" fill="var(--accent)" font-family="sans-serif" font-weight="bold">3.24</text><text x="154" y="22" font-size="7" fill="var(--green)" font-family="sans-serif" font-weight="bold">2.2R</text><circle cx="40" cy="64" r="22" fill="none" stroke="var(--accent)" stroke-width="2" opacity=".4"/><text x="33" y="68" font-size="10" fill="var(--accent)" font-family="sans-serif" font-weight="bold">70</text><rect x="72" y="40" width="56" height="50" rx="4" fill="rgba(124,90,240,.06)" stroke="var(--border)" stroke-width=".5"/><polyline points="78,80 90,68 102,72 114,56 122,60" fill="none" stroke="var(--green)" stroke-width="1.5"/><rect x="136" y="40" width="56" height="50" rx="4" fill="rgba(124,90,240,.06)" stroke="var(--border)" stroke-width=".5"/><rect x="142" y="54" width="8" height="28" rx="1" fill="var(--green)" opacity=".6"/><rect x="153" y="64" width="8" height="18" rx="1" fill="var(--red)" opacity=".6"/><rect x="164" y="50" width="8" height="32" rx="1" fill="var(--green)" opacity=".6"/><rect x="175" y="58" width="8" height="24" rx="1" fill="var(--green)" opacity=".5"/></svg>',
       Cockpit:'<svg viewBox="0 0 200 100" style="width:100%;height:auto;border-radius:6px;overflow:hidden;background:rgba(124,90,240,.04)"><rect width="200" height="100" fill="none" rx="6"/><text x="8" y="16" font-size="7" fill="var(--text)" font-family="sans-serif" font-weight="bold">SESSION: LONDON</text><rect x="8" y="22" width="88" height="34" rx="4" fill="rgba(124,90,240,.06)" stroke="var(--border)" stroke-width=".5"/><text x="14" y="34" font-size="6" fill="var(--text3)" font-family="sans-serif">DAILY BIAS</text><rect x="14" y="38" width="26" height="12" rx="4" fill="var(--green)" opacity=".3" stroke="var(--green)" stroke-width=".5"/><text x="19" y="47" font-size="6" fill="var(--green)" font-family="sans-serif" font-weight="bold">BULL</text><rect x="44" y="38" width="26" height="12" rx="4" fill="rgba(124,90,240,.06)" stroke="var(--border)" stroke-width=".5"/><text x="49" y="47" font-size="6" fill="var(--text3)" font-family="sans-serif">BEAR</text><rect x="104" y="22" width="88" height="34" rx="4" fill="rgba(124,90,240,.06)" stroke="var(--border)" stroke-width=".5"/><text x="110" y="34" font-size="6" fill="var(--text3)" font-family="sans-serif">MARKET PHASE</text><rect x="110" y="38" width="44" height="12" rx="4" fill="var(--accent)" opacity=".25" stroke="var(--accent)" stroke-width=".5"/><text x="114" y="47" font-size="6" fill="var(--accent)" font-family="sans-serif" font-weight="bold">MAIN PUSH</text><rect x="8" y="68" width="140" height="24" rx="8" fill="var(--accent)" opacity=".2" stroke="var(--accent)" stroke-width="1"/><text x="32" y="84" font-size="8" fill="var(--accent)" font-family="sans-serif" font-weight="bold">+ Take Trade on EURUSD</text></svg>',
       'Day View':'<svg viewBox="0 0 200 100" style="width:100%;height:auto;border-radius:6px;overflow:hidden;background:rgba(124,90,240,.04)"><rect width="200" height="100" fill="none" rx="6"/><text x="8" y="16" font-size="8" fill="var(--text)" font-family="sans-serif" font-weight="bold">Thursday, Mar 12</text><text x="150" y="16" font-size="9" fill="var(--green)" font-family="sans-serif" font-weight="bold">+$17.3</text><rect x="8" y="24" width="34" height="18" rx="4" fill="rgba(124,90,240,.06)" stroke="var(--border)" stroke-width=".5"/><text x="14" y="37" font-size="8" fill="var(--text)" font-family="sans-serif" font-weight="bold">2</text><rect x="48" y="24" width="44" height="18" rx="4" fill="rgba(124,90,240,.06)" stroke="var(--border)" stroke-width=".5"/><text x="56" y="37" font-size="8" fill="var(--green)" font-family="sans-serif" font-weight="bold">50%</text><rect x="8" y="50" width="184" height="44" rx="4" fill="rgba(124,90,240,.06)" stroke="var(--border)" stroke-width=".5"/><text x="12" y="62" font-size="5" fill="var(--text3)" font-family="sans-serif" font-weight="bold">INTRADAY P&amp;L CURVE</text><circle cx="30" cy="74" r="4" fill="var(--green)" opacity=".8" stroke="var(--card)" stroke-width="1"/><polyline points="30,74 80,80 150,88" fill="none" stroke="var(--green)" stroke-width="1.5"/><circle cx="150" cy="88" r="4" fill="var(--red)" opacity=".8" stroke="var(--card)" stroke-width="1"/></svg>',
-      Journal:'<svg viewBox="0 0 200 100" style="width:100%;height:auto;border-radius:6px;overflow:hidden;background:rgba(124,90,240,.04)"><rect width="200" height="100" fill="none" rx="6"/><rect x="138" y="6" width="54" height="14" rx="4" fill="var(--accent)" opacity=".2" stroke="var(--accent)" stroke-width=".5"/><text x="146" y="16" font-size="6" fill="var(--accent)" font-family="sans-serif" font-weight="bold">+ Add Trade</text><rect x="8" y="26" width="184" height="14" rx="2" fill="rgba(124,90,240,.06)" stroke="var(--border)" stroke-width=".5"/><text x="12" y="36" font-size="6" fill="var(--text3)" font-family="sans-serif" font-weight="bold">DATE</text><text x="54" y="36" font-size="6" fill="var(--text3)" font-family="sans-serif" font-weight="bold">PAIR</text><text x="98" y="36" font-size="6" fill="var(--text3)" font-family="sans-serif" font-weight="bold">SETUP</text><text x="158" y="36" font-size="6" fill="var(--text3)" font-family="sans-serif" font-weight="bold">P&amp;L</text><rect x="8" y="42" width="184" height="14" rx="1" fill="rgba(124,90,240,.08)"/><text x="12" y="52" font-size="6" fill="var(--text2)" font-family="sans-serif">Mar 28</text><text x="54" y="52" font-size="6" fill="var(--text2)" font-family="sans-serif">EURUSD</text><text x="98" y="52" font-size="6" fill="var(--text2)" font-family="sans-serif">London Rev.</text><text x="158" y="52" font-size="6" fill="var(--green)" font-family="sans-serif" font-weight="bold">+$42</text><rect x="8" y="58" width="184" height="14" rx="1" fill="var(--bg)"/><text x="12" y="68" font-size="6" fill="var(--text2)" font-family="sans-serif">Mar 28</text><text x="54" y="68" font-size="6" fill="var(--text2)" font-family="sans-serif">GBPJPY</text><text x="98" y="68" font-size="6" fill="var(--text2)" font-family="sans-serif">SMT Cont.</text><text x="158" y="68" font-size="6" fill="var(--red)" font-family="sans-serif" font-weight="bold">-$18</text><rect x="8" y="74" width="184" height="14" rx="1" fill="rgba(124,90,240,.08)"/><text x="12" y="84" font-size="6" fill="var(--text2)" font-family="sans-serif">Mar 27</text><text x="54" y="84" font-size="6" fill="var(--text2)" font-family="sans-serif">XAUUSD</text><text x="98" y="84" font-size="6" fill="var(--text2)" font-family="sans-serif">Asia Sweep</text><text x="158" y="84" font-size="6" fill="var(--green)" font-family="sans-serif" font-weight="bold">+$85</text></svg>',
+      Journal:'<svg viewBox="0 0 200 100" style="width:100%;height:auto;border-radius:6px;overflow:hidden;background:rgba(124,90,240,.04)"><rect width="200" height="100" fill="none" rx="6"/><rect x="138" y="6" width="54" height="14" rx="4" fill="var(--accent)" opacity=".2" stroke="var(--accent)" stroke-width=".5"/><text x="146" y="16" font-size="6" fill="var(--accent)" font-family="sans-serif" font-weight="bold">+ Add Trade</text><rect x="8" y="26" width="184" height="14" rx="2" fill="rgba(124,90,240,.06)" stroke="var(--border)" stroke-width=".5"/><text x="12" y="36" font-size="6" fill="var(--text3)" font-family="sans-serif" font-weight="bold">DATE</text><text x="54" y="36" font-size="6" fill="var(--text3)" font-family="sans-serif" font-weight="bold">PAIR</text><text x="98" y="36" font-size="6" fill="var(--text3)" font-family="sans-serif" font-weight="bold">SETUP</text><text x="158" y="36" font-size="6" fill="var(--text3)" font-family="sans-serif" font-weight="bold">P&amp;L</text><rect x="8" y="42" width="184" height="14" rx="1" fill="rgba(124,90,240,.08)"/><text x="12" y="52" font-size="6" fill="var(--text2)" font-family="sans-serif">Apr 15</text><text x="54" y="52" font-size="6" fill="var(--text2)" font-family="sans-serif">EURUSD</text><text x="98" y="52" font-size="6" fill="var(--text2)" font-family="sans-serif">London Rev.</text><text x="158" y="52" font-size="6" fill="var(--green)" font-family="sans-serif" font-weight="bold">+$42</text><rect x="8" y="58" width="184" height="14" rx="1" fill="var(--bg)"/><text x="12" y="68" font-size="6" fill="var(--text2)" font-family="sans-serif">Apr 15</text><text x="54" y="68" font-size="6" fill="var(--text2)" font-family="sans-serif">GBPJPY</text><text x="98" y="68" font-size="6" fill="var(--text2)" font-family="sans-serif">SMT Cont.</text><text x="158" y="68" font-size="6" fill="var(--red)" font-family="sans-serif" font-weight="bold">-$18</text><rect x="8" y="74" width="184" height="14" rx="1" fill="rgba(124,90,240,.08)"/><text x="12" y="84" font-size="6" fill="var(--text2)" font-family="sans-serif">Apr 14</text><text x="54" y="84" font-size="6" fill="var(--text2)" font-family="sans-serif">XAUUSD</text><text x="98" y="84" font-size="6" fill="var(--text2)" font-family="sans-serif">Asia Sweep</text><text x="158" y="84" font-size="6" fill="var(--green)" font-family="sans-serif" font-weight="bold">+$85</text></svg>',
       Notebook:'<svg viewBox="0 0 200 100" style="width:100%;height:auto;border-radius:6px;overflow:hidden;background:rgba(124,90,240,.04)"><rect width="200" height="100" fill="none" rx="6"/><rect x="8" y="8" width="88" height="82" rx="6" fill="rgba(124,90,240,.06)" stroke="var(--border)" stroke-width=".5"/><rect x="14" y="14" width="30" height="8" rx="3" fill="var(--yellow)" opacity=".25" stroke="var(--yellow)" stroke-width=".5"/><text x="17" y="21" font-size="5" fill="var(--yellow)" font-family="sans-serif" font-weight="bold">RULE</text><text x="14" y="36" font-size="6" fill="var(--text)" font-family="sans-serif" font-weight="bold">Never revenge trade</text><rect x="14" y="42" width="76" height="2" rx="1" fill="var(--border)"/><rect x="14" y="48" width="58" height="2" rx="1" fill="var(--border)"/><rect x="104" y="8" width="88" height="82" rx="6" fill="rgba(124,90,240,.06)" stroke="var(--border)" stroke-width=".5"/><rect x="110" y="14" width="36" height="8" rx="3" fill="var(--accent)" opacity=".2" stroke="var(--accent)" stroke-width=".5"/><text x="113" y="21" font-size="5" fill="var(--accent)" font-family="sans-serif" font-weight="bold">INSIGHT</text><text x="110" y="36" font-size="6" fill="var(--text)" font-family="sans-serif" font-weight="bold">London session key</text><rect x="110" y="42" width="76" height="2" rx="1" fill="var(--border)"/></svg>',
       Reports:'<svg viewBox="0 0 200 100" style="width:100%;height:auto;border-radius:6px;overflow:hidden;background:rgba(124,90,240,.04)"><rect width="200" height="100" fill="none" rx="6"/><text x="10" y="16" font-size="7" fill="var(--text3)" font-family="sans-serif">BY PAIR</text><text x="72" y="16" font-size="7" fill="var(--text3)" font-family="sans-serif">BY SESSION</text><text x="144" y="16" font-size="7" fill="var(--accent)" font-family="sans-serif" font-weight="bold">BY SETUP</text><rect x="8" y="24" width="184" height="68" rx="4" fill="rgba(124,90,240,.06)" stroke="var(--border)" stroke-width=".5"/><rect x="18" y="38" width="24" height="44" rx="2" fill="var(--green)" opacity=".5"/><rect x="48" y="48" width="24" height="34" rx="2" fill="var(--green)" opacity=".4"/><rect x="78" y="56" width="24" height="26" rx="2" fill="var(--red)" opacity=".45"/><rect x="108" y="42" width="24" height="40" rx="2" fill="var(--green)" opacity=".45"/><rect x="138" y="52" width="24" height="30" rx="2" fill="var(--green)" opacity=".35"/><rect x="168" y="60" width="18" height="22" rx="2" fill="var(--red)" opacity=".35"/><text x="22" y="88" font-size="6" fill="var(--text2)" font-family="sans-serif">EUR</text><text x="52" y="88" font-size="6" fill="var(--text2)" font-family="sans-serif">GBP</text><text x="82" y="88" font-size="6" fill="var(--text2)" font-family="sans-serif">JPY</text><text x="112" y="88" font-size="6" fill="var(--text2)" font-family="sans-serif">XAU</text></svg>',
       Playbook:'<svg viewBox="0 0 200 100" style="width:100%;height:auto;border-radius:6px;overflow:hidden;background:rgba(124,90,240,.04)"><rect width="200" height="100" fill="none" rx="6"/><rect x="8" y="8" width="184" height="36" rx="8" fill="rgba(46,204,138,.08)" stroke="rgba(46,204,138,.25)" stroke-width=".5"/><circle cx="26" cy="26" r="12" fill="rgba(46,204,138,.18)"/><text x="21" y="30" font-size="10" fill="var(--green)" font-family="sans-serif" font-weight="bold">L</text><text x="44" y="22" font-size="7" fill="var(--text)" font-family="sans-serif" font-weight="bold">London Reversal</text><text x="44" y="34" font-size="5" fill="var(--text3)" font-family="sans-serif">6 confluences · 2 triggers</text><rect x="8" y="52" width="184" height="36" rx="8" fill="rgba(96,165,250,.08)" stroke="rgba(96,165,250,.2)" stroke-width=".5"/><circle cx="26" cy="70" r="12" fill="rgba(96,165,250,.18)"/><text x="21" y="74" font-size="10" fill="#60a5fa" font-family="sans-serif" font-weight="bold">S</text><text x="44" y="66" font-size="7" fill="var(--text)" font-family="sans-serif" font-weight="bold">SMT Continuation</text><text x="44" y="78" font-size="5" fill="var(--text3)" font-family="sans-serif">4 confluences · 1 trigger</text></svg>',
@@ -14885,8 +15289,8 @@ window.dispatchEvent(new Event('supabase-ready'));
     el.innerHTML=guides.map(function(g){
       var preview=previews[g.title]||'';
       var pageId=pages[g.title]||'dashboard';
-      return '<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:all .2s" onmouseover="this.style.borderColor=\''+g.color+'\';this.style.transform=\'translateY(-2px)\'" onmouseout="this.style.borderColor=\'var(--border)\';this.style.transform=\'none\'">'
-        +(preview?'<div style="padding:12px 12px 0">'+preview+'</div>':'')
+      return '<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:all .2s;position:relative" onmouseover="this.style.borderColor=\''+g.color+'\';this.style.transform=\'translateY(-2px)\'" onmouseout="this.style.borderColor=\'var(--border)\';this.style.transform=\'none\'">'
+        +(preview?'<div style="padding:12px 12px 0;position:relative">'+preview+'<span style="position:absolute;top:16px;right:16px;padding:2px 7px;border-radius:4px;background:rgba(15,23,42,.6);color:#fff;font-size:8px;font-weight:700;letter-spacing:.5px;font-family:\'Inter\',sans-serif;backdrop-filter:blur(4px)">PREVIEW</span></div>':'')
         +'<div style="padding:14px 16px">'
         +'<div style="font-size:13px;font-weight:700;color:var(--text);font-family:\'Inter\',sans-serif;margin-bottom:6px">'+g.title+'</div>'
         +'<div style="font-size:11px;color:var(--text3);line-height:1.5;font-family:\'Inter\',sans-serif;margin-bottom:10px">'+g.desc+'</div>'
@@ -18122,6 +18526,15 @@ window.dispatchEvent(new Event('supabase-ready'));
     document.getElementById('modal-dashCustomize').classList.remove('show');
   }
   window.dashCustomizeClose = dashCustomizeClose;
+
+  function dashCustomizeReset(){
+    if(!confirm('Reset all widgets to default visibility?')) return;
+    try { rfxRemove && rfxRemove('dash_prefs'); } catch(e){}
+    try { localStorage.removeItem('dash_prefs'); } catch(e){}
+    dashCustomizeOpen();
+    if(typeof updateDashboard === 'function') updateDashboard();
+  }
+  window.dashCustomizeReset = dashCustomizeReset;
 
   function dashCustomizeToggle(id){
     var prefs = dashGetPrefs();
