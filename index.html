@@ -3418,6 +3418,10 @@ window.dispatchEvent(new Event('supabase-ready'));
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2a4 4 0 014 4v1a2 2 0 012 2v1a2 2 0 01-2 2H8a2 2 0 01-2-2V9a2 2 0 012-2V6a4 4 0 014-4z"/><path d="M6 12v2a6 6 0 0012 0v-2"/><path d="M12 18v4"/></svg>
       AI Coach
     </div>
+    <div class="nav-item" id="nav-youredge">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      Your Edge
+    </div>
     <div class="nav-item" id="nav-resources">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>
       Resources
@@ -3728,6 +3732,22 @@ window.dispatchEvent(new Event('supabase-ready'));
           margin-top:22px;opacity:0;transition:opacity 1s .4s ease;
         "></div>
       </div>
+    </div>
+
+    <!-- AI INSIGHTS WIDGET (top 3 AI observations) -->
+    <div id="dash-ai-insights" style="margin-bottom:16px;background:linear-gradient(135deg,rgba(124,90,240,.06),rgba(124,90,240,.02));border:1px solid rgba(124,90,240,.15);border-radius:14px;padding:16px 20px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:-20%;right:-5%;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(124,90,240,.06),transparent 70%);pointer-events:none"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;position:relative">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:18px">✨</span>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.3px">AI INSIGHTS</div>
+            <div style="font-size:10px;color:var(--text3);margin-top:1px" id="dash-ai-subtitle">Auto-updated with your latest data</div>
+          </div>
+        </div>
+        <button onclick="dashAIRefresh()" id="dash-ai-refresh-btn" style="background:rgba(124,90,240,.08);border:1px solid rgba(124,90,240,.2);color:var(--accent);padding:4px 10px;border-radius:6px;font-size:10px;cursor:pointer;font-weight:600;font-family:Inter,sans-serif" title="Re-analyze">⟳ Refresh</button>
+      </div>
+      <div id="dash-ai-list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;position:relative"></div>
     </div>
 
     <!-- KPI STRIP -->
@@ -4270,7 +4290,7 @@ window.dispatchEvent(new Event('supabase-ready'));
           <div class="jr-group-title">Basic Information</div>
           <div class="jr-row" style="margin-bottom:10px">
             <div class="jr-field"><label class="jr-label">PAIR</label>
-              <select class="jr-select" id="jr-pair">
+              <select class="jr-select" id="jr-pair" onchange="if(window.aiPreTradeCheck)window.aiPreTradeCheck()">
                 <option value="">Select pair</option>
                 <option>EURUSD</option><option>GBPUSD</option><option>GBPJPY</option><option>USDJPY</option><option>AUDUSD</option><option>NZDUSD</option><option>USDCAD</option><option>USDCHF</option><option>XAUUSD</option><option>NAS100</option><option>US30</option>
               </select>
@@ -4423,10 +4443,12 @@ window.dispatchEvent(new Event('supabase-ready'));
           <div class="jr-group-title">Setup & Confluences</div>
           <div class="jr-group-desc">Select from your Playbook setups. Confluences auto-populate.</div>
           <div class="jr-field"><label class="jr-label">SETUP</label>
-            <select class="jr-select" id="jr-setup" onchange="jrSetupChanged()">
+            <select class="jr-select" id="jr-setup" onchange="jrSetupChanged();if(window.aiPreTradeCheck)window.aiPreTradeCheck()">
               <option value="">No Setup (impulse trade)</option>
             </select>
           </div>
+          <!-- AI Pre-trade warning -->
+          <div id="ai-pretrade-warning" style="display:none;margin-bottom:10px;padding:10px 12px;border-radius:8px;font-size:12px;line-height:1.5"></div>
           <!-- Context blocks (dynamic based on selected setup) -->
           <div id="jr-context-blocks"></div>
           <!-- Confluence toggles (dynamic) -->
@@ -6482,20 +6504,34 @@ window.dispatchEvent(new Event('supabase-ready'));
         <div id="ai-weekly-analysis" style="font-size:12px;color:var(--text2);line-height:1.7"></div>
       </div>
       <div id="ai-panel-ask" style="display:none">
-        <div style="font-size:11px;color:var(--text3);margin-bottom:10px">Ask anything about your trading data. Claude analyzes your trades and answers.</div>
-        <div style="display:flex;gap:6px;margin-bottom:12px">
-          <input type="text" id="ai-ask-input" placeholder="e.g. What's my win rate on Mondays in London session?" style="flex:1;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px;font-family:'Inter',sans-serif" onkeydown="if(event.key==='Enter')aiAskQuestion()">
-          <button class="btn btn-primary" style="font-size:10px;padding:8px 14px;white-space:nowrap" onclick="aiAskQuestion()">Ask</button>
+        <!-- Two-column: conversations list + active chat -->
+        <div style="display:grid;grid-template-columns:220px 1fr;gap:14px;min-height:400px">
+          <!-- CONVERSATIONS SIDEBAR -->
+          <div style="border-right:1px solid var(--border);padding-right:12px;display:flex;flex-direction:column;gap:8px;max-height:560px;overflow-y:auto">
+            <button onclick="aiAskNewConversation()" class="btn btn-primary" style="font-size:11px;padding:8px;width:100%;text-align:left">+ New Chat</button>
+            <div id="ai-conv-list" style="display:flex;flex-direction:column;gap:4px;margin-top:4px"></div>
+          </div>
+          <!-- ACTIVE CHAT -->
+          <div style="display:flex;flex-direction:column">
+            <div style="font-size:11px;color:var(--text3);margin-bottom:10px" id="ai-conv-title">Ask anything about your trading data. Claude analyzes your trades and answers.</div>
+            <div style="display:flex;gap:6px;margin-bottom:12px">
+              <input type="text" id="ai-ask-input" placeholder="e.g. What's my win rate on Mondays in London session?" style="flex:1;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px;font-family:'Inter',sans-serif" onkeydown="if(event.key==='Enter')aiAskQuestion()">
+              <button class="btn btn-primary" style="font-size:10px;padding:8px 14px;white-space:nowrap" onclick="aiAskQuestion()">Ask</button>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px">
+              <button onclick="document.getElementById('ai-ask-input').value=this.textContent;aiAskQuestion()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:9px;cursor:pointer;font-family:'Inter',sans-serif">Best pair by win rate?</button>
+              <button onclick="document.getElementById('ai-ask-input').value=this.textContent;aiAskQuestion()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:9px;cursor:pointer;font-family:'Inter',sans-serif">When do I lose most?</button>
+              <button onclick="document.getElementById('ai-ask-input').value=this.textContent;aiAskQuestion()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:9px;cursor:pointer;font-family:'Inter',sans-serif">Am I overtrading?</button>
+              <button onclick="document.getElementById('ai-ask-input').value=this.textContent;aiAskQuestion()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:9px;cursor:pointer;font-family:'Inter',sans-serif">Revenge trade pattern?</button>
+              <button onclick="document.getElementById('ai-ask-input').value=this.textContent;aiAskQuestion()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:9px;cursor:pointer;font-family:'Inter',sans-serif">My edge vs my leak?</button>
+            </div>
+            <div id="ai-ask-response" style="font-size:12px;color:var(--text2);line-height:1.7;margin-top:8px;display:flex;flex-direction:column;gap:8px;min-height:200px"></div>
+            <div style="display:flex;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
+              <div style="font-size:10px;color:var(--text3)" id="ai-conv-info">New chat</div>
+              <button onclick="aiAskClear()" style="padding:3px 8px;border-radius:6px;border:1px solid rgba(224,92,122,.2);background:transparent;color:var(--red);font-size:9px;cursor:pointer;font-family:'Inter',sans-serif">🗑 Delete this chat</button>
+            </div>
+          </div>
         </div>
-        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px">
-          <button onclick="document.getElementById('ai-ask-input').value=this.textContent;aiAskQuestion()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:9px;cursor:pointer;font-family:'Inter',sans-serif">Best pair by win rate?</button>
-          <button onclick="document.getElementById('ai-ask-input').value=this.textContent;aiAskQuestion()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:9px;cursor:pointer;font-family:'Inter',sans-serif">When do I lose most?</button>
-          <button onclick="document.getElementById('ai-ask-input').value=this.textContent;aiAskQuestion()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:9px;cursor:pointer;font-family:'Inter',sans-serif">Am I overtrading?</button>
-          <button onclick="document.getElementById('ai-ask-input').value=this.textContent;aiAskQuestion()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:9px;cursor:pointer;font-family:'Inter',sans-serif">Revenge trade pattern?</button>
-          <button onclick="document.getElementById('ai-ask-input').value=this.textContent;aiAskQuestion()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:9px;cursor:pointer;font-family:'Inter',sans-serif">My edge vs my leak?</button>
-        </div>
-        <div style="display:flex;justify-content:flex-end;margin-top:6px"><button onclick="aiAskClear()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text3);font-size:9px;cursor:pointer;font-family:'Inter',sans-serif">🗑 Clear chat</button></div>
-        <div id="ai-ask-response" style="font-size:12px;color:var(--text2);line-height:1.7;margin-top:8px;display:flex;flex-direction:column;gap:8px"></div>
       </div>
       <div id="ai-panel-whatif" style="display:none">
         <div style="font-size:11px;color:var(--text3);margin-bottom:10px">Explore hypothetical scenarios. What would your P&L be if you changed something?</div>
@@ -6511,6 +6547,81 @@ window.dispatchEvent(new Event('supabase-ready'));
         <div style="display:flex;justify-content:flex-end;margin-top:6px"><button onclick="aiWhatIfClear()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text3);font-size:9px;cursor:pointer;font-family:'Inter',sans-serif">🗑 Clear chat</button></div>
         <div id="ai-whatif-response" style="font-size:12px;color:var(--text2);line-height:1.7;margin-top:8px;display:flex;flex-direction:column;gap:8px"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- ═══ YOUR EDGE (Level 5: Adaptive Coaching) ═══ -->
+  <div id="page-youredge" class="page">
+    <div class="page-header">
+      <div><div class="page-title">Your Edge</div><div class="page-sub">AI-powered personal edge analysis · updates with every trade</div></div>
+      <button class="btn btn-primary" onclick="yeRefresh()" id="ye-refresh-btn">⟳ Refresh Analysis</button>
+    </div>
+
+    <!-- Edge Score Hero -->
+    <div style="background:linear-gradient(135deg,rgba(124,90,240,.08),rgba(124,90,240,.02));border:1px solid rgba(124,90,240,.15);border-radius:16px;padding:24px;margin-bottom:16px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:-30%;right:-10%;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(124,90,240,.08),transparent 70%);pointer-events:none"></div>
+      <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;position:relative">
+        <div style="flex-shrink:0">
+          <div style="font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px">Your Edge Score</div>
+          <div style="display:flex;align-items:baseline;gap:10px">
+            <div id="ye-score" style="font-size:56px;font-weight:200;letter-spacing:-2px;color:var(--accent);line-height:1">—</div>
+            <div style="font-size:18px;color:var(--text3);font-weight:300">/ 100</div>
+          </div>
+          <div id="ye-score-trend" style="font-size:11px;color:var(--text2);margin-top:4px">calculating...</div>
+        </div>
+        <div style="flex:1;min-width:250px">
+          <div id="ye-headline" style="font-size:15px;font-weight:700;color:var(--text);line-height:1.4;margin-bottom:6px">Analyzing your trading data...</div>
+          <div id="ye-subheadline" style="font-size:12px;color:var(--text2);line-height:1.6">Your edge score measures how consistently profitable your trading is based on WR, PF, R:R, discipline and consistency over time.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Best Edge + Biggest Leak -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <div id="ye-best-card" style="background:var(--card);border:1px solid var(--border);border-left:4px solid var(--green);border-radius:14px;padding:18px">
+        <div style="font-size:10px;color:var(--green);font-weight:700;letter-spacing:.6px;text-transform:uppercase;margin-bottom:10px">✓ Your Strongest Edge</div>
+        <div id="ye-best-title" style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px">—</div>
+        <div id="ye-best-stats" style="font-size:12px;color:var(--text2);line-height:1.7">—</div>
+        <div id="ye-best-action" style="font-size:11px;color:var(--green);font-weight:600;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">—</div>
+      </div>
+      <div id="ye-leak-card" style="background:var(--card);border:1px solid var(--border);border-left:4px solid var(--red);border-radius:14px;padding:18px">
+        <div style="font-size:10px;color:var(--red);font-weight:700;letter-spacing:.6px;text-transform:uppercase;margin-bottom:10px">⚠ Your Biggest Leak</div>
+        <div id="ye-leak-title" style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px">—</div>
+        <div id="ye-leak-stats" style="font-size:12px;color:var(--text2);line-height:1.7">—</div>
+        <div id="ye-leak-action" style="font-size:11px;color:var(--red);font-weight:600;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">—</div>
+      </div>
+    </div>
+
+    <!-- Personal Rules -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--text)">📋 Your Personal Rules</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:3px">AI-generated rules based on YOUR data — not generic advice</div>
+        </div>
+        <div id="ye-rules-count" style="font-size:10px;color:var(--text3);font-weight:600">—</div>
+      </div>
+      <div id="ye-rules-list" style="display:flex;flex-direction:column;gap:8px">
+        <div style="text-align:center;padding:30px;color:var(--text3);font-size:12px">Click "Refresh Analysis" to generate your personal rules</div>
+      </div>
+    </div>
+
+    <!-- Trading Personality + Stats Grid -->
+    <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:12px;margin-bottom:16px">
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px">
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px">🎭 Your Trading Personality</div>
+        <div id="ye-personality" style="font-size:13px;line-height:1.7;color:var(--text2)">Refresh to analyze...</div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px">
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px">📈 Edge Metrics</div>
+        <div id="ye-metrics" style="display:flex;flex-direction:column;gap:10px;font-size:12px"></div>
+      </div>
+    </div>
+
+    <!-- Monthly Evolution -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px">
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px">📅 Edge Evolution (Last 6 Months)</div>
+      <div id="ye-evolution" style="font-size:12px;color:var(--text2);line-height:1.7">Need at least 3 months of data to show evolution.</div>
     </div>
   </div>
 
@@ -6769,12 +6880,15 @@ window.dispatchEvent(new Event('supabase-ready'));
 
 <script>
 (function(){
-  var AI_WORKER_URL = 'https://tradequill-ai.gaipov-rustam.workers.dev';
+  // Single source of truth for AI Worker URL (also used by main IIFE)
+  window.TQ_AI_WORKER_URL = window.TQ_AI_WORKER_URL || 'https://tradequill-ai.gaipov-rustam.workers.dev';
+  var AI_WORKER_URL = window.TQ_AI_WORKER_URL;
   var currentTradeId = null;
   var currentMessages = [];
 
   window.aiChatOpen = async function(tradeId){
     currentTradeId = tradeId;
+    window._aiCurrentTradeId = tradeId;
     currentMessages = [];
     var modal = document.getElementById('modal-aichat');
     var msgs = document.getElementById('aichat-messages');
@@ -6882,21 +6996,14 @@ window.dispatchEvent(new Event('supabase-ready'));
       tqPushAIMessage(currentTradeId, 'user', text);
     }
 
-    // Build system prompt with trade context
-    var system = 'You are an elite trading coach. The trader follows Win With Awareness (WWA) methodology under Waqar Asim (Dubai). You understand: liquidity sweeps, FVG, POI types, HTF bias, session KTW (Asia/London/NY), plan adherence. Be direct, honest, data-grounded. No fluff. Reference specific numbers.';
+    // Build system prompt with RICH trade context (Level 3: pattern detection)
+    var system = 'You are an elite trading coach. The trader follows Win With Awareness (WWA) methodology under Waqar Asim (Dubai). You understand: liquidity sweeps, FVG, POI types, HTF bias, session KTW (Asia/London/NY), plan adherence. Be direct, honest, data-grounded. No fluff. Reference specific numbers from the aggregated history below.';
     if(currentTradeId){
       var trades = JSON.parse(localStorage.getItem('rf_trades')||'[]');
       var t = trades.find(function(x){return String(x.id)===String(currentTradeId);});
-      if(t){
-        system += '\n\n═══ TRADE CONTEXT ═══\n';
-        system += 'Pair: '+(t.pair||'—')+' | Direction: '+(t.direction||'—')+' | Setup: '+(t.setup||'—')+'\n';
-        system += 'Date: '+(t.date||'—')+' | Session: '+(t.session||'—')+'\n';
-        system += 'Entry: '+(t.entry||'—')+' | SL: '+(t.sl||'—')+' | TP: '+(t.tp||'—')+' | Exit: '+(t.exit||'—')+'\n';
-        system += 'P&L: '+((t.pnl>=0?'+$':'-$')+Math.abs(t.pnl||0).toFixed(2))+' | R:R: '+(t.rr||'—')+' | Risk: '+(t.risk||'—')+'\n';
-        system += 'Result: '+(t.result||'—')+' | Grade: '+(t.grade||'—')+' | Emotion: '+(t.emotion||'—')+'\n';
-        system += 'Plan followed: '+(t.planFollowed?'Yes':'No')+' | Confluences: '+(t.confluences||[]).join(', ')+'\n';
-        if(t.notes) system += 'Trader notes: '+t.notes+'\n';
-        if(t.mistakes && t.mistakes.length) system += 'Tagged mistakes: '+t.mistakes.join(', ')+'\n';
+      if(t && typeof window._aiBuildRichTradeContext==='function'){
+        system += '\n\n' + window._aiBuildRichTradeContext(t, trades);
+        system += '\n\nWhen answering, CROSS-REFERENCE the current trade against the aggregated history above. If user asks "was this good?" — compare vs their average. If "should I repeat?" — look at WR/PF for that combination. Cite specific stats.';
       }
     }
 
@@ -8427,7 +8534,15 @@ window.dispatchEvent(new Event('supabase-ready'));
       };
       _tqSupa.from('ai_conversations').insert(row).select().single().then(function(r){
         if(r.error){ console.error('AI push error:', r.error); resolve({error:r.error}); }
-        else { resolve({data:r.data}); }
+        else {
+          // Track own write for realtime echo guard
+          if(r.data && r.data.id){
+            try { _tqAIOwnInserts.set('id:'+r.data.id, Date.now()); } catch(e){}
+            // Cleanup old markers
+            setTimeout(function(){ try { _tqAIOwnInserts.delete('id:'+r.data.id); } catch(e){} }, 4000);
+          }
+          resolve({data:r.data});
+        }
       });
     });
   }
@@ -8458,6 +8573,50 @@ window.dispatchEvent(new Event('supabase-ready'));
     });
   }
   window.tqDeleteAIConversation = tqDeleteAIConversation;
+
+  // Realtime subscription for cross-device sync of AI messages
+  var _tqAIChannel = null;
+  var _tqAIOwnInserts = new Map(); // echo guard, track our own inserts
+  function tqSubscribeAIRealtime(){
+    if(!_tqSupa || !_tqUser || _tqAIChannel) return;
+    try {
+      _tqAIChannel = _tqSupa.channel('ai_conv_rt_'+_tqUser.id)
+        .on('postgres_changes',
+          {event:'*', schema:'public', table:'ai_conversations', filter:'user_id=eq.'+_tqUser.id},
+          function(payload){ _tqHandleAIRealtime(payload); }
+        )
+        .subscribe();
+      console.log('TradeQuill: AI realtime subscribed');
+    } catch(e){ console.error('AI realtime sub error:', e); }
+  }
+  window.tqSubscribeAIRealtime = tqSubscribeAIRealtime;
+
+  function _tqHandleAIRealtime(payload){
+    // Skip own recent writes (4s echo window)
+    if(payload.new && payload.new.id){
+      var key = 'id:'+payload.new.id;
+      if(_tqAIOwnInserts.has(key)){
+        _tqAIOwnInserts.delete(key);
+        return;
+      }
+    }
+    // If the currently-open chat is for this trade_id, refresh it
+    var curTradeId = null;
+    try { curTradeId = window._aiCurrentTradeId; } catch(e){}
+    var modalOpen = document.getElementById('modal-aichat') && document.getElementById('modal-aichat').classList.contains('show');
+    var askTabActive = document.getElementById('page-aicoach') && document.getElementById('page-aicoach').classList.contains('active');
+
+    if(modalOpen || askTabActive){
+      // Subtle indicator: a new message arrived from another device
+      var statusEl = document.getElementById('aichat-subtitle') || document.getElementById('ai-ask-response');
+      if(statusEl){
+        var hint = document.createElement('div');
+        hint.textContent = '↻ New message from another device. Reload to see it.';
+        hint.style.cssText = 'color:var(--accent);font-size:10px;padding:4px 8px;margin:4px 0;border-radius:6px;background:rgba(124,90,240,.08);border:1px solid rgba(124,90,240,.2)';
+        setTimeout(function(){ hint.remove(); }, 5000);
+      }
+    }
+  }
 
   // ══ SETTINGS SYNC (theme, custom tags, timezone) ══
   function tqPushSettings(){
@@ -8503,6 +8662,7 @@ window.dispatchEvent(new Event('supabase-ready'));
     setTimeout(tqPullSettings, 2000);
     setTimeout(tqPullCockpit, 2500);
     setTimeout(tqSubscribeRealtime, 3000); // ← realtime after initial pull
+    setTimeout(function(){ if(typeof tqSubscribeAIRealtime==='function') tqSubscribeAIRealtime(); }, 3500);
     setTimeout(tqPullCaseStudies, 3000);
   }
 
@@ -8952,12 +9112,13 @@ window.dispatchEvent(new Event('supabase-ready'));
     if (id === 'cockpit' && window.ckRender) setTimeout(ckRender, 100);
     if (id === 'news' && window.newsLoadWidget && !_newsLoaded) setTimeout(newsLoadWidget, 150);
     if (id === 'aicoach' && window.aiCoachInit) setTimeout(aiCoachInit, 150);
+    if (id === 'youredge' && window.yeRender) setTimeout(yeRender, 100);
   }
 
   var prevPage = 'dashboard';
   window.showPage = showPage;
 
-  ['dashboard','dayview','journal','notebook','reports','playbook','riskmonitor','accounts','trademanager','casestudies','progress','resources','cockpit','news','aicoach'].forEach(function(id) {
+  ['dashboard','dayview','journal','notebook','reports','playbook','riskmonitor','accounts','trademanager','casestudies','progress','resources','cockpit','news','aicoach','youredge'].forEach(function(id) {
     var el = $('nav-' + id);
     if (el) el.addEventListener('click', function(){ showPage(id); });
   });
@@ -13243,6 +13404,10 @@ window.dispatchEvent(new Event('supabase-ready'));
     }
     closeJrModal();
     renderJournal();
+    // Level 4: Run tilt detection after new trade (not on edit)
+    if(!jrEditId && typeof window.aiTiltCheck === 'function'){
+      setTimeout(function(){ window.aiTiltCheck(trade); }, 300);
+    }
   }
   window.jrSaveTrade = jrSaveTrade;
 
@@ -14828,8 +14993,8 @@ window.dispatchEvent(new Event('supabase-ready'));
   window.aiGenerateWeekly=aiGenerateWeekly;
 
   // ── AI WORKER CONFIG ──
-  // CHANGE THIS URL after deploying your Cloudflare Worker:
-  var AI_WORKER_URL = 'https://tradequill-ai.gaipov-rustam.workers.dev';
+  // Single source of truth — set in the chat modal script above
+  var AI_WORKER_URL = window.TQ_AI_WORKER_URL || 'https://tradequill-ai.gaipov-rustam.workers.dev';
 
   function aiRunBoth(){
     aiRunFiltered();
@@ -15083,25 +15248,914 @@ window.dispatchEvent(new Event('supabase-ready'));
   window.aiSwitchTab=aiSwitchTab;
 
   // ── ASK AI — true conversational chat with memory ──
-  var askChatHistory=[]; // [{role:'user'|'assistant', content:'...'}]
+  // Build RICH TRADE CONTEXT with pattern aggregations (Level 3)
+  function _aiBuildRichTradeContext(trade, allTrades){
+    if(!trade || !allTrades || allTrades.length===0) return '';
+
+    var lines = [];
+    lines.push('═══ CURRENT TRADE ═══');
+    lines.push('Pair: '+(trade.pair||'—')+' | Direction: '+(trade.direction||'—')+' | Setup: '+(trade.setup||'—'));
+    lines.push('Date: '+(trade.date||'—')+' | Session: '+(trade.session||'—'));
+    lines.push('Entry: '+(trade.entry||'—')+' | SL: '+(trade.sl||'—')+' | TP: '+(trade.tp||'—')+' | Exit: '+(trade.exit||'—'));
+    lines.push('P&L: '+((trade.pnl>=0?'+$':'-$')+Math.abs(trade.pnl||0).toFixed(2))+' | R:R: '+(trade.rr||'—')+' | Risk: '+(trade.risk||'—'));
+    lines.push('Result: '+(trade.result||'—')+' | Grade: '+(trade.grade||'—')+' | Emotion: '+(trade.emotion||'—'));
+    lines.push('Plan followed: '+(trade.planFollowed?'Yes':'No')+' | Confluences: '+((trade.confluences||[]).join(', ')||'—'));
+    if(trade.notes) lines.push('Trader notes: '+trade.notes);
+    if(trade.mistakes && trade.mistakes.length) lines.push('Tagged mistakes: '+trade.mistakes.join(', '));
+    lines.push('');
+
+    // Helper: compute stats
+    function _stats(arr){
+      if(arr.length===0) return null;
+      var total=0,wins=0,losses=0,bigWin=-Infinity,bigLoss=Infinity;
+      arr.forEach(function(t){
+        var p=t.pnl||0;
+        total+=p;
+        if(p>0){wins++;if(p>bigWin)bigWin=p;}
+        if(p<0){losses++;if(p<bigLoss)bigLoss=p;}
+      });
+      var wr=arr.length>0?Math.round(wins/arr.length*100):0;
+      var grossW=arr.filter(function(t){return(t.pnl||0)>0;}).reduce(function(a,t){return a+t.pnl;},0);
+      var grossL=Math.abs(arr.filter(function(t){return(t.pnl||0)<0;}).reduce(function(a,t){return a+t.pnl;},0));
+      var pf=grossL>0?(grossW/grossL).toFixed(2):'∞';
+      return {count:arr.length, wr:wr, pnl:total.toFixed(2), avg:(total/arr.length).toFixed(2), pf:pf, best:bigWin===-Infinity?0:bigWin.toFixed(0), worst:bigLoss===Infinity?0:bigLoss.toFixed(0)};
+    }
+
+    // 1. Setup aggregation
+    if(trade.setup){
+      var setupTrades = allTrades.filter(function(t){return t.setup===trade.setup;});
+      var s = _stats(setupTrades);
+      if(s && s.count>1){
+        lines.push('═══ YOUR HISTORY WITH "'+trade.setup+'" SETUP ═══');
+        lines.push(s.count+' trades | WR: '+s.wr+'% | Net: $'+s.pnl+' | Avg: $'+s.avg+' | PF: '+s.pf+' | Best: +$'+s.best+' | Worst: -$'+Math.abs(s.worst));
+        lines.push('');
+      }
+    }
+
+    // 2. Pair aggregation
+    if(trade.pair){
+      var pairTrades = allTrades.filter(function(t){return t.pair===trade.pair;});
+      var p = _stats(pairTrades);
+      if(p && p.count>1){
+        lines.push('═══ YOUR HISTORY WITH '+trade.pair+' ═══');
+        lines.push(p.count+' trades | WR: '+p.wr+'% | Net: $'+p.pnl+' | Avg: $'+p.avg+' | PF: '+p.pf);
+        // Best session for this pair
+        var pairSessions={};
+        pairTrades.forEach(function(t){var s=t.session||'Other';if(!pairSessions[s])pairSessions[s]={c:0,pnl:0,w:0};pairSessions[s].c++;pairSessions[s].pnl+=(t.pnl||0);if((t.pnl||0)>0)pairSessions[s].w++;});
+        var bestSess = Object.keys(pairSessions).sort(function(a,b){return pairSessions[b].pnl-pairSessions[a].pnl;})[0];
+        if(bestSess){ lines.push('Best session for '+trade.pair+': '+bestSess+' ($'+pairSessions[bestSess].pnl.toFixed(0)+', '+Math.round(pairSessions[bestSess].w/pairSessions[bestSess].c*100)+'% WR)'); }
+        lines.push('');
+      }
+    }
+
+    // 3. Session aggregation
+    if(trade.session){
+      var sessTrades = allTrades.filter(function(t){return t.session===trade.session;});
+      var se = _stats(sessTrades);
+      if(se && se.count>1){
+        lines.push('═══ YOUR "'+trade.session+'" SESSION PERFORMANCE ═══');
+        lines.push(se.count+' trades | WR: '+se.wr+'% | Net: $'+se.pnl+' | Avg: $'+se.avg);
+        lines.push('');
+      }
+    }
+
+    // 4. Day of week
+    if(trade.date){
+      var dow = new Date(trade.date).toLocaleDateString('en-US',{weekday:'long'});
+      var dowTrades = allTrades.filter(function(t){
+        if(!t.date) return false;
+        try { return new Date(t.date).toLocaleDateString('en-US',{weekday:'long'})===dow; } catch(e){ return false; }
+      });
+      var d = _stats(dowTrades);
+      if(d && d.count>2){
+        lines.push('═══ '+dow.toUpperCase()+' PERFORMANCE ═══');
+        lines.push(d.count+' trades | WR: '+d.wr+'% | Net: $'+d.pnl+' | Avg: $'+d.avg);
+        lines.push('');
+      }
+    }
+
+    // 5. Pair+Setup combo (most specific)
+    if(trade.pair && trade.setup){
+      var comboTrades = allTrades.filter(function(t){return t.pair===trade.pair && t.setup===trade.setup;});
+      var c = _stats(comboTrades);
+      if(c && c.count>1){
+        lines.push('═══ '+trade.pair+' × '+trade.setup+' (exact combo) ═══');
+        lines.push(c.count+' trades | WR: '+c.wr+'% | Net: $'+c.pnl+' | Avg: $'+c.avg+' | PF: '+c.pf);
+        lines.push('');
+      }
+    }
+
+    // 6. Recent trend (last 10 trades)
+    var sorted = allTrades.slice().sort(function(a,b){return(b.date||'').localeCompare(a.date||'');});
+    var last10 = sorted.slice(0, 10);
+    if(last10.length >= 5){
+      var r10 = _stats(last10);
+      lines.push('═══ RECENT MOMENTUM (Last 10 trades) ═══');
+      lines.push(r10.count+' trades | WR: '+r10.wr+'% | Net: $'+r10.pnl);
+      // Streak detection
+      var streak=0,streakType=null;
+      for(var i=0;i<last10.length;i++){
+        var p=last10[i].pnl||0;
+        var t2=p>0?'W':(p<0?'L':'BE');
+        if(streakType===null){streakType=t2;streak=1;}
+        else if(streakType===t2){streak++;}
+        else{break;}
+      }
+      if(streak>=2){ lines.push('Current streak: '+streak+' '+streakType+' (most recent first)'); }
+      lines.push('');
+    }
+
+    // 7. Emotion pattern
+    if(trade.emotion){
+      var emoTrades = allTrades.filter(function(t){return t.emotion===trade.emotion;});
+      var e = _stats(emoTrades);
+      if(e && e.count>2){
+        lines.push('═══ TRADES WHEN EMOTION = "'+trade.emotion+'" ═══');
+        lines.push(e.count+' trades | WR: '+e.wr+'% | Net: $'+e.pnl+' | Avg: $'+e.avg);
+        lines.push('');
+      }
+    }
+
+    return lines.join('\n');
+  }
+  window._aiBuildRichTradeContext = _aiBuildRichTradeContext;
+
+  // ═══════════════════════════════════════════════════
+  // LEVEL 4: PROACTIVE ALERTS — tilt detection, pre-session briefing, weekly digest
+  // ═══════════════════════════════════════════════════
+
+  function _aiGetTradesSorted(){
+    var trades = JSON.parse(rfxGet('rf_trades')||'[]');
+    return trades.slice().sort(function(a,b){
+      // Sort by date desc, with createdAt as tiebreaker
+      var d = (b.date||'').localeCompare(a.date||'');
+      if(d !== 0) return d;
+      return (b.id||'').toString().localeCompare((a.id||'').toString());
+    });
+  }
+
+  // Check for tilt conditions after a trade is added
+  window.aiTiltCheck = function(justAddedTrade){
+    var trades = _aiGetTradesSorted();
+    var alerts = [];
+
+    // 1. Rapid trading — 3+ trades in last 30 minutes
+    var now = justAddedTrade && justAddedTrade.date ? new Date(justAddedTrade.date) : new Date();
+    // Note: we don't have timestamps so use count of today's trades
+    var today = (justAddedTrade && justAddedTrade.date) || new Date().toISOString().slice(0,10);
+    var todayTrades = trades.filter(function(t){return t.date===today;});
+    if(todayTrades.length >= 5){
+      alerts.push({
+        type: 'overtrade',
+        severity: 'warning',
+        icon: '⚠️',
+        title: 'Overtrading detected',
+        msg: 'You\'ve taken '+todayTrades.length+' trades today. Consider a 2-3 trade daily cap — quality over quantity.',
+      });
+    }
+
+    // 2. Revenge trade — loss followed by immediately bigger size
+    if(trades.length >= 2){
+      var prev = trades[1]; // previous trade before the just-added
+      if(prev && (prev.pnl||0) < 0 && justAddedTrade){
+        var prevLots = parseFloat(prev.lots)||0;
+        var curLots = parseFloat(justAddedTrade.lots)||0;
+        if(curLots > prevLots * 1.4 && prevLots > 0){
+          alerts.push({
+            type: 'revenge',
+            severity: 'critical',
+            icon: '🔴',
+            title: 'Possible revenge trade',
+            msg: 'Previous trade was a loss (-$'+Math.abs(prev.pnl).toFixed(0)+') and you just sized up '+Math.round((curLots/prevLots-1)*100)+'%. Classic tilt pattern. Pause and review.',
+          });
+        }
+      }
+    }
+
+    // 3. Consecutive losses — 2+ losses in a row
+    var recentLosses = 0;
+    for(var i=0;i<Math.min(5, trades.length);i++){
+      if((trades[i].pnl||0) < 0) recentLosses++;
+      else break;
+    }
+    if(recentLosses >= 2){
+      alerts.push({
+        type: 'losing-streak',
+        severity: 'warning',
+        icon: '⚠️',
+        title: recentLosses+' consecutive losses',
+        msg: 'Time to step back. Re-read your rules. Don\'t trade to "get it back" — trade only A-grade setups tomorrow.',
+      });
+    }
+
+    // 4. Unusual risk — risk % > 2x average
+    if(justAddedTrade && justAddedTrade.risk){
+      var curRisk = parseFloat(justAddedTrade.risk)||0;
+      var pastRisks = trades.slice(1, 21).map(function(t){return parseFloat(t.risk)||0;}).filter(function(r){return r>0;});
+      if(pastRisks.length >= 5){
+        var avgRisk = pastRisks.reduce(function(a,b){return a+b;},0)/pastRisks.length;
+        if(curRisk > avgRisk * 2){
+          alerts.push({
+            type: 'oversize',
+            severity: 'warning',
+            icon: '💰',
+            title: 'Risk doubled your average',
+            msg: 'Your usual risk: '+avgRisk.toFixed(2)+'%. This trade: '+curRisk.toFixed(2)+'%. Make sure this was intentional, not emotional.',
+          });
+        }
+      }
+    }
+
+    // 5. Plan not followed — consecutive
+    if(justAddedTrade && justAddedTrade.planFollowed === false){
+      var recentNoFlowed = 0;
+      for(var j=0;j<Math.min(5, trades.length);j++){
+        if(trades[j].planFollowed === false) recentNoFlowed++;
+        else break;
+      }
+      if(recentNoFlowed >= 2){
+        alerts.push({
+          type: 'discipline',
+          severity: 'warning',
+          icon: '📋',
+          title: 'Plan adherence slipping',
+          msg: recentNoFlowed+' trades in a row without following your plan. Discipline is your #1 edge — re-read your playbook.',
+        });
+      }
+    }
+
+    if(alerts.length > 0) _aiShowAlertBanner(alerts);
+  };
+
+  // Show banner at top of page
+  function _aiShowAlertBanner(alerts){
+    // Remove existing banner
+    var existing = document.getElementById('ai-alert-banner');
+    if(existing) existing.remove();
+
+    var banner = document.createElement('div');
+    banner.id = 'ai-alert-banner';
+    banner.style.cssText = 'position:fixed;top:20px;right:20px;z-index:1500;max-width:380px;display:flex;flex-direction:column;gap:10px';
+
+    alerts.forEach(function(a, idx){
+      var card = document.createElement('div');
+      var bg = a.severity==='critical' ? 'linear-gradient(135deg,rgba(224,92,122,.95),rgba(201,70,100,.95))' : 'linear-gradient(135deg,rgba(240,180,41,.95),rgba(220,160,20,.95))';
+      card.style.cssText = 'background:'+bg+';color:white;padding:14px 16px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.25);animation:aiSlideIn .3s ease;font-family:Inter,sans-serif;position:relative;cursor:pointer';
+      card.innerHTML =
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">' +
+          '<div style="flex:1">' +
+            '<div style="font-size:13px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:6px">' +
+              '<span style="font-size:16px">'+a.icon+'</span>' + a.title +
+            '</div>' +
+            '<div style="font-size:11px;line-height:1.5;opacity:.95">'+a.msg+'</div>' +
+            '<div style="font-size:10px;margin-top:8px;opacity:.85">Click for AI guidance →</div>' +
+          '</div>' +
+          '<button class="ai-alert-close" style="background:rgba(255,255,255,.15);border:none;color:white;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:12px;flex-shrink:0">✕</button>' +
+        '</div>';
+      card.querySelector('.ai-alert-close').onclick = function(e){ e.stopPropagation(); card.remove(); };
+      card.onclick = function(){
+        // Open AI Coach with this alert as prompt
+        card.remove();
+        window.showPage && window.showPage('aicoach');
+        setTimeout(function(){
+          var input = document.getElementById('ai-ask-input');
+          if(input){ input.value = 'I got a "'+a.title+'" alert: '+a.msg+' What should I do?'; input.focus(); }
+        }, 200);
+      };
+      banner.appendChild(card);
+    });
+
+    document.body.appendChild(banner);
+    // Auto-dismiss after 12s if not interacted
+    setTimeout(function(){ if(banner.parentNode) banner.remove(); }, 12000);
+  }
+
+  // Inject keyframes for banner animation
+  (function(){
+    var s = document.createElement('style');
+    s.textContent = '@keyframes aiSlideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}';
+    document.head.appendChild(s);
+  })();
+
+  // ── Weekly digest: triggered once per week on Sunday ──
+  window.aiWeeklyDigest = function(){
+    var lastShown = rfxGet('ai_weekly_digest_date');
+    var today = new Date();
+    var day = today.getDay(); // 0 = Sunday
+    var todayStr = today.toISOString().slice(0,10);
+    // Only show on Sunday, once per Sunday
+    if(day !== 0 || lastShown === todayStr) return;
+
+    // Need at least some trades this week
+    var trades = _aiGetTradesSorted();
+    var weekAgoDate = new Date(today.getTime() - 7*24*60*60*1000);
+    var weekAgo = weekAgoDate.toISOString().slice(0,10);
+    var weekTrades = trades.filter(function(t){return t.date && t.date >= weekAgo;});
+    if(weekTrades.length < 3) return;
+
+    rfxSet('ai_weekly_digest_date', todayStr);
+
+    // Compute quick summary from local data
+    var netPnl = weekTrades.reduce(function(a,t){return a+(t.pnl||0);},0);
+    var wins = weekTrades.filter(function(t){return(t.pnl||0)>0;}).length;
+    var wr = Math.round(wins/weekTrades.length*100);
+    var bestTrade = weekTrades.reduce(function(b,t){return (t.pnl||0)>(b.pnl||0)?t:b;}, weekTrades[0]);
+    var worstTrade = weekTrades.reduce(function(b,t){return (t.pnl||0)<(b.pnl||0)?t:b;}, weekTrades[0]);
+    var sentiment = netPnl > 0 ? '🟢 Green Week' : (netPnl < 0 ? '🔴 Red Week' : '⚪ Flat Week');
+
+    // Build banner with real content preview
+    var banner = document.createElement('div');
+    banner.id = 'weekly-digest-banner';
+    banner.style.cssText = 'position:fixed;top:20px;right:20px;z-index:1500;max-width:420px;background:linear-gradient(135deg,rgba(124,90,240,.97),rgba(155,126,248,.97));color:white;padding:16px 18px;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.25);animation:aiSlideIn .35s ease;font-family:Inter,sans-serif;cursor:pointer';
+    banner.innerHTML =
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px">' +
+        '<div style="font-size:14px;font-weight:800">📊 Weekly Review Ready</div>' +
+        '<button class="wd-close" style="background:rgba(255,255,255,.15);border:none;color:white;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:12px;flex-shrink:0">✕</button>' +
+      '</div>' +
+      '<div style="font-size:12px;opacity:.95;margin-bottom:12px">'+sentiment+' · '+weekTrades.length+' trades · '+wr+'% WR · '+(netPnl>=0?'+$':'-$')+Math.abs(netPnl).toFixed(0)+'</div>' +
+      '<div style="background:rgba(255,255,255,.12);padding:8px 10px;border-radius:8px;margin-bottom:10px;font-size:11px;line-height:1.6">' +
+        '<div>✓ Best: '+(bestTrade&&bestTrade.pair?bestTrade.pair+' ':'')+'+$'+(bestTrade?(bestTrade.pnl||0).toFixed(0):0)+'</div>' +
+        '<div>✗ Worst: '+(worstTrade&&worstTrade.pair?worstTrade.pair+' ':'')+'-$'+Math.abs(worstTrade?(worstTrade.pnl||0):0).toFixed(0)+'</div>' +
+      '</div>' +
+      '<div style="font-size:11px;opacity:.9;margin-bottom:4px">Click for full AI analysis →</div>';
+
+    banner.querySelector('.wd-close').onclick = function(e){ e.stopPropagation(); banner.remove(); };
+    banner.onclick = function(){
+      banner.remove();
+      window.showPage && window.showPage('aicoach');
+      setTimeout(function(){
+        var weeklyTab = document.querySelector('[onclick*="aiSwitchTab(\\\'weekly\\\')"]');
+        if(weeklyTab) weeklyTab.click();
+        if(typeof window.aiGenerateWeekly === 'function') window.aiGenerateWeekly();
+      }, 250);
+    };
+    document.body.appendChild(banner);
+    // Auto-dismiss after 20 sec
+    setTimeout(function(){ if(banner.parentNode) banner.remove(); }, 20000);
+  };
+
+  // Run weekly digest check on app load
+  setTimeout(function(){ if(window.aiWeeklyDigest) window.aiWeeklyDigest(); }, 3000);
+
+  // ═══════════════════════════════════════════════════
+  // LEVEL 5: YOUR EDGE — adaptive personal coaching
+  // ═══════════════════════════════════════════════════
+
+  function _yeComputeEdgeScore(trades){
+    if(trades.length === 0) return {score:0, components:{}};
+
+    // 5 components, each 0-100
+    // 1. Profitability (30%)
+    var totalPnl = trades.reduce(function(a,t){return a+(t.pnl||0);},0);
+    var profitability = totalPnl > 0 ? Math.min(100, 50 + (totalPnl / (trades.length * 50)) * 50) : Math.max(0, 50 + totalPnl / (trades.length * 50) * 50);
+
+    // 2. Win rate (20%)
+    var wins = trades.filter(function(t){return (t.pnl||0)>0;}).length;
+    var wr = wins/trades.length*100;
+    var wrScore = Math.min(100, wr * 1.5); // 67% WR = 100 score
+
+    // 3. Profit factor (20%)
+    var grossW = trades.filter(function(t){return(t.pnl||0)>0;}).reduce(function(a,t){return a+t.pnl;},0);
+    var grossL = Math.abs(trades.filter(function(t){return(t.pnl||0)<0;}).reduce(function(a,t){return a+t.pnl;},0));
+    var pf = grossL > 0 ? grossW/grossL : (grossW>0?3:0);
+    var pfScore = Math.min(100, pf * 30); // PF 3.33 = 100
+
+    // 4. Discipline (plan adherence) (15%)
+    var planned = trades.filter(function(t){return t.planFollowed !== undefined;}).length;
+    var followed = trades.filter(function(t){return t.planFollowed === true;}).length;
+    var discipline = planned > 0 ? (followed/planned)*100 : 70;
+
+    // 5. Consistency (variance) (15%)
+    var pnls = trades.map(function(t){return t.pnl||0;});
+    var avgP = pnls.reduce(function(a,b){return a+b;},0)/pnls.length;
+    var variance = pnls.reduce(function(a,p){return a+Math.pow(p-avgP,2);},0)/pnls.length;
+    var stdDev = Math.sqrt(variance);
+    var cv = avgP !== 0 ? Math.abs(stdDev/avgP) : 999;
+    var consistency = Math.max(0, 100 - cv*20);
+
+    var score = Math.round(
+      profitability * 0.30 +
+      wrScore * 0.20 +
+      pfScore * 0.20 +
+      discipline * 0.15 +
+      consistency * 0.15
+    );
+
+    return {
+      score: Math.max(0, Math.min(100, score)),
+      components: {
+        profitability: Math.round(profitability),
+        winRate: Math.round(wrScore),
+        profitFactor: Math.round(pfScore),
+        discipline: Math.round(discipline),
+        consistency: Math.round(consistency)
+      },
+      raw: {wr: wr.toFixed(1), pf: pf.toFixed(2), totalPnl: totalPnl, trades: trades.length}
+    };
+  }
+
+  function _yeScoreLabel(score){
+    if(score >= 85) return {text:'Elite Edge', color:'var(--green)'};
+    if(score >= 70) return {text:'Strong Edge', color:'var(--green)'};
+    if(score >= 55) return {text:'Developing Edge', color:'#f0b429'};
+    if(score >= 40) return {text:'Weak Edge', color:'#f0b429'};
+    return {text:'No Edge Yet', color:'var(--red)'};
+  }
+
+  // Find best/worst combos
+  function _yeFindCombos(trades){
+    // Group by pair+setup
+    var combos = {};
+    trades.forEach(function(t){
+      if(!t.pair || !t.setup) return;
+      var key = t.pair + ' × ' + t.setup;
+      if(!combos[key]) combos[key] = [];
+      combos[key].push(t);
+    });
+
+    var analyzed = [];
+    Object.keys(combos).forEach(function(k){
+      var arr = combos[k];
+      if(arr.length < 3) return; // Need at least 3 trades
+      var pnl = arr.reduce(function(a,t){return a+(t.pnl||0);},0);
+      var wins = arr.filter(function(t){return(t.pnl||0)>0;}).length;
+      var wr = wins/arr.length*100;
+      analyzed.push({combo:k, trades:arr.length, pnl:pnl, wr:wr, avg:pnl/arr.length});
+    });
+
+    analyzed.sort(function(a,b){return b.pnl-a.pnl;});
+    return {best: analyzed[0], worst: analyzed[analyzed.length-1]};
+  }
+
+  function _yeFindEmotionLeak(trades){
+    var emos = {};
+    trades.forEach(function(t){
+      if(!t.emotion) return;
+      if(!emos[t.emotion]) emos[t.emotion] = {c:0, w:0, pnl:0};
+      emos[t.emotion].c++;
+      emos[t.emotion].pnl += (t.pnl||0);
+      if((t.pnl||0)>0) emos[t.emotion].w++;
+    });
+    var worst = null;
+    Object.keys(emos).forEach(function(e){
+      var x = emos[e];
+      if(x.c < 5) return;
+      if(!worst || x.pnl < worst.pnl){
+        worst = {emotion:e, trades:x.c, wr:(x.w/x.c*100).toFixed(0), pnl:x.pnl.toFixed(0)};
+      }
+    });
+    return worst;
+  }
+
+  function _yeFindDayOfWeekLeak(trades){
+    var days = {};
+    trades.forEach(function(t){
+      if(!t.date) return;
+      try {
+        var d = new Date(t.date).toLocaleDateString('en-US',{weekday:'long'});
+        if(!days[d]) days[d] = {c:0, w:0, pnl:0};
+        days[d].c++;
+        days[d].pnl += (t.pnl||0);
+        if((t.pnl||0)>0) days[d].w++;
+      } catch(e){}
+    });
+    var worst = null, best = null;
+    Object.keys(days).forEach(function(d){
+      var x = days[d];
+      if(x.c < 3) return;
+      if(!worst || x.pnl < worst.pnl) worst = {day:d, trades:x.c, wr:(x.w/x.c*100).toFixed(0), pnl:x.pnl.toFixed(0)};
+      if(!best  || x.pnl > best.pnl)  best  = {day:d, trades:x.c, wr:(x.w/x.c*100).toFixed(0), pnl:x.pnl.toFixed(0)};
+    });
+    return {best: best, worst: worst};
+  }
+
+  // Render Your Edge page with LOCAL computed data (instant, no AI call)
+  window.yeRender = function(){
+    var trades = JSON.parse(rfxGet('rf_trades')||'[]');
+    if(trades.length < 5){
+      document.getElementById('ye-score').textContent = '—';
+      document.getElementById('ye-score-trend').textContent = 'Log at least 5 trades to compute your edge';
+      document.getElementById('ye-headline').textContent = 'Not enough data yet';
+      document.getElementById('ye-subheadline').textContent = 'Your edge emerges over time. Keep journaling honestly — the patterns will reveal themselves.';
+      return;
+    }
+
+    var edge = _yeComputeEdgeScore(trades);
+    var label = _yeScoreLabel(edge.score);
+
+    // Hero score
+    document.getElementById('ye-score').textContent = edge.score;
+    document.getElementById('ye-score').style.color = label.color;
+    document.getElementById('ye-score-trend').innerHTML = '<span style="color:'+label.color+';font-weight:700">'+label.text+'</span> · based on '+edge.raw.trades+' trades';
+
+    // Generate heuristic headline
+    var combos = _yeFindCombos(trades);
+    var emoLeak = _yeFindEmotionLeak(trades);
+    var dowAnalysis = _yeFindDayOfWeekLeak(trades);
+
+    var headline, subhead;
+    if(edge.score >= 70){
+      headline = '✓ You have a statistical edge. Protect it.';
+      subhead = 'Win rate '+edge.raw.wr+'%, profit factor '+edge.raw.pf+'. Focus now: consistency > aggression. Don\'t deviate.';
+    } else if(edge.score >= 55){
+      headline = '⚡ Edge is emerging. Keep refining.';
+      subhead = 'Win rate '+edge.raw.wr+'%, profit factor '+edge.raw.pf+'. Next step: cut your worst setups, double down on winners.';
+    } else if(edge.score >= 40){
+      headline = '⚠ Edge is weak. Time to audit.';
+      subhead = 'Win rate '+edge.raw.wr+'%, profit factor '+edge.raw.pf+'. Priority: stop the bleeding. Remove losing setups before scaling.';
+    } else {
+      headline = '🔴 No consistent edge yet. Back to basics.';
+      subhead = 'Win rate '+edge.raw.wr+'%, profit factor '+edge.raw.pf+'. Don\'t increase risk. Focus on ONE setup, journal every trade.';
+    }
+    document.getElementById('ye-headline').textContent = headline;
+    document.getElementById('ye-subheadline').textContent = subhead;
+
+    // Best Edge card
+    if(combos.best){
+      var b = combos.best;
+      document.getElementById('ye-best-title').textContent = b.combo;
+      document.getElementById('ye-best-stats').innerHTML =
+        '<strong>'+b.trades+' trades</strong> · '+b.wr.toFixed(0)+'% WR · '+
+        '<span style="color:var(--green);font-weight:600">+$'+b.pnl.toFixed(0)+'</span> net · $'+b.avg.toFixed(0)+'/trade avg';
+      document.getElementById('ye-best-action').textContent = '→ Double down here. This is YOUR edge.';
+    }
+    if(combos.worst && combos.worst.pnl < 0){
+      var w = combos.worst;
+      document.getElementById('ye-leak-title').textContent = w.combo;
+      document.getElementById('ye-leak-stats').innerHTML =
+        '<strong>'+w.trades+' trades</strong> · '+w.wr.toFixed(0)+'% WR · '+
+        '<span style="color:var(--red);font-weight:600">-$'+Math.abs(w.pnl).toFixed(0)+'</span> net · $'+w.avg.toFixed(0)+'/trade avg';
+      document.getElementById('ye-leak-action').textContent = '→ Cut this setup. You\'re losing money on it.';
+    } else {
+      document.getElementById('ye-leak-title').textContent = 'No significant losing combo';
+      document.getElementById('ye-leak-stats').textContent = 'Good — none of your pair×setup combos is deeply negative.';
+      document.getElementById('ye-leak-action').textContent = '→ Keep disciplined';
+    }
+
+    // Personal rules (heuristic, fast)
+    var rules = [];
+    if(combos.best && combos.best.wr > 60){
+      rules.push({icon:'✓', text:'Trade '+combos.best.combo+' more often — your '+combos.best.wr.toFixed(0)+'% WR says this is your bread-and-butter.', priority:'high'});
+    }
+    if(combos.worst && combos.worst.pnl < -100){
+      rules.push({icon:'🚫', text:'Skip '+combos.worst.combo+' — '+combos.worst.wr.toFixed(0)+'% WR, losing money. Remove it from your playbook.', priority:'critical'});
+    }
+    if(emoLeak && emoLeak.pnl < 0){
+      rules.push({icon:'🧠', text:'When you feel "'+emoLeak.emotion+'", close the platform. '+emoLeak.trades+' trades, '+emoLeak.wr+'% WR, lost $'+Math.abs(emoLeak.pnl)+'.', priority:'critical'});
+    }
+    if(dowAnalysis.worst && dowAnalysis.worst.pnl < -50 && dowAnalysis.worst.trades >= 5){
+      rules.push({icon:'📅', text:'Avoid '+dowAnalysis.worst.day+'s — '+dowAnalysis.worst.trades+' trades, only '+dowAnalysis.worst.wr+'% WR, -$'+Math.abs(dowAnalysis.worst.pnl)+' net.', priority:'high'});
+    }
+    if(dowAnalysis.best && dowAnalysis.best.pnl > 100){
+      rules.push({icon:'🎯', text:dowAnalysis.best.day+'s are your best day — '+dowAnalysis.best.wr+'% WR, +$'+dowAnalysis.best.pnl+'. Be aggressive.', priority:'medium'});
+    }
+    if(edge.components.discipline < 70){
+      rules.push({icon:'📋', text:'Your plan adherence is only '+edge.components.discipline+'%. Before every trade, confirm 3 confluences OR pass.', priority:'high'});
+    }
+    if(edge.components.consistency < 50){
+      rules.push({icon:'📊', text:'Your P&L is too variable. Use consistent position sizing — stop sizing up on "feel good" trades.', priority:'medium'});
+    }
+
+    var rulesList = document.getElementById('ye-rules-list');
+    if(rules.length === 0){
+      rulesList.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text3);font-size:12px">No specific rules yet — keep trading and patterns will emerge.</div>';
+    } else {
+      rulesList.innerHTML = rules.map(function(r){
+        var pColor = r.priority==='critical' ? 'var(--red)' : (r.priority==='high' ? '#f0b429' : 'var(--accent)');
+        var pBg    = r.priority==='critical' ? 'rgba(224,92,122,.06)' : (r.priority==='high' ? 'rgba(240,180,41,.05)' : 'rgba(124,90,240,.04)');
+        return '<div style="padding:12px 14px;border-radius:10px;background:'+pBg+';border-left:3px solid '+pColor+';display:flex;gap:10px;align-items:flex-start">'+
+          '<span style="font-size:16px;flex-shrink:0">'+r.icon+'</span>'+
+          '<div style="flex:1;font-size:13px;line-height:1.6;color:var(--text)">'+r.text+'</div>'+
+          '<span style="font-size:9px;padding:2px 6px;border-radius:4px;background:'+pColor+';color:#fff;font-weight:700;text-transform:uppercase;letter-spacing:.3px;flex-shrink:0">'+r.priority+'</span>'+
+          '</div>';
+      }).join('');
+    }
+    document.getElementById('ye-rules-count').textContent = rules.length+' rules';
+
+    // Trading personality (heuristic)
+    var personality = '';
+    var tradesPerWeek = trades.length / Math.max(1, Math.ceil((Date.now() - new Date(trades[trades.length-1].date||Date.now()).getTime())/(1000*60*60*24*7)));
+    if(tradesPerWeek > 20) personality += '<strong>High-frequency trader</strong> — you trade a lot. ';
+    else if(tradesPerWeek > 10) personality += '<strong>Active trader</strong>. ';
+    else personality += '<strong>Patient trader</strong>. ';
+    if(edge.raw.wr > 60) personality += 'Your win rate suggests a <strong>precision profile</strong> — waits for high-probability setups. ';
+    else if(pf > 2) personality += 'Lower WR but high PF = <strong>swing trader profile</strong> — you let winners run. ';
+    else personality += 'Needs tightening — consider whether you\'re the precision or swing profile. ';
+    if(edge.components.discipline >= 80) personality += 'Discipline is a <strong>strength</strong>. ';
+    else personality += 'Discipline needs work. ';
+    document.getElementById('ye-personality').innerHTML = personality;
+
+    // Edge metrics breakdown
+    var c = edge.components;
+    var metricsHtml = [
+      {name:'Profitability', val:c.profitability, weight:30},
+      {name:'Win Rate', val:c.winRate, weight:20},
+      {name:'Profit Factor', val:c.profitFactor, weight:20},
+      {name:'Discipline', val:c.discipline, weight:15},
+      {name:'Consistency', val:c.consistency, weight:15}
+    ].map(function(m){
+      var barColor = m.val >= 70 ? 'var(--green)' : (m.val >= 50 ? '#f0b429' : 'var(--red)');
+      return '<div>'+
+        '<div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="color:var(--text2);font-weight:500">'+m.name+' <span style="color:var(--text3);font-size:10px">('+m.weight+'%)</span></span><span style="font-weight:700;color:'+barColor+'">'+m.val+'</span></div>'+
+        '<div style="height:5px;background:rgba(15,23,42,.06);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+m.val+'%;background:'+barColor+';border-radius:3px;transition:width .5s"></div></div>'+
+      '</div>';
+    }).join('');
+    document.getElementById('ye-metrics').innerHTML = metricsHtml;
+
+    // Evolution — monthly edge score
+    var monthly = {};
+    trades.forEach(function(t){
+      if(!t.date) return;
+      var m = t.date.slice(0,7);
+      if(!monthly[m]) monthly[m] = [];
+      monthly[m].push(t);
+    });
+    var months = Object.keys(monthly).sort().slice(-6);
+    if(months.length < 2){
+      document.getElementById('ye-evolution').textContent = 'Need at least 2 months of data for evolution chart.';
+    } else {
+      var evoHtml = '<div style="display:grid;grid-template-columns:repeat('+months.length+',1fr);gap:8px">';
+      months.forEach(function(m){
+        var mTrades = monthly[m];
+        var mEdge = _yeComputeEdgeScore(mTrades);
+        var mLabel = _yeScoreLabel(mEdge.score);
+        evoHtml += '<div style="text-align:center;padding:14px 8px;background:'+
+          (mEdge.score>=70?'rgba(16,185,129,.06)':(mEdge.score>=55?'rgba(240,180,41,.06)':'rgba(239,68,68,.04)'))+
+          ';border:1px solid '+
+          (mEdge.score>=70?'rgba(16,185,129,.2)':(mEdge.score>=55?'rgba(240,180,41,.2)':'rgba(239,68,68,.18)'))+
+          ';border-radius:10px">'+
+          '<div style="font-size:9px;color:var(--text3);font-weight:600;letter-spacing:.4px;text-transform:uppercase">'+
+          new Date(m+'-01').toLocaleDateString('en-US',{month:'short',year:'2-digit'})+'</div>'+
+          '<div style="font-size:22px;font-weight:300;color:'+mLabel.color+';margin:4px 0">'+mEdge.score+'</div>'+
+          '<div style="font-size:9px;color:var(--text3)">'+mTrades.length+' trades</div>'+
+          '</div>';
+      });
+      evoHtml += '</div>';
+      document.getElementById('ye-evolution').innerHTML = evoHtml;
+    }
+  };
+
+  // Refresh triggers full re-render + optional AI enrichment
+  window.yeRefresh = function(){
+    var btn = document.getElementById('ye-refresh-btn');
+    if(btn){ btn.textContent = '⟳ Analyzing...'; btn.disabled = true; }
+    setTimeout(function(){
+      yeRender();
+      if(btn){ btn.textContent = '⟳ Refresh Analysis'; btn.disabled = false; }
+    }, 400);
+  };
+
+  // Dashboard AI Insights — top 3 observations
+  window.dashAIRender = function(){
+    var list = document.getElementById('dash-ai-list');
+    if(!list) return;
+    var trades = JSON.parse(rfxGet('rf_trades')||'[]');
+    if(trades.length < 5){
+      list.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:16px;color:var(--text3);font-size:12px">Log at least 5 trades to unlock AI insights</div>';
+      return;
+    }
+
+    var insights = [];
+
+    // 1. Edge status
+    try {
+      var edge = _yeComputeEdgeScore(trades);
+      var label = _yeScoreLabel(edge.score);
+      insights.push({
+        icon: edge.score>=70?'🎯':(edge.score>=55?'⚡':'⚠️'),
+        title: label.text+' — '+edge.score+'/100',
+        msg: edge.score>=70 ? 'Your edge is statistical. Protect it — don\'t deviate from what\'s working.'
+          : (edge.score>=55 ? 'Edge is emerging. Cut your worst setup, double down on winners.'
+          : 'Edge is weak. Back to basics: one setup, journal every trade.'),
+        action: 'Open Your Edge →',
+        onclick: "showPage('youredge')",
+        color: label.color
+      });
+    } catch(e){}
+
+    // 2. Best combo today
+    try {
+      var combos = _yeFindCombos(trades);
+      if(combos.best && combos.best.wr >= 60){
+        insights.push({
+          icon: '✓',
+          title: 'Your strongest edge: '+combos.best.combo,
+          msg: combos.best.trades+' trades · '+combos.best.wr.toFixed(0)+'% WR · $'+combos.best.avg.toFixed(0)+'/trade avg. This is where you should put your size.',
+          action: 'See details →',
+          onclick: "showPage('youredge')",
+          color: 'var(--green)'
+        });
+      }
+    } catch(e){}
+
+    // 3. Biggest leak OR emotion leak
+    try {
+      var combos2 = _yeFindCombos(trades);
+      if(combos2.worst && combos2.worst.pnl < -50){
+        insights.push({
+          icon: '🚫',
+          title: 'Cut: '+combos2.worst.combo,
+          msg: combos2.worst.trades+' trades · '+combos2.worst.wr.toFixed(0)+'% WR · -$'+Math.abs(combos2.worst.pnl).toFixed(0)+'. You\'re losing money on this combination. Remove it.',
+          action: 'Analyze →',
+          onclick: "showPage('youredge')",
+          color: 'var(--red)'
+        });
+      } else {
+        var emoLeak = _yeFindEmotionLeak(trades);
+        if(emoLeak && emoLeak.pnl < 0){
+          insights.push({
+            icon: '🧠',
+            title: 'Emotional leak: '+emoLeak.emotion,
+            msg: 'When you feel '+emoLeak.emotion+': '+emoLeak.trades+' trades, '+emoLeak.wr+'% WR, -$'+Math.abs(emoLeak.pnl)+'. Close the platform when this emotion hits.',
+            action: 'Review →',
+            onclick: "showPage('aicoach')",
+            color: 'var(--red)'
+          });
+        }
+      }
+    } catch(e){}
+
+    // 4. Momentum (if only 2 insights so far)
+    if(insights.length < 3){
+      var sorted = trades.slice().sort(function(a,b){return(b.date||'').localeCompare(a.date||'');});
+      var last5 = sorted.slice(0, 5);
+      if(last5.length >= 5){
+        var last5Pnl = last5.reduce(function(a,t){return a+(t.pnl||0);},0);
+        var last5W = last5.filter(function(t){return(t.pnl||0)>0;}).length;
+        if(last5Pnl > 0 && last5W >= 3){
+          insights.push({
+            icon: '📈',
+            title: 'On a hot streak',
+            msg: 'Last 5 trades: '+last5W+'W/'+(5-last5W)+'L, +$'+last5Pnl.toFixed(0)+'. Stay disciplined — don\'t get overconfident and size up.',
+            action: 'Check stats →',
+            onclick: "showPage('reports')",
+            color: 'var(--green)'
+          });
+        } else if(last5Pnl < 0 && last5W <= 1){
+          insights.push({
+            icon: '🛑',
+            title: 'Cold streak',
+            msg: 'Last 5: '+last5W+'W/'+(5-last5W)+'L, -$'+Math.abs(last5Pnl).toFixed(0)+'. Stop. Re-read your rules. Only take A-grade tomorrow.',
+            action: 'Pause & review →',
+            onclick: "showPage('aicoach')",
+            color: 'var(--red)'
+          });
+        }
+      }
+    }
+
+    // Ensure we have at least one insight
+    if(insights.length === 0){
+      insights.push({
+        icon:'📊', title:'Keep logging honestly',
+        msg:'Your edge will emerge over time. Every trade, every note matters.',
+        action:'Add trade →', onclick:"showPage('journal')", color:'var(--accent)'
+      });
+    }
+
+    // Render top 3
+    list.innerHTML = insights.slice(0,3).map(function(ins){
+      return '<div onclick="'+ins.onclick+'" style="background:var(--card);border:1px solid var(--border);border-left:3px solid '+ins.color+';border-radius:10px;padding:12px 14px;cursor:pointer;transition:all .15s" onmouseover="this.style.transform=\'translateY(-1px)\';this.style.borderColor=\''+ins.color+'\'" onmouseout="this.style.transform=\'none\';this.style.borderColor=\'var(--border)\'">'+
+        '<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:6px">'+
+          '<span style="font-size:14px;flex-shrink:0">'+ins.icon+'</span>'+
+          '<div style="font-size:12px;font-weight:700;color:var(--text);line-height:1.4">'+ins.title+'</div>'+
+        '</div>'+
+        '<div style="font-size:11px;color:var(--text2);line-height:1.5;margin-bottom:6px">'+ins.msg+'</div>'+
+        '<div style="font-size:10px;color:'+ins.color+';font-weight:600">'+ins.action+'</div>'+
+      '</div>';
+    }).join('');
+
+    // Update subtitle
+    var sub = document.getElementById('dash-ai-subtitle');
+    if(sub) sub.textContent = 'Updated · '+new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  };
+
+  window.dashAIRefresh = function(){
+    var btn = document.getElementById('dash-ai-refresh-btn');
+    if(btn){ btn.textContent = '⟳ …'; btn.disabled = true; }
+    setTimeout(function(){
+      window.dashAIRender();
+      if(btn){ btn.textContent = '⟳ Refresh'; btn.disabled = false; }
+    }, 300);
+  };
+
+  // PRE-TRADE AI CHECK — runs on pair/setup change in Add Trade modal
+  window.aiPreTradeCheck = function(){
+    var warn = document.getElementById('ai-pretrade-warning');
+    if(!warn) return;
+    var pair = (document.getElementById('jr-pair')||{}).value;
+    var setupEl = document.getElementById('jr-setup');
+    var setup = setupEl && setupEl.selectedIndex > 0 ? setupEl.options[setupEl.selectedIndex].dataset.name : '';
+    if(!pair){ warn.style.display='none'; return; }
+
+    var trades = JSON.parse(rfxGet('rf_trades')||'[]');
+    if(trades.length < 10){ warn.style.display='none'; return; } // Need enough history
+
+    // Don't show on edit (only on new trade)
+    if(window.jrEditId){ warn.style.display='none'; return; }
+
+    var msgs = [];
+    var severity = 'info'; // 'info' | 'warning' | 'critical'
+
+    // Check pair history
+    var pairTrades = trades.filter(function(t){return t.pair===pair;});
+    if(pairTrades.length >= 5){
+      var pWins = pairTrades.filter(function(t){return(t.pnl||0)>0;}).length;
+      var pWR = (pWins/pairTrades.length*100);
+      var pPnl = pairTrades.reduce(function(a,t){return a+(t.pnl||0);},0);
+      if(pPnl < -100 && pWR < 45){
+        msgs.push('📉 <strong>'+pair+'</strong> has been a losing pair: '+pairTrades.length+' trades, '+pWR.toFixed(0)+'% WR, -$'+Math.abs(pPnl).toFixed(0)+'. Proceed with caution.');
+        severity = 'warning';
+      }
+    }
+
+    // Check exact combo
+    if(setup){
+      var comboTrades = trades.filter(function(t){return t.pair===pair && t.setup===setup;});
+      if(comboTrades.length >= 3){
+        var cWins = comboTrades.filter(function(t){return(t.pnl||0)>0;}).length;
+        var cWR = (cWins/comboTrades.length*100);
+        var cPnl = comboTrades.reduce(function(a,t){return a+(t.pnl||0);},0);
+        if(cPnl < 0 || cWR < 40){
+          msgs.push('🚫 <strong>'+pair+' × '+setup+'</strong>: '+comboTrades.length+' trades, '+cWR.toFixed(0)+'% WR, '+(cPnl>=0?'+$':'-$')+Math.abs(cPnl).toFixed(0)+'. This combination has been losing for you.');
+          severity = 'critical';
+        } else if(cWR >= 65 && cPnl > 50){
+          msgs.push('✓ <strong>'+pair+' × '+setup+'</strong> is one of your strongest combos: '+comboTrades.length+' trades, '+cWR.toFixed(0)+'% WR, +$'+cPnl.toFixed(0)+'. Proceed with confidence.');
+          severity = 'good';
+        }
+      }
+    }
+
+    // Check day of week for this pair
+    var today = new Date();
+    var todayDow = today.toLocaleDateString('en-US',{weekday:'long'});
+    var dowPairTrades = pairTrades.filter(function(t){
+      if(!t.date) return false;
+      try { return new Date(t.date).toLocaleDateString('en-US',{weekday:'long'})===todayDow; } catch(e){ return false; }
+    });
+    if(dowPairTrades.length >= 4){
+      var dWins = dowPairTrades.filter(function(t){return(t.pnl||0)>0;}).length;
+      var dWR = (dWins/dowPairTrades.length*100);
+      var dPnl = dowPairTrades.reduce(function(a,t){return a+(t.pnl||0);},0);
+      if(dWR < 35 && dPnl < -50){
+        msgs.push('📅 You lose on '+pair+' <strong>'+todayDow+'s</strong>: '+dowPairTrades.length+' trades, '+dWR.toFixed(0)+'% WR, -$'+Math.abs(dPnl).toFixed(0)+'. Consider passing today.');
+        if(severity==='info') severity = 'warning';
+      }
+    }
+
+    if(msgs.length === 0){ warn.style.display='none'; return; }
+
+    var bgColor, borderColor, textColor;
+    if(severity === 'critical'){ bgColor='rgba(224,92,122,.08)'; borderColor='rgba(224,92,122,.3)'; textColor='var(--red)'; }
+    else if(severity === 'warning'){ bgColor='rgba(240,180,41,.08)'; borderColor='rgba(240,180,41,.3)'; textColor='#b88520'; }
+    else if(severity === 'good'){ bgColor='rgba(16,185,129,.08)'; borderColor='rgba(16,185,129,.3)'; textColor='var(--green)'; }
+    else { bgColor='rgba(124,90,240,.05)'; borderColor='rgba(124,90,240,.2)'; textColor='var(--accent)'; }
+
+    warn.style.cssText = 'display:block;margin-bottom:10px;padding:10px 12px;border-radius:8px;font-size:12px;line-height:1.6;background:'+bgColor+';border:1px solid '+borderColor+';color:var(--text)';
+    warn.innerHTML = '<div style="font-size:10px;font-weight:700;color:'+textColor+';margin-bottom:6px;letter-spacing:.5px">'+(severity==='critical'?'⚠ PRE-TRADE WARNING':severity==='warning'?'⚠ PRE-TRADE NOTE':severity==='good'?'✓ PRE-TRADE BOOST':'ℹ PRE-TRADE INFO')+'</div>'+msgs.map(function(m){return '<div style="margin-bottom:4px">'+m+'</div>';}).join('');
+  };
 
   function aiBuildTraderContext(){
     var trades=getTradesArr();
     var td='TRADER DATA SUMMARY:\n'+trades.length+' total trades\n';
     var sorted5=trades.slice().sort(function(a,b){return(a.date||'').localeCompare(b.date||'');});
-    var pairs2={},sessions5={},setups5={},emotions5={};
+    var pairs2={},sessions5={},setups5={},emotions5={},daysOfWeek={};
     sorted5.forEach(function(t){
       var p=t.pair||'Other';if(!pairs2[p])pairs2[p]={pnl:0,c:0,w:0};pairs2[p].pnl+=(t.pnl||0);pairs2[p].c++;if((t.pnl||0)>0)pairs2[p].w++;
       var s=t.session||'Other';if(!sessions5[s])sessions5[s]={pnl:0,c:0,w:0};sessions5[s].pnl+=(t.pnl||0);sessions5[s].c++;if((t.pnl||0)>0)sessions5[s].w++;
       var st=t.setup||'None';if(!setups5[st])setups5[st]={pnl:0,c:0,w:0};setups5[st].pnl+=(t.pnl||0);setups5[st].c++;if((t.pnl||0)>0)setups5[st].w++;
       if(t.emotion){emotions5[t.emotion]=(emotions5[t.emotion]||0)+1;}
+      if(t.date){try{var dow=new Date(t.date).toLocaleDateString('en-US',{weekday:'short'});if(!daysOfWeek[dow])daysOfWeek[dow]={pnl:0,c:0,w:0};daysOfWeek[dow].pnl+=(t.pnl||0);daysOfWeek[dow].c++;if((t.pnl||0)>0)daysOfWeek[dow].w++;}catch(e){}}
     });
-    td+='Total P&L: $'+trades.reduce(function(a,t){return a+(t.pnl||0);},0).toFixed(2)+'\n';
-    td+='Pairs: '+Object.keys(pairs2).map(function(p){return p+'('+pairs2[p].c+'t,'+Math.round(pairs2[p].w/pairs2[p].c*100)+'%WR,$'+pairs2[p].pnl.toFixed(0)+')';}).join(', ')+'\n';
-    td+='Sessions: '+Object.keys(sessions5).map(function(s){return s+'('+sessions5[s].c+'t,'+Math.round(sessions5[s].w/sessions5[s].c*100)+'%WR,$'+sessions5[s].pnl.toFixed(0)+')';}).join(', ')+'\n';
-    td+='Setups: '+Object.keys(setups5).map(function(s){return s+'('+setups5[s].c+'t,$'+setups5[s].pnl.toFixed(0)+')';}).join(', ')+'\n';
-    if(Object.keys(emotions5).length) td+='Emotions: '+Object.entries(emotions5).map(function(e){return e[0]+'('+e[1]+')';}).join(', ')+'\n';
-    td+='\nLast 20 trades:\n';
+    var totalPnl=trades.reduce(function(a,t){return a+(t.pnl||0);},0);
+    var wins=trades.filter(function(t){return(t.pnl||0)>0;}).length;
+    var wr=trades.length>0?Math.round(wins/trades.length*100):0;
+    td+='Total P&L: $'+totalPnl.toFixed(2)+' | Win Rate: '+wr+'%\n\n';
+
+    td+='─ BY PAIR ─\n';
+    td+=Object.keys(pairs2).sort(function(a,b){return pairs2[b].pnl-pairs2[a].pnl;}).map(function(p){return p+': '+pairs2[p].c+'t, '+Math.round(pairs2[p].w/pairs2[p].c*100)+'% WR, $'+pairs2[p].pnl.toFixed(0);}).join('\n')+'\n\n';
+
+    td+='─ BY SESSION ─\n';
+    td+=Object.keys(sessions5).sort(function(a,b){return sessions5[b].pnl-sessions5[a].pnl;}).map(function(s){return s+': '+sessions5[s].c+'t, '+Math.round(sessions5[s].w/sessions5[s].c*100)+'% WR, $'+sessions5[s].pnl.toFixed(0);}).join('\n')+'\n\n';
+
+    td+='─ BY SETUP ─\n';
+    td+=Object.keys(setups5).sort(function(a,b){return setups5[b].pnl-setups5[a].pnl;}).map(function(s){return s+': '+setups5[s].c+'t, '+Math.round(setups5[s].w/setups5[s].c*100)+'% WR, $'+setups5[s].pnl.toFixed(0);}).join('\n')+'\n\n';
+
+    td+='─ BY DAY OF WEEK ─\n';
+    td+=Object.keys(daysOfWeek).map(function(d){return d+': '+daysOfWeek[d].c+'t, '+Math.round(daysOfWeek[d].w/daysOfWeek[d].c*100)+'% WR, $'+daysOfWeek[d].pnl.toFixed(0);}).join('\n')+'\n\n';
+
+    if(Object.keys(emotions5).length){ td+='─ EMOTIONS ─\n'+Object.entries(emotions5).map(function(e){return e[0]+': '+e[1];}).join(', ')+'\n\n'; }
+
+    // Recent momentum
+    var last10=sorted5.slice(-10);
+    if(last10.length>=5){
+      var r10Pnl=last10.reduce(function(a,t){return a+(t.pnl||0);},0);
+      var r10W=last10.filter(function(t){return(t.pnl||0)>0;}).length;
+      td+='─ RECENT MOMENTUM (Last 10) ─\n';
+      td+='WR: '+Math.round(r10W/last10.length*100)+'% | Net: $'+r10Pnl.toFixed(0)+'\n\n';
+    }
+
+    td+='─ LAST 20 TRADES DETAIL ─\n';
     sorted5.slice(-20).forEach(function(t,i){td+=(i+1)+'. '+t.date+' '+t.pair+' '+(t.direction||'')+' $'+(t.pnl||0).toFixed(2)+' '+(t.session||'')+' '+(t.setup||'')+' '+(t.emotion||'')+' Plan:'+(t.planFollowed||'?')+'\n';});
     return td;
   }
@@ -15130,12 +16184,23 @@ window.dispatchEvent(new Event('supabase-ready'));
     if(!q)return;
     if(AI_WORKER_URL.indexOf('CHANGE-ME')!==-1){document.getElementById('ai-ask-response').innerHTML='<div style="color:var(--text3)">Connect AI Worker to use Ask AI</div>';return;}
 
+    // Ensure we have an active conversation key
+    if(!_aiActiveConvKey){
+      _aiActiveConvKey = 'conv_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
+      rfxSet('ai_active_conv_key', _aiActiveConvKey);
+      // Register in conv list
+      var list = JSON.parse(rfxGet('ai_conv_list')||'[]');
+      list.unshift({key:_aiActiveConvKey, title: q.slice(0, 50), date: new Date().toISOString(), count: 0});
+      rfxSet('ai_conv_list', JSON.stringify(list));
+      aiRenderConvList();
+    }
+
     askChatHistory.push({role:'user',content:q});
     inp.value='';
     aiRenderAskChat(true);
 
     // Persist user message to Supabase
-    if(typeof tqPushAIMessage==='function'){ tqPushAIMessage(null, 'user', q); }
+    if(typeof tqPushAIMessage==='function'){ tqPushAIMessage(_aiActiveConvKey, 'user', q); }
 
     var systemPrompt='You are an experienced trading mentor talking with a trader who follows the WWA methodology (daily bias, HTF trend, market phase, LTF confirmations, POI types, playbook models). You are having an ongoing conversation — remember everything the user has said in this conversation and reference it when relevant.\n\nBe direct, supportive, and concise. Use specific numbers from their data. Avoid generic advice. When the user asks a follow-up question, build on what was discussed earlier in this chat.\n\nTRADER DATA (current snapshot):\n'+aiBuildTraderContext();
 
@@ -15155,8 +16220,9 @@ window.dispatchEvent(new Event('supabase-ready'));
       var txt=typeof a==='object'?(a.coachNote||a.headline||a.psychology||JSON.stringify(a)):(a||'(empty response)');
       askChatHistory.push({role:'assistant',content:txt});
       aiRenderAskChat(false);
-      // Persist assistant reply to Supabase
-      if(typeof tqPushAIMessage==='function'){ tqPushAIMessage(null, 'assistant', txt); }
+      // Persist assistant reply
+      if(typeof tqPushAIMessage==='function'){ tqPushAIMessage(_aiActiveConvKey, 'assistant', txt); }
+      _aiUpdateConvMeta();
     })
     .catch(function(e){
       askChatHistory.push({role:'assistant',content:'⚠️ Error: '+e.message});
@@ -15166,24 +16232,127 @@ window.dispatchEvent(new Event('supabase-ready'));
   window.aiAskQuestion=aiAskQuestion;
 
   function aiAskClear(){
-    if(askChatHistory.length===0)return;
-    if(!confirm('Clear this conversation permanently? This cannot be undone.'))return;
+    if(!_aiActiveConvKey){ askChatHistory=[]; aiRenderAskChat(false); return; }
+    if(!confirm('Delete this conversation permanently? This cannot be undone.'))return;
+    // Remove from Supabase
+    if(typeof tqDeleteAIConversation==='function'){ tqDeleteAIConversation(_aiActiveConvKey); }
+    // Remove from local list
+    var list = JSON.parse(rfxGet('ai_conv_list')||'[]');
+    list = list.filter(function(c){return c.key !== _aiActiveConvKey;});
+    rfxSet('ai_conv_list', JSON.stringify(list));
+    // Reset UI
     askChatHistory=[];
+    _aiActiveConvKey = null;
+    rfxRemove && rfxRemove('ai_active_conv_key');
+    try { localStorage.removeItem('ai_active_conv_key'); } catch(e){}
     aiRenderAskChat(false);
-    if(typeof tqDeleteAIConversation==='function'){ tqDeleteAIConversation(null); }
+    aiRenderConvList();
+    _aiUpdateConvTitle('New chat');
   }
   window.aiAskClear=aiAskClear;
+
+  // ── Conversation management ──
+  var _aiActiveConvKey = null;
+
+  function _aiUpdateConvMeta(){
+    if(!_aiActiveConvKey) return;
+    var list = JSON.parse(rfxGet('ai_conv_list')||'[]');
+    var conv = list.find(function(c){return c.key === _aiActiveConvKey;});
+    if(conv){
+      conv.count = askChatHistory.length;
+      conv.date = new Date().toISOString();
+      // Use first user message as title if not already set
+      var firstUser = askChatHistory.find(function(m){return m.role==='user';});
+      if(firstUser && (!conv.title || conv.title === 'New chat')) conv.title = firstUser.content.slice(0, 50);
+      rfxSet('ai_conv_list', JSON.stringify(list));
+      aiRenderConvList();
+    }
+  }
+
+  function _aiUpdateConvTitle(txt){
+    var el = document.getElementById('ai-conv-title');
+    if(el) el.textContent = txt;
+    var info = document.getElementById('ai-conv-info');
+    if(info) info.textContent = askChatHistory.length ? askChatHistory.length + ' messages' : 'New chat';
+  }
+
+  function aiRenderConvList(){
+    var listEl = document.getElementById('ai-conv-list');
+    if(!listEl) return;
+    var list = JSON.parse(rfxGet('ai_conv_list')||'[]');
+    if(list.length === 0){
+      listEl.innerHTML = '<div style="font-size:10px;color:var(--text3);padding:10px 6px;text-align:center">No chats yet. Start a conversation!</div>';
+      return;
+    }
+    listEl.innerHTML = list.map(function(c){
+      var active = c.key === _aiActiveConvKey;
+      var timeStr;
+      try {
+        var d = new Date(c.date);
+        var now = new Date();
+        var diffH = (now - d) / (1000*60*60);
+        if(diffH < 1) timeStr = Math.round(diffH*60) + 'm';
+        else if(diffH < 24) timeStr = Math.round(diffH) + 'h';
+        else timeStr = Math.round(diffH/24) + 'd';
+      } catch(e){ timeStr = ''; }
+      return '<div onclick="aiLoadConversation(\''+c.key+'\')" style="padding:8px 10px;border-radius:6px;cursor:pointer;background:'+(active?'rgba(124,90,240,.12)':'transparent')+';border:1px solid '+(active?'var(--accent)':'transparent')+';transition:all .15s" onmouseover="if(!this.style.background.includes(\'12\'))this.style.background=\'rgba(124,90,240,.04)\'" onmouseout="if(!this.style.border.includes(\'accent\'))this.style.background=\'transparent\'">'+
+        '<div style="font-size:11px;font-weight:600;color:var(--text);line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:2px">'+c.title+'</div>'+
+        '<div style="font-size:9px;color:var(--text3);display:flex;justify-content:space-between"><span>'+(c.count||0)+' msgs</span><span>'+timeStr+'</span></div>'+
+      '</div>';
+    }).join('');
+  }
+  window.aiRenderConvList = aiRenderConvList;
+
+  window.aiAskNewConversation = function(){
+    _aiActiveConvKey = null;
+    try { localStorage.removeItem('ai_active_conv_key'); } catch(e){}
+    askChatHistory=[];
+    aiRenderAskChat(false);
+    aiRenderConvList();
+    _aiUpdateConvTitle('New chat — ask anything');
+    var inp = document.getElementById('ai-ask-input');
+    if(inp) inp.focus();
+  };
+
+  window.aiLoadConversation = async function(key){
+    _aiActiveConvKey = key;
+    try { localStorage.setItem('ai_active_conv_key', key); } catch(e){}
+    askChatHistory = [];
+    var resp = document.getElementById('ai-ask-response');
+    if(resp) resp.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:11px">Loading...</div>';
+    try {
+      if(typeof tqPullAIConversation === 'function'){
+        var rows = await tqPullAIConversation(key);
+        if(rows && rows.length){
+          askChatHistory = rows.map(function(r){return {role:r.role, content:r.content};});
+        }
+      }
+    } catch(e){ console.error('Load conversation error:', e); }
+    aiRenderAskChat(false);
+    aiRenderConvList();
+    var list = JSON.parse(rfxGet('ai_conv_list')||'[]');
+    var conv = list.find(function(c){return c.key===key;});
+    _aiUpdateConvTitle(conv ? conv.title : 'Conversation');
+  };
 
   // Load AI Coach chat history from Supabase on first mount
   async function aiLoadChatHistory(){
     if(typeof tqPullAIConversation !== 'function') return;
-    try {
-      var rows = await tqPullAIConversation(null);
-      if(rows && rows.length > 0){
-        askChatHistory = rows.map(function(r){ return {role: r.role, content: r.content}; });
-        aiRenderAskChat(false);
-      }
-    } catch(e){ console.error('AI Coach history load error:', e); }
+    // Try to restore last active conversation
+    var lastKey = null;
+    try { lastKey = localStorage.getItem('ai_active_conv_key'); } catch(e){}
+    if(lastKey){
+      _aiActiveConvKey = lastKey;
+      try {
+        var rows = await tqPullAIConversation(lastKey);
+        if(rows && rows.length){
+          askChatHistory = rows.map(function(r){return {role:r.role, content:r.content};});
+          aiRenderAskChat(false);
+        }
+      } catch(e){ console.error('AI Coach restore error:', e); }
+    }
+    aiRenderConvList();
+    _aiUpdateConvTitle(lastKey ? 'Conversation' : 'New chat — ask anything');
   }
   // Run when page shows
   var _aiHistLoaded = false;
@@ -17809,6 +18978,8 @@ window.dispatchEvent(new Event('supabase-ready'));
     // Load real trades from localStorage
     var raw = JSON.parse(rfxGet('rf_trades')||'[]');
     raw.forEach(autoDetectSession);
+    // Refresh AI insights widget (non-blocking)
+    setTimeout(function(){ if(typeof window.dashAIRender==='function') window.dashAIRender(); }, 150);
     
     // Welcome screen toggle
     var welcomeEl=document.getElementById('welcome-screen');
@@ -20576,6 +21747,61 @@ window.dispatchEvent(new Event('supabase-ready'));
   fetchLiveRates();
  
 })();
+</script>
+
+<!-- FLOATING ASK AI BUTTON (FAB) -->
+<div id="ai-fab" style="position:fixed;bottom:24px;right:24px;z-index:900;display:flex;flex-direction:column;gap:10px;align-items:flex-end">
+  <button id="ai-fab-btn" onclick="aiFabOpen()" style="background:linear-gradient(135deg,#7c5af0,#9b7ef8);color:white;border:none;width:56px;height:56px;border-radius:50%;cursor:pointer;box-shadow:0 8px 24px rgba(124,90,240,.4),0 4px 12px rgba(0,0,0,.15);display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:22px" onmouseover="this.style.transform='scale(1.08)';this.style.boxShadow='0 10px 30px rgba(124,90,240,.5),0 6px 16px rgba(0,0,0,.2)'" onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 8px 24px rgba(124,90,240,.4),0 4px 12px rgba(0,0,0,.15)'" title="Ask AI anything — Ctrl+K">✨</button>
+  <div id="ai-fab-hint" style="position:absolute;bottom:70px;right:0;background:rgba(15,23,42,.95);color:white;padding:6px 12px;border-radius:8px;font-size:11px;font-family:Inter,sans-serif;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s">Ask AI anything · <span style="opacity:.6">Ctrl+K</span></div>
+</div>
+
+<script>
+(function(){
+  var btn = document.getElementById('ai-fab-btn');
+  var hint = document.getElementById('ai-fab-hint');
+  if(btn && hint){
+    btn.addEventListener('mouseenter', function(){ hint.style.opacity='1'; });
+    btn.addEventListener('mouseleave', function(){ hint.style.opacity='0'; });
+  }
+  document.addEventListener('keydown', function(e){
+    if((e.ctrlKey || e.metaKey) && e.key === 'k'){
+      e.preventDefault();
+      if(typeof aiFabOpen === 'function') aiFabOpen();
+    }
+    if(e.key === 'Escape'){
+      var fm = document.getElementById('modal-aichat');
+      if(fm && fm.classList.contains('show') && typeof aiChatClose === 'function') aiChatClose();
+    }
+  });
+  // Hide FAB on AI pages (redundant there)
+  var hiddenOnPages = ['aicoach', 'youredge'];
+  function updateFabVisibility(){
+    var fab = document.getElementById('ai-fab');
+    if(!fab) return;
+    var active = document.querySelector('.page.active');
+    if(!active) return;
+    var pageId = active.id.replace('page-','');
+    fab.style.display = hiddenOnPages.indexOf(pageId) >= 0 ? 'none' : 'flex';
+  }
+  setTimeout(function(){
+    var observer = new MutationObserver(updateFabVisibility);
+    var pages = document.querySelectorAll('.page');
+    pages.forEach(function(p){ observer.observe(p, {attributes:true, attributeFilter:['class']}); });
+    updateFabVisibility();
+  }, 800);
+})();
+
+window.aiFabOpen = function(){
+  if(typeof aiChatOpen === 'function'){
+    aiChatOpen(null);
+    setTimeout(function(){
+      var title = document.getElementById('aichat-title');
+      if(title) title.textContent = '✨ Ask AI Anything';
+      var sub = document.getElementById('aichat-subtitle');
+      if(sub) sub.textContent = 'Quick access · Powered by Claude with full data context';
+    }, 50);
+  }
+};
 </script>
 
 </body>
