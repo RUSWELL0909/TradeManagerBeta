@@ -3187,6 +3187,79 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
 
 /* ── Progress milestone shine ── */
 @keyframes badgeShine{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+
+/* ══ ACTIVE PLANS RAIL (Sprint A: lifecycle tracking) ══ */
+.ap-rail{margin-top:18px;margin-bottom:8px;display:none}
+.ap-rail.show{display:block}
+.ap-rail-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:0 4px}
+.ap-rail-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;font-family:'Inter',sans-serif}
+.ap-rail-count{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 6px;border-radius:9px;background:var(--accent);color:#fff;font-size:10px;font-weight:700;font-family:'Inter',sans-serif}
+.ap-rail-count.live{background:#2ecc8a}
+.ap-cards{display:flex;gap:10px;overflow-x:auto;padding:2px 4px 8px}
+.ap-cards::-webkit-scrollbar{height:4px}
+.ap-cards::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.ap-card{flex:0 0 280px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;position:relative;transition:all .2s}
+.ap-card:hover{border-color:var(--accent3);box-shadow:0 4px 16px rgba(124,90,240,.08)}
+.ap-card.live{border-color:rgba(46,204,138,.4);background:linear-gradient(135deg,rgba(46,204,138,.04),rgba(46,204,138,.01))}
+.ap-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.ap-card-pair{font-size:14px;font-weight:700;color:var(--text);font-family:'Space Grotesk',sans-serif}
+.ap-card-status{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:2px 8px;border-radius:10px}
+.ap-card-status.planned{background:rgba(124,90,240,.12);color:var(--accent3);border:1px solid rgba(124,90,240,.3)}
+.ap-card-status.live{background:rgba(46,204,138,.12);color:#2ecc8a;border:1px solid rgba(46,204,138,.3)}
+.ap-card-meta{font-size:10px;color:var(--text3);margin-bottom:10px;font-family:'DM Mono',monospace}
+.ap-card-trigger{font-size:11px;color:var(--text2);background:var(--bg3);border-radius:8px;padding:8px 10px;margin-bottom:10px;font-family:'Inter',sans-serif;line-height:1.5;border-left:2px solid var(--accent)}
+.ap-card-trigger-label{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.ap-card-prices{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.ap-card-price{background:var(--bg3);border-radius:6px;padding:5px 8px;text-align:center}
+.ap-card-price-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:1px;font-weight:600}
+.ap-card-price-val{font-size:11px;font-weight:600;color:var(--text);font-family:'DM Mono',monospace}
+.ap-card-actions{display:flex;gap:6px}
+.ap-card-actions button{flex:1;padding:7px 6px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:10px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;text-align:center}
+.ap-card-actions button:hover{border-color:var(--accent);background:rgba(124,90,240,.06)}
+.ap-card-actions button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.ap-card-actions button.primary:hover{filter:brightness(1.1)}
+.ap-card-actions button.danger:hover{border-color:#ff505f;background:rgba(255,80,95,.06);color:#ff505f}
+
+/* Plan-locking modal — reuses .jr-modal pattern */
+.pl-summary{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:11px;color:var(--text2);line-height:1.6;font-family:'Inter',sans-serif}
+.pl-summary b{color:var(--accent3);font-weight:600}
+.pl-summary-tag{display:inline-block;background:rgba(124,90,240,.1);color:var(--accent3);padding:2px 8px;border-radius:6px;font-size:10px;font-weight:600;margin:2px 3px 2px 0}
+
+/* Lifecycle badge in journal/list */
+.lc-badge{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:2px 7px;border-radius:10px;font-family:'Inter',sans-serif}
+.lc-badge.planned{background:rgba(124,90,240,.12);color:var(--accent3);border:1px solid rgba(124,90,240,.3)}
+.lc-badge.live{background:rgba(46,204,138,.12);color:#2ecc8a;border:1px solid rgba(46,204,138,.3)}
+.lc-badge.closed{background:var(--bg3);color:var(--text3);border:1px solid var(--border)}
+.lc-badge.cancelled{background:rgba(255,80,95,.08);color:#ff505f;border:1px solid rgba(255,80,95,.2)}
+.lc-badge .lc-dot{width:5px;height:5px;border-radius:50%;background:currentColor}
+.lc-badge.live .lc-dot{animation:msPulse 1.4s ease-in-out infinite}
+@keyframes msPulse{0%,100%{opacity:.4}50%{opacity:1}}
+
+/* ══ TRADE REVIEW (Sprint B: 3 questions before journaling) ══ */
+.tr-question{margin-bottom:18px}
+.tr-q-label{font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;font-family:'Inter',sans-serif;line-height:1.4}
+.tr-q-hint{font-size:10px;color:var(--text3);margin-bottom:8px;line-height:1.5}
+.tr-options{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tr-option{padding:10px 8px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;text-align:center;line-height:1.3}
+.tr-option:hover{border-color:var(--accent3)}
+.tr-option.on.green{background:rgba(46,204,138,.1);border-color:#2ecc8a;color:#2ecc8a}
+.tr-option.on.amber{background:rgba(240,180,41,.1);border-color:#f0b429;color:#f0b429}
+.tr-option.on.red{background:rgba(255,80,95,.1);border-color:#ff505f;color:#ff505f}
+.tr-result{margin-top:8px;padding:14px 16px;border-radius:12px;display:flex;align-items:center;gap:12px;font-family:'Inter',sans-serif}
+.tr-result.clean{background:rgba(46,204,138,.08);border:1px solid rgba(46,204,138,.25)}
+.tr-result.deviation{background:rgba(240,180,41,.08);border:1px solid rgba(240,180,41,.25)}
+.tr-result.broken{background:rgba(255,80,95,.08);border:1px solid rgba(255,80,95,.25)}
+.tr-result-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;font-weight:700}
+.tr-result.clean .tr-result-icon{background:rgba(46,204,138,.15);color:#2ecc8a}
+.tr-result.deviation .tr-result-icon{background:rgba(240,180,41,.15);color:#f0b429}
+.tr-result.broken .tr-result-icon{background:rgba(255,80,95,.15);color:#ff505f}
+.tr-result-title{font-size:13px;font-weight:700;margin-bottom:2px}
+.tr-result.clean .tr-result-title{color:#2ecc8a}
+.tr-result.deviation .tr-result-title{color:#f0b429}
+.tr-result.broken .tr-result-title{color:#ff505f}
+.tr-result-sub{font-size:11px;color:var(--text3);line-height:1.5}
+.tr-skip{display:inline-block;background:none;border:none;color:var(--text3);font-size:11px;cursor:pointer;text-decoration:underline;font-family:'Inter',sans-serif;margin-top:4px}
+.tr-skip:hover{color:var(--text)}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <script>
@@ -3510,6 +3583,18 @@ window.dispatchEvent(new Event('supabase-ready'));
       <div class="ck-perf-stat"><span class="ck-perf-stat-label">Streak</span><span class="ck-perf-stat-val" id="ck-perf-streak">—</span></div>
       <div class="ck-perf-sep"></div>
       <div class="ck-perf-stat"><span class="ck-perf-stat-label">Win rate</span><span class="ck-perf-stat-val" id="ck-perf-wr">—</span></div>
+    </div>
+
+    <!-- ACTIVE PLANS RAIL -->
+    <div class="ap-rail" id="ap-rail">
+      <div class="ap-rail-head">
+        <span class="ap-rail-title">Active</span>
+        <span class="ap-rail-count" id="ap-count-planned">0</span>
+        <span style="color:var(--text3);font-size:11px;margin:0 4px">planned</span>
+        <span class="ap-rail-count live" id="ap-count-live">0</span>
+        <span style="color:var(--text3);font-size:11px;margin:0 4px">live</span>
+      </div>
+      <div class="ap-cards" id="ap-cards"></div>
     </div>
 
     <!-- SESSION + PAIR SELECTOR -->
@@ -4265,6 +4350,202 @@ window.dispatchEvent(new Event('supabase-ready'));
       <label class="pb-btn pb-btn-ghost" style="padding:6px 16px;font-size:10px;cursor:pointer;display:inline-flex;align-items:center;gap:6px">↑ Import CSV
         <input type="file" id="jr-csv-input" accept=".csv" style="display:none" onchange="jrProcessCSV(this)">
       </label>
+    </div>
+  </div>
+
+  <!-- ═══ PLAN-LOCK MODAL (Cockpit → Lock plan) ═══ -->
+  <div class="jr-modal" id="pl-modal">
+    <div class="jr-modal-box" style="max-width:520px">
+      <div class="jr-modal-head">
+        <div class="jr-modal-title" id="pl-modal-title">Lock your plan</div>
+        <button class="pb-builder-close" onclick="closePlanLockModal()">✕</button>
+      </div>
+      <div class="jr-modal-body">
+        <div class="pl-summary" id="pl-summary"></div>
+
+        <div class="jr-group">
+          <div class="jr-group-title">Entry trigger *</div>
+          <div class="jr-group-desc">What exactly needs to happen for you to take this trade?</div>
+          <div class="jr-field">
+            <textarea class="jr-input" id="pl-trigger" rows="2" placeholder="e.g. M1 BOS after Asia low sweep" style="resize:vertical;min-height:48px"></textarea>
+          </div>
+        </div>
+
+        <div class="jr-group">
+          <div class="jr-group-title">Levels <span style="font-weight:400;color:var(--text3);font-size:9px">· optional but recommended</span></div>
+          <div class="jr-row3" style="margin-bottom:10px">
+            <div class="jr-field">
+              <label class="jr-label">DIRECTION *</label>
+              <div style="display:flex;gap:4px">
+                <button class="jr-conf-pill on" id="pl-dir-buy" onclick="plSetDir('buy')" style="flex:1;text-align:center;padding:7px;font-size:11px">Long</button>
+                <button class="jr-conf-pill" id="pl-dir-sell" onclick="plSetDir('sell')" style="flex:1;text-align:center;padding:7px;font-size:11px">Short</button>
+              </div>
+            </div>
+            <div class="jr-field">
+              <label class="jr-label">PLANNED ENTRY</label>
+              <input class="jr-input" id="pl-entry" type="number" step="0.00001" placeholder="1.0834">
+            </div>
+            <div class="jr-field">
+              <label class="jr-label">PLANNED STOP</label>
+              <input class="jr-input" id="pl-stop" type="number" step="0.00001" placeholder="1.0824">
+            </div>
+          </div>
+          <div class="jr-row" style="margin-bottom:0">
+            <div class="jr-field" style="margin-bottom:0">
+              <label class="jr-label">PLANNED TARGET</label>
+              <input class="jr-input" id="pl-target" type="number" step="0.00001" placeholder="1.0860">
+            </div>
+            <div class="jr-field" style="margin-bottom:0">
+              <label class="jr-label">RISK %</label>
+              <input class="jr-input" id="pl-risk" type="number" step="0.01" min="0" placeholder="1.0">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="jr-modal-foot">
+        <button class="btn btn-ghost" style="font-size:12px" onclick="closePlanLockModal()">Cancel</button>
+        <button class="btn btn-primary" style="font-size:12px" onclick="savePlanLock()" id="pl-save-btn">Lock plan ↗</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ ENTRY-CONFIRM MODAL (when "I entered" pressed) ═══ -->
+  <div class="jr-modal" id="ec-modal">
+    <div class="jr-modal-box" style="max-width:480px">
+      <div class="jr-modal-head">
+        <div class="jr-modal-title">Confirm entry</div>
+        <button class="pb-builder-close" onclick="closeEntryConfirmModal()">✕</button>
+      </div>
+      <div class="jr-modal-body">
+        <div class="pl-summary" id="ec-plan-summary"></div>
+        <div class="jr-group">
+          <div class="jr-group-title">Actual fill</div>
+          <div class="jr-row" style="margin-bottom:10px">
+            <div class="jr-field">
+              <label class="jr-label">ACTUAL ENTRY PRICE *</label>
+              <input class="jr-input" id="ec-entry" type="number" step="0.00001" placeholder="1.0834">
+            </div>
+            <div class="jr-field">
+              <label class="jr-label">ACTUAL STOP *</label>
+              <input class="jr-input" id="ec-stop" type="number" step="0.00001" placeholder="1.0824">
+            </div>
+          </div>
+          <div class="jr-row" style="margin-bottom:0">
+            <div class="jr-field" style="margin-bottom:0">
+              <label class="jr-label">LOT SIZE</label>
+              <input class="jr-input" id="ec-lots" type="number" step="0.01" min="0" placeholder="0.5">
+            </div>
+            <div class="jr-field" style="margin-bottom:0">
+              <label class="jr-label">ENTRY TIME</label>
+              <input class="jr-input" id="ec-entry-time" type="time">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="jr-modal-foot">
+        <button class="btn btn-ghost" style="font-size:12px" onclick="closeEntryConfirmModal()">Cancel</button>
+        <button class="btn btn-primary" style="font-size:12px" onclick="saveEntryConfirm()">Confirm entry ↗</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ CLOSE-TRADE MODAL (when "Close" pressed on live trade) ═══ -->
+  <div class="jr-modal" id="cl-modal">
+    <div class="jr-modal-box" style="max-width:480px">
+      <div class="jr-modal-head">
+        <div class="jr-modal-title">Close trade</div>
+        <button class="pb-builder-close" onclick="closeCloseTradeModal()">✕</button>
+      </div>
+      <div class="jr-modal-body">
+        <div class="pl-summary" id="cl-plan-summary"></div>
+        <div class="jr-group">
+          <div class="jr-group-title">Exit details</div>
+          <div class="jr-row" style="margin-bottom:10px">
+            <div class="jr-field">
+              <label class="jr-label">EXIT PRICE *</label>
+              <input class="jr-input" id="cl-exit" type="number" step="0.00001" placeholder="1.0851">
+            </div>
+            <div class="jr-field">
+              <label class="jr-label">EXIT TIME</label>
+              <input class="jr-input" id="cl-exit-time" type="time">
+            </div>
+          </div>
+          <div class="jr-field" style="margin-bottom:10px">
+            <label class="jr-label">RESULT *</label>
+            <div style="display:flex;gap:4px">
+              <button class="jr-conf-pill" id="cl-res-tp" onclick="clSetResult('TP')" style="flex:1;text-align:center;padding:8px;font-size:11px">TP (Win)</button>
+              <button class="jr-conf-pill" id="cl-res-be" onclick="clSetResult('BE')" style="flex:1;text-align:center;padding:8px;font-size:11px">BE</button>
+              <button class="jr-conf-pill" id="cl-res-sl" onclick="clSetResult('SL')" style="flex:1;text-align:center;padding:8px;font-size:11px">SL (Loss)</button>
+            </div>
+          </div>
+          <div class="jr-field" style="margin-bottom:0">
+            <label class="jr-label">P&amp;L (account currency)</label>
+            <input class="jr-input" id="cl-pnl" type="number" step="0.01" placeholder="+340">
+          </div>
+        </div>
+      </div>
+      <div class="jr-modal-foot">
+        <button class="btn btn-ghost" style="font-size:12px" onclick="closeCloseTradeModal()">Cancel</button>
+        <button class="btn btn-primary" style="font-size:12px" onclick="saveCloseTrade()">Close trade · go to review →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TRADE REVIEW MODAL (Sprint B: 3 questions before journaling) ═══ -->
+  <div class="jr-modal" id="tr-modal">
+    <div class="jr-modal-box" style="max-width:560px">
+      <div class="jr-modal-head">
+        <div class="jr-modal-title">Trade review</div>
+        <button class="pb-builder-close" onclick="closeTradeReviewModal()">✕</button>
+      </div>
+      <div class="jr-modal-body">
+        <div class="pl-summary" id="tr-plan-summary"></div>
+
+        <div style="margin-bottom:16px;padding:12px 14px;border-radius:10px;background:rgba(124,90,240,.04);border:1px solid rgba(124,90,240,.15);font-size:11px;color:var(--text2);line-height:1.5">
+          <b style="color:var(--accent3)">Why these questions matter</b><br>
+          We ask about <b>process</b> before showing you the result. Profitable trades taken outside your plan reinforce bad habits. This protects your edge.
+        </div>
+
+        <!-- Q1 -->
+        <div class="tr-question">
+          <div class="tr-q-label">1. Did your trigger actually fire?</div>
+          <div class="tr-q-hint">Trigger: <span id="tr-trigger-text" style="color:var(--text);font-style:italic"></span></div>
+          <div class="tr-options">
+            <button class="tr-option" data-q="trigger" data-val="yes" onclick="trAnswer(this)">Yes ✓</button>
+            <button class="tr-option" data-q="trigger" data-val="partial" onclick="trAnswer(this)">Partially</button>
+            <button class="tr-option" data-q="trigger" data-val="no" onclick="trAnswer(this)">No</button>
+          </div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="tr-question">
+          <div class="tr-q-label">2. Did you enter where you planned?</div>
+          <div class="tr-q-hint" id="tr-entry-hint"></div>
+          <div class="tr-options">
+            <button class="tr-option" data-q="entry" data-val="yes" onclick="trAnswer(this)">Yes</button>
+            <button class="tr-option" data-q="entry" data-val="close" onclick="trAnswer(this)">Within range</button>
+            <button class="tr-option" data-q="entry" data-val="far" onclick="trAnswer(this)">Far off</button>
+          </div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="tr-question">
+          <div class="tr-q-label">3. Did you exit where you planned?</div>
+          <div class="tr-q-hint" id="tr-exit-hint"></div>
+          <div class="tr-options">
+            <button class="tr-option" data-q="exit" data-val="yes" onclick="trAnswer(this)">Yes</button>
+            <button class="tr-option" data-q="exit" data-val="early" onclick="trAnswer(this)">Earlier</button>
+            <button class="tr-option" data-q="exit" data-val="late" onclick="trAnswer(this)">Later</button>
+          </div>
+        </div>
+
+        <!-- Process result (revealed after all 3 answered) -->
+        <div id="tr-result" style="display:none"></div>
+      </div>
+      <div class="jr-modal-foot">
+        <button class="tr-skip" onclick="trSkipReview()">Skip review</button>
+        <button class="btn btn-primary" style="font-size:12px" onclick="saveTradeReview()" id="tr-save-btn" disabled style="opacity:.4">Confirm review →</button>
+      </div>
     </div>
   </div>
 
@@ -5144,6 +5425,86 @@ window.dispatchEvent(new Event('supabase-ready'));
     <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:12px;align-items:center">
       <span style="font-size:10px;color:var(--text3)">Supported imports: MT4/MT5, TradeZella, or any CSV with Date + Pair + P&L</span>
       <button style="background:none;border:none;color:var(--red);font-size:10px;cursor:pointer;opacity:.5;font-family:'Inter',sans-serif" onclick="if(confirm('Delete ALL trades from ALL accounts? This cannot be undone.')){rfxRemove('rf_trades');alert('All trades deleted');if(typeof renderJournal==='function')renderJournal();if(typeof updateDashboard==='function')updateDashboard();}">Delete all trades</button>
+    </div>
+  </div>
+
+  <!-- ═══ ACCOUNT MODAL (Add / Edit) ═══ -->
+  <div class="jr-modal" id="acc-modal">
+    <div class="jr-modal-box" style="max-width:560px">
+      <div class="jr-modal-head">
+        <div class="jr-modal-title" id="acc-modal-title">Add Account</div>
+        <button class="pb-builder-close" onclick="closeAddAccountModal()">✕</button>
+      </div>
+      <div class="jr-modal-body">
+        <input type="hidden" id="acc-edit-id" value="">
+
+        <!-- BASIC -->
+        <div class="jr-group">
+          <div class="jr-group-title">Basic Information</div>
+          <div class="jr-field" style="margin-bottom:10px">
+            <label class="jr-label">ACCOUNT NAME *</label>
+            <input class="jr-input" id="acc-name" type="text" placeholder="e.g. FTMO Challenge $100K" maxlength="60">
+          </div>
+          <div class="jr-row" style="margin-bottom:10px">
+            <div class="jr-field">
+              <label class="jr-label">TYPE</label>
+              <select class="jr-select" id="acc-type">
+                <option value="prop">Prop / Funded</option>
+                <option value="live">Personal Live</option>
+                <option value="demo">Demo</option>
+              </select>
+            </div>
+            <div class="jr-field">
+              <label class="jr-label">CURRENCY</label>
+              <select class="jr-select" id="acc-currency">
+                <option>USD</option><option>EUR</option><option>GBP</option><option>AUD</option><option>CAD</option><option>CHF</option><option>JPY</option>
+              </select>
+            </div>
+          </div>
+          <div class="jr-field" style="margin-bottom:10px">
+            <label class="jr-label">STARTING BALANCE *</label>
+            <input class="jr-input" id="acc-balance" type="number" step="0.01" min="0" placeholder="100000">
+          </div>
+        </div>
+
+        <!-- BROKER / PROP -->
+        <div class="jr-group">
+          <div class="jr-group-title">Broker & Platform <span style="font-weight:400;color:var(--text3);font-size:9px">· optional</span></div>
+          <div class="jr-row" style="margin-bottom:10px">
+            <div class="jr-field">
+              <label class="jr-label">BROKER</label>
+              <input class="jr-input" id="acc-broker" type="text" placeholder="e.g. IC Markets" maxlength="40">
+            </div>
+            <div class="jr-field">
+              <label class="jr-label">PLATFORM</label>
+              <select class="jr-select" id="acc-platform">
+                <option value="">—</option>
+                <option>MT4</option><option>MT5</option><option>cTrader</option><option>TradingView</option><option>NinjaTrader</option><option>Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="jr-row" style="margin-bottom:10px">
+            <div class="jr-field">
+              <label class="jr-label">ACCOUNT NUMBER</label>
+              <input class="jr-input" id="acc-number" type="text" placeholder="e.g. 12345678" maxlength="40">
+            </div>
+            <div class="jr-field" id="acc-propfirm-wrap">
+              <label class="jr-label">PROP FIRM</label>
+              <input class="jr-input" id="acc-propfirm" type="text" placeholder="e.g. FTMO, MyForexFunds" maxlength="40">
+            </div>
+          </div>
+          <div class="jr-field" style="margin-bottom:0">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text2)">
+              <input type="checkbox" id="acc-active" checked style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent)">
+              <span>Account is active</span>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="jr-modal-foot">
+        <button class="btn btn-ghost" style="font-size:12px" onclick="closeAddAccountModal()">Cancel</button>
+        <button class="btn btn-primary" style="font-size:12px" onclick="saveAccountModal()" id="acc-save-btn">Create Account</button>
+      </div>
     </div>
   </div>
 
@@ -8892,6 +9253,1020 @@ window.dispatchEvent(new Event('supabase-ready'));
   window.tqUploadNoteImages=tqUploadNoteImages;
 
   // ══ END SUPABASE MODULE ══
+
+  // ██  MY ACCOUNTS MODULE — CRUD + render (fixes broken page)
+  (function(){
+    var EDITING_ID = null;
+
+    function accGenId(){
+      if(typeof crypto!=='undefined' && crypto.randomUUID) return crypto.randomUUID();
+      return 'acc_'+Date.now()+'_'+Math.random().toString(36).slice(2,10);
+    }
+
+    function accLoad(){
+      try{ return JSON.parse(rfxGet('rf_accounts')||'[]'); }catch(e){ return []; }
+    }
+    function accSave(list){
+      rfxSet('rf_accounts', JSON.stringify(list));
+      // Sync to cloud if signed in
+      if(window.tqPushAccounts) try{ window.tqPushAccounts(); }catch(e){}
+    }
+
+    function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+
+    function accFmtCcy(amount, ccy){
+      var n = Number(amount)||0;
+      var sym = {USD:'$',EUR:'€',GBP:'£',JPY:'¥',CHF:'CHF ',CAD:'C$',AUD:'A$'}[ccy||'USD'] || '';
+      return sym + n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+    }
+
+    function accBalanceWithPnL(acc, trades){
+      var pnl = 0;
+      (trades||[]).forEach(function(t){
+        if(t.account === acc.id) pnl += (parseFloat(t.pnl)||0);
+      });
+      return (parseFloat(acc.startingBalance||acc.balance)||0) + pnl;
+    }
+
+    function accTypeLabel(t){
+      if(t==='prop' || t==='challenge') return 'Prop';
+      if(t==='live' || t==='funded') return 'Live';
+      if(t==='demo') return 'Demo';
+      return 'Live';
+    }
+
+    function accTypeBadgeStyle(t){
+      if(t==='prop' || t==='challenge') return 'background:rgba(124,90,240,.12);color:var(--accent3);border:1px solid rgba(124,90,240,.3)';
+      if(t==='demo') return 'background:rgba(240,180,41,.12);color:#f0b429;border:1px solid rgba(240,180,41,.3)';
+      return 'background:rgba(46,204,138,.12);color:#2ecc8a;border:1px solid rgba(46,204,138,.3)';
+    }
+
+    // ── RENDER PAGE ──
+    function renderAccountsPage(){
+      var body = document.getElementById('accounts-table-body');
+      var empty = document.getElementById('accounts-empty');
+      if(!body) return;
+
+      var accs = accLoad();
+      var trades = [];
+      try{ trades = JSON.parse(rfxGet('rf_trades')||'[]'); }catch(e){}
+
+      if(!accs.length){
+        body.innerHTML = '';
+        if(empty) empty.style.display = 'block';
+        return;
+      }
+
+      if(empty) empty.style.display = 'none';
+
+      body.innerHTML = accs.map(function(a){
+        var liveBalance = accBalanceWithPnL(a, trades);
+        var startBal = parseFloat(a.startingBalance||a.balance)||0;
+        var deltaPct = startBal > 0 ? ((liveBalance - startBal)/startBal*100) : 0;
+        var deltaColor = deltaPct >= 0 ? '#2ecc8a' : '#ff505f';
+        var deltaSign = deltaPct >= 0 ? '+' : '';
+        var brokerStr = a.broker || (a.propFirm ? a.propFirm : '—');
+        if(a.broker && a.propFirm) brokerStr = a.broker + ' · ' + a.propFirm;
+        var statusOn = a.active !== false;
+
+        return [
+          '<div class="acc-row" data-id="'+escapeHtml(a.id)+'" style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 80px 44px;padding:14px 20px;border-bottom:1px solid var(--border);align-items:center;transition:background .15s" onmouseover="this.style.background=\'var(--bg3)\'" onmouseout="this.style.background=\'transparent\'">',
+          '  <div style="min-width:0">',
+          '    <div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(a.name||'(unnamed)')+'</div>',
+          a.accountNumber ? '    <div style="font-size:10px;color:var(--text3);font-family:\'DM Mono\',monospace;margin-top:2px">#'+escapeHtml(a.accountNumber)+'</div>' : '',
+          '  </div>',
+          '  <div style="font-size:12px;color:var(--text2)">'+escapeHtml(brokerStr)+(a.platform?'<div style="font-size:10px;color:var(--text3);margin-top:2px">'+escapeHtml(a.platform)+'</div>':'')+'</div>',
+          '  <div>',
+          '    <div style="font-size:13px;font-weight:600;color:var(--text);font-family:\'DM Mono\',monospace">'+accFmtCcy(liveBalance, a.currency)+'</div>',
+          '    <div style="font-size:10px;color:'+deltaColor+';margin-top:2px;font-family:\'DM Mono\',monospace">'+deltaSign+deltaPct.toFixed(2)+'%</div>',
+          '  </div>',
+          '  <div><span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;'+accTypeBadgeStyle(a.type)+'">'+accTypeLabel(a.type)+'</span></div>',
+          '  <div>',
+          '    <label style="display:inline-flex;align-items:center;cursor:pointer;gap:6px" title="Toggle active">',
+          '      <input type="checkbox" '+(statusOn?'checked':'')+' onchange="accToggleActive(\''+escapeHtml(a.id)+'\', this.checked)" style="width:14px;height:14px;cursor:pointer;accent-color:var(--accent)">',
+          '      <span style="font-size:10px;color:'+(statusOn?'#2ecc8a':'var(--text3)')+';font-weight:600">'+(statusOn?'ON':'OFF')+'</span>',
+          '    </label>',
+          '  </div>',
+          '  <div style="display:flex;justify-content:flex-end;gap:4px">',
+          '    <button onclick="openEditAccountModal(\''+escapeHtml(a.id)+'\')" title="Edit" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:6px;border-radius:6px;transition:all .15s" onmouseover="this.style.background=\'var(--bg3)\';this.style.color=\'var(--accent3)\'" onmouseout="this.style.background=\'none\';this.style.color=\'var(--text3)\'">',
+          '      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
+          '    </button>',
+          '    <button onclick="deleteAccount(\''+escapeHtml(a.id)+'\')" title="Delete" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:6px;border-radius:6px;transition:all .15s" onmouseover="this.style.background=\'rgba(255,80,95,.1)\';this.style.color=\'#ff505f\'" onmouseout="this.style.background=\'none\';this.style.color=\'var(--text3)\'">',
+          '      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 01-2 2H9a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>',
+          '    </button>',
+          '  </div>',
+          '</div>'
+        ].join('');
+      }).join('');
+    }
+    window.renderAccountsPage = renderAccountsPage;
+
+    // ── MODAL: OPEN / CLOSE ──
+    function openAddAccountModal(){
+      EDITING_ID = null;
+      var m = document.getElementById('acc-modal');
+      if(!m) return;
+      // Reset fields
+      document.getElementById('acc-modal-title').textContent = 'Add Account';
+      document.getElementById('acc-save-btn').textContent = 'Create Account';
+      document.getElementById('acc-edit-id').value = '';
+      document.getElementById('acc-name').value = '';
+      document.getElementById('acc-type').value = 'prop';
+      document.getElementById('acc-currency').value = 'USD';
+      document.getElementById('acc-balance').value = '';
+      document.getElementById('acc-broker').value = '';
+      document.getElementById('acc-platform').value = '';
+      document.getElementById('acc-number').value = '';
+      document.getElementById('acc-propfirm').value = '';
+      document.getElementById('acc-active').checked = true;
+      m.classList.add('open');
+      setTimeout(function(){ document.getElementById('acc-name').focus(); }, 50);
+    }
+    window.openAddAccountModal = openAddAccountModal;
+
+    function openEditAccountModal(id){
+      var accs = accLoad();
+      var a = accs.find(function(x){ return x.id === id; });
+      if(!a){ alert('Account not found'); return; }
+      EDITING_ID = id;
+      var m = document.getElementById('acc-modal');
+      if(!m) return;
+      document.getElementById('acc-modal-title').textContent = 'Edit Account';
+      document.getElementById('acc-save-btn').textContent = 'Save Changes';
+      document.getElementById('acc-edit-id').value = id;
+      document.getElementById('acc-name').value = a.name || '';
+      document.getElementById('acc-type').value = (a.type === 'challenge' || a.type === 'prop') ? 'prop' : (a.type === 'demo' ? 'demo' : 'live');
+      document.getElementById('acc-currency').value = a.currency || 'USD';
+      document.getElementById('acc-balance').value = a.startingBalance || a.balance || '';
+      document.getElementById('acc-broker').value = a.broker || '';
+      document.getElementById('acc-platform').value = a.platform || '';
+      document.getElementById('acc-number').value = a.accountNumber || '';
+      document.getElementById('acc-propfirm').value = a.propFirm || '';
+      document.getElementById('acc-active').checked = a.active !== false;
+      m.classList.add('open');
+      setTimeout(function(){ document.getElementById('acc-name').focus(); }, 50);
+    }
+    window.openEditAccountModal = openEditAccountModal;
+
+    function closeAddAccountModal(){
+      var m = document.getElementById('acc-modal');
+      if(m) m.classList.remove('open');
+      EDITING_ID = null;
+    }
+    window.closeAddAccountModal = closeAddAccountModal;
+
+    // ── SAVE (create or update) ──
+    function saveAccountModal(){
+      var name = (document.getElementById('acc-name').value||'').trim();
+      var balRaw = (document.getElementById('acc-balance').value||'').trim();
+      var bal = parseFloat(balRaw);
+
+      if(!name){ alert('Account name is required'); document.getElementById('acc-name').focus(); return; }
+      if(!balRaw || isNaN(bal) || bal < 0){ alert('Starting balance must be a number ≥ 0'); document.getElementById('acc-balance').focus(); return; }
+
+      var accs = accLoad();
+
+      if(EDITING_ID){
+        // Update existing
+        var idx = accs.findIndex(function(x){ return x.id === EDITING_ID; });
+        if(idx < 0){ alert('Account not found'); closeAddAccountModal(); return; }
+        var existing = accs[idx];
+        existing.name = name;
+        existing.type = document.getElementById('acc-type').value;
+        existing.currency = document.getElementById('acc-currency').value;
+        existing.startingBalance = bal;
+        existing.balance = bal;
+        existing.broker = (document.getElementById('acc-broker').value||'').trim();
+        existing.platform = (document.getElementById('acc-platform').value||'').trim();
+        existing.accountNumber = (document.getElementById('acc-number').value||'').trim();
+        existing.propFirm = (document.getElementById('acc-propfirm').value||'').trim();
+        existing.active = document.getElementById('acc-active').checked;
+        accs[idx] = existing;
+      } else {
+        // Create new
+        var newAcc = {
+          id: accGenId(),
+          name: name,
+          type: document.getElementById('acc-type').value,
+          currency: document.getElementById('acc-currency').value,
+          startingBalance: bal,
+          balance: bal,
+          broker: (document.getElementById('acc-broker').value||'').trim(),
+          platform: (document.getElementById('acc-platform').value||'').trim(),
+          accountNumber: (document.getElementById('acc-number').value||'').trim(),
+          propFirm: (document.getElementById('acc-propfirm').value||'').trim(),
+          active: document.getElementById('acc-active').checked,
+          createdAt: new Date().toISOString()
+        };
+        accs.push(newAcc);
+      }
+
+      accSave(accs);
+      closeAddAccountModal();
+      renderAccountsPage();
+
+      // Refresh other parts of the app that depend on accounts
+      if(typeof updateDashboard === 'function') try{ updateDashboard(); }catch(e){}
+    }
+    window.saveAccountModal = saveAccountModal;
+
+    // ── DELETE ──
+    function deleteAccount(id){
+      var accs = accLoad();
+      var a = accs.find(function(x){ return x.id === id; });
+      if(!a) return;
+
+      // Count attached trades
+      var trades = [];
+      try{ trades = JSON.parse(rfxGet('rf_trades')||'[]'); }catch(e){}
+      var attached = trades.filter(function(t){ return t.account === id; }).length;
+
+      var msg = 'Delete account "' + (a.name||'') + '"?';
+      if(attached > 0) msg += '\n\nWARNING: This account has ' + attached + ' attached trade' + (attached===1?'':'s') + '. Those trades will remain in your journal but will lose their account link.';
+      msg += '\n\nThis cannot be undone.';
+      if(!confirm(msg)) return;
+
+      accs = accs.filter(function(x){ return x.id !== id; });
+      accSave(accs);
+
+      // Also remove from cloud
+      if(window._tqSupa && window._tqUser){
+        try{ _tqSupa.from('accounts').delete().eq('user_id', _tqUser.id).eq('external_id', id); }catch(e){}
+      }
+
+      renderAccountsPage();
+      if(typeof updateDashboard === 'function') try{ updateDashboard(); }catch(e){}
+    }
+    window.deleteAccount = deleteAccount;
+
+    // ── TOGGLE ACTIVE ──
+    function accToggleActive(id, on){
+      var accs = accLoad();
+      var idx = accs.findIndex(function(x){ return x.id === id; });
+      if(idx < 0) return;
+      accs[idx].active = !!on;
+      accSave(accs);
+      renderAccountsPage();
+    }
+    window.accToggleActive = accToggleActive;
+
+    // ── BACK BUTTON ──
+    document.addEventListener('DOMContentLoaded', function(){
+      var back = document.getElementById('btn-accounts-back');
+      if(back && !back._wired){
+        back.addEventListener('click', function(){ showPage('dashboard'); });
+        back._wired = true;
+      }
+      // Click outside modal to close
+      var m = document.getElementById('acc-modal');
+      if(m && !m._wired){
+        m.addEventListener('click', function(e){
+          if(e.target === m) closeAddAccountModal();
+        });
+        m._wired = true;
+      }
+    });
+    // Also wire immediately if DOM already loaded (script is at bottom)
+    setTimeout(function(){
+      var back = document.getElementById('btn-accounts-back');
+      if(back && !back._wired){
+        back.addEventListener('click', function(){ showPage('dashboard'); });
+        back._wired = true;
+      }
+      var m = document.getElementById('acc-modal');
+      if(m && !m._wired){
+        m.addEventListener('click', function(e){
+          if(e.target === m) closeAddAccountModal();
+        });
+        m._wired = true;
+      }
+      // ESC closes modal
+      document.addEventListener('keydown', function(e){
+        if(e.key === 'Escape'){
+          var modal = document.getElementById('acc-modal');
+          if(modal && modal.classList.contains('open')) closeAddAccountModal();
+        }
+      });
+    }, 100);
+
+  })();
+  // ══ END MY ACCOUNTS MODULE ══
+
+  // ██  LIFECYCLE MODULE — Sprint A: Plan → Live → Closed → Cancelled
+  // ██  Adds new field t.lifecycle to trades. Existing trades default to 'closed'.
+  // ██  Existing t.status (TP/BE/SL/Open) is preserved as-is.
+  (function(){
+
+    var _plPair = null;        // pair currently being planned (set by ckPlanTrade)
+    var _plDir = 'buy';        // direction in plan-lock modal
+    var _plPrefill = null;     // full prefill (cockpit snapshot etc.)
+    var _ecPlanId = null;      // plan id being entry-confirmed
+    var _clTradeId = null;     // live trade id being closed
+    var _clResult = '';        // TP / BE / SL
+
+    function lcEscapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+
+    function lcGenId(){
+      if(typeof crypto!=='undefined' && crypto.randomUUID) return crypto.randomUUID();
+      return 'tr_'+Date.now()+'_'+Math.random().toString(36).slice(2,10);
+    }
+
+    function lcLoadTrades(){
+      try{ return JSON.parse(rfxGet('rf_trades')||'[]'); }catch(e){ return []; }
+    }
+    function lcSaveTrades(list){
+      rfxSet('rf_trades', JSON.stringify(list));
+    }
+
+    function lcDefaultLifecycle(t){
+      // For pre-existing trades that don't have lifecycle, infer it
+      if(t.lifecycle) return t.lifecycle;
+      // If has entry+exit+pnl → closed
+      // If has entry but no exit → live
+      // Otherwise → closed (legacy default)
+      return 'closed';
+    }
+
+    // ═══ COCKPIT: PLAN A TRADE (replaces old ckTakeTrade) ═══
+    function ckPlanTrade(pair){
+      // Save current cockpit state first
+      if(typeof ckAutoSave==='function') ckAutoSave();
+
+      var p = (typeof ckData!=='undefined' && ckData && ckData.pairs) ? (ckData.pairs[pair]||{}) : {};
+      var sess = (typeof ckData!=='undefined' && ckData) ? (ckData.session||'') : '';
+
+      // Build cockpit snapshot
+      var snap = {
+        savedAt:new Date().toISOString(),
+        session:sess,
+        sessionNotes:(typeof ckData!=='undefined'&&ckData)?(ckData.notes||''):'',
+        dailyBias:p.dailyBias||'',
+        htfTrend:p.htfTrend||'',
+        marketPhase:p.marketPhase||'',
+        mainPush:p.mainPush||'',
+        pullback:p.pullback||'',
+        condition:p.condition||'',
+        model:p.model||'',
+        trendAlign:p.trendAlign||'',
+        execType:p.execType||'',
+        ltfConfs:p.ltfConfs||[],
+        poiType:p.poiType||[],
+        poiLevel:p.poiLevel||'',
+        liquidity:p.liquidity||[],
+        sweeps:p.sweeps||{},
+        asiaNotes:p.asiaNotes||'',
+        setupType:p.setupType||'',
+        narrative:p.narrative||'',
+        prePsych:p.prePsych||[],
+        psychNote:p.psychNote||'',
+        invFlags:p.invFlags||[]
+      };
+
+      _plPair = pair;
+      _plPrefill = {
+        pair:pair, session:sess,
+        dailyBias:snap.dailyBias, htfTrend:snap.htfTrend, marketPhase:snap.marketPhase,
+        condition:snap.condition, model:snap.model, trendAlignment:snap.trendAlign,
+        execType:snap.execType, ltfConfirmations:snap.ltfConfs, poiTypes:snap.poiType,
+        psychTags:snap.prePsych, psychNote:snap.psychNote,
+        cockpitSnapshot:snap
+      };
+
+      // Pre-set direction from bias if available
+      var bias = (snap.dailyBias||'').toLowerCase();
+      _plDir = (bias.indexOf('bear')>=0 || bias === 'short' || bias === 'sell') ? 'sell' : 'buy';
+
+      // Build summary card
+      var tags = [];
+      if(snap.session) tags.push(snap.session);
+      if(snap.dailyBias) tags.push('Bias: '+snap.dailyBias);
+      if(snap.htfTrend) tags.push('HTF: '+snap.htfTrend);
+      if(snap.marketPhase) tags.push(snap.marketPhase);
+      if(snap.condition) tags.push(snap.condition);
+      if(snap.model) tags.push(snap.model);
+      if(snap.execType) tags.push(snap.execType);
+      var sumHtml = '<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;font-family:\'Space Grotesk\',sans-serif">'+lcEscapeHtml(pair)+'</div>';
+      sumHtml += tags.map(function(t){return '<span class="pl-summary-tag">'+lcEscapeHtml(t)+'</span>';}).join('');
+      if(snap.narrative) sumHtml += '<div style="margin-top:8px;font-style:italic;color:var(--text3);font-size:11px">"'+lcEscapeHtml(snap.narrative)+'"</div>';
+
+      document.getElementById('pl-summary').innerHTML = sumHtml;
+      document.getElementById('pl-modal-title').textContent = 'Lock plan · '+pair;
+      document.getElementById('pl-trigger').value = '';
+      document.getElementById('pl-entry').value = '';
+      document.getElementById('pl-stop').value = '';
+      document.getElementById('pl-target').value = '';
+      document.getElementById('pl-risk').value = '';
+      plSetDir(_plDir);
+
+      document.getElementById('pl-modal').classList.add('open');
+      setTimeout(function(){ document.getElementById('pl-trigger').focus(); }, 60);
+    }
+    window.ckPlanTrade = ckPlanTrade;
+    // Keep old name as alias so anything else that references it still works:
+    window.ckTakeTrade = ckPlanTrade;
+
+    function plSetDir(d){
+      _plDir = (d==='sell') ? 'sell' : 'buy';
+      var b1 = document.getElementById('pl-dir-buy');
+      var b2 = document.getElementById('pl-dir-sell');
+      if(b1) b1.classList.toggle('on', _plDir==='buy');
+      if(b2) b2.classList.toggle('on', _plDir==='sell');
+    }
+    window.plSetDir = plSetDir;
+
+    function closePlanLockModal(){
+      var m = document.getElementById('pl-modal');
+      if(m) m.classList.remove('open');
+      _plPair = null;
+      _plPrefill = null;
+    }
+    window.closePlanLockModal = closePlanLockModal;
+
+    function savePlanLock(){
+      var trigger = (document.getElementById('pl-trigger').value||'').trim();
+      if(!trigger){ alert('Entry trigger is required — describe what needs to happen for you to take this trade'); document.getElementById('pl-trigger').focus(); return; }
+      if(!_plPair){ alert('No pair selected'); closePlanLockModal(); return; }
+
+      var entry = parseFloat(document.getElementById('pl-entry').value)||null;
+      var stop  = parseFloat(document.getElementById('pl-stop').value)||null;
+      var target= parseFloat(document.getElementById('pl-target').value)||null;
+      var risk  = parseFloat(document.getElementById('pl-risk').value)||null;
+
+      var planRR = null;
+      if(entry && stop && target && entry !== stop){
+        planRR = Math.abs((target - entry) / (entry - stop));
+        planRR = Math.round(planRR*100)/100;
+      }
+
+      var snap = (_plPrefill && _plPrefill.cockpitSnapshot) || {};
+
+      var trade = {
+        id: lcGenId(),
+        lifecycle: 'planned',
+        pair: _plPair,
+        dir: _plDir,
+        date: new Date().toISOString().slice(0,10),
+        session: snap.session || '',
+        plannedAt: new Date().toISOString(),
+        plannedTrigger: trigger,
+        plannedEntry: entry,
+        plannedStop: stop,
+        plannedTarget: target,
+        plannedRisk: risk,
+        plannedRR: planRR,
+        cockpitSnapshot: snap,
+        // Pre-fill flat fields from snapshot for journal compatibility
+        dailyBias: snap.dailyBias||'',
+        htfTrend: snap.htfTrend||'',
+        marketPhase: snap.marketPhase||'',
+        condition: snap.condition||'',
+        model: snap.model||'',
+        trendAlignment: snap.trendAlign||'',
+        execType: snap.execType||'',
+        ltfConfirmations: snap.ltfConfs||[],
+        poiTypes: snap.poiType||[],
+        psychTags: snap.prePsych||[],
+        psychNote: snap.psychNote||'',
+        notes: snap.narrative||''
+      };
+
+      var trades = lcLoadTrades();
+      trades.push(trade);
+      lcSaveTrades(trades);
+
+      // Cloud sync
+      if(window.tqPushTrade) try{ tqPushTrade(trade); }catch(e){ console.warn('Cloud sync skipped',e); }
+
+      closePlanLockModal();
+      apRender();
+      lcToast('Plan locked · waiting for trigger', 'success');
+    }
+    window.savePlanLock = savePlanLock;
+
+    // ═══ ENTRY CONFIRM ═══
+    function apEnter(planId){
+      var trades = lcLoadTrades();
+      var t = trades.find(function(x){return x.id===planId;});
+      if(!t || t.lifecycle !== 'planned'){ alert('Plan not found'); return; }
+      _ecPlanId = planId;
+
+      var sumHtml = '<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;font-family:\'Space Grotesk\',sans-serif">'+lcEscapeHtml(t.pair)+' · '+(t.dir==='sell'?'Short':'Long')+'</div>';
+      sumHtml += '<div style="font-size:11px;color:var(--text3);margin-bottom:6px"><b style="color:var(--accent3)">Trigger:</b> '+lcEscapeHtml(t.plannedTrigger||'')+'</div>';
+      var bits = [];
+      if(t.plannedEntry) bits.push('Plan entry: '+t.plannedEntry);
+      if(t.plannedStop) bits.push('Plan stop: '+t.plannedStop);
+      if(t.plannedTarget) bits.push('Plan target: '+t.plannedTarget);
+      if(bits.length) sumHtml += '<div style="font-size:10px;color:var(--text3);font-family:\'DM Mono\',monospace">'+bits.join(' · ')+'</div>';
+      document.getElementById('ec-plan-summary').innerHTML = sumHtml;
+
+      document.getElementById('ec-entry').value = t.plannedEntry || '';
+      document.getElementById('ec-stop').value  = t.plannedStop  || '';
+      document.getElementById('ec-lots').value  = '';
+      var now = new Date(); var hh = String(now.getHours()).padStart(2,'0'); var mm = String(now.getMinutes()).padStart(2,'0');
+      document.getElementById('ec-entry-time').value = hh+':'+mm;
+
+      document.getElementById('ec-modal').classList.add('open');
+      setTimeout(function(){ document.getElementById('ec-entry').focus(); }, 60);
+    }
+    window.apEnter = apEnter;
+
+    function closeEntryConfirmModal(){
+      var m = document.getElementById('ec-modal');
+      if(m) m.classList.remove('open');
+      _ecPlanId = null;
+    }
+    window.closeEntryConfirmModal = closeEntryConfirmModal;
+
+    function saveEntryConfirm(){
+      var entry = parseFloat(document.getElementById('ec-entry').value);
+      var stop  = parseFloat(document.getElementById('ec-stop').value);
+      if(isNaN(entry) || isNaN(stop)){ alert('Entry and stop are required'); return; }
+
+      var trades = lcLoadTrades();
+      var idx = trades.findIndex(function(x){return x.id===_ecPlanId;});
+      if(idx<0){ alert('Plan not found'); closeEntryConfirmModal(); return; }
+      var t = trades[idx];
+
+      t.lifecycle = 'live';
+      t.entry = entry;
+      t.stop = stop;
+      t.lots = parseFloat(document.getElementById('ec-lots').value)||null;
+      t.entryTime = document.getElementById('ec-entry-time').value || '';
+      t.enteredAt = new Date().toISOString();
+
+      // Compute deviation from plan
+      if(t.plannedEntry){
+        t.entryDeviation = Math.abs(entry - t.plannedEntry);
+      }
+      if(t.plannedStop){
+        t.stopDeviation = Math.abs(stop - t.plannedStop);
+      }
+
+      trades[idx] = t;
+      lcSaveTrades(trades);
+      if(window.tqPushTrade) try{ tqPushTrade(t); }catch(e){}
+
+      closeEntryConfirmModal();
+      apRender();
+      lcToast('Entered · trade is live', 'success');
+    }
+    window.saveEntryConfirm = saveEntryConfirm;
+
+    // ═══ TRIGGER DIDN'T FIRE / CANCEL PLAN ═══
+    function apCancel(planId, reason){
+      var trades = lcLoadTrades();
+      var idx = trades.findIndex(function(x){return x.id===planId;});
+      if(idx<0) return;
+      var t = trades[idx];
+
+      var label = reason==='trigger_not_met' ? "Plan didn't trigger" : 'Cancel plan';
+      var msg = reason==='trigger_not_met'
+        ? 'Mark this plan as "trigger didn\'t fire"?\n\nThis is a discipline win — you waited for your conditions and they didn\'t come.'
+        : 'Cancel this plan?\n\nNote: this will be flagged as a manual cancel — review later if FOMO/doubt was a factor.';
+      if(!confirm(msg)) return;
+
+      t.lifecycle = 'cancelled';
+      t.cancelReason = reason || 'manual_cancel';
+      t.cancelledAt = new Date().toISOString();
+
+      trades[idx] = t;
+      lcSaveTrades(trades);
+      if(window.tqPushTrade) try{ tqPushTrade(t); }catch(e){}
+
+      apRender();
+      lcToast(reason==='trigger_not_met' ? 'Discipline win logged' : 'Plan cancelled', reason==='trigger_not_met' ? 'success' : '');
+    }
+    window.apCancel = apCancel;
+
+    // ═══ CLOSE LIVE TRADE ═══
+    function apClose(tradeId){
+      var trades = lcLoadTrades();
+      var t = trades.find(function(x){return x.id===tradeId;});
+      if(!t || t.lifecycle !== 'live'){ alert('Live trade not found'); return; }
+      _clTradeId = tradeId;
+      _clResult = '';
+
+      var sumHtml = '<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;font-family:\'Space Grotesk\',sans-serif">'+lcEscapeHtml(t.pair)+' · '+(t.dir==='sell'?'Short':'Long')+'</div>';
+      sumHtml += '<div style="font-size:10px;color:var(--text3);font-family:\'DM Mono\',monospace">Entry: '+(t.entry||'—')+' · Stop: '+(t.stop||'—')+(t.plannedTarget?' · Target: '+t.plannedTarget:'')+'</div>';
+      document.getElementById('cl-plan-summary').innerHTML = sumHtml;
+
+      document.getElementById('cl-exit').value = '';
+      document.getElementById('cl-pnl').value = '';
+      var now = new Date(); var hh = String(now.getHours()).padStart(2,'0'); var mm = String(now.getMinutes()).padStart(2,'0');
+      document.getElementById('cl-exit-time').value = hh+':'+mm;
+      ['tp','be','sl'].forEach(function(r){
+        var b = document.getElementById('cl-res-'+r);
+        if(b) b.classList.remove('on');
+      });
+
+      document.getElementById('cl-modal').classList.add('open');
+      setTimeout(function(){ document.getElementById('cl-exit').focus(); }, 60);
+    }
+    window.apClose = apClose;
+
+    function clSetResult(r){
+      _clResult = r;
+      ['tp','be','sl'].forEach(function(x){
+        var b = document.getElementById('cl-res-'+x);
+        if(b) b.classList.toggle('on', x.toUpperCase()===r);
+      });
+    }
+    window.clSetResult = clSetResult;
+
+    function closeCloseTradeModal(){
+      var m = document.getElementById('cl-modal');
+      if(m) m.classList.remove('open');
+      _clTradeId = null;
+      _clResult = '';
+    }
+    window.closeCloseTradeModal = closeCloseTradeModal;
+
+    function saveCloseTrade(){
+      if(!_clResult){ alert('Pick a result: TP / BE / SL'); return; }
+      var exit = parseFloat(document.getElementById('cl-exit').value);
+      if(isNaN(exit)){ alert('Exit price is required'); return; }
+
+      var trades = lcLoadTrades();
+      var idx = trades.findIndex(function(x){return x.id===_clTradeId;});
+      if(idx<0){ alert('Trade not found'); closeCloseTradeModal(); return; }
+      var t = trades[idx];
+
+      t.lifecycle = 'closed';
+      t.exit = exit;
+      t.exitTime = document.getElementById('cl-exit-time').value || '';
+      t.closedAt = new Date().toISOString();
+      t.status = _clResult; // TP/BE/SL — preserves existing field semantics
+      var pnl = parseFloat(document.getElementById('cl-pnl').value);
+      if(!isNaN(pnl)) t.pnl = pnl;
+
+      trades[idx] = t;
+      lcSaveTrades(trades);
+      if(window.tqPushTrade) try{ tqPushTrade(t); }catch(e){}
+
+      closeCloseTradeModal();
+      apRender();
+
+      // Open Trade Review with 3 questions BEFORE journaling
+      setTimeout(function(){
+        if(typeof openTradeReviewModal === 'function') openTradeReviewModal(t.id);
+      }, 150);
+
+      lcToast('Trade closed · review process', 'success');
+    }
+    window.saveCloseTrade = saveCloseTrade;
+
+    // ═══ ACTIVE PLANS RAIL RENDER ═══
+    function apRender(){
+      var rail = document.getElementById('ap-rail');
+      var list = document.getElementById('ap-cards');
+      if(!rail || !list) return;
+
+      var trades = lcLoadTrades();
+      var active = trades.filter(function(t){
+        var lc = lcDefaultLifecycle(t);
+        return lc === 'planned' || lc === 'live';
+      });
+
+      // Sort: live first, then planned, newest first within each
+      active.sort(function(a,b){
+        var la = lcDefaultLifecycle(a), lb = lcDefaultLifecycle(b);
+        if(la !== lb) return la === 'live' ? -1 : 1;
+        return (b.plannedAt||b.enteredAt||'').localeCompare(a.plannedAt||a.enteredAt||'');
+      });
+
+      var planned = active.filter(function(t){return lcDefaultLifecycle(t)==='planned';}).length;
+      var live    = active.filter(function(t){return lcDefaultLifecycle(t)==='live';}).length;
+
+      document.getElementById('ap-count-planned').textContent = planned;
+      document.getElementById('ap-count-live').textContent = live;
+
+      if(!active.length){
+        rail.classList.remove('show');
+        list.innerHTML = '';
+        return;
+      }
+      rail.classList.add('show');
+
+      list.innerHTML = active.map(function(t){
+        var lc = lcDefaultLifecycle(t);
+        var dirLabel = t.dir==='sell' ? 'Short' : 'Long';
+        var when = t.plannedAt ? new Date(t.plannedAt).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '';
+        var sess = t.session ? ' · '+t.session : '';
+        var rrTxt = t.plannedRR ? ' · '+t.plannedRR+'R' : '';
+
+        var pricesHtml = '<div class="ap-card-prices">'+
+          '<div class="ap-card-price"><div class="ap-card-price-label">Entry</div><div class="ap-card-price-val">'+(t.entry || t.plannedEntry || '—')+'</div></div>'+
+          '<div class="ap-card-price"><div class="ap-card-price-label">Stop</div><div class="ap-card-price-val">'+(t.stop || t.plannedStop || '—')+'</div></div>'+
+          '<div class="ap-card-price"><div class="ap-card-price-label">Target</div><div class="ap-card-price-val">'+(t.plannedTarget || '—')+'</div></div>'+
+        '</div>';
+
+        var actions;
+        if(lc === 'planned'){
+          actions = '<div class="ap-card-actions">'+
+            '<button class="primary" onclick="apEnter(\''+t.id+'\')">I entered ✓</button>'+
+            '<button onclick="apCancel(\''+t.id+'\',\'trigger_not_met\')" title="Trigger conditions weren\'t met">No trigger</button>'+
+            '<button class="danger" onclick="apCancel(\''+t.id+'\',\'manual_cancel\')" title="Cancel plan manually">✕</button>'+
+          '</div>';
+        } else {
+          actions = '<div class="ap-card-actions">'+
+            '<button class="primary" onclick="apClose(\''+t.id+'\')">Close trade</button>'+
+          '</div>';
+        }
+
+        return [
+          '<div class="ap-card '+(lc==='live'?'live':'')+'">',
+          '  <div class="ap-card-head">',
+          '    <div class="ap-card-pair">'+lcEscapeHtml(t.pair)+' · '+dirLabel+'</div>',
+          '    <span class="ap-card-status '+lc+'">'+(lc==='live'?'Live':'Planned')+'</span>',
+          '  </div>',
+          '  <div class="ap-card-meta">'+lcEscapeHtml(when+sess+rrTxt)+'</div>',
+          (t.plannedTrigger ? '  <div class="ap-card-trigger"><div class="ap-card-trigger-label">Trigger</div>'+lcEscapeHtml(t.plannedTrigger)+'</div>' : ''),
+          pricesHtml,
+          actions,
+          '</div>'
+        ].join('');
+      }).join('');
+    }
+    window.apRender = apRender;
+
+    // ═══ TOAST ═══
+    function lcToast(msg, type){
+      var el = document.createElement('div');
+      el.className = 'ms-toast' + (type === 'error' ? ' ms-toast-error' : type === 'success' ? ' ms-toast-success' : '');
+      // Reuse ms-toast styles which already exist? Check — if not, inline it
+      if(!document.querySelector('.ms-toast')){
+        // Fallback minimal styling
+        el.style.cssText = 'position:fixed;bottom:24px;right:24px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 18px;box-shadow:0 8px 32px rgba(0,0,0,.4);font-size:12px;color:var(--text);font-family:Inter,sans-serif;z-index:9999;animation:msToastIn .25s';
+        if(type==='success') el.style.borderColor='rgba(46,204,138,.5)';
+        if(type==='error') el.style.borderColor='rgba(255,80,95,.5)';
+      }
+      el.textContent = msg;
+      document.body.appendChild(el);
+      setTimeout(function(){ el.style.opacity = '0'; el.style.transition = 'opacity .3s'; }, 2700);
+      setTimeout(function(){ try{ document.body.removeChild(el); }catch(e){} }, 3100);
+    }
+
+    // Click outside modals to close
+    setTimeout(function(){
+      ['pl-modal','ec-modal','cl-modal'].forEach(function(mid){
+        var m = document.getElementById(mid);
+        if(m && !m._wired){
+          m.addEventListener('click', function(e){
+            if(e.target === m){
+              if(mid==='pl-modal') closePlanLockModal();
+              else if(mid==='ec-modal') closeEntryConfirmModal();
+              else if(mid==='cl-modal') closeCloseTradeModal();
+            }
+          });
+          m._wired = true;
+        }
+      });
+      // ESC closes any open lifecycle modal
+      document.addEventListener('keydown', function(e){
+        if(e.key !== 'Escape') return;
+        ['pl-modal','ec-modal','cl-modal'].forEach(function(mid){
+          var m = document.getElementById(mid);
+          if(m && m.classList.contains('open')){
+            if(mid==='pl-modal') closePlanLockModal();
+            else if(mid==='ec-modal') closeEntryConfirmModal();
+            else if(mid==='cl-modal') closeCloseTradeModal();
+          }
+        });
+      });
+    }, 200);
+
+    // First render once DOM ready
+    setTimeout(function(){ try{ apRender(); }catch(e){} }, 500);
+
+    // ═══ TRADE REVIEW (Sprint B: 3 questions before journaling) ═══
+    var _trTradeId = null;
+    var _trAnswers = {trigger:null, entry:null, exit:null};
+
+    function openTradeReviewModal(tradeId){
+      _trTradeId = tradeId;
+      _trAnswers = {trigger:null, entry:null, exit:null};
+
+      var trades = lcLoadTrades();
+      var t = trades.find(function(x){return x.id===tradeId;});
+      if(!t){
+        // Defensive — just go to journal
+        if(typeof showPage==='function') showPage('journal');
+        return;
+      }
+
+      // Build summary header
+      var dirLabel = t.dir==='sell' ? 'Short' : 'Long';
+      var pnlVal = (t.pnl !== undefined && t.pnl !== null) ? t.pnl : null;
+      var pnlColor = pnlVal === null ? 'var(--text3)' : (pnlVal >= 0 ? '#2ecc8a' : '#ff505f');
+      var pnlSign = pnlVal === null ? '' : (pnlVal >= 0 ? '+' : '');
+      var pnlText = pnlVal === null ? '—' : (pnlSign + pnlVal.toLocaleString(undefined,{maximumFractionDigits:2}));
+      var resultBadge = t.status ? '<span style="display:inline-block;padding:2px 9px;border-radius:10px;background:'+(t.status==='TP'?'rgba(46,204,138,.12);color:#2ecc8a':t.status==='SL'?'rgba(255,80,95,.12);color:#ff505f':'rgba(240,180,41,.12);color:#f0b429')+';font-size:10px;font-weight:700">'+t.status+'</span>' : '';
+
+      var sumHtml = '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">';
+      sumHtml += '<div><div style="font-size:14px;font-weight:600;color:var(--text);font-family:\'Space Grotesk\',sans-serif">'+lcEscapeHtml(t.pair)+' · '+dirLabel+'</div>';
+      sumHtml += '<div style="font-size:10px;color:var(--text3);font-family:\'DM Mono\',monospace;margin-top:2px">Entry: '+(t.entry||'—')+' → Exit: '+(t.exit||'—')+'</div></div>';
+      sumHtml += '<div style="text-align:right">'+resultBadge+'<div style="font-size:13px;font-weight:700;color:'+pnlColor+';font-family:\'DM Mono\',monospace;margin-top:4px">'+pnlText+'</div></div>';
+      sumHtml += '</div>';
+      document.getElementById('tr-plan-summary').innerHTML = sumHtml;
+
+      // Q1 trigger text
+      var triggerEl = document.getElementById('tr-trigger-text');
+      if(triggerEl) triggerEl.textContent = t.plannedTrigger ? '"'+t.plannedTrigger+'"' : '(no trigger logged in plan)';
+
+      // Q2 entry hint
+      var entryHint = document.getElementById('tr-entry-hint');
+      if(entryHint){
+        if(t.plannedEntry && t.entry){
+          var deviation = Math.abs(t.entry - t.plannedEntry);
+          var pipsRough = (t.pair && (t.pair.indexOf('JPY')>=0)) ? (deviation*100).toFixed(1) : (deviation*10000).toFixed(1);
+          entryHint.textContent = 'Plan: '+t.plannedEntry+' · Actual: '+t.entry+' (diff: ~'+pipsRough+' pips)';
+        } else if(t.plannedEntry){
+          entryHint.textContent = 'Plan: '+t.plannedEntry;
+        } else {
+          entryHint.textContent = '(no planned entry recorded)';
+        }
+      }
+
+      // Q3 exit hint
+      var exitHint = document.getElementById('tr-exit-hint');
+      if(exitHint){
+        if(t.plannedTarget && t.exit){
+          exitHint.textContent = 'Plan target: '+t.plannedTarget+' · Actual exit: '+t.exit;
+        } else if(t.plannedTarget){
+          exitHint.textContent = 'Plan target: '+t.plannedTarget;
+        } else {
+          exitHint.textContent = '(no planned target recorded)';
+        }
+      }
+
+      // Reset all option buttons
+      document.querySelectorAll('#tr-modal .tr-option').forEach(function(b){
+        b.classList.remove('on','green','amber','red');
+      });
+      document.getElementById('tr-result').style.display = 'none';
+      var saveBtn = document.getElementById('tr-save-btn');
+      if(saveBtn){ saveBtn.disabled = true; saveBtn.style.opacity = '0.4'; }
+
+      document.getElementById('tr-modal').classList.add('open');
+    }
+    window.openTradeReviewModal = openTradeReviewModal;
+
+    function trAnswer(btn){
+      var q = btn.getAttribute('data-q');
+      var val = btn.getAttribute('data-val');
+      _trAnswers[q] = val;
+
+      // Color: yes = green, partial/close = amber, no/far/early/late = red (early/late are "deviations" not failures, so amber)
+      var color;
+      if(val === 'yes') color = 'green';
+      else if(val === 'no') color = 'red';
+      else color = 'amber'; // partial, close, far, early, late
+
+      // Re-paint group
+      document.querySelectorAll('#tr-modal .tr-option[data-q="'+q+'"]').forEach(function(b){
+        b.classList.remove('on','green','amber','red');
+      });
+      btn.classList.add('on', color);
+
+      trEvaluate();
+    }
+    window.trAnswer = trAnswer;
+
+    function trEvaluate(){
+      var a = _trAnswers;
+      if(!a.trigger || !a.entry || !a.exit){
+        // Not all answered yet — hide result, disable save
+        document.getElementById('tr-result').style.display = 'none';
+        var sb = document.getElementById('tr-save-btn');
+        if(sb){ sb.disabled = true; sb.style.opacity = '0.4'; }
+        return;
+      }
+
+      // Compute process status
+      // CLEAN: all yes
+      // BROKEN: trigger=no OR entry=far (entered far from plan = essentially different setup)
+      // DEVIATION: anything else (some deviation but core was honored)
+      var status, title, sub;
+
+      if(a.trigger === 'no'){
+        status = 'broken';
+        title = 'Process: Broken';
+        sub = "You entered without your trigger. This trade doesn't count toward edge regardless of P&L. The win was random.";
+      } else if(a.entry === 'far'){
+        status = 'broken';
+        title = 'Process: Broken';
+        sub = "Entry far from plan = different setup. Don't count this toward edge metrics.";
+      } else if(a.trigger === 'yes' && a.entry === 'yes' && a.exit === 'yes'){
+        status = 'clean';
+        title = 'Process: Clean ✓';
+        sub = "Plan executed as designed. This trade counts toward your real edge.";
+      } else {
+        status = 'deviation';
+        title = 'Process: Deviation';
+        sub = "Core process honored, but some deviation. Worth reviewing what made you adjust.";
+      }
+
+      var iconChar = status==='clean' ? '✓' : status==='deviation' ? '!' : '✕';
+      var html = '<div class="tr-result '+status+'">';
+      html += '<div class="tr-result-icon">'+iconChar+'</div>';
+      html += '<div><div class="tr-result-title">'+title+'</div><div class="tr-result-sub">'+sub+'</div></div>';
+      html += '</div>';
+
+      var resEl = document.getElementById('tr-result');
+      resEl.innerHTML = html;
+      resEl.style.display = 'block';
+
+      var sb = document.getElementById('tr-save-btn');
+      if(sb){ sb.disabled = false; sb.style.opacity = '1'; }
+    }
+
+    function closeTradeReviewModal(){
+      var m = document.getElementById('tr-modal');
+      if(m) m.classList.remove('open');
+      _trTradeId = null;
+      _trAnswers = {trigger:null, entry:null, exit:null};
+    }
+    window.closeTradeReviewModal = closeTradeReviewModal;
+
+    function trSkipReview(){
+      // Close modal, take user to journal anyway — they can review later via Edit Trade
+      closeTradeReviewModal();
+      if(typeof showPage==='function') showPage('journal');
+      setTimeout(function(){ if(typeof renderJournal==='function') try{ renderJournal(); }catch(e){} }, 100);
+    }
+    window.trSkipReview = trSkipReview;
+
+    function saveTradeReview(){
+      var a = _trAnswers;
+      if(!a.trigger || !a.entry || !a.exit){
+        alert('Please answer all three questions');
+        return;
+      }
+      if(!_trTradeId) return;
+
+      var trades = lcLoadTrades();
+      var idx = trades.findIndex(function(x){return x.id===_trTradeId;});
+      if(idx < 0){ closeTradeReviewModal(); return; }
+      var t = trades[idx];
+
+      // Compute status (mirror trEvaluate logic)
+      var status;
+      if(a.trigger === 'no' || a.entry === 'far') status = 'broken';
+      else if(a.trigger === 'yes' && a.entry === 'yes' && a.exit === 'yes') status = 'clean';
+      else status = 'deviation';
+
+      // Save review fields
+      t.triggerFired = a.trigger;       // 'yes' | 'partial' | 'no'
+      t.entryAdherence = a.entry;       // 'yes' | 'close' | 'far'
+      t.exitAdherence = a.exit;         // 'yes' | 'early' | 'late'
+      t.processStatus = status;         // 'clean' | 'deviation' | 'broken'
+      t.reviewedAt = new Date().toISOString();
+
+      // Auto-populate legacy planFollowed for backwards compatibility with Reports/charts
+      t.planFollowed = (status === 'clean') ? 'yes' : 'no';
+
+      trades[idx] = t;
+      lcSaveTrades(trades);
+      if(window.tqPushTrade) try{ tqPushTrade(t); }catch(e){}
+
+      closeTradeReviewModal();
+
+      // Now go to Journal so user can add notes/screenshots/etc
+      if(typeof showPage==='function') showPage('journal');
+      setTimeout(function(){
+        if(typeof openJrModal==='function'){
+          try{ openJrModal(t.id); }catch(e){}
+        }
+        if(typeof renderJournal==='function') try{ renderJournal(); }catch(e){}
+      }, 200);
+
+      var msg = status === 'clean' ? 'Clean process logged ✓'
+              : status === 'deviation' ? 'Deviation logged'
+              : 'Process violation logged';
+      var toastType = status === 'clean' ? 'success' : '';
+      lcToast(msg, toastType);
+    }
+    window.saveTradeReview = saveTradeReview;
+
+    // Click outside review modal & ESC
+    setTimeout(function(){
+      var m = document.getElementById('tr-modal');
+      if(m && !m._wired){
+        m.addEventListener('click', function(e){
+          if(e.target === m) closeTradeReviewModal();
+        });
+        m._wired = true;
+      }
+      document.addEventListener('keydown', function(e){
+        if(e.key === 'Escape'){
+          var modal = document.getElementById('tr-modal');
+          if(modal && modal.classList.contains('open')) closeTradeReviewModal();
+        }
+      });
+    }, 250);
+
+  })();
+  // ══ END LIFECYCLE MODULE ══
 
   // ── VERSION RESET: Clear stale data from previous versions ──
   var _TQ_VERSION = 'v16';
@@ -16857,7 +18232,7 @@ window.dispatchEvent(new Event('supabase-ready'));
 
       // TAKE TRADE BUTTON
       h+='<div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px">';
-      h+='<button class="ck-take-trade-btn" onclick="ckTakeTrade(\''+pair+'\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Take Trade on '+pair+'</button>';
+      h+='<button class="ck-take-trade-btn" onclick="ckPlanTrade(\''+pair+'\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg> Plan trade on '+pair+'</button>';
       h+='</div>';
 
       h+='</div>';
@@ -16899,6 +18274,8 @@ window.dispatchEvent(new Event('supabase-ready'));
     }
     // Update performance strip
     if(typeof ckUpdatePerfStrip==='function') ckUpdatePerfStrip();
+    // Render active plans rail
+    if(typeof apRender==='function') apRender();
   }
   window.ckRender=ckRender;
 
