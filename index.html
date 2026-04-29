@@ -17539,6 +17539,9 @@ window.dispatchEvent(new Event('supabase-ready'));
     return txt.replace(/## (.*)/g,'<div style="font-size:12px;font-weight:700;color:var(--accent3);margin:10px 0 4px">$1</div>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/^- (.*)/gm,'<div style="padding:2px 0 2px 10px;border-left:2px solid rgba(124,90,240,.1)">• $1</div>').replace(/\n/g,'<br>');
   }
 
+  // ── ASK AI — conversational chat with memory ──
+  var askChatHistory = [];
+
   function aiRenderAskChat(loading){
     var resp=document.getElementById('ai-ask-response');
     var html='';
