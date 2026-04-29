@@ -3234,32 +3234,54 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
 .lc-badge .lc-dot{width:5px;height:5px;border-radius:50%;background:currentColor}
 .lc-badge.live .lc-dot{animation:msPulse 1.4s ease-in-out infinite}
 @keyframes msPulse{0%,100%{opacity:.4}50%{opacity:1}}
+@keyframes msPulse{0%,100%{opacity:.4}50%{opacity:1}}
 
-/* ══ TRADE REVIEW (Sprint B: 3 questions before journaling) ══ */
-.tr-question{margin-bottom:18px}
-.tr-q-label{font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;font-family:'Inter',sans-serif;line-height:1.4}
-.tr-q-hint{font-size:10px;color:var(--text3);margin-bottom:8px;line-height:1.5}
-.tr-options{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.tr-option{padding:10px 8px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;text-align:center;line-height:1.3}
-.tr-option:hover{border-color:var(--accent3)}
-.tr-option.on.green{background:rgba(46,204,138,.1);border-color:#2ecc8a;color:#2ecc8a}
-.tr-option.on.amber{background:rgba(240,180,41,.1);border-color:#f0b429;color:#f0b429}
-.tr-option.on.red{background:rgba(255,80,95,.1);border-color:#ff505f;color:#ff505f}
-.tr-result{margin-top:8px;padding:14px 16px;border-radius:12px;display:flex;align-items:center;gap:12px;font-family:'Inter',sans-serif}
-.tr-result.clean{background:rgba(46,204,138,.08);border:1px solid rgba(46,204,138,.25)}
-.tr-result.deviation{background:rgba(240,180,41,.08);border:1px solid rgba(240,180,41,.25)}
-.tr-result.broken{background:rgba(255,80,95,.08);border:1px solid rgba(255,80,95,.25)}
-.tr-result-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;font-weight:700}
-.tr-result.clean .tr-result-icon{background:rgba(46,204,138,.15);color:#2ecc8a}
-.tr-result.deviation .tr-result-icon{background:rgba(240,180,41,.15);color:#f0b429}
-.tr-result.broken .tr-result-icon{background:rgba(255,80,95,.15);color:#ff505f}
-.tr-result-title{font-size:13px;font-weight:700;margin-bottom:2px}
-.tr-result.clean .tr-result-title{color:#2ecc8a}
-.tr-result.deviation .tr-result-title{color:#f0b429}
-.tr-result.broken .tr-result-title{color:#ff505f}
-.tr-result-sub{font-size:11px;color:var(--text3);line-height:1.5}
-.tr-skip{display:inline-block;background:none;border:none;color:var(--text3);font-size:11px;cursor:pointer;text-decoration:underline;font-family:'Inter',sans-serif;margin-top:4px}
-.tr-skip:hover{color:var(--text)}
+/* ══ COCKPIT SNAPSHOT VIEWER (full pre-market analysis frozen at trade time) ══ */
+.sv-modal{position:fixed;inset:0;background:rgba(8,6,18,.78);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9998;display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:32px 16px}
+.sv-modal.open{display:flex}
+.sv-box{background:var(--card);border:1px solid var(--border);border-radius:18px;width:100%;max-width:920px;box-shadow:0 24px 80px rgba(0,0,0,.5);overflow:hidden;animation:svIn .25s cubic-bezier(.22,1,.36,1)}
+@keyframes svIn{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+.sv-head{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,rgba(124,90,240,.06),rgba(124,90,240,.01));position:sticky;top:0;z-index:2;backdrop-filter:blur(8px)}
+.sv-head-left{display:flex;align-items:center;gap:14px}
+.sv-head-icon{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,rgba(124,90,240,.18),rgba(124,90,240,.04));display:flex;align-items:center;justify-content:center}
+.sv-head-icon svg{width:20px;height:20px;stroke:var(--accent3);fill:none;stroke-width:1.5}
+.sv-head-title{font-size:15px;font-weight:700;color:var(--text);font-family:'Space Grotesk',sans-serif;line-height:1.2}
+.sv-head-sub{font-size:11px;color:var(--text3);margin-top:3px;font-family:'DM Mono',monospace}
+.sv-head-close{background:none;border:none;width:36px;height:36px;border-radius:10px;color:var(--text3);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.sv-head-close:hover{background:var(--bg3);color:var(--text)}
+.sv-head-esc{font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;margin-right:6px;padding:3px 7px;border-radius:5px;background:var(--bg3);border:1px solid var(--border)}
+
+.sv-body{padding:24px 28px}
+.sv-section{margin-bottom:24px}
+.sv-section:last-child{margin-bottom:0}
+.sv-section-title{font-size:10px;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:1.8px;margin-bottom:12px;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:8px}
+.sv-section-title::before{content:'';display:block;width:18px;height:1.5px;background:var(--accent3);border-radius:1px}
+
+.sv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.sv-field{background:var(--bg3);border-radius:10px;padding:10px 14px;border:1px solid var(--border)}
+.sv-field-label{font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px;font-family:'Inter',sans-serif}
+.sv-field-value{font-size:13px;font-weight:600;color:var(--text);font-family:'Inter',sans-serif;line-height:1.4;word-break:break-word}
+.sv-field-value.empty{color:var(--text3);font-weight:400;font-style:italic}
+.sv-field-value.bull{color:#2ecc8a}
+.sv-field-value.bear{color:#ff505f}
+.sv-field-value.neutral{color:#f0b429}
+
+.sv-tags{display:flex;flex-wrap:wrap;gap:6px}
+.sv-tag{display:inline-block;padding:5px 11px;border-radius:8px;font-size:11px;font-weight:600;font-family:'Inter',sans-serif;background:rgba(124,90,240,.08);color:var(--accent3);border:1px solid rgba(124,90,240,.2)}
+.sv-tag.danger{background:rgba(255,80,95,.08);color:#ff505f;border-color:rgba(255,80,95,.2)}
+.sv-tag.warn{background:rgba(240,180,41,.08);color:#f0b429;border-color:rgba(240,180,41,.2)}
+.sv-tag.success{background:rgba(46,204,138,.08);color:#2ecc8a;border-color:rgba(46,204,138,.2)}
+
+.sv-narrative{background:linear-gradient(135deg,rgba(124,90,240,.04),rgba(124,90,240,.01));border:1px solid rgba(124,90,240,.18);border-left:3px solid var(--accent3);border-radius:10px;padding:14px 18px;font-size:13px;color:var(--text);line-height:1.6;font-family:'Inter',sans-serif;font-style:italic}
+
+.sv-empty-section{padding:14px 18px;background:var(--bg3);border-radius:10px;font-size:11px;color:var(--text3);text-align:center;font-style:italic;font-family:'Inter',sans-serif}
+
+.sv-view-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;border:1px solid rgba(124,90,240,.3);background:rgba(124,90,240,.06);color:var(--accent3);font-size:10px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;text-decoration:none}
+.sv-view-btn:hover{background:rgba(124,90,240,.12);border-color:var(--accent3)}
+.sv-view-btn svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2}
+
+.sv-card-btn{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:8px;background:rgba(124,90,240,.06);color:var(--accent3);border:1px solid rgba(124,90,240,.18);font-size:9px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;text-transform:uppercase;letter-spacing:.5px}
+.sv-card-btn:hover{background:rgba(124,90,240,.14);border-color:var(--accent3);color:var(--accent3)}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <script>
@@ -4350,6 +4372,30 @@ window.dispatchEvent(new Event('supabase-ready'));
       <label class="pb-btn pb-btn-ghost" style="padding:6px 16px;font-size:10px;cursor:pointer;display:inline-flex;align-items:center;gap:6px">↑ Import CSV
         <input type="file" id="jr-csv-input" accept=".csv" style="display:none" onchange="jrProcessCSV(this)">
       </label>
+    </div>
+  </div>
+
+  <!-- ═══ COCKPIT SNAPSHOT VIEWER ═══ -->
+  <div class="sv-modal" id="sv-modal" onclick="if(event.target===this)closeSvModal()">
+    <div class="sv-box">
+      <div class="sv-head">
+        <div class="sv-head-left">
+          <div class="sv-head-icon">
+            <svg viewBox="0 0 24 24"><path d="M3 9h18M9 21V9M3 5a2 2 0 012-2h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5z"/></svg>
+          </div>
+          <div>
+            <div class="sv-head-title" id="sv-title">Pre-market analysis</div>
+            <div class="sv-head-sub" id="sv-subtitle">Frozen at trade entry</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="sv-head-esc">ESC</span>
+          <button class="sv-head-close" onclick="closeSvModal()" title="Close">✕</button>
+        </div>
+      </div>
+      <div class="sv-body" id="sv-body">
+        <!-- populated dynamically -->
+      </div>
     </div>
   </div>
 
@@ -9464,6 +9510,329 @@ window.dispatchEvent(new Event('supabase-ready'));
   })();
   // ══ END ACTIVE TRADES MODULE ══
 
+  // ██  TOOLTIP MODULE — global handler for all .info-icon elements (data-tip / data-tooltip)
+  // ██  Single floating element rendered at body level, positioned near the icon on hover
+  (function(){
+    var _tipEl = null;
+    var _hideTimer = null;
+
+    function tipEnsure(){
+      if(_tipEl && document.body.contains(_tipEl)) return _tipEl;
+      _tipEl = document.getElementById('rf-tooltip');
+      if(!_tipEl){
+        _tipEl = document.createElement('div');
+        _tipEl.id = 'rf-tooltip';
+        document.body.appendChild(_tipEl);
+      }
+      return _tipEl;
+    }
+
+    function tipShow(target){
+      if(!target) return;
+      var text = target.getAttribute('data-tip')
+              || target.getAttribute('data-tooltip')
+              || target.getAttribute('title');
+      if(!text) return;
+      // Remove title attr while showing so browser tooltip doesn't double-render
+      if(target.hasAttribute('title')){
+        target._origTitle = target.getAttribute('title');
+        target.removeAttribute('title');
+      }
+
+      var el = tipEnsure();
+      el.textContent = text;
+      el.classList.add('visible');
+
+      // Position near target
+      var r = target.getBoundingClientRect();
+      // Use offsets after a paint so width/height are known
+      requestAnimationFrame(function(){
+        var w = el.offsetWidth || 230;
+        var h = el.offsetHeight || 36;
+        var pad = 10;
+
+        // Try below target first
+        var top = r.bottom + 8;
+        var left = r.left + r.width/2 - w/2;
+
+        // If would overflow bottom, place above
+        if(top + h + pad > window.innerHeight){
+          top = r.top - h - 8;
+        }
+        // Clamp horizontally
+        if(left < pad) left = pad;
+        if(left + w + pad > window.innerWidth) left = window.innerWidth - w - pad;
+        if(top < pad) top = pad;
+
+        el.style.top = top + 'px';
+        el.style.left = left + 'px';
+      });
+
+      if(_hideTimer){ clearTimeout(_hideTimer); _hideTimer = null; }
+    }
+
+    function tipHide(target){
+      if(target && target._origTitle){
+        target.setAttribute('title', target._origTitle);
+        delete target._origTitle;
+      }
+      if(_hideTimer) clearTimeout(_hideTimer);
+      _hideTimer = setTimeout(function(){
+        var el = document.getElementById('rf-tooltip');
+        if(el) el.classList.remove('visible');
+      }, 80);
+    }
+
+    // Delegated listeners — works for icons that don't exist yet at page load
+    document.addEventListener('mouseover', function(e){
+      var t = e.target;
+      // Walk up looking for an info-icon or [data-tip]
+      while(t && t !== document.body){
+        if(t.classList && (t.classList.contains('info-icon') || t.hasAttribute('data-tip') || t.hasAttribute('data-tooltip'))){
+          tipShow(t);
+          return;
+        }
+        t = t.parentElement;
+      }
+    });
+
+    document.addEventListener('mouseout', function(e){
+      var t = e.target;
+      while(t && t !== document.body){
+        if(t.classList && (t.classList.contains('info-icon') || t.hasAttribute('data-tip') || t.hasAttribute('data-tooltip'))){
+          tipHide(t);
+          return;
+        }
+        t = t.parentElement;
+      }
+    });
+
+    // Also support touch — tap to show, tap-elsewhere to hide
+    document.addEventListener('click', function(e){
+      var t = e.target;
+      var found = null;
+      var cur = t;
+      while(cur && cur !== document.body){
+        if(cur.classList && (cur.classList.contains('info-icon') || cur.hasAttribute('data-tip') || cur.hasAttribute('data-tooltip'))){
+          found = cur; break;
+        }
+        cur = cur.parentElement;
+      }
+      if(found){ tipShow(found); setTimeout(function(){ tipHide(found); }, 3000); }
+    });
+
+    // Hide on scroll (otherwise floating tooltip lingers in wrong place)
+    window.addEventListener('scroll', function(){
+      var el = document.getElementById('rf-tooltip');
+      if(el && el.classList.contains('visible')) el.classList.remove('visible');
+    }, true);
+  })();
+  // ══ END TOOLTIP MODULE ══
+
+  // ██  COCKPIT SNAPSHOT VIEWER MODULE
+  // ██  Full-screen view of frozen pre-market analysis from any trade.
+  // ██  Opens via openCockpitSnapshot(tradeId) — ESC to close.
+  (function(){
+
+    function svEscapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+
+    function svIsEmpty(v){
+      if(v==null) return true;
+      if(typeof v === 'string') return v.trim() === '';
+      if(Array.isArray(v)) return v.length === 0;
+      if(typeof v === 'object') return Object.keys(v).length === 0;
+      return false;
+    }
+
+    function svField(label, value, modifier){
+      var cls = svIsEmpty(value) ? 'empty' : (modifier || '');
+      var display = svIsEmpty(value) ? '—' : svEscapeHtml(value);
+      return '<div class="sv-field"><div class="sv-field-label">'+svEscapeHtml(label)+'</div><div class="sv-field-value '+cls+'">'+display+'</div></div>';
+    }
+
+    function svFieldDirectional(label, value){
+      if(svIsEmpty(value)) return svField(label, value);
+      var v = String(value).toLowerCase();
+      var modifier = '';
+      if(v.indexOf('bull')>=0 || v === 'long' || v === 'buy' || v === 'up') modifier = 'bull';
+      else if(v.indexOf('bear')>=0 || v === 'short' || v === 'sell' || v === 'down') modifier = 'bear';
+      else if(v.indexOf('indecision')>=0 || v.indexOf('range')>=0 || v.indexOf('neutral')>=0) modifier = 'neutral';
+      return svField(label, value, modifier);
+    }
+
+    function svTags(arr, modifier){
+      if(svIsEmpty(arr)) return '<div class="sv-empty-section">None recorded</div>';
+      var cls = modifier ? ' '+modifier : '';
+      return '<div class="sv-tags">'+arr.map(function(t){return '<span class="sv-tag'+cls+'">'+svEscapeHtml(t)+'</span>';}).join('')+'</div>';
+    }
+
+    function svSection(title, contentHtml, isEmpty){
+      if(isEmpty) return ''; // skip empty sections
+      return '<div class="sv-section"><div class="sv-section-title">'+svEscapeHtml(title)+'</div>'+contentHtml+'</div>';
+    }
+
+    function svBuildBody(snap, trade){
+      if(!snap) return '<div class="sv-empty-section">No cockpit snapshot recorded for this trade.</div>';
+
+      var html = '';
+
+      // === DIRECTION & BIAS ===
+      var hasDirection = !svIsEmpty(snap.dailyBias) || !svIsEmpty(snap.htfTrend) || !svIsEmpty(snap.marketPhase);
+      if(hasDirection){
+        html += svSection('Direction & Bias',
+          '<div class="sv-grid">'+
+            svFieldDirectional('Daily Bias', snap.dailyBias) +
+            svFieldDirectional('HTF Trend (H4)', snap.htfTrend) +
+            svField('Market Phase', snap.marketPhase) +
+          '</div>'
+        );
+      }
+
+      // === STRUCTURE ===
+      var hasStructure = !svIsEmpty(snap.mainPush) || !svIsEmpty(snap.pullback);
+      if(hasStructure){
+        html += svSection('Structure',
+          '<div class="sv-grid">'+
+            svFieldDirectional('Main Push (D/H4)', snap.mainPush) +
+            svFieldDirectional('Complex Pullback', snap.pullback) +
+          '</div>'
+        );
+      }
+
+      // === SETUP ===
+      var hasSetup = !svIsEmpty(snap.condition) || !svIsEmpty(snap.model) || !svIsEmpty(snap.trendAlign) || !svIsEmpty(snap.execType) || !svIsEmpty(snap.setupType);
+      if(hasSetup){
+        html += svSection('Setup',
+          '<div class="sv-grid">'+
+            svField('Condition', snap.condition) +
+            svField('Model', snap.model) +
+            svField('Trend Alignment', snap.trendAlign) +
+            svField('Execution Type', snap.execType) +
+            (svIsEmpty(snap.setupType) ? '' : svField('Setup Type', snap.setupType)) +
+          '</div>'
+        );
+      }
+
+      // === LTF CONFIRMATIONS ===
+      if(!svIsEmpty(snap.ltfConfs)){
+        html += svSection('LTF Confirmations', svTags(snap.ltfConfs));
+      }
+
+      // === POI ===
+      var hasPoi = !svIsEmpty(snap.poiType) || !svIsEmpty(snap.poiLevel);
+      if(hasPoi){
+        var poiHtml = '';
+        if(!svIsEmpty(snap.poiType)) poiHtml += svTags(snap.poiType);
+        if(!svIsEmpty(snap.poiLevel)) poiHtml += '<div style="margin-top:8px"><div class="sv-field"><div class="sv-field-label">POI Level</div><div class="sv-field-value">'+svEscapeHtml(snap.poiLevel)+'</div></div></div>';
+        html += svSection('Point of Interest', poiHtml);
+      }
+
+      // === LIQUIDITY ===
+      if(!svIsEmpty(snap.liquidity)){
+        html += svSection('Liquidity', svTags(snap.liquidity));
+      }
+
+      // === SWEEPS / ASIA ===
+      var hasSweeps = !svIsEmpty(snap.sweeps) || !svIsEmpty(snap.asiaNotes);
+      if(hasSweeps){
+        var swHtml = '';
+        if(snap.sweeps && typeof snap.sweeps === 'object'){
+          var swArr = [];
+          Object.keys(snap.sweeps).forEach(function(k){
+            if(snap.sweeps[k]) swArr.push(k+': '+snap.sweeps[k]);
+          });
+          if(swArr.length) swHtml += svTags(swArr);
+        }
+        if(!svIsEmpty(snap.asiaNotes)){
+          swHtml += '<div style="margin-top:8px;padding:10px 14px;background:var(--bg3);border-radius:10px;font-size:12px;color:var(--text2);line-height:1.5;font-family:Inter,sans-serif"><div style="font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">Asia Notes</div>'+svEscapeHtml(snap.asiaNotes)+'</div>';
+        }
+        if(swHtml) html += svSection('Sweeps & Asia Range', swHtml);
+      }
+
+      // === NARRATIVE ===
+      if(!svIsEmpty(snap.narrative)){
+        html += svSection('Narrative / Plan',
+          '<div class="sv-narrative">"'+svEscapeHtml(snap.narrative)+'"</div>'
+        );
+      }
+
+      // === PSYCHOLOGY ===
+      var hasPsych = !svIsEmpty(snap.prePsych) || !svIsEmpty(snap.psychNote);
+      if(hasPsych){
+        var psyHtml = '';
+        if(!svIsEmpty(snap.prePsych)) psyHtml += svTags(snap.prePsych, 'success');
+        if(!svIsEmpty(snap.psychNote)){
+          psyHtml += '<div style="margin-top:8px;padding:10px 14px;background:var(--bg3);border-radius:10px;font-size:12px;color:var(--text2);line-height:1.5;font-family:Inter,sans-serif;font-style:italic"><div style="font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;font-style:normal">Personal Note</div>"'+svEscapeHtml(snap.psychNote)+'"</div>';
+        }
+        html += svSection('Psychology (pre-trade)', psyHtml);
+      }
+
+      // === INVALIDATION FLAGS (red flags trader noted before entry) ===
+      if(!svIsEmpty(snap.invFlags)){
+        html += svSection('Invalidation Flags', svTags(snap.invFlags, 'danger'));
+      }
+
+      // === SESSION CONTEXT ===
+      var hasSession = !svIsEmpty(snap.session) || !svIsEmpty(snap.sessionNotes);
+      if(hasSession){
+        var sesHtml = '<div class="sv-grid">'+ svField('Session', snap.session) +'</div>';
+        if(!svIsEmpty(snap.sessionNotes)){
+          sesHtml += '<div style="margin-top:8px;padding:10px 14px;background:var(--bg3);border-radius:10px;font-size:12px;color:var(--text2);line-height:1.5;font-family:Inter,sans-serif">'+svEscapeHtml(snap.sessionNotes)+'</div>';
+        }
+        html += svSection('Session Context', sesHtml);
+      }
+
+      if(!html){
+        html = '<div class="sv-empty-section">Snapshot exists but no fields were filled in Cockpit at the time of trade.</div>';
+      }
+
+      return html;
+    }
+
+    function openCockpitSnapshot(tradeId){
+      var trades = [];
+      try{ trades = JSON.parse(rfxGet('rf_trades')||'[]'); }catch(e){}
+      var t = trades.find(function(x){return x.id===tradeId;});
+      if(!t){ alert('Trade not found'); return; }
+
+      var snap = t.cockpitSnapshot || null;
+      var pair = t.pair || '—';
+      var dir = t.dir || t.direction;
+      var dirLabel = (dir === 'sell' || dir === 'short') ? 'Short' : (dir === 'buy' || dir === 'long' ? 'Long' : '');
+      var when = '';
+      if(snap && snap.savedAt){
+        try{ when = new Date(snap.savedAt).toLocaleString(); }catch(e){}
+      } else if(t.date){
+        when = t.date + (t.entryTime?' '+t.entryTime:'');
+      }
+
+      document.getElementById('sv-title').textContent = 'Pre-market analysis · '+pair+(dirLabel?' · '+dirLabel:'');
+      document.getElementById('sv-subtitle').textContent = when ? 'Frozen at '+when : 'Frozen at trade entry';
+      document.getElementById('sv-body').innerHTML = svBuildBody(snap, t);
+
+      document.getElementById('sv-modal').classList.add('open');
+    }
+    window.openCockpitSnapshot = openCockpitSnapshot;
+
+    function closeSvModal(){
+      var m = document.getElementById('sv-modal');
+      if(m) m.classList.remove('open');
+    }
+    window.closeSvModal = closeSvModal;
+
+    // ESC closes
+    setTimeout(function(){
+      document.addEventListener('keydown', function(e){
+        if(e.key === 'Escape'){
+          var m = document.getElementById('sv-modal');
+          if(m && m.classList.contains('open')) closeSvModal();
+        }
+      });
+    }, 250);
+
+  })();
+  // ══ END SNAPSHOT VIEWER MODULE ══
+
   // ── VERSION RESET: Clear stale data from previous versions ──
   var _TQ_VERSION = 'v16';
   if(rfxGet('tq_version') !== _TQ_VERSION){
@@ -12488,23 +12857,22 @@ window.dispatchEvent(new Event('supabase-ready'));
         var banner=document.getElementById('ck-prefill-banner');
         var details=document.getElementById('ck-pb-details');
         if(banner&&details){
-          var tags=[];
-          if(snap.session)tags.push(snap.session);
-          if(snap.dailyBias)tags.push('Bias: '+snap.dailyBias);
-          if(snap.htfTrend)tags.push('HTF: '+snap.htfTrend);
-          if(snap.marketPhase)tags.push('Phase: '+snap.marketPhase);
-          if(snap.condition)tags.push(snap.condition);
-          if(snap.model)tags.push(snap.model);
-          if(snap.trendAlign)tags.push('TA: '+snap.trendAlign);
-          if(snap.execType)tags.push(snap.execType);
-          if(snap.ltfConfs&&snap.ltfConfs.length)tags=tags.concat(snap.ltfConfs);
-          if(snap.poiType&&snap.poiType.length)tags=tags.concat(snap.poiType);
-          if(snap.prePsych&&snap.prePsych.length)tags=tags.concat(snap.prePsych);
-          var when=snap.savedAt?new Date(snap.savedAt).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';
-          var dH='<div style="color:var(--text3);font-size:11px;margin-bottom:4px">Pre-market analysis snapshot'+(when?' · saved at '+when:'')+':</div>';
-          dH+='<div class="ck-pb-row">'+tags.map(function(t){return '<span class="ck-pb-tag">'+t+'</span>';}).join('')+'</div>';
-          if(snap.psychNote)dH+='<div style="margin-top:6px;font-style:italic;color:var(--text3)">Note: "'+snap.psychNote+'"</div>';
-          if(snap.narrative)dH+='<div style="margin-top:4px;color:var(--text3)">Plan: '+snap.narrative+'</div>';
+          // Build compact preview + button to open full viewer
+          var topTags=[];
+          if(snap.session)topTags.push(snap.session);
+          if(snap.dailyBias)topTags.push('Bias: '+snap.dailyBias);
+          if(snap.htfTrend)topTags.push('HTF: '+snap.htfTrend);
+          if(snap.model)topTags.push(snap.model);
+          var when=snap.savedAt?new Date(snap.savedAt).toLocaleString([],{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+          var dH='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">';
+          dH+='<div style="flex:1;min-width:0">';
+          dH+='<div style="color:var(--text3);font-size:11px;margin-bottom:6px">Pre-market analysis snapshot'+(when?' · '+when:'')+'</div>';
+          dH+='<div class="ck-pb-row">'+topTags.map(function(t){return '<span class="ck-pb-tag">'+t+'</span>';}).join('')+'</div>';
+          dH+='</div>';
+          // Open-full button
+          dH+='<button class="sv-view-btn" onclick="openCockpitSnapshot(\''+(d.id||'')+'\')"><svg viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M10 14L21 3"/><path d="M21 14v7H3V3h7"/></svg>View full snapshot</button>';
+          dH+='</div>';
+          if(snap.narrative)dH+='<div style="margin-top:8px;color:var(--text3);font-style:italic;font-size:11px">"'+snap.narrative+'"</div>';
           details.innerHTML=dH;
           banner.classList.add('show');
           banner.querySelector('.ck-pb-head span').textContent='Pre-market analysis (Cockpit snapshot)';
@@ -14425,7 +14793,7 @@ window.dispatchEvent(new Event('supabase-ready'));
         h2+='</div>'; // close body
         // Footer
         h2+='<div class="jr-card-footer"><span>'+(tr.session||'—')+(tr.status?' · '+tr.status:'')+'</span>';
-        if(tr.cockpitSnapshot) h2+='<span style="color:var(--accent3);font-size:8px" title="Has pre-trade plan from Cockpit">◈ Plan</span>';
+        if(tr.cockpitSnapshot) h2+='<button class="sv-card-btn" onclick="event.stopPropagation();openCockpitSnapshot(\''+(tr.id||'')+'\')" title="View full pre-market analysis"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9h18M9 21V9M3 5a2 2 0 012-2h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5z"/></svg>Plan</button>';
         if(tr.planFollowed==='yes') h2+='<span style="color:var(--green)">✓ Plan followed</span>';
         else if(tr.planFollowed==='no') h2+='<span style="color:var(--red)">✗ Plan broken</span>';
         else h2+='<span>—</span>';
