@@ -3236,6 +3236,57 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
 @keyframes msPulse{0%,100%{opacity:.4}50%{opacity:1}}
 @keyframes msPulse{0%,100%{opacity:.4}50%{opacity:1}}
 
+/* ══ TRASH PAGE ══ */
+.tr-tabs{display:flex;gap:4px;margin:18px 0;flex-wrap:wrap}
+.tr-tab{padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text3);font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+.tr-tab:hover{border-color:var(--accent3);color:var(--text2)}
+.tr-tab.active{background:rgba(124,90,240,.1);border-color:var(--accent3);color:var(--accent3)}
+.tr-tab-count{display:inline-block;background:var(--bg3);color:var(--text3);font-size:10px;padding:1px 6px;border-radius:8px;margin-left:6px;font-weight:700}
+.tr-tab.active .tr-tab-count{background:rgba(124,90,240,.2);color:var(--accent3)}
+
+.tr-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px;flex-wrap:wrap}
+.tr-toolbar-info{font-size:11px;color:var(--text3);font-family:'Inter',sans-serif}
+.tr-toolbar-info b{color:var(--text)}
+
+.tr-list{display:flex;flex-direction:column;gap:8px}
+.tr-item{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:14px;transition:all .15s}
+.tr-item:hover{border-color:var(--accent3)}
+.tr-item-icon{flex-shrink:0;width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:var(--bg3)}
+.tr-item-icon svg{width:18px;height:18px;stroke:var(--text3);fill:none;stroke-width:1.5}
+.tr-item-icon.trade{background:rgba(124,90,240,.08)}
+.tr-item-icon.trade svg{stroke:var(--accent3)}
+.tr-item-icon.note{background:rgba(46,204,138,.08)}
+.tr-item-icon.note svg{stroke:#2ecc8a}
+.tr-item-icon.case{background:rgba(240,180,41,.08)}
+.tr-item-icon.case svg{stroke:#f0b429}
+.tr-item-icon.playbook{background:rgba(255,80,95,.08)}
+.tr-item-icon.playbook svg{stroke:#ff505f}
+.tr-item-info{flex:1;min-width:0}
+.tr-item-title{font-size:13px;font-weight:600;color:var(--text);font-family:'Inter',sans-serif;line-height:1.4;margin-bottom:3px;word-break:break-word}
+.tr-item-meta{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;line-height:1.5}
+.tr-item-type{display:inline-block;padding:1px 7px;border-radius:6px;background:var(--bg3);color:var(--text3);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-right:6px;font-family:'Inter',sans-serif}
+.tr-item-actions{display:flex;gap:6px;flex-shrink:0}
+.tr-item-actions button{padding:6px 12px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:10px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;white-space:nowrap}
+.tr-item-actions button:hover{border-color:var(--accent3);color:var(--accent3)}
+.tr-item-actions button.danger:hover{border-color:#ff505f;background:rgba(255,80,95,.06);color:#ff505f}
+.tr-item-actions button.primary{background:rgba(46,204,138,.08);border-color:rgba(46,204,138,.25);color:#2ecc8a}
+.tr-item-actions button.primary:hover{background:rgba(46,204,138,.15);border-color:#2ecc8a}
+
+.tr-days-left{font-size:9px;color:var(--text3);margin-left:6px}
+.tr-days-left.warn{color:#f0b429}
+.tr-days-left.danger{color:#ff505f}
+
+.tr-empty{text-align:center;padding:60px 24px;color:var(--text3)}
+.tr-empty svg{width:48px;height:48px;stroke:var(--text3);fill:none;stroke-width:1;margin-bottom:14px;opacity:.4}
+.tr-empty-title{font-size:14px;font-weight:600;color:var(--text2);margin-bottom:6px;font-family:'Inter',sans-serif}
+.tr-empty-desc{font-size:11px;color:var(--text3);font-family:'Inter',sans-serif;line-height:1.6;max-width:360px;margin:0 auto}
+
+/* Trash sidebar nav button styling — matches Help button */
+.tr-sidebar-btn{display:flex;align-items:center;gap:6px;background:none;border:1px solid var(--border);border-radius:8px;padding:7px 10px;cursor:pointer;color:var(--text3);font-size:11px;font-family:'Inter',sans-serif;width:100%;transition:all .2s;position:relative}
+.tr-sidebar-btn:hover{border-color:var(--accent3)}
+.tr-sidebar-btn svg{flex-shrink:0}
+.tr-sidebar-badge{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:var(--accent);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:8px;min-width:16px;text-align:center}
+
 /* ══ COCKPIT SNAPSHOT VIEWER (full pre-market analysis frozen at trade time) ══ */
 .sv-modal{position:fixed;inset:0;background:rgba(8,6,18,.78);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9998;display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:32px 16px}
 .sv-modal.open{display:flex}
@@ -3527,6 +3578,14 @@ window.dispatchEvent(new Event('supabase-ready'));
     <button onclick="showPage('resources');document.getElementById('guide-grid').scrollIntoView({behavior:'smooth'})" style="display:flex;align-items:center;gap:6px;background:none;border:1px solid var(--border);border-radius:8px;padding:7px 10px;cursor:pointer;color:var(--text3);font-size:11px;font-family:'Inter',sans-serif;width:100%;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
       <span>Platform Guide</span>
+    </button>
+  </div>
+  <!-- TRASH BUTTON -->
+  <div style="padding:0 12px 8px">
+    <button class="tr-sidebar-btn" onclick="showPage('trash')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 01-2 2H9a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+      <span>Trash</span>
+      <span class="tr-sidebar-badge" id="tr-sidebar-badge" style="display:none">0</span>
     </button>
   </div>
   <!-- THEME SWITCHER — bottom of sidebar -->
@@ -4409,10 +4468,16 @@ window.dispatchEvent(new Event('supabase-ready'));
       <div class="jr-modal-body" id="jr-modal-body">
         <!-- Cockpit prefill banner -->
         <div class="ck-prefill-banner" id="ck-prefill-banner">
-          <div class="ck-pb-head" onclick="this.nextElementSibling.classList.toggle('open');this.querySelector('.ck-pb-chevron').style.transform=this.nextElementSibling.classList.contains('open')?'rotate(90deg)':'rotate(0)'">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
-            <span>Pre-filled from Cockpit analysis</span>
-            <svg class="ck-pb-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition:transform .2s;margin-left:auto"><path d="M9 18l6-6-6-6"/></svg>
+          <div class="ck-pb-head" style="position:relative">
+            <div onclick="this.parentElement.querySelector('.ck-pb-details').classList.toggle('open');this.querySelector('.ck-pb-chevron').style.transform=this.parentElement.querySelector('.ck-pb-details').classList.contains('open')?'rotate(90deg)':'rotate(0)'" style="display:flex;align-items:center;gap:8px;flex:1;cursor:pointer;min-width:0">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+              <span>Pre-filled from Cockpit analysis</span>
+              <svg class="ck-pb-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition:transform .2s;flex-shrink:0"><path d="M9 18l6-6-6-6"/></svg>
+            </div>
+            <button onclick="event.stopPropagation();if(window.openCockpitSnapshotFromDraft)window.openCockpitSnapshotFromDraft();" style="background:rgba(124,90,240,.15);border:1px solid rgba(124,90,240,.3);color:var(--accent3);padding:5px 10px;border-radius:7px;font-size:10px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;flex-shrink:0;display:flex;align-items:center;gap:5px;margin-left:8px;white-space:nowrap" onmouseover="this.style.background='rgba(124,90,240,.25)';this.style.borderColor='var(--accent3)'" onmouseout="this.style.background='rgba(124,90,240,.15)';this.style.borderColor='rgba(124,90,240,.3)'">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M21 3l-7 7M9 21H3v-6M3 21l7-7"/></svg>
+              Open full analysis
+            </button>
           </div>
           <div class="ck-pb-details" id="ck-pb-details"></div>
         </div>
@@ -6883,6 +6948,28 @@ window.dispatchEvent(new Event('supabase-ready'));
         <div class="nb-modal-footer"><button class="pb-btn pb-btn-ghost" style="color:var(--red);border-color:rgba(224,92,122,.15)" id="rs-delete-btn" onclick="rsDelete()">Delete</button><button class="pb-btn pb-btn-primary" onclick="rsSave()">Save</button></div>
       </div>
     </div>
+  </div>
+
+  <!-- ═══ TRASH ═══ -->
+  <div id="page-trash" class="page">
+    <div class="page-header">
+      <div><div class="page-title">Trash</div><div class="page-sub">Deleted items · auto-cleared after 90 days</div></div>
+    </div>
+
+    <div class="tr-tabs" id="tr-tabs">
+      <button class="tr-tab active" data-tab="all" onclick="trSetTab('all')">All <span class="tr-tab-count" id="tr-count-all">0</span></button>
+      <button class="tr-tab" data-tab="trades" onclick="trSetTab('trades')">Trades <span class="tr-tab-count" id="tr-count-trades">0</span></button>
+      <button class="tr-tab" data-tab="notes" onclick="trSetTab('notes')">Notes <span class="tr-tab-count" id="tr-count-notes">0</span></button>
+      <button class="tr-tab" data-tab="cases" onclick="trSetTab('cases')">Case Studies <span class="tr-tab-count" id="tr-count-cases">0</span></button>
+      <button class="tr-tab" data-tab="playbook" onclick="trSetTab('playbook')">Playbook <span class="tr-tab-count" id="tr-count-playbook">0</span></button>
+    </div>
+
+    <div class="tr-toolbar">
+      <div class="tr-toolbar-info">Items in trash are automatically removed after <b>90 days</b>. You can restore or permanently delete them anytime.</div>
+      <button class="btn btn-ghost" style="font-size:11px;padding:7px 14px;color:#ff505f;border-color:rgba(255,80,95,.25)" onclick="trEmptyAll()" id="tr-empty-btn">🗑 Empty trash</button>
+    </div>
+
+    <div class="tr-list" id="tr-list"></div>
   </div>
 
 
@@ -9629,6 +9716,327 @@ window.dispatchEvent(new Event('supabase-ready'));
   })();
   // ══ END TOOLTIP MODULE ══
 
+  // ██  TRASH MODULE — soft delete + 90-day auto cleanup + restore
+  // ██  Affects: trades (rf_trades), notes (rossfx-notebook), case studies (tb_cs), playbook (rossfx-playbook)
+  (function(){
+    var TTL_DAYS = 90;
+    var TTL_MS = TTL_DAYS * 24 * 60 * 60 * 1000;
+    var CLEANUP_KEY = 'tq_last_trash_cleanup';
+    var TRASH_TYPES = {
+      trade:    { storeKey: 'rf_trades',         label: 'Trade',       cssClass: 'trade' },
+      note:     { storeKey: 'rossfx-notebook',   label: 'Note',        cssClass: 'note' },
+      case:     { storeKey: 'tb_cs',             label: 'Case Study',  cssClass: 'case' },
+      playbook: { storeKey: 'rossfx-playbook',   label: 'Playbook',    cssClass: 'playbook' }
+    };
+    var _trCurrentTab = 'all';
+
+    function trEscapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+
+    function trLoadAll(typeKey){
+      var info = TRASH_TYPES[typeKey];
+      try{ return JSON.parse(rfxGet(info.storeKey)||'[]'); }catch(e){ return []; }
+    }
+    function trSaveAll(typeKey, list){
+      var info = TRASH_TYPES[typeKey];
+      rfxSet(info.storeKey, JSON.stringify(list));
+    }
+
+    // ── PUBLIC API: soft-delete a single item ──
+    // Used by Trade/Note/Case/Playbook delete buttons elsewhere in the app
+    function trSoftDelete(typeKey, id){
+      var list = trLoadAll(typeKey);
+      var idx = list.findIndex(function(x){return x.id===id;});
+      if(idx < 0) return false;
+      list[idx].deleted = true;
+      list[idx].deletedAt = new Date().toISOString();
+      trSaveAll(typeKey, list);
+      // Sync to cloud (each item type has its own pusher)
+      trCloudSync(typeKey, list[idx], false);
+      trUpdateBadge();
+      return true;
+    }
+    window.trSoftDelete = trSoftDelete;
+
+    // ── Restore an item (clear deleted flag) ──
+    function trRestoreItem(typeKey, id){
+      var list = trLoadAll(typeKey);
+      var idx = list.findIndex(function(x){return x.id===id;});
+      if(idx < 0) return;
+      delete list[idx].deleted;
+      delete list[idx].deletedAt;
+      trSaveAll(typeKey, list);
+      trCloudSync(typeKey, list[idx], false);
+
+      // Re-render relevant page
+      trRender();
+      trUpdateBadge();
+      if(typeKey === 'trade' && typeof renderJournal === 'function') try{ renderJournal(); }catch(e){}
+      if(typeKey === 'note' && typeof nbRender === 'function') try{ nbRender(); }catch(e){}
+      if(typeKey === 'case' && typeof window.csRender === 'function') try{ window.csRender(); }catch(e){}
+      if(typeKey === 'playbook' && typeof renderPbCards === 'function') try{ renderPbCards(); }catch(e){}
+    }
+    window.trRestoreItem = trRestoreItem;
+
+    // ── Permanently delete an item (hard delete from local + cloud) ──
+    function trHardDeleteItem(typeKey, id){
+      var list = trLoadAll(typeKey);
+      var item = list.find(function(x){return x.id===id;});
+      if(!item) return;
+      // Remove from list
+      list = list.filter(function(x){return x.id !== id;});
+      trSaveAll(typeKey, list);
+      // Delete from cloud
+      trCloudSync(typeKey, item, true);
+      trRender();
+      trUpdateBadge();
+    }
+    window.trHardDeleteItem = trHardDeleteItem;
+
+    // ── Cloud sync helper — pushes update or hard delete based on flag ──
+    function trCloudSync(typeKey, item, isHardDelete){
+      if(!window._tqSupa || !window._tqUser) return;
+      try{
+        if(isHardDelete){
+          // Hard delete from Supabase by external_id
+          var tableMap = { trade: 'trades', note: 'notes', case: 'case_studies', playbook: 'playbooks' };
+          var table = tableMap[typeKey];
+          if(table){
+            _tqSupa.from(table).delete().eq('user_id', _tqUser.id).eq('external_id', item.id).then(function(){});
+          }
+        } else {
+          // Soft delete or restore — re-push the item via existing pushers
+          if(typeKey === 'trade' && window.tqPushTrade) tqPushTrade(item);
+          else if(typeKey === 'note' && window.tqPushNotes) tqPushNotes();
+          else if(typeKey === 'case' && window.tqPushCaseStudies) tqPushCaseStudies();
+          else if(typeKey === 'playbook' && window.tqPushPlaybook) tqPushPlaybook();
+        }
+      }catch(e){ console.warn('trCloudSync failed', e); }
+    }
+
+    // ── Auto-cleanup — runs once a day, removes items older than 90 days ──
+    function trAutoCleanup(){
+      var lastRun = rfxGet(CLEANUP_KEY);
+      var now = Date.now();
+      if(lastRun){
+        var elapsed = now - parseInt(lastRun, 10);
+        if(elapsed < 12 * 60 * 60 * 1000) return; // skip if ran in last 12h
+      }
+      var cutoff = now - TTL_MS;
+      var totalRemoved = 0;
+      Object.keys(TRASH_TYPES).forEach(function(typeKey){
+        var list = trLoadAll(typeKey);
+        var before = list.length;
+        list = list.filter(function(x){
+          if(!x.deleted || !x.deletedAt) return true;
+          var t;
+          try{ t = new Date(x.deletedAt).getTime(); }catch(e){ t = 0; }
+          if(t < cutoff){
+            // hard delete from cloud too
+            trCloudSync(typeKey, x, true);
+            return false;
+          }
+          return true;
+        });
+        if(list.length !== before){
+          trSaveAll(typeKey, list);
+          totalRemoved += (before - list.length);
+        }
+      });
+      rfxSet(CLEANUP_KEY, String(now));
+      if(totalRemoved > 0) console.log('TradeQuill: auto-cleaned', totalRemoved, 'items from trash');
+    }
+
+    // ── Get all deleted items across types ──
+    function trGetAllDeleted(){
+      var all = [];
+      Object.keys(TRASH_TYPES).forEach(function(typeKey){
+        var list = trLoadAll(typeKey);
+        list.forEach(function(item){
+          if(item.deleted){
+            all.push({ typeKey: typeKey, item: item });
+          }
+        });
+      });
+      // Sort by deletedAt desc
+      all.sort(function(a,b){
+        return (b.item.deletedAt||'').localeCompare(a.item.deletedAt||'');
+      });
+      return all;
+    }
+
+    // ── Get title for an item (best-effort) ──
+    function trItemTitle(typeKey, item){
+      if(typeKey === 'trade'){
+        var dir = item.dir || item.direction || '';
+        var dirLabel = (dir === 'sell' || dir === 'short') ? 'Short' : (dir === 'buy' || dir === 'long' ? 'Long' : '');
+        return (item.pair || '—') + (dirLabel ? ' · ' + dirLabel : '') + (item.date ? ' · ' + item.date : '');
+      }
+      if(typeKey === 'note'){
+        return item.title || (item.content ? item.content.slice(0, 60) + (item.content.length > 60 ? '...' : '') : '(untitled note)');
+      }
+      if(typeKey === 'case'){
+        return item.title || (item.pair + ' ' + (item.date||''));
+      }
+      if(typeKey === 'playbook'){
+        return item.name || '(unnamed setup)';
+      }
+      return '(item)';
+    }
+
+    function trItemMeta(typeKey, item){
+      if(typeKey === 'trade'){
+        var bits = [];
+        if(item.session) bits.push(item.session);
+        if(item.setup) bits.push(item.setup);
+        if(item.pnl !== undefined && item.pnl !== null){
+          var sign = item.pnl >= 0 ? '+' : '';
+          bits.push(sign + item.pnl);
+        }
+        return bits.join(' · ');
+      }
+      if(typeKey === 'note'){
+        return [item.type || '', item.date || ''].filter(Boolean).join(' · ');
+      }
+      if(typeKey === 'case'){
+        return [item.session, item.outcome].filter(Boolean).join(' · ');
+      }
+      if(typeKey === 'playbook'){
+        return item.bias || '';
+      }
+      return '';
+    }
+
+    function trDaysLeft(deletedAt){
+      try{
+        var t = new Date(deletedAt).getTime();
+        var elapsedMs = Date.now() - t;
+        var leftMs = TTL_MS - elapsedMs;
+        var days = Math.max(0, Math.ceil(leftMs / (24 * 60 * 60 * 1000)));
+        return days;
+      }catch(e){ return TTL_DAYS; }
+    }
+
+    function trIconSvg(typeKey){
+      if(typeKey === 'trade')    return '<svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>';
+      if(typeKey === 'note')     return '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+      if(typeKey === 'case')     return '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>';
+      if(typeKey === 'playbook') return '<svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>';
+      return '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>';
+    }
+
+    // ── RENDER ──
+    function trRender(){
+      var all = trGetAllDeleted();
+
+      // Update tab counts
+      var counts = { all: all.length, trades: 0, notes: 0, cases: 0, playbook: 0 };
+      all.forEach(function(rec){
+        if(rec.typeKey === 'trade') counts.trades++;
+        else if(rec.typeKey === 'note') counts.notes++;
+        else if(rec.typeKey === 'case') counts.cases++;
+        else if(rec.typeKey === 'playbook') counts.playbook++;
+      });
+      ['all','trades','notes','cases','playbook'].forEach(function(t){
+        var el = document.getElementById('tr-count-'+t);
+        if(el) el.textContent = counts[t];
+      });
+
+      // Filter by current tab
+      var filtered = all;
+      if(_trCurrentTab !== 'all'){
+        var tabToType = { trades: 'trade', notes: 'note', cases: 'case', playbook: 'playbook' };
+        var wantType = tabToType[_trCurrentTab];
+        filtered = all.filter(function(rec){return rec.typeKey === wantType;});
+      }
+
+      var list = document.getElementById('tr-list');
+      var emptyBtn = document.getElementById('tr-empty-btn');
+      if(!list) return;
+
+      if(emptyBtn) emptyBtn.style.display = all.length ? 'inline-flex' : 'none';
+
+      if(!filtered.length){
+        var msg = all.length === 0
+          ? { title: 'Trash is empty', desc: 'Items you delete from anywhere in TradeQuill appear here. They\'re held for 90 days before being permanently removed.' }
+          : { title: 'Nothing in this tab', desc: 'Switch to another tab to see deleted items.' };
+        list.innerHTML = '<div class="tr-empty"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 01-2 2H9a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg><div class="tr-empty-title">'+msg.title+'</div><div class="tr-empty-desc">'+msg.desc+'</div></div>';
+        return;
+      }
+
+      list.innerHTML = filtered.map(function(rec){
+        var typeKey = rec.typeKey;
+        var item = rec.item;
+        var title = trItemTitle(typeKey, item);
+        var meta = trItemMeta(typeKey, item);
+        var typeInfo = TRASH_TYPES[typeKey];
+        var deletedDate = '';
+        try{ deletedDate = new Date(item.deletedAt).toLocaleDateString(undefined, {month:'short',day:'numeric',year:'numeric'}); }catch(e){}
+        var daysLeft = trDaysLeft(item.deletedAt);
+        var dlClass = daysLeft <= 7 ? 'danger' : daysLeft <= 30 ? 'warn' : '';
+
+        return [
+          '<div class="tr-item">',
+          '  <div class="tr-item-icon '+typeInfo.cssClass+'">'+trIconSvg(typeKey)+'</div>',
+          '  <div class="tr-item-info">',
+          '    <div class="tr-item-title"><span class="tr-item-type">'+typeInfo.label+'</span>'+trEscapeHtml(title)+'</div>',
+          '    <div class="tr-item-meta">'+(meta ? trEscapeHtml(meta)+' · ' : '')+'Deleted '+deletedDate+'<span class="tr-days-left '+dlClass+'">· '+daysLeft+' days left</span></div>',
+          '  </div>',
+          '  <div class="tr-item-actions">',
+          '    <button class="primary" onclick="trRestoreItem(\''+typeKey+'\',\''+trEscapeHtml(item.id)+'\')">↶ Restore</button>',
+          '    <button class="danger" onclick="trConfirmHardDelete(\''+typeKey+'\',\''+trEscapeHtml(item.id)+'\')">✕ Delete</button>',
+          '  </div>',
+          '</div>'
+        ].join('');
+      }).join('');
+    }
+    window.trRender = trRender;
+
+    function trSetTab(tabName){
+      _trCurrentTab = tabName;
+      document.querySelectorAll('#tr-tabs .tr-tab').forEach(function(b){
+        b.classList.toggle('active', b.getAttribute('data-tab') === tabName);
+      });
+      trRender();
+    }
+    window.trSetTab = trSetTab;
+
+    function trConfirmHardDelete(typeKey, id){
+      if(!confirm('Permanently delete this item?\n\nThis cannot be undone.')) return;
+      trHardDeleteItem(typeKey, id);
+    }
+    window.trConfirmHardDelete = trConfirmHardDelete;
+
+    function trEmptyAll(){
+      var all = trGetAllDeleted();
+      if(!all.length) return;
+      if(!confirm('Permanently delete all '+all.length+' items in trash?\n\nThis cannot be undone.')) return;
+      all.forEach(function(rec){ trHardDeleteItem(rec.typeKey, rec.item.id); });
+    }
+    window.trEmptyAll = trEmptyAll;
+
+    // ── Sidebar badge ──
+    function trUpdateBadge(){
+      var all = trGetAllDeleted();
+      var badge = document.getElementById('tr-sidebar-badge');
+      if(!badge) return;
+      if(all.length === 0){
+        badge.style.display = 'none';
+      } else {
+        badge.style.display = 'inline-block';
+        badge.textContent = all.length > 99 ? '99+' : String(all.length);
+      }
+    }
+    window.trUpdateBadge = trUpdateBadge;
+
+    // Run cleanup + initial badge update on load
+    setTimeout(function(){
+      try{ trAutoCleanup(); }catch(e){ console.warn('Trash cleanup failed', e); }
+      try{ trUpdateBadge(); }catch(e){}
+    }, 1500);
+
+  })();
+  // ══ END TRASH MODULE ══
+
   // ██  COCKPIT SNAPSHOT VIEWER MODULE
   // ██  Full-screen view of frozen pre-market analysis from any trade.
   // ██  Opens via openCockpitSnapshot(tradeId) — ESC to close.
@@ -9813,6 +10221,42 @@ window.dispatchEvent(new Event('supabase-ready'));
       document.getElementById('sv-modal').classList.add('open');
     }
     window.openCockpitSnapshot = openCockpitSnapshot;
+
+    // ── Preview snapshot for an unsaved (draft) trade — used by Add Trade modal banner ──
+    function openCockpitSnapshotFromDraft(){
+      // Try to grab from current jrDraft (the in-memory draft for the Add/Edit modal)
+      if(typeof jrDraft === 'undefined' || !jrDraft){
+        alert('No cockpit data to display'); return;
+      }
+      // If trade already saved (editing existing) — use saved version
+      if(typeof jrEditId !== 'undefined' && jrEditId){
+        return openCockpitSnapshot(jrEditId);
+      }
+      // Build a synthetic trade from the draft
+      var snap = jrDraft.cockpitSnapshot || null;
+      if(!snap){
+        alert('No cockpit snapshot attached to this trade'); return;
+      }
+      var fakeTrade = {
+        pair: jrDraft.pair || '—',
+        dir: jrDraft.direction || jrDraft.dir,
+        date: jrDraft.date || '',
+        cockpitSnapshot: snap
+      };
+      var pair = fakeTrade.pair;
+      var dir = fakeTrade.dir;
+      var dirLabel = (dir === 'sell' || dir === 'short') ? 'Short' : (dir === 'buy' || dir === 'long' ? 'Long' : '');
+      var when = '';
+      if(snap.savedAt){
+        try{ when = new Date(snap.savedAt).toLocaleString(); }catch(e){}
+      }
+
+      document.getElementById('sv-title').textContent = 'Pre-market analysis · '+pair+(dirLabel?' · '+dirLabel:'');
+      document.getElementById('sv-subtitle').textContent = when ? 'Frozen at '+when : 'Pre-fill from current Cockpit';
+      document.getElementById('sv-body').innerHTML = svBuildBody(snap, fakeTrade);
+      document.getElementById('sv-modal').classList.add('open');
+    }
+    window.openCockpitSnapshotFromDraft = openCockpitSnapshotFromDraft;
 
     function closeSvModal(){
       var m = document.getElementById('sv-modal');
@@ -10053,12 +10497,13 @@ window.dispatchEvent(new Event('supabase-ready'));
     if (id === 'news' && window.newsLoadWidget && !_newsLoaded) setTimeout(newsLoadWidget, 150);
     if (id === 'aicoach' && window.aiCoachInit) setTimeout(aiCoachInit, 150);
     if (id === 'youredge' && window.yeRender) setTimeout(yeRender, 100);
+    if (id === 'trash' && window.trRender) setTimeout(trRender, 50);
   }
 
   var prevPage = 'dashboard';
   window.showPage = showPage;
 
-  ['dashboard','dayview','journal','notebook','reports','playbook','riskmonitor','accounts','trademanager','casestudies','progress','resources','cockpit','news','aicoach','youredge'].forEach(function(id) {
+  ['dashboard','dayview','journal','notebook','reports','playbook','riskmonitor','accounts','trademanager','casestudies','progress','resources','cockpit','news','aicoach','youredge','trash'].forEach(function(id) {
     var el = $('nav-' + id);
     if (el) el.addEventListener('click', function(){ showPage(id); });
   });
@@ -12589,6 +13034,7 @@ window.dispatchEvent(new Event('supabase-ready'));
     var session = $('cs-filter-session').value;
     var date = $('cs-filter-date').value;
     var filtered = caseStudies.filter(function(cs){
+      if (cs.deleted) return false;
       if (pair && cs.pair !== pair) return false;
       if (session && cs.session !== session) return false;
       if (date && cs.date !== date) return false;
@@ -12652,11 +13098,17 @@ window.dispatchEvent(new Event('supabase-ready'));
       del.style.cssText = 'color:var(--red);border-color:rgba(224,92,122,.3);margin-right:auto';
       del.textContent = 'Delete';
       del.onclick = function(){
-        if(confirm('Delete this case study?')){
-          var idx = caseStudies.findIndex(function(x){return x.id===csEditId;});
-          if(idx>=0) caseStudies.splice(idx, 1);
-          rfxSet('tb_cs', JSON.stringify(caseStudies));
-          if(typeof tqPushCaseStudies==='function')tqPushCaseStudies();
+        if(confirm('Move this case study to Trash?\n\nIt will be auto-deleted after 90 days, but you can restore it from Trash anytime.')){
+          if(typeof trSoftDelete === 'function'){
+            trSoftDelete('case', csEditId);
+            // Re-read caseStudies to keep in sync (trSoftDelete modified storage)
+            try{ caseStudies = JSON.parse(rfxGet('tb_cs')||'[]'); }catch(e){}
+          } else {
+            var idx = caseStudies.findIndex(function(x){return x.id===csEditId;});
+            if(idx>=0) caseStudies.splice(idx, 1);
+            rfxSet('tb_cs', JSON.stringify(caseStudies));
+            if(typeof tqPushCaseStudies==='function')tqPushCaseStudies();
+          }
           closeModal('addCS');
           renderCS();
           _csResetModal();
@@ -12715,7 +13167,7 @@ window.dispatchEvent(new Event('supabase-ready'));
       var raw = JSON.parse(rfxGet('rf_trades')||'[]');
       if(raw && raw.length > 0){
         raw.forEach(autoDetectSession);
-        return raw;
+        return raw.filter(function(t){return !t.deleted;});
       }
       // Otherwise use baked-in trades
       if(_BAKED_TRADES && _BAKED_TRADES.length > 0){
@@ -13301,12 +13753,15 @@ window.dispatchEvent(new Event('supabase-ready'));
   function jrBulkDelete(){
     var ids=Object.keys(jrSelected);
     if(!ids.length) return;
-    if(!confirm('Delete '+ids.length+' trades? This cannot be undone.')) return;
-    var trades=JSON.parse(rfxGet('rf_trades')||'[]');
-    trades=trades.filter(function(t){return !jrSelected[t.id];});
-    rfxSet('rf_trades',JSON.stringify(trades));
-    // Supabase: delete each selected trade
-    Object.keys(jrSelected).forEach(function(tid){tqDeleteTrade(tid);});
+    if(!confirm('Move '+ids.length+' trades to Trash?\n\nThey will be auto-deleted after 90 days, but you can restore them from Trash anytime.')) return;
+    if(typeof trSoftDelete === 'function'){
+      ids.forEach(function(tid){ trSoftDelete('trade', tid); });
+    } else {
+      var trades=JSON.parse(rfxGet('rf_trades')||'[]');
+      trades=trades.filter(function(t){return !jrSelected[t.id];});
+      rfxSet('rf_trades',JSON.stringify(trades));
+      ids.forEach(function(tid){tqDeleteTrade(tid);});
+    }
     jrSelected={};
     document.getElementById('jr-bulk-bar').className='jr-bulk-bar';
     renderJournal();
@@ -14350,13 +14805,18 @@ window.dispatchEvent(new Event('supabase-ready'));
   }
   window.jrSaveTrade = jrSaveTrade;
 
-  // ── Delete trade ──
+  // ── Delete trade (soft delete — goes to Trash, restorable for 90 days) ──
   function jrDeleteTrade(id){
-    if(!confirm('Delete this trade? This cannot be undone.')) return;
-    var trades = JSON.parse(rfxGet('rf_trades')||'[]');
-    trades = trades.filter(function(t){return t.id!==id;});
-    rfxSet('rf_trades', JSON.stringify(trades));
-    tqDeleteTrade(id); // ← Supabase sync
+    if(!confirm('Move this trade to Trash?\n\nIt will be auto-deleted after 90 days, but you can restore it from Trash anytime.')) return;
+    if(typeof trSoftDelete === 'function'){
+      trSoftDelete('trade', id);
+    } else {
+      // Fallback: hard delete if trash module unavailable
+      var trades = JSON.parse(rfxGet('rf_trades')||'[]');
+      trades = trades.filter(function(t){return t.id!==id;});
+      rfxSet('rf_trades', JSON.stringify(trades));
+      tqDeleteTrade(id);
+    }
     renderJournal();
   }
   window.jrDeleteTrade = jrDeleteTrade;
@@ -18443,7 +18903,7 @@ window.dispatchEvent(new Event('supabase-ready'));
     'free':''
   };
 
-  function nbGetNotes(){return JSON.parse(rfxGet(NB_KEY)||'[]');}
+  function nbGetNotes(){var arr=JSON.parse(rfxGet(NB_KEY)||'[]');return arr.filter(function(n){return !n.deleted;});}
   function nbSaveNotes(notes){rfxSet(NB_KEY,JSON.stringify(notes));}
   function nbGetTrades(){var raw=JSON.parse(rfxGet('rf_trades')||'[]');return raw;}
 
@@ -18670,7 +19130,7 @@ window.dispatchEvent(new Event('supabase-ready'));
   }
   window.nbEdit=nbEdit;
 
-  function nbDelete(){if(!nbEditId||!confirm('Delete this note?'))return;var delId=nbEditId;var notes=nbGetNotes().filter(function(n){return n.id!==delId;});nbSaveNotes(notes);if(typeof tqDeleteNotebook==='function')tqDeleteNotebook(delId);nbCloseModal();nbRender();}
+  function nbDelete(){if(!nbEditId)return;if(!confirm('Move this note to Trash?\n\nIt will be auto-deleted after 90 days, but you can restore it from Trash anytime.'))return;var delId=nbEditId;if(typeof trSoftDelete==='function'){trSoftDelete('note',delId);}else{var notes=nbGetNotes().filter(function(n){return n.id!==delId;});nbSaveNotes(notes);if(typeof tqDeleteNotebook==='function')tqDeleteNotebook(delId);}nbCloseModal();nbRender();}
   window.nbDelete=nbDelete;
 
   function nbFilter(type,btn){nbFilterType=type;document.querySelectorAll('.nb-type-btn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');nbRender();}
@@ -19087,7 +19547,7 @@ window.dispatchEvent(new Event('supabase-ready'));
     }
   };
 
-  function getPlaybooks(){ try{return JSON.parse(rfxGet(PB_KEY)||'[]');}catch(e){return [];} }
+  function getPlaybooks(){ try{var arr=JSON.parse(rfxGet(PB_KEY)||'[]');return arr.filter(function(s){return !s.deleted;});}catch(e){return [];} }
   function savePlaybooks(arr){
     rfxSet(PB_KEY, JSON.stringify(arr));
     // Supabase: push all playbooks
@@ -19280,29 +19740,29 @@ window.dispatchEvent(new Event('supabase-ready'));
   }
   window.pbEditFromDetail = pbEditFromDetail;
 
-  // ── Delete setup ──
+  // ── Delete setup (soft delete — goes to Trash) ──
   function pbDeleteFromDetail(){
     if(!pbDetailId) return;
-    var setups = getPlaybooks();
-    var s = setups.find(function(x){return x.id===pbDetailId;});
+    // Read raw (incl. deleted) to find the setup
+    var rawAll;
+    try{ rawAll = JSON.parse(rfxGet(PB_KEY)||'[]'); }catch(e){ rawAll = []; }
+    var s = rawAll.find(function(x){return x.id===pbDetailId;});
     if(!s) return;
     // Check for orphaned trades
     var trades = JSON.parse(rfxGet('rf_trades')||'[]');
     var linked = trades.filter(function(t){return t.setup===s.name || t.setupId===s.id;}).length;
-    var msg = 'Delete "'+s.name+'"?';
-    if(linked>0) msg += '\n\n⚠ '+linked+' trades are tagged with this setup. They will become untagged ("No Setup") in Reports.';
-    msg += '\n\nThis cannot be undone.';
+    var msg = 'Move "'+s.name+'" to Trash?';
+    if(linked>0) msg += '\n\n⚠ '+linked+' trades are tagged with this setup. They\'ll show "No Setup" in Reports while this is in Trash.';
+    msg += '\n\nIt will be auto-deleted after 90 days, but you can restore it from Trash anytime.';
     if(!confirm(msg)) return;
-    // Optionally clear setupId from orphaned trades (keep setup name for history)
-    if(linked>0){
-      trades.forEach(function(t){
-        if(t.setupId===s.id) delete t.setupId;
-      });
-      rfxSet('rf_trades', JSON.stringify(trades));
+
+    if(typeof trSoftDelete === 'function'){
+      trSoftDelete('playbook', pbDetailId);
+    } else {
+      var setups = rawAll.filter(function(x){return x.id!==pbDetailId;});
+      if(typeof tqDeletePlaybook==='function')tqDeletePlaybook(pbDetailId);
+      savePlaybooks(setups);
     }
-    setups = setups.filter(function(x){return x.id!==pbDetailId;});
-    if(typeof tqDeletePlaybook==='function')tqDeletePlaybook(pbDetailId);
-    savePlaybooks(setups);
     closePbDetail();
     renderPbCards();
   }
