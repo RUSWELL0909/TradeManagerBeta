@@ -5489,7 +5489,7 @@ window.dispatchEvent(new Event('supabase-ready'));
     <!-- Minimal danger zone -->
     <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:12px;align-items:center">
       <span style="font-size:10px;color:var(--text3)">Supported imports: MT4/MT5, TradeZella, or any CSV with Date + Pair + P&L</span>
-      <button style="background:none;border:none;color:var(--red);font-size:10px;cursor:pointer;opacity:.5;font-family:'Inter',sans-serif" onclick="if(confirm('Delete ALL trades from ALL accounts? This cannot be undone.')){rfxRemove('rf_trades');alert('All trades deleted');if(typeof renderJournal==='function')renderJournal();if(typeof updateDashboard==='function')updateDashboard();}">Delete all trades</button>
+      <button style="background:none;border:none;color:var(--red);font-size:10px;cursor:pointer;opacity:.5;font-family:'Inter',sans-serif" onclick="tqDeleteAllTrades()">Delete all trades</button>
     </div>
   </div>
 
@@ -9473,6 +9473,43 @@ window.dispatchEvent(new Event('supabase-ready'));
         var arr = JSON.parse(rfxGet('rf_trades')||'[]');
         return arr.filter(function(t){ return !t.deleted; });
       }catch(e){ return []; }
+    };
+
+    // Public helper: bulk delete ALL active trades (cascade to Trash with one action)
+    window.tqDeleteAllTrades = function(){
+      var trades = [];
+      try{ trades = JSON.parse(rfxGet('rf_trades')||'[]'); }catch(e){}
+      var active = trades.filter(function(t){ return !t.deleted; });
+      if(active.length === 0){
+        alert('No trades to delete.');
+        return;
+      }
+      var msg = 'Move ALL ' + active.length + ' trades to Trash?\n\n';
+      msg += '✅ Restorable for 90 days from Trash.\n';
+      msg += '⚠ After 90 days, permanently deleted.';
+      if(!confirm(msg)) return;
+
+      var bulkId = 'bulk_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
+      var bulkAt = new Date().toISOString();
+      var count = 0;
+      trades.forEach(function(t){
+        if(!t.deleted){
+          t.deleted = true;
+          t.deletedAt = bulkAt;
+          t._cascadeId = bulkId;
+          count++;
+          if(window.tqPushTrade){ try{ tqPushTrade(t); }catch(e){} }
+        }
+      });
+      rfxSet('rf_trades', JSON.stringify(trades));
+
+      // Refresh everything
+      if(typeof renderJournal === 'function') try{ renderJournal(); }catch(e){}
+      if(typeof updateDashboard === 'function') try{ updateDashboard(); }catch(e){}
+      if(typeof renderAccountsPage === 'function') try{ renderAccountsPage(); }catch(e){}
+      if(typeof trUpdateBadge === 'function') try{ trUpdateBadge(); }catch(e){}
+
+      alert('✓ Moved ' + count + ' trades to Trash. Restorable from Trash for 90 days.');
     };
     function accSave(list){
       rfxSet('rf_accounts', JSON.stringify(list));
@@ -13559,7 +13596,7 @@ window.dispatchEvent(new Event('supabase-ready'));
     scales:{x:{grid:{color:_rG,drawBorder:false},ticks:{color:'#5c5480',font:{size:10,family:"'Inter'"},padding:6}},y:{grid:{color:_rG,drawBorder:false},ticks:{color:'#5c5480',font:{size:10,family:"'Inter'"},padding:6}}} }; };
 
   function updateReports() {
-    var raw = JSON.parse(rfxGet('rf_trades') || '[]');
+    var raw = ((typeof getActiveTrades==='function')?getActiveTrades():JSON.parse(rfxGet('rf_trades')||'[]').filter(function(t){return !t.deleted;}));
     raw.forEach(autoDetectSession);
     var allTrades = raw;
     if (allTrades.length === 0) return;
@@ -18006,7 +18043,7 @@ window.dispatchEvent(new Event('supabase-ready'));
   // ═══════════════════════════════════════════════════════
   var RM_KEY='rossfx-riskmonitor';
 
-  function rmGetTrades(){var raw=JSON.parse(rfxGet('rf_trades')||'[]');raw.forEach(autoDetectSession);return raw;}
+  function rmGetTrades(){var raw=((typeof getActiveTrades==='function')?getActiveTrades():JSON.parse(rfxGet('rf_trades')||'[]').filter(function(t){return !t.deleted;}));raw.forEach(autoDetectSession);return raw;}
 
   function rmPopulateAccounts(){
     var sel=document.getElementById('rm-account');if(!sel)return;
@@ -18320,7 +18357,7 @@ window.dispatchEvent(new Event('supabase-ready'));
   window.ptDeleteGoal=ptDeleteGoal;
 
   function ptShowAllMs(){
-    var trades=JSON.parse(rfxGet('rf_trades')||'[]');
+    var trades=((typeof getActiveTrades==='function')?getActiveTrades():JSON.parse(rfxGet('rf_trades')||'[]').filter(function(t){return !t.deleted;}));
     var cats={};
     PT_MILESTONES.forEach(function(m){
       if(!cats[m.cat])cats[m.cat]=[];
@@ -18354,7 +18391,7 @@ window.dispatchEvent(new Event('supabase-ready'));
   window.ptShowAllMs=ptShowAllMs;
 
   function ptRender(){
-    var trades=JSON.parse(rfxGet('rf_trades')||'[]');
+    var trades=((typeof getActiveTrades==='function')?getActiveTrades():JSON.parse(rfxGet('rf_trades')||'[]').filter(function(t){return !t.deleted;}));
     // demo fallback removed — real data only
     var notes=JSON.parse(rfxGet('rossfx-notebook')||'[]');
     var dayPnl={};trades.forEach(function(t){if(t.date)dayPnl[t.date]=(dayPnl[t.date]||0)+(t.pnl||0);});
@@ -18436,7 +18473,7 @@ window.dispatchEvent(new Event('supabase-ready'));
 
   // ── Monthly Report Card ──
   function ptInitReviews(){
-    var trades=JSON.parse(rfxGet('rf_trades')||'[]');
+    var trades=((typeof getActiveTrades==='function')?getActiveTrades():JSON.parse(rfxGet('rf_trades')||'[]').filter(function(t){return !t.deleted;}));
     if(!trades.length) return;
     // Populate month selector
     var months={};trades.forEach(function(t){if(t.date){var m=t.date.slice(0,7);months[m]=true;}});
@@ -18461,7 +18498,7 @@ window.dispatchEvent(new Event('supabase-ready'));
     var el=document.getElementById('pt-month-card');
     if(!mSel||!el) return;
     var month=mSel.value;if(!month){el.innerHTML='<div style="color:var(--text3);font-size:12px">No data</div>';return;}
-    var trades=JSON.parse(rfxGet('rf_trades')||'[]');
+    var trades=((typeof getActiveTrades==='function')?getActiveTrades():JSON.parse(rfxGet('rf_trades')||'[]').filter(function(t){return !t.deleted;}));
     var mt=trades.filter(function(t){return t.date&&t.date.slice(0,7)===month;});
     if(!mt.length){el.innerHTML='<div style="color:var(--text3);font-size:12px">No trades this month</div>';return;}
     var wins=mt.filter(function(t){return(t.pnl||0)>0;});
@@ -18505,7 +18542,7 @@ window.dispatchEvent(new Event('supabase-ready'));
     var week=wSel.value;if(!week){el.innerHTML='<div style="color:var(--text3);font-size:12px">No data</div>';return;}
     var wStart=new Date(week);var wEnd=new Date(wStart);wEnd.setDate(wStart.getDate()+6);
     var ws=wStart.toISOString().slice(0,10);var we=wEnd.toISOString().slice(0,10);
-    var trades=JSON.parse(rfxGet('rf_trades')||'[]');
+    var trades=((typeof getActiveTrades==='function')?getActiveTrades():JSON.parse(rfxGet('rf_trades')||'[]').filter(function(t){return !t.deleted;}));
     var wt=trades.filter(function(t){return t.date&&t.date>=ws&&t.date<=we;});
     if(!wt.length){el.innerHTML='<div style="color:var(--text3);font-size:12px">No trades this week</div>';return;}
     var wins=wt.filter(function(t){return(t.pnl||0)>0;});
@@ -19112,7 +19149,7 @@ window.dispatchEvent(new Event('supabase-ready'));
   // ═══════════════════════════════════════════════════
 
   function _aiGetTradesSorted(){
-    var trades = JSON.parse(rfxGet('rf_trades')||'[]');
+    var trades = ((typeof getActiveTrades==='function')?getActiveTrades():JSON.parse(rfxGet('rf_trades')||'[]').filter(function(t){return !t.deleted;}));
     return trades.slice().sort(function(a,b){
       // Sort by date desc, with createdAt as tiebreaker
       var d = (b.date||'').localeCompare(a.date||'');
@@ -19458,7 +19495,7 @@ window.dispatchEvent(new Event('supabase-ready'));
 
   // Render Your Edge page with LOCAL computed data (instant, no AI call)
   window.yeRender = function(){
-    var trades = JSON.parse(rfxGet('rf_trades')||'[]');
+    var trades = ((typeof getActiveTrades==='function')?getActiveTrades():JSON.parse(rfxGet('rf_trades')||'[]').filter(function(t){return !t.deleted;}));
     if(trades.length < 5){
       document.getElementById('ye-score').textContent = '—';
       document.getElementById('ye-score-trend').textContent = 'Log at least 5 trades to compute your edge';
@@ -19636,7 +19673,7 @@ window.dispatchEvent(new Event('supabase-ready'));
   window.dashAIRender = function(){
     var list = document.getElementById('dash-ai-list');
     if(!list) return;
-    var trades = JSON.parse(rfxGet('rf_trades')||'[]');
+    var trades = ((typeof getActiveTrades==='function')?getActiveTrades():JSON.parse(rfxGet('rf_trades')||'[]').filter(function(t){return !t.deleted;}));
     if(trades.length < 5){
       list.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:16px;color:var(--text3);font-size:12px">Log at least 5 trades to unlock AI insights</div>';
       return;
@@ -19775,7 +19812,7 @@ window.dispatchEvent(new Event('supabase-ready'));
     var setup = setupEl && setupEl.selectedIndex > 0 ? setupEl.options[setupEl.selectedIndex].dataset.name : '';
     if(!pair){ warn.style.display='none'; return; }
 
-    var trades = JSON.parse(rfxGet('rf_trades')||'[]');
+    var trades = ((typeof getActiveTrades==='function')?getActiveTrades():JSON.parse(rfxGet('rf_trades')||'[]').filter(function(t){return !t.deleted;}));
     if(trades.length < 10){ warn.style.display='none'; return; } // Need enough history
 
     // Don't show on edit (only on new trade)
@@ -21250,7 +21287,7 @@ window.dispatchEvent(new Event('supabase-ready'));
 
   function nbGetNotes(){var arr=JSON.parse(rfxGet(NB_KEY)||'[]');return arr.filter(function(n){return !n.deleted;});}
   function nbSaveNotes(notes){rfxSet(NB_KEY,JSON.stringify(notes));}
-  function nbGetTrades(){var raw=JSON.parse(rfxGet('rf_trades')||'[]');return raw;}
+  function nbGetTrades(){var raw=((typeof getActiveTrades==='function')?getActiveTrades():JSON.parse(rfxGet('rf_trades')||'[]').filter(function(t){return !t.deleted;}));return raw;}
 
   function nbSetMood(val,btn){nbMoodVal=val;document.querySelectorAll('.nb-mood').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');}
   window.nbSetMood=nbSetMood;
@@ -21917,7 +21954,7 @@ window.dispatchEvent(new Event('supabase-ready'));
     var grid = document.getElementById('pb-grid');
     if(!grid) return;
     // Get trade stats per setup
-    var raw = JSON.parse(rfxGet('rf_trades')||'[]');
+    var raw = ((typeof getActiveTrades==='function')?getActiveTrades():JSON.parse(rfxGet('rf_trades')||'[]').filter(function(t){return !t.deleted;}));
     var trades = raw;
 
     var html = '';
@@ -21984,7 +22021,7 @@ window.dispatchEvent(new Event('supabase-ready'));
     pbDetailId = id;
 
     // Get trade stats
-    var raw = JSON.parse(rfxGet('rf_trades')||'[]');
+    var raw = ((typeof getActiveTrades==='function')?getActiveTrades():JSON.parse(rfxGet('rf_trades')||'[]').filter(function(t){return !t.deleted;}));
     var trades = raw;
     var st = trades.filter(function(t){return t.setupId===s.id||(t.setup||'')===s.name;});
     var wins = st.filter(function(t){return (t.pnl||0)>0;});
