@@ -3287,6 +3287,70 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
 .tr-sidebar-btn svg{flex-shrink:0}
 .tr-sidebar-badge{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:var(--accent);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:8px;min-width:16px;text-align:center}
 
+/* ══ ONBOARDING — Mode Picker + Guided Tour ══ */
+/* Mode picker — first-run fullscreen modal */
+.ob-modepicker{position:fixed;inset:0;background:linear-gradient(135deg,rgba(8,6,18,.96),rgba(20,12,40,.94));backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);z-index:99998;display:none;align-items:center;justify-content:center;padding:24px;overflow-y:auto}
+.ob-modepicker.show{display:flex;animation:obFadeIn .4s ease-out}
+@keyframes obFadeIn{from{opacity:0}to{opacity:1}}
+.ob-mp-box{max-width:720px;width:100%;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:40px 36px;box-shadow:0 20px 80px rgba(0,0,0,.5);animation:obSlideUp .5s cubic-bezier(.22,1,.36,1)}
+@keyframes obSlideUp{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.ob-mp-header{text-align:center;margin-bottom:32px}
+.ob-mp-icon{width:56px;height:56px;margin:0 auto 16px;background:linear-gradient(135deg,rgba(124,90,240,.15),rgba(96,165,250,.1));border-radius:16px;display:flex;align-items:center;justify-content:center}
+.ob-mp-title{font-size:28px;font-weight:300;color:var(--text);font-family:'Syne',sans-serif;letter-spacing:-.5px;margin-bottom:6px}
+.ob-mp-title b{font-weight:800;background:linear-gradient(135deg,#7c5af0,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.ob-mp-sub{font-size:13px;color:var(--text3);font-family:'Inter',sans-serif;line-height:1.6;max-width:440px;margin:0 auto}
+.ob-mp-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px}
+.ob-mp-card{background:var(--bg2);border:1.5px solid var(--border);border-radius:14px;padding:20px;cursor:pointer;transition:all .25s cubic-bezier(.22,1,.36,1);position:relative;overflow:hidden;text-align:left}
+.ob-mp-card:hover{border-color:var(--accent3);transform:translateY(-2px);box-shadow:0 12px 32px rgba(124,90,240,.12)}
+.ob-mp-card-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.ob-mp-card-emoji{font-size:24px;line-height:1}
+.ob-mp-card-title{font-size:14px;font-weight:700;color:var(--text);font-family:'Inter',sans-serif}
+.ob-mp-card-desc{font-size:11px;color:var(--text3);line-height:1.6;font-family:'Inter',sans-serif}
+.ob-mp-card-tag{position:absolute;top:12px;right:12px;background:rgba(46,204,138,.12);color:#2ecc8a;font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;text-transform:uppercase;letter-spacing:.5px}
+.ob-mp-skip{display:block;margin:0 auto;background:none;border:none;color:var(--text3);font-size:11px;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:underline;padding:6px}
+.ob-mp-skip:hover{color:var(--text)}
+
+/* Tour overlay — spotlight + coachmark */
+.ob-overlay{position:fixed;inset:0;z-index:99996;pointer-events:none;display:none}
+.ob-overlay.show{display:block}
+.ob-mask{position:absolute;background:rgba(8,6,18,.65);transition:all .35s cubic-bezier(.22,1,.36,1);pointer-events:auto}
+.ob-mask-top{top:0;left:0;right:0}
+.ob-mask-bottom{bottom:0;left:0;right:0}
+.ob-mask-left{left:0}
+.ob-mask-right{right:0}
+.ob-spotlight{position:absolute;border-radius:14px;box-shadow:0 0 0 3px var(--accent3),0 0 0 9999px rgba(8,6,18,.65),0 8px 32px rgba(124,90,240,.4);transition:all .35s cubic-bezier(.22,1,.36,1);pointer-events:none;animation:obSpotlightPulse 2s ease-in-out infinite}
+@keyframes obSpotlightPulse{0%,100%{box-shadow:0 0 0 3px var(--accent3),0 0 0 9999px rgba(8,6,18,.65),0 8px 32px rgba(124,90,240,.4)}50%{box-shadow:0 0 0 4px var(--accent3),0 0 0 9999px rgba(8,6,18,.65),0 12px 48px rgba(124,90,240,.6)}}
+.ob-coachmark{position:absolute;background:var(--card);border:1px solid var(--accent3);border-radius:14px;padding:16px 18px;max-width:340px;box-shadow:0 12px 48px rgba(0,0,0,.5);z-index:99997;pointer-events:auto;animation:obCoachIn .35s cubic-bezier(.22,1,.36,1)}
+@keyframes obCoachIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.ob-coachmark-step{font-size:10px;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;font-family:'Inter',sans-serif}
+.ob-coachmark-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;font-family:'Inter',sans-serif;line-height:1.4}
+.ob-coachmark-body{font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:12px;font-family:'Inter',sans-serif}
+.ob-coachmark-action{font-size:11px;color:var(--accent3);background:rgba(124,90,240,.08);border:1px dashed rgba(124,90,240,.3);border-radius:8px;padding:8px 10px;margin-bottom:12px;font-family:'Inter',sans-serif}
+.ob-coachmark-action b{color:var(--accent3)}
+.ob-coachmark-foot{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ob-coachmark-progress{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace}
+.ob-coachmark-btns{display:flex;gap:6px}
+.ob-btn{padding:6px 12px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+.ob-btn:hover{border-color:var(--accent3);color:var(--accent3)}
+.ob-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.ob-btn.primary:hover{filter:brightness(1.1);color:#fff}
+.ob-btn.skip{padding:4px 8px;font-size:10px;color:var(--text3)}
+.ob-btn.skip:hover{color:var(--text2)}
+
+/* Coachmark arrow indicator */
+.ob-coachmark::before{content:'';position:absolute;width:14px;height:14px;background:var(--card);border:1px solid var(--accent3);transform:rotate(45deg)}
+.ob-coachmark[data-pos="bottom"]::before{top:-8px;left:24px;border-bottom:none;border-right:none}
+.ob-coachmark[data-pos="top"]::before{bottom:-8px;left:24px;border-top:none;border-left:none}
+.ob-coachmark[data-pos="right"]::before{left:-8px;top:24px;border-right:none;border-top:none}
+.ob-coachmark[data-pos="left"]::before{right:-8px;top:24px;border-left:none;border-bottom:none}
+
+@media (max-width:640px){
+  .ob-mp-grid{grid-template-columns:1fr}
+  .ob-mp-box{padding:28px 22px}
+  .ob-mp-title{font-size:22px}
+  .ob-coachmark{max-width:calc(100vw - 32px)}
+}
+
 /* ══ COCKPIT SNAPSHOT VIEWER (full pre-market analysis frozen at trade time) ══ */
 .sv-modal{position:fixed;inset:0;background:rgba(8,6,18,.78);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9998;display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:32px 16px}
 .sv-modal.open{display:flex}
@@ -3302,7 +3366,12 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
 .sv-head-close:hover{background:var(--bg3);color:var(--text)}
 .sv-head-esc{font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;margin-right:6px;padding:3px 7px;border-radius:5px;background:var(--bg3);border:1px solid var(--border)}
 
-.sv-body{padding:24px 28px}
+.sv-body{padding:0}
+.sv-frozen-wrap .ck-pair-card{margin-bottom:0;animation:none!important}
+.sv-frozen-wrap button[disabled]{cursor:default!important;opacity:1}
+.sv-frozen-wrap input[disabled],
+.sv-frozen-wrap textarea[disabled],
+.sv-frozen-wrap select[disabled]{cursor:default!important;opacity:1;-webkit-text-fill-color:var(--text)!important;color:var(--text)!important}
 .sv-section{margin-bottom:24px}
 .sv-section:last-child{margin-bottom:0}
 .sv-section-title{font-size:10px;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:1.8px;margin-bottom:12px;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:8px}
@@ -3575,9 +3644,9 @@ window.dispatchEvent(new Event('supabase-ready'));
   </div>
   <!-- HELP BUTTON -->
   <div style="padding:0 12px 8px;margin-top:auto">
-    <button onclick="showPage('resources');document.getElementById('guide-grid').scrollIntoView({behavior:'smooth'})" style="display:flex;align-items:center;gap:6px;background:none;border:1px solid var(--border);border-radius:8px;padding:7px 10px;cursor:pointer;color:var(--text3);font-size:11px;font-family:'Inter',sans-serif;width:100%;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+    <button onclick="if(window.obStartTour)obStartTour();else showPage('resources')" style="display:flex;align-items:center;gap:6px;background:none;border:1px solid var(--border);border-radius:8px;padding:7px 10px;cursor:pointer;color:var(--text3);font-size:11px;font-family:'Inter',sans-serif;width:100%;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'" title="Restart the platform tour">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      <span>Platform Guide</span>
+      <span>Platform Guide & Tour</span>
     </button>
   </div>
   <!-- TRASH BUTTON -->
@@ -4435,16 +4504,17 @@ window.dispatchEvent(new Event('supabase-ready'));
   </div>
 
   <!-- ═══ COCKPIT SNAPSHOT VIEWER ═══ -->
+  <!-- ═══ COCKPIT SNAPSHOT FULLVIEW (1:1 replica of Cockpit at trade time) ═══ -->
   <div class="sv-modal" id="sv-modal" onclick="if(event.target===this)closeSvModal()">
-    <div class="sv-box">
-      <div class="sv-head">
+    <div class="sv-box" style="max-width:1200px">
+      <div class="sv-head" style="position:sticky;top:0;z-index:5;background:var(--card)">
         <div class="sv-head-left">
           <div class="sv-head-icon">
             <svg viewBox="0 0 24 24"><path d="M3 9h18M9 21V9M3 5a2 2 0 012-2h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5z"/></svg>
           </div>
           <div>
             <div class="sv-head-title" id="sv-title">Pre-market analysis</div>
-            <div class="sv-head-sub" id="sv-subtitle">Frozen at trade entry</div>
+            <div class="sv-head-sub" id="sv-subtitle">Frozen at trade entry · read-only</div>
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:6px">
@@ -4453,7 +4523,7 @@ window.dispatchEvent(new Event('supabase-ready'));
         </div>
       </div>
       <div class="sv-body" id="sv-body">
-        <!-- populated dynamically -->
+        <!-- populated dynamically with frozen Cockpit replica -->
       </div>
     </div>
   </div>
@@ -6970,6 +7040,81 @@ window.dispatchEvent(new Event('supabase-ready'));
     </div>
 
     <div class="tr-list" id="tr-list"></div>
+  </div>
+
+  <!-- ═══ ONBOARDING — Mode Picker (first-run) ═══ -->
+  <div class="ob-modepicker" id="ob-modepicker">
+    <div class="ob-mp-box">
+      <div class="ob-mp-header">
+        <div class="ob-mp-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#7c5af0" stroke-width="1.5">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <div class="ob-mp-title">Welcome to <b>TradeQuill</b></div>
+        <div class="ob-mp-sub">Pick what describes you. We'll personalize your tour and explanations to match your style.</div>
+      </div>
+
+      <div class="ob-mp-grid">
+        <div class="ob-mp-card" onclick="obSelectMode('wwa')">
+          <span class="ob-mp-card-tag">Recommended</span>
+          <div class="ob-mp-card-head">
+            <span class="ob-mp-card-emoji">🎯</span>
+            <div class="ob-mp-card-title">WWA Practitioner</div>
+          </div>
+          <div class="ob-mp-card-desc">You trade Wakar's WWA methodology — Reversals, NY Trap, SMT Continuations. Get a full tour with WWA-specific terms explained.</div>
+        </div>
+
+        <div class="ob-mp-card" onclick="obSelectMode('smc')">
+          <div class="ob-mp-card-head">
+            <span class="ob-mp-card-emoji">📊</span>
+            <div class="ob-mp-card-title">SMC / ICT Trader</div>
+          </div>
+          <div class="ob-mp-card-desc">You use Smart Money Concepts, Order Blocks, FVG. Get a quick tour — we'll explain how to adapt the platform to your terms.</div>
+        </div>
+
+        <div class="ob-mp-card" onclick="obSelectMode('new')">
+          <div class="ob-mp-card-head">
+            <span class="ob-mp-card-emoji">🆕</span>
+            <div class="ob-mp-card-title">New to Journaling</div>
+          </div>
+          <div class="ob-mp-card-desc">First time keeping a trading journal? Get an extra-slow tour with mini-lessons on why each step matters.</div>
+        </div>
+
+        <div class="ob-mp-card" onclick="obSelectMode('other')">
+          <div class="ob-mp-card-head">
+            <span class="ob-mp-card-emoji">⚡</span>
+            <div class="ob-mp-card-title">Other Methodology</div>
+          </div>
+          <div class="ob-mp-card-desc">Wyckoff, Elliott Wave, classical TA, or your own system. Quick tour focused on what's universal.</div>
+        </div>
+      </div>
+
+      <button class="ob-mp-skip" onclick="obSelectMode('skip')">Skip — just take me in</button>
+    </div>
+  </div>
+
+  <!-- ═══ ONBOARDING — Tour overlay (spotlight + coachmark) ═══ -->
+  <div class="ob-overlay" id="ob-overlay">
+    <div class="ob-mask ob-mask-top" id="ob-mask-top"></div>
+    <div class="ob-mask ob-mask-bottom" id="ob-mask-bottom"></div>
+    <div class="ob-mask ob-mask-left" id="ob-mask-left"></div>
+    <div class="ob-mask ob-mask-right" id="ob-mask-right"></div>
+    <div class="ob-spotlight" id="ob-spotlight"></div>
+    <div class="ob-coachmark" id="ob-coachmark" data-pos="bottom">
+      <div class="ob-coachmark-step" id="ob-cm-step">Step 1 of 5</div>
+      <div class="ob-coachmark-title" id="ob-cm-title"></div>
+      <div class="ob-coachmark-body" id="ob-cm-body"></div>
+      <div class="ob-coachmark-action" id="ob-cm-action" style="display:none"></div>
+      <div class="ob-coachmark-foot">
+        <div class="ob-coachmark-progress" id="ob-cm-progress"></div>
+        <div class="ob-coachmark-btns">
+          <button class="ob-btn skip" onclick="obSkipTour()">Skip tour</button>
+          <button class="ob-btn" id="ob-cm-back" onclick="obPrev()" style="display:none">← Back</button>
+          <button class="ob-btn primary" id="ob-cm-next" onclick="obNext()">Next →</button>
+        </div>
+      </div>
+    </div>
   </div>
 
 
@@ -10037,6 +10182,448 @@ window.dispatchEvent(new Event('supabase-ready'));
   })();
   // ══ END TRASH MODULE ══
 
+  // ██  ONBOARDING MODULE — Mode picker + Guided spotlight tour
+  // ██  Shows on first run only. Saves state in localStorage.
+  // ██  Restartable from Settings (window.obStartTour available globally).
+  (function(){
+
+    var STORAGE = {
+      mode:      'tq_user_mode',         // 'wwa' | 'smc' | 'new' | 'other' | 'skip'
+      completed: 'tq_onboarding_done',   // 'true' | 'false'
+      step:      'tq_onboarding_step'    // current step number for resume
+    };
+
+    // Tour step definitions per mode — different content for different audiences
+    var STEPS_WWA = [
+      {
+        page: 'cockpit',
+        target: '#nav-cockpit',
+        position: 'right',
+        title: 'This is the Cockpit',
+        body: 'Where you plan trades before taking them. Daily Bias, HTF context, your model, confluences — all the WWA stuff lives here.',
+        action: 'Click <b>Cockpit</b> in the sidebar to open it.'
+      },
+      {
+        page: 'cockpit',
+        target: '#ck-session-row',
+        position: 'bottom',
+        title: 'Pick your session',
+        body: 'WWA models work in specific killzones. Pick London, NY, Frankfurt, or NTW (No Time Window).',
+        action: 'Click any session button (e.g. <b>London</b>).'
+      },
+      {
+        page: 'cockpit',
+        target: '.ck-pair-card:first-of-type',
+        position: 'top',
+        title: 'Set your bias for a pair',
+        body: 'For each pair you watch, pick Daily Bias, HTF Trend, Phase, then your Model. This is your pre-market analysis.',
+        action: 'Try setting Daily Bias on EURUSD or any pair.'
+      },
+      {
+        page: 'cockpit',
+        target: '.ck-take-trade-btn',
+        position: 'top',
+        title: 'Take a trade',
+        body: 'When your setup forms — click Take Trade. It freezes your Cockpit analysis and opens the Journal modal with everything pre-filled.',
+        action: 'You don\'t have to click now — we\'ll skip ahead.'
+      },
+      {
+        page: 'journal',
+        target: '#nav-journal',
+        position: 'right',
+        title: 'Journal — your edit & review hub',
+        body: 'After Take Trade, you land here with the modal open. Add Entry / Exit / PnL, your notes, and save. Your Cockpit snapshot stays attached forever, frozen at entry time.',
+        action: 'Open <b>Journal</b> from the sidebar.'
+      },
+      {
+        page: 'aicoach',
+        target: '#nav-aicoach',
+        position: 'right',
+        title: 'AI Coach — ask questions, get insights',
+        body: 'Ask things like "what\'s my best pair on London?" or "why did I lose on the last 5 NY Traps?" The Coach knows all your data.',
+        action: null
+      },
+      {
+        page: 'trash',
+        target: '#nav-trash',
+        position: 'right',
+        title: 'Trash — soft delete protection',
+        body: 'Deleted trades, notes, case studies sit here for 90 days. You can restore anytime. Never lose data by accident.',
+        action: null
+      }
+    ];
+
+    var STEPS_NEW = [
+      {
+        page: 'dashboard',
+        target: '#welcome-screen',
+        position: 'bottom',
+        title: 'Why journal at all?',
+        body: 'Most traders fail not because their strategy is broken — but because they don\'t know which trades they took on plan vs by impulse. A journal turns "I think I do better in London" into "I do 71% better in London on Mondays after I sleep well."',
+        action: null
+      },
+      {
+        page: 'cockpit',
+        target: '#nav-cockpit',
+        position: 'right',
+        title: 'Cockpit — pre-market analysis',
+        body: 'Before any trade, write down what you SEE in the market. Bias, trend, phase, setup. This becomes your pre-trade plan.',
+        action: 'Open <b>Cockpit</b>.'
+      },
+      {
+        page: 'cockpit',
+        target: '.ck-take-trade-btn',
+        position: 'top',
+        title: 'When you take a trade',
+        body: 'Click "Take Trade" to freeze your analysis and start logging the trade. Even if you don\'t use this exact flow — adding cockpit context to every trade is the #1 thing that makes journaling actually useful.',
+        action: null
+      },
+      {
+        page: 'journal',
+        target: '#nav-journal',
+        position: 'right',
+        title: 'Journal — log results',
+        body: 'Every trade ends here. Entry, exit, PnL, screenshots, notes. The data accumulates and over weeks you\'ll see patterns you can\'t see in your head.',
+        action: null
+      },
+      {
+        page: 'reports',
+        target: '#nav-reports',
+        position: 'right',
+        title: 'Reports — find your edge',
+        body: 'After ~30 trades, Reports show you which setups, sessions, and pairs work best for YOU. Most traders never get this clarity.',
+        action: null
+      },
+      {
+        page: 'aicoach',
+        target: '#nav-aicoach',
+        position: 'right',
+        title: 'AI Coach — ask anything',
+        body: 'Stuck? Ask the Coach. It knows your trades and can find patterns. "Am I revenge trading after losses?" "Best time of day for me?" Try it.',
+        action: null
+      }
+    ];
+
+    var STEPS_QUICK = [
+      {
+        page: 'cockpit',
+        target: '#nav-cockpit',
+        position: 'right',
+        title: 'Cockpit — pre-trade planning',
+        body: 'Plan your setup here. The terms (Bias, Models, Confluences) are WWA-flavored but the workflow is universal.',
+        action: null
+      },
+      {
+        page: 'cockpit',
+        target: '.ck-take-trade-btn',
+        position: 'top',
+        title: 'Take Trade flow',
+        body: 'Click Take Trade → freezes your analysis → opens Journal modal pre-filled. Add exit/PnL, save. Done.',
+        action: null
+      },
+      {
+        page: 'journal',
+        target: '#nav-journal',
+        position: 'right',
+        title: 'Journal',
+        body: 'All trades here. Filter, edit, review. Each trade keeps its Cockpit snapshot for plan-vs-reality.',
+        action: null
+      },
+      {
+        page: 'aicoach',
+        target: '#nav-aicoach',
+        position: 'right',
+        title: 'AI Coach',
+        body: 'Conversational queries on your data. Customizable to your strategy via prompts.',
+        action: null
+      }
+    ];
+
+    var _currentSteps = [];
+    var _currentStepIdx = 0;
+    var _onScrollResize = null;
+
+    // ── Mode picker show/hide ──
+    function obShowModePicker(){
+      var el = document.getElementById('ob-modepicker');
+      if(el) el.classList.add('show');
+    }
+    function obHideModePicker(){
+      var el = document.getElementById('ob-modepicker');
+      if(el) el.classList.remove('show');
+    }
+
+    // ── Mode selected → start tour ──
+    function obSelectMode(mode){
+      try{ rfxSet(STORAGE.mode, mode); }catch(e){}
+      obHideModePicker();
+
+      if(mode === 'skip'){
+        obComplete();
+        return;
+      }
+
+      // Pick step set based on mode
+      if(mode === 'wwa') _currentSteps = STEPS_WWA;
+      else if(mode === 'new') _currentSteps = STEPS_NEW;
+      else _currentSteps = STEPS_QUICK; // smc, other, etc.
+
+      _currentStepIdx = 0;
+      // Small delay so modepicker fade completes
+      setTimeout(function(){ obStartStep(0); }, 300);
+    }
+    window.obSelectMode = obSelectMode;
+
+    // ── Resolve target element + show coachmark ──
+    function obStartStep(idx){
+      if(idx < 0 || idx >= _currentSteps.length){ obComplete(); return; }
+      _currentStepIdx = idx;
+      var step = _currentSteps[idx];
+
+      // Navigate to the right page first
+      if(step.page && typeof showPage === 'function'){
+        try{ showPage(step.page); }catch(e){}
+      }
+
+      // Wait for DOM/animations to settle, then position spotlight
+      setTimeout(function(){ obPositionSpotlight(step); }, 250);
+    }
+
+    function obPositionSpotlight(step){
+      var overlay = document.getElementById('ob-overlay');
+      var spotlight = document.getElementById('ob-spotlight');
+      var cm = document.getElementById('ob-coachmark');
+      if(!overlay || !spotlight || !cm) return;
+
+      var target = document.querySelector(step.target);
+
+      // Update coachmark text first
+      document.getElementById('ob-cm-step').textContent = 'Step ' + (_currentStepIdx + 1) + ' of ' + _currentSteps.length;
+      document.getElementById('ob-cm-title').textContent = step.title;
+      document.getElementById('ob-cm-body').textContent = step.body;
+
+      var actionEl = document.getElementById('ob-cm-action');
+      if(step.action){
+        actionEl.innerHTML = step.action;
+        actionEl.style.display = 'block';
+      } else {
+        actionEl.style.display = 'none';
+      }
+
+      var prog = document.getElementById('ob-cm-progress');
+      if(prog) prog.textContent = (_currentStepIdx + 1) + ' / ' + _currentSteps.length;
+
+      var backBtn = document.getElementById('ob-cm-back');
+      if(backBtn) backBtn.style.display = _currentStepIdx === 0 ? 'none' : 'inline-block';
+
+      var nextBtn = document.getElementById('ob-cm-next');
+      if(nextBtn) nextBtn.textContent = (_currentStepIdx === _currentSteps.length - 1) ? 'Done ✓' : 'Next →';
+
+      overlay.classList.add('show');
+
+      if(!target){
+        // Target missing — center coachmark, hide spotlight
+        spotlight.style.display = 'none';
+        // Center the coachmark
+        cm.style.top = '50%';
+        cm.style.left = '50%';
+        cm.style.transform = 'translate(-50%, -50%)';
+        cm.setAttribute('data-pos', 'center');
+        // Mask covers full screen
+        obSetMasks(0, 0, 0, 0, window.innerWidth, window.innerHeight);
+        return;
+      }
+
+      cm.style.transform = '';
+      spotlight.style.display = 'block';
+
+      // Scroll target into view
+      try{ target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' }); }catch(e){}
+
+      // Position after scroll completes
+      setTimeout(function(){
+        var rect = target.getBoundingClientRect();
+        var pad = 6;
+        var sx = rect.left - pad;
+        var sy = rect.top - pad;
+        var sw = rect.width + pad * 2;
+        var sh = rect.height + pad * 2;
+
+        spotlight.style.left = sx + 'px';
+        spotlight.style.top = sy + 'px';
+        spotlight.style.width = sw + 'px';
+        spotlight.style.height = sh + 'px';
+
+        obSetMasks(sx, sy, sw, sh, window.innerWidth, window.innerHeight);
+
+        // Position coachmark
+        obPositionCoachmark(cm, rect, step.position || 'bottom');
+      }, 350);
+    }
+
+    // Set the four mask divs to cover everything except spotlight
+    function obSetMasks(sx, sy, sw, sh, vw, vh){
+      var top = document.getElementById('ob-mask-top');
+      var bot = document.getElementById('ob-mask-bottom');
+      var lft = document.getElementById('ob-mask-left');
+      var rgt = document.getElementById('ob-mask-right');
+      // Note: with the spotlight box-shadow trick we don't even need masks — but keep them for click-blocking around spotlight
+      if(top){ top.style.top = '0'; top.style.height = sy + 'px'; top.style.left = '0'; top.style.right = '0'; }
+      if(bot){ bot.style.top = (sy + sh) + 'px'; bot.style.bottom = '0'; bot.style.left = '0'; bot.style.right = '0'; }
+      if(lft){ lft.style.top = sy + 'px'; lft.style.height = sh + 'px'; lft.style.left = '0'; lft.style.width = sx + 'px'; }
+      if(rgt){ rgt.style.top = sy + 'px'; rgt.style.height = sh + 'px'; rgt.style.right = '0'; rgt.style.width = (vw - sx - sw) + 'px'; }
+    }
+
+    // Position coachmark relative to target rect
+    function obPositionCoachmark(cm, rect, preferredPos){
+      var cmW = cm.offsetWidth || 320;
+      var cmH = cm.offsetHeight || 200;
+      var pad = 16;
+      var vw = window.innerWidth;
+      var vh = window.innerHeight;
+
+      var positions = ['bottom', 'top', 'right', 'left'];
+      var order = [preferredPos].concat(positions.filter(function(p){return p !== preferredPos;}));
+
+      var chosen = null;
+      for(var i = 0; i < order.length; i++){
+        var pos = order[i];
+        var top, left;
+        if(pos === 'bottom'){
+          top = rect.bottom + pad;
+          left = rect.left + rect.width/2 - cmW/2;
+          if(top + cmH < vh && left >= pad && left + cmW <= vw - pad){ chosen = {top: top, left: left, pos: pos}; break; }
+        } else if(pos === 'top'){
+          top = rect.top - cmH - pad;
+          left = rect.left + rect.width/2 - cmW/2;
+          if(top >= pad && left >= pad && left + cmW <= vw - pad){ chosen = {top: top, left: left, pos: pos}; break; }
+        } else if(pos === 'right'){
+          top = rect.top + rect.height/2 - cmH/2;
+          left = rect.right + pad;
+          if(left + cmW < vw && top >= pad && top + cmH <= vh - pad){ chosen = {top: top, left: left, pos: pos}; break; }
+        } else if(pos === 'left'){
+          top = rect.top + rect.height/2 - cmH/2;
+          left = rect.left - cmW - pad;
+          if(left >= pad && top >= pad && top + cmH <= vh - pad){ chosen = {top: top, left: left, pos: pos}; break; }
+        }
+      }
+
+      // Fallback: place below, clamped
+      if(!chosen){
+        chosen = {
+          top: Math.min(rect.bottom + pad, vh - cmH - pad),
+          left: Math.max(pad, Math.min(rect.left, vw - cmW - pad)),
+          pos: 'bottom'
+        };
+      }
+
+      // Clamp horizontally
+      chosen.left = Math.max(pad, Math.min(chosen.left, vw - cmW - pad));
+      chosen.top = Math.max(pad, Math.min(chosen.top, vh - cmH - pad));
+
+      cm.style.top = chosen.top + 'px';
+      cm.style.left = chosen.left + 'px';
+      cm.setAttribute('data-pos', chosen.pos);
+    }
+
+    // ── Tour controls ──
+    function obNext(){
+      if(_currentStepIdx >= _currentSteps.length - 1){
+        obComplete();
+        return;
+      }
+      obStartStep(_currentStepIdx + 1);
+    }
+    window.obNext = obNext;
+
+    function obPrev(){
+      if(_currentStepIdx > 0) obStartStep(_currentStepIdx - 1);
+    }
+    window.obPrev = obPrev;
+
+    function obSkipTour(){
+      if(confirm('Skip the tour? You can restart it anytime from Settings.')){
+        obComplete();
+      }
+    }
+    window.obSkipTour = obSkipTour;
+
+    function obComplete(){
+      var overlay = document.getElementById('ob-overlay');
+      if(overlay) overlay.classList.remove('show');
+      var mp = document.getElementById('ob-modepicker');
+      if(mp) mp.classList.remove('show');
+      try{ rfxSet(STORAGE.completed, 'true'); }catch(e){}
+      _currentSteps = [];
+      _currentStepIdx = 0;
+    }
+    window.obComplete = obComplete;
+
+    // ── Restart tour from anywhere ──
+    function obStartTour(){
+      // Show mode picker again — they can pick same or different
+      obShowModePicker();
+    }
+    window.obStartTour = obStartTour;
+
+    // ── First-run check ──
+    function obCheckFirstRun(){
+      try{
+        var done = rfxGet(STORAGE.completed);
+        if(done === 'true') return; // already completed
+
+        // Check: is this a brand new user with zero data?
+        var trades = [];
+        try{ trades = JSON.parse(rfxGet('rf_trades') || '[]'); }catch(e){}
+        var hasData = trades.length > 0;
+
+        // If they have data, they're not a fresh user — mark as done silently
+        if(hasData){
+          rfxSet(STORAGE.completed, 'true');
+          return;
+        }
+
+        // Fresh user — show mode picker after small delay
+        setTimeout(function(){ obShowModePicker(); }, 800);
+      }catch(e){
+        console.warn('Onboarding check failed', e);
+      }
+    }
+
+    // Re-position spotlight on resize/scroll while tour active
+    function _wireRepositioning(){
+      var fn = function(){
+        if(!_currentSteps.length) return;
+        var step = _currentSteps[_currentStepIdx];
+        if(!step) return;
+        var target = document.querySelector(step.target);
+        if(!target) return;
+        var rect = target.getBoundingClientRect();
+        var spotlight = document.getElementById('ob-spotlight');
+        var cm = document.getElementById('ob-coachmark');
+        if(spotlight && cm){
+          var pad = 6;
+          spotlight.style.left = (rect.left - pad) + 'px';
+          spotlight.style.top = (rect.top - pad) + 'px';
+          spotlight.style.width = (rect.width + pad*2) + 'px';
+          spotlight.style.height = (rect.height + pad*2) + 'px';
+          obSetMasks(rect.left - pad, rect.top - pad, rect.width + pad*2, rect.height + pad*2, window.innerWidth, window.innerHeight);
+          obPositionCoachmark(cm, rect, step.position || 'bottom');
+        }
+      };
+      window.addEventListener('resize', fn);
+      window.addEventListener('scroll', fn, true);
+    }
+
+    // Init
+    setTimeout(function(){
+      _wireRepositioning();
+      obCheckFirstRun();
+    }, 1500);
+
+  })();
+  // ══ END ONBOARDING MODULE ══
+
   // ██  COCKPIT SNAPSHOT VIEWER MODULE
   // ██  Full-screen view of frozen pre-market analysis from any trade.
   // ██  Opens via openCockpitSnapshot(tradeId) — ESC to close.
@@ -10214,9 +10801,9 @@ window.dispatchEvent(new Event('supabase-ready'));
         when = t.date + (t.entryTime?' '+t.entryTime:'');
       }
 
-      document.getElementById('sv-title').textContent = 'Pre-market analysis · '+pair+(dirLabel?' · '+dirLabel:'');
-      document.getElementById('sv-subtitle').textContent = when ? 'Frozen at '+when : 'Frozen at trade entry';
-      document.getElementById('sv-body').innerHTML = svBuildBody(snap, t);
+      document.getElementById('sv-title').textContent = 'Cockpit snapshot · '+pair+(dirLabel?' · '+dirLabel:'');
+      document.getElementById('sv-subtitle').textContent = (when ? 'Frozen at '+when : 'Frozen at trade entry') + ' · read-only';
+      svRenderFullReplica(snap, pair);
 
       document.getElementById('sv-modal').classList.add('open');
     }
@@ -10224,39 +10811,291 @@ window.dispatchEvent(new Event('supabase-ready'));
 
     // ── Preview snapshot for an unsaved (draft) trade — used by Add Trade modal banner ──
     function openCockpitSnapshotFromDraft(){
-      // Try to grab from current jrDraft (the in-memory draft for the Add/Edit modal)
       if(typeof jrDraft === 'undefined' || !jrDraft){
         alert('No cockpit data to display'); return;
       }
-      // If trade already saved (editing existing) — use saved version
       if(typeof jrEditId !== 'undefined' && jrEditId){
         return openCockpitSnapshot(jrEditId);
       }
-      // Build a synthetic trade from the draft
       var snap = jrDraft.cockpitSnapshot || null;
       if(!snap){
         alert('No cockpit snapshot attached to this trade'); return;
       }
-      var fakeTrade = {
-        pair: jrDraft.pair || '—',
-        dir: jrDraft.direction || jrDraft.dir,
-        date: jrDraft.date || '',
-        cockpitSnapshot: snap
-      };
-      var pair = fakeTrade.pair;
-      var dir = fakeTrade.dir;
+      var pair = jrDraft.pair || '—';
+      var dir = jrDraft.direction || jrDraft.dir;
       var dirLabel = (dir === 'sell' || dir === 'short') ? 'Short' : (dir === 'buy' || dir === 'long' ? 'Long' : '');
       var when = '';
       if(snap.savedAt){
         try{ when = new Date(snap.savedAt).toLocaleString(); }catch(e){}
       }
 
-      document.getElementById('sv-title').textContent = 'Pre-market analysis · '+pair+(dirLabel?' · '+dirLabel:'');
-      document.getElementById('sv-subtitle').textContent = when ? 'Frozen at '+when : 'Pre-fill from current Cockpit';
-      document.getElementById('sv-body').innerHTML = svBuildBody(snap, fakeTrade);
+      document.getElementById('sv-title').textContent = 'Cockpit snapshot · '+pair+(dirLabel?' · '+dirLabel:'');
+      document.getElementById('sv-subtitle').textContent = (when ? 'Frozen at '+when : 'Pre-fill from current Cockpit') + ' · read-only';
+      svRenderFullReplica(snap, pair);
       document.getElementById('sv-modal').classList.add('open');
     }
     window.openCockpitSnapshotFromDraft = openCockpitSnapshotFromDraft;
+
+    // ── Render full Cockpit replica (1:1 with what was in Cockpit at trade time) ──
+    function svRenderFullReplica(snap, pair){
+      var body = document.getElementById('sv-body');
+      if(!body) return;
+
+      if(!snap){
+        body.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text3);font-family:Inter,sans-serif">No cockpit snapshot attached to this trade.</div>';
+        return;
+      }
+
+      // Header: session + notes from snapshot (if any) — small block above the pair card
+      var headerHtml = '';
+      var headerBits = [];
+      if(snap.session) headerBits.push('<span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-right:6px">Session</span><strong style="color:var(--accent3);font-size:13px">'+svEscapeHtml(snap.session)+'</strong>');
+      if(headerBits.length){
+        headerHtml = '<div style="padding:14px 20px;background:var(--bg3);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:18px;flex-wrap:wrap">'+headerBits.join('<span style="color:var(--border)">·</span>')+'</div>';
+      }
+      if(snap.sessionNotes){
+        headerHtml += '<div style="padding:12px 20px;font-size:12px;color:var(--text2);line-height:1.6;border-bottom:1px solid var(--border);font-family:Inter,sans-serif"><div style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Session notes</div>'+svEscapeHtml(snap.sessionNotes)+'</div>';
+      }
+
+      // Build cockpit card replica by temporarily injecting snapshot into ckData
+      var cardHtml = '';
+      try{
+        // Save current state
+        var origCkData = (typeof ckData !== 'undefined') ? ckData : null;
+        var origContainer = document.getElementById('ck-boards');
+
+        // Create temp container with same id (DOM trickery)
+        var tempContainer = document.createElement('div');
+        tempContainer.id = 'ck-boards-snapshot-temp';
+
+        // Build minimal ckData for snapshot pair
+        var tempCkData = {
+          date: '',
+          session: snap.session || '',
+          notes: snap.sessionNotes || '',
+          pairs: {},
+          roadmaps: [],
+          selectedPairs: [pair]
+        };
+        tempCkData.pairs[pair] = {
+          dailyBias: snap.dailyBias || '',
+          htfTrend: snap.htfTrend || '',
+          marketPhase: snap.marketPhase || '',
+          mainPush: snap.mainPush || '',
+          pullback: snap.pullback || '',
+          condition: snap.condition || '',
+          model: snap.model || '',
+          trendAlign: snap.trendAlign || '',
+          execType: snap.execType || '',
+          ltfConfs: snap.ltfConfs || [],
+          poiType: snap.poiType || [],
+          poiLevel: snap.poiLevel || '',
+          liquidity: snap.liquidity || [],
+          asiaNotes: snap.asiaNotes || '',
+          sweeps: snap.sweeps || {},
+          setupType: snap.setupType || '',
+          narrative: snap.narrative || '',
+          prePsych: snap.prePsych || [],
+          psychNote: snap.psychNote || '',
+          invFlags: snap.invFlags || []
+        };
+
+        // Render directly via inline build (we replicate ckRenderBoards minimally)
+        cardHtml = svBuildPairCardHtml(pair, tempCkData.pairs[pair]);
+      }catch(e){
+        console.error('Snapshot render error', e);
+        cardHtml = '<div style="padding:30px;text-align:center;color:var(--red)">Error rendering snapshot</div>';
+      }
+
+      // Wrap in a "frozen" container with read-only styling
+      body.innerHTML = headerHtml +
+        '<div class="sv-frozen-wrap" style="padding:20px;pointer-events:none;user-select:text">' +
+          cardHtml +
+        '</div>';
+    }
+
+    // ── Build pair card HTML — same look as Cockpit ckRenderBoards ──
+    function svBuildPairCardHtml(pair, p){
+      p = p || {};
+      var poiItems=['Extreme','Decisional','S2D','D2S','Consumed POI','POI structural relevance','POI ran previous liquidity'];
+      var liqItems=['SMT Block','Trendline Liquidity','Asia Sweep','Equal H/L','Imbalance','Inducement'];
+      var invItems=['EPB met','2LP too steep/flat','Outside KTW','No SMT reaction Hi/Lo','SMT POI imbalances not filled','No LTFC','Reached opposing block','Against HTF bias'];
+      var ltfItems=['BOS','2LP','B&T','MSS','Min IDM','Med IDM'];
+      var psychItems=['Calm','Patient','Confident','Focused','Tired','Stressed','Anxious','FOMO-prone','Revenge mood'];
+      var setupTypes=['Reversal','Continuation','Breakout','Range Trade'];
+
+      function isOn(val, arr){ return (arr||[]).indexOf(val)>=0; }
+
+      var h='<div class="ck-pair-card" data-pair="'+pair+'" style="animation:none">';
+      h+='<div class="ck-pair-title"><span class="ck-pair-dot"></span>'+pair+'</div>';
+      h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">';
+
+      // ─── LEFT COLUMN ───
+      h+='<div>';
+
+      // DIRECTION
+      h+='<div class="ck-section"><div class="ck-sec-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>DIRECTION</div>';
+      h+='<div class="ck-grid-3">';
+      h+='<div><div class="ck-mini-label">Daily Bias <span style="font-weight:400;color:var(--text3);font-size:10px">Prev Daily Close</span></div><div style="display:flex;gap:6px">';
+      ['Bullish','Indecision','Bearish'].forEach(function(v){
+        var cls = (v==='Bullish'&&p.dailyBias===v)?' on-green' : (v==='Bearish'&&p.dailyBias===v)?' on-red' : (p.dailyBias===v?' on':'');
+        h+='<button class="ck-btn-sm ck-bias-btn'+cls+'" disabled>'+v+'</button>';
+      });
+      h+='</div></div>';
+      h+='<div><div class="ck-mini-label">HTF Trend <span style="font-weight:400;color:var(--text3);font-size:10px">H4 Structure</span></div><div style="display:flex;gap:6px">';
+      ['Bullish','Bearish'].forEach(function(v){
+        var cls = (v==='Bullish'&&p.htfTrend===v)?' on-green' : (v==='Bearish'&&p.htfTrend===v)?' on-red' : '';
+        h+='<button class="ck-btn-sm'+cls+'" disabled>'+v+'</button>';
+      });
+      h+='</div></div>';
+      h+='<div><div class="ck-mini-label">Market Phase</div><div style="display:flex;gap:6px;flex-wrap:wrap">';
+      ['Main Push','Complex Pullback'].forEach(function(v){
+        var cls = p.marketPhase===v?' on':'';
+        h+='<button class="ck-btn-sm'+cls+'" disabled>'+v+'</button>';
+      });
+      h+='</div></div>';
+      h+='</div></div>'; // /direction section
+
+      // STRUCTURE
+      h+='<div class="ck-section"><div class="ck-sec-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>STRUCTURE</div>';
+      h+='<div class="ck-grid-2">';
+      h+='<div><div class="ck-mini-label">Main Push (D / H4)</div><div style="display:flex;gap:6px">';
+      [['Bearish','▼'],['Bullish','▲']].forEach(function(arr){
+        var v=arr[0], icon=arr[1];
+        var cls = (v==='Bearish'&&p.mainPush===v)?' on-red' : (v==='Bullish'&&p.mainPush===v)?' on-green' : '';
+        h+='<button class="ck-btn-sm'+cls+'" disabled>'+icon+' '+v+'</button>';
+      });
+      h+='</div></div>';
+      h+='<div><div class="ck-mini-label">Complex Pullback</div><div style="display:flex;gap:6px">';
+      [['Bearish','▼'],['Bullish','▲']].forEach(function(arr){
+        var v=arr[0], icon=arr[1];
+        var cls = (v==='Bearish'&&p.pullback===v)?' on-red' : (v==='Bullish'&&p.pullback===v)?' on-green' : '';
+        h+='<button class="ck-btn-sm'+cls+'" disabled>'+icon+' '+v+'</button>';
+      });
+      h+='</div></div>';
+      h+='</div></div>'; // /structure
+
+      // CONDITION + MODEL
+      h+='<div class="ck-section"><div class="ck-sec-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>CONDITION & MODEL</div>';
+      h+='<div class="ck-grid-2">';
+      h+='<div><div class="ck-mini-label">What condition?</div><div style="display:flex;gap:6px;flex-wrap:wrap">';
+      ['Model','Market Mechanics'].forEach(function(v){
+        var cls = p.condition===v?' on':'';
+        h+='<button class="ck-btn-sm'+cls+'" disabled>'+v+'</button>';
+      });
+      h+='</div></div>';
+      h+='<div><div class="ck-mini-label">Select Model</div><select class="ck-input ck-model-sel" disabled style="width:100%"><option>'+(p.model||'—')+'</option></select></div>';
+      h+='</div>';
+      h+='<div class="ck-grid-2" style="margin-top:10px">';
+      h+='<div><div class="ck-mini-label">Trend Alignment</div><div style="display:flex;gap:6px;flex-wrap:wrap">';
+      ['Pro Trend','Counter Trend'].forEach(function(v){
+        var cls = (v==='Pro Trend'&&p.trendAlign===v)?' on-green' : (v==='Counter Trend'&&p.trendAlign===v)?' on-red' : '';
+        h+='<button class="ck-btn-sm'+cls+'" disabled>'+v+'</button>';
+      });
+      h+='</div></div>';
+      h+='<div><div class="ck-mini-label">Execution Type</div><div style="display:flex;gap:6px;flex-wrap:wrap">';
+      ['Limit','Confirmation','Aggressive','Conservative'].forEach(function(v){
+        var cls = p.execType===v?' on':'';
+        h+='<button class="ck-btn-sm'+cls+'" disabled>'+v+'</button>';
+      });
+      h+='</div></div>';
+      h+='</div></div>'; // /condition
+
+      // LTF CONFIRMATIONS
+      h+='<div class="ck-section"><div class="ck-sec-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>LTF CONFIRMATIONS</div>';
+      h+='<div style="display:flex;gap:6px;flex-wrap:wrap">';
+      ltfItems.forEach(function(v){
+        var cls = isOn(v, p.ltfConfs)?' on':'';
+        h+='<button class="ck-pill'+cls+'" disabled>'+v+'</button>';
+      });
+      h+='</div></div>'; // /ltf
+
+      // SETUP TYPE
+      h+='<div class="ck-section"><div class="ck-sec-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>WHAT ARE YOU LOOKING FOR?</div>';
+      h+='<div style="display:flex;gap:6px;flex-wrap:wrap">';
+      setupTypes.forEach(function(v){
+        var cls = p.setupType===v?' on':'';
+        h+='<button class="ck-btn-sm'+cls+'" disabled>'+v+'</button>';
+      });
+      h+='</div></div>'; // /setup type
+
+      h+='</div>'; // /LEFT COLUMN
+
+      // ─── RIGHT COLUMN ───
+      h+='<div>';
+
+      // POI
+      h+='<div class="ck-section"><div class="ck-sec-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>POINT OF INTEREST</div>';
+      h+='<div class="ck-mini-label">POI Type</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">';
+      poiItems.forEach(function(v){
+        var cls = isOn(v, p.poiType)?' on':'';
+        h+='<button class="ck-pill'+cls+'" disabled>'+v+'</button>';
+      });
+      h+='</div>';
+      h+='<div class="ck-mini-label">POI Level / Notes</div>';
+      h+='<input class="ck-input" disabled value="'+svEscapeHtml(p.poiLevel||'')+'" placeholder="—" style="width:100%">';
+      h+='</div>'; // /poi
+
+      // LIQUIDITY
+      h+='<div class="ck-section"><div class="ck-sec-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12s4-8 9-8 9 8 9 8-4 8-9 8-9-8-9-8z"/><circle cx="12" cy="12" r="3"/></svg>LIQUIDITY</div>';
+      h+='<div style="display:flex;gap:6px;flex-wrap:wrap">';
+      liqItems.forEach(function(v){
+        var cls = isOn(v, p.liquidity)?' on':'';
+        h+='<button class="ck-pill'+cls+'" disabled>'+v+'</button>';
+      });
+      h+='</div></div>'; // /liquidity
+
+      // SWEEPS
+      h+='<div class="ck-section"><div class="ck-sec-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M5 6v14a2 2 0 002 2h10a2 2 0 002-2V6"/></svg>SWEEP TRACKER</div>';
+      var sweeps = p.sweeps || {};
+      var sweepLevels = ['Asia High','Asia Low','PDH','PDL','Prev Week H','Prev Week L'];
+      h+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px">';
+      sweepLevels.forEach(function(lv){
+        var st = sweeps[lv];
+        var icon = st==='taken' ? '✓' : st==='not-taken' ? '✗' : '◌';
+        var color = st==='taken' ? 'var(--green)' : st==='not-taken' ? 'var(--red)' : 'var(--text3)';
+        h+='<div style="padding:6px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;font-size:11px;color:'+color+';display:flex;align-items:center;gap:6px"><span class="sweep-icon" style="font-weight:700">'+icon+'</span>'+lv+'</div>';
+      });
+      h+='</div>';
+      if(p.asiaNotes){
+        h+='<div class="ck-mini-label" style="margin-top:10px">Asia Notes</div>';
+        h+='<textarea class="ck-input" disabled rows="2" style="width:100%;resize:none">'+svEscapeHtml(p.asiaNotes)+'</textarea>';
+      }
+      h+='</div>'; // /sweeps
+
+      // NARRATIVE
+      h+='<div class="ck-section"><div class="ck-sec-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>NARRATIVE / PLAN</div>';
+      h+='<textarea class="ck-input" disabled rows="3" style="width:100%;resize:none" placeholder="—">'+svEscapeHtml(p.narrative||'')+'</textarea>';
+      h+='</div>'; // /narrative
+
+      // PSYCHOLOGY
+      h+='<div class="ck-section"><div class="ck-sec-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 014 4v1a2 2 0 012 2v1a2 2 0 01-2 2H8a2 2 0 01-2-2V9a2 2 0 012-2V6a4 4 0 014-4z"/></svg>PSYCHOLOGY (pre-trade)</div>';
+      h+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">';
+      psychItems.forEach(function(v){
+        var cls = isOn(v, p.prePsych)?' on':'';
+        h+='<button class="ck-pill'+cls+'" disabled>'+v+'</button>';
+      });
+      h+='</div>';
+      if(p.psychNote){
+        h+='<textarea class="ck-input" disabled rows="2" style="width:100%;resize:none;font-style:italic" placeholder="—">'+svEscapeHtml(p.psychNote)+'</textarea>';
+      }
+      h+='</div>'; // /psychology
+
+      // INVALIDATION FLAGS
+      h+='<div class="ck-section"><div class="ck-sec-title" style="color:var(--red)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>RED FLAGS / INVALIDATIONS</div>';
+      h+='<div style="display:flex;gap:6px;flex-wrap:wrap">';
+      invItems.forEach(function(v){
+        var cls = isOn(v, p.invFlags)?' on-red':'';
+        h+='<button class="ck-pill'+cls+'" disabled>'+v+'</button>';
+      });
+      h+='</div></div>'; // /inv
+
+      h+='</div>'; // /RIGHT COLUMN
+      h+='</div>'; // /grid
+      h+='</div>'; // /ck-pair-card
+
+      return h;
+    }
 
     function closeSvModal(){
       var m = document.getElementById('sv-modal');
