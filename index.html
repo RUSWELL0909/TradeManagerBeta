@@ -3351,6 +3351,44 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
   .ob-coachmark{max-width:calc(100vw - 32px)}
 }
 
+/* ══ FORM VALIDATION + DRAFT (TradeZella-style) ══ */
+/* Required field markers */
+.fv-label-req{position:relative}
+.fv-label-req::after{content:' *';color:#ff505f;font-weight:700;font-size:11px}
+.fv-required-tag{display:inline-block;font-size:8px;font-weight:800;color:#ff505f;background:rgba(255,80,95,.08);padding:1px 6px;border-radius:8px;margin-left:6px;letter-spacing:.5px;vertical-align:middle;font-family:'Inter',sans-serif}
+
+/* Field error state — red border + shake animation */
+.fv-error input,.fv-error select,.fv-error textarea,.fv-error .jr-input,.fv-error .jr-select{border-color:#ff505f!important;background:rgba(255,80,95,.04)!important}
+.fv-error{animation:fvShake .35s ease-out}
+@keyframes fvShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+
+/* Inline error message under field */
+.fv-error-msg{display:flex;align-items:center;gap:5px;color:#ff505f;font-size:10px;font-weight:600;font-family:'Inter',sans-serif;margin-top:4px;animation:fvFadeIn .2s ease-out;line-height:1.4}
+.fv-error-msg svg{flex-shrink:0;width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2}
+@keyframes fvFadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+
+/* Disabled save button when invalid */
+.fv-save-disabled{opacity:.4!important;pointer-events:none!important;cursor:not-allowed!important;background:var(--bg3)!important;color:var(--text3)!important;border-color:var(--border)!important;filter:grayscale(.6)}
+
+/* Draft prompt banner */
+.fv-draft-banner{background:linear-gradient(135deg,rgba(240,180,41,.08),rgba(240,180,41,.02));border:1px solid rgba(240,180,41,.25);border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;font-family:'Inter',sans-serif;animation:fvFadeIn .3s ease-out}
+.fv-draft-banner-icon{flex-shrink:0;width:28px;height:28px;background:rgba(240,180,41,.15);border-radius:7px;display:flex;align-items:center;justify-content:center;color:#f0b429}
+.fv-draft-banner-icon svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8}
+.fv-draft-banner-text{flex:1;font-size:11px;color:var(--text2);line-height:1.4}
+.fv-draft-banner-text b{color:#f0b429}
+.fv-draft-banner-actions{display:flex;gap:5px;flex-shrink:0}
+.fv-draft-btn{padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:10px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;white-space:nowrap}
+.fv-draft-btn:hover{border-color:var(--accent3);color:var(--accent3)}
+.fv-draft-btn.primary{background:#f0b429;border-color:#f0b429;color:#1a1a2e}
+.fv-draft-btn.primary:hover{filter:brightness(1.08)}
+
+/* Draft autosave indicator (tiny pill in modal header) */
+.fv-autosave{display:inline-flex;align-items:center;gap:4px;font-size:9px;color:var(--text3);font-weight:500;font-family:'Inter',sans-serif;margin-left:10px;opacity:0;transition:opacity .25s}
+.fv-autosave.show{opacity:1}
+.fv-autosave-dot{width:5px;height:5px;border-radius:50%;background:#2ecc8a}
+.fv-autosave.saving .fv-autosave-dot{background:#f0b429;animation:fvPulse 1s ease-in-out infinite}
+@keyframes fvPulse{0%,100%{opacity:.4}50%{opacity:1}}
+
 /* ══ COCKPIT SNAPSHOT VIEWER (full pre-market analysis frozen at trade time) ══ */
 .sv-modal{position:fixed;inset:0;background:rgba(8,6,18,.78);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9998;display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:32px 16px}
 .sv-modal.open{display:flex}
@@ -4532,7 +4570,10 @@ window.dispatchEvent(new Event('supabase-ready'));
   <div class="jr-modal" id="jr-modal">
     <div class="jr-modal-box">
       <div class="jr-modal-head">
-        <div class="jr-modal-title" id="jr-modal-title">Add Trade</div>
+        <div style="display:flex;align-items:center;flex:1;min-width:0">
+          <div class="jr-modal-title" id="jr-modal-title">Add Trade</div>
+          <span class="fv-autosave" id="jr-autosave"><span class="fv-autosave-dot"></span><span class="fv-autosave-label">Draft saved</span></span>
+        </div>
         <button class="pb-builder-close" onclick="closeJrModal()">✕</button>
       </div>
       <div class="jr-modal-body" id="jr-modal-body">
@@ -4555,7 +4596,7 @@ window.dispatchEvent(new Event('supabase-ready'));
         <div class="jr-group">
           <div class="jr-group-title">Basic Information</div>
           <div class="jr-row" style="margin-bottom:10px">
-            <div class="jr-field"><label class="jr-label">PAIR</label>
+            <div class="jr-field"><label class="jr-label">PAIR<span class="fv-required-tag">REQUIRED</span></label>
               <select class="jr-select" id="jr-pair" onchange="if(window.aiPreTradeCheck)window.aiPreTradeCheck()">
                 <option value="">Select pair</option>
                 <option>EURUSD</option><option>GBPUSD</option><option>GBPJPY</option><option>USDJPY</option><option>AUDUSD</option><option>NZDUSD</option><option>USDCAD</option><option>USDCHF</option><option>XAUUSD</option><option>NAS100</option><option>US30</option>
@@ -4592,7 +4633,7 @@ window.dispatchEvent(new Event('supabase-ready'));
                 <button class="jr-conf-pill" onclick="jrTogSess(this,'London Close')">London Close</button>
               </div>
             </div>
-            <div class="jr-field"><label class="jr-label">TRADE DATE</label>
+            <div class="jr-field"><label class="jr-label">TRADE DATE<span class="fv-required-tag">REQUIRED</span></label>
               <div style="display:flex;gap:5px;align-items:center">
                 <button class="jr-conf-pill on" onclick="jrSetDateQuick(this,'today')">Today</button>
                 <button class="jr-conf-pill" onclick="jrSetDateQuick(this,'yesterday')">Yesterday</button>
@@ -4741,7 +4782,7 @@ window.dispatchEvent(new Event('supabase-ready'));
           <div class="jr-row4" style="margin-top:8px">
             <div class="jr-field"><label class="jr-label">LOT SIZE</label><input class="jr-input" type="text" inputmode="decimal" id="jr-lots" placeholder="0.10"></div>
             <div class="jr-field"><label class="jr-label">PIPS</label><input class="jr-input" type="text" inputmode="decimal" id="jr-pips" placeholder="0.0"></div>
-            <div class="jr-field"><label class="jr-label">GROSS P&L ($)</label><input class="jr-input" type="text" inputmode="decimal" id="jr-pnl-input" placeholder="0.00" oninput="jrUpdatePnlPreview()"></div>
+            <div class="jr-field"><label class="jr-label">GROSS P&L ($)<span class="fv-required-tag">REQUIRED</span></label><input class="jr-input" type="text" inputmode="decimal" id="jr-pnl-input" placeholder="0.00" oninput="jrUpdatePnlPreview()"></div>
             <div class="jr-field"><label class="jr-label">COMMISSIONS ($)</label><input class="jr-input" type="text" inputmode="decimal" id="jr-comm" placeholder="0.00" oninput="jrUpdatePnlPreview()"></div>
           </div>
           <div class="jr-pnl-preview" id="jr-pnl-preview" style="background:rgba(124,90,240,.02);border:1px solid rgba(124,90,240,.03)">
@@ -5417,7 +5458,10 @@ window.dispatchEvent(new Event('supabase-ready'));
   <div class="jr-modal" id="acc-modal">
     <div class="jr-modal-box" style="max-width:560px">
       <div class="jr-modal-head">
-        <div class="jr-modal-title" id="acc-modal-title">Add Account</div>
+        <div style="display:flex;align-items:center;flex:1;min-width:0">
+          <div class="jr-modal-title" id="acc-modal-title">Add Account</div>
+          <span class="fv-autosave" id="acc-autosave"><span class="fv-autosave-dot"></span><span class="fv-autosave-label">Draft saved</span></span>
+        </div>
         <button class="pb-builder-close" onclick="closeAddAccountModal()">✕</button>
       </div>
       <div class="jr-modal-body">
@@ -5427,7 +5471,7 @@ window.dispatchEvent(new Event('supabase-ready'));
         <div class="jr-group">
           <div class="jr-group-title">Basic Information</div>
           <div class="jr-field" style="margin-bottom:10px">
-            <label class="jr-label">ACCOUNT NAME *</label>
+            <label class="jr-label">ACCOUNT NAME<span class="fv-required-tag">REQUIRED</span></label>
             <input class="jr-input" id="acc-name" type="text" placeholder="e.g. FTMO Challenge $100K" maxlength="60">
           </div>
           <div class="jr-row" style="margin-bottom:10px">
@@ -5447,7 +5491,7 @@ window.dispatchEvent(new Event('supabase-ready'));
             </div>
           </div>
           <div class="jr-field" style="margin-bottom:10px">
-            <label class="jr-label">STARTING BALANCE *</label>
+            <label class="jr-label">STARTING BALANCE<span class="fv-required-tag">REQUIRED</span></label>
             <input class="jr-input" id="acc-balance" type="number" step="0.01" min="0" placeholder="100000">
           </div>
         </div>
@@ -5634,7 +5678,10 @@ window.dispatchEvent(new Event('supabase-ready'));
   <div class="nb-modal" id="nb-modal">
     <div class="nb-modal-box">
       <div class="nb-modal-head">
-        <div class="nb-modal-title" id="nb-modal-title">New Note</div>
+        <div style="display:flex;align-items:center;flex:1;min-width:0">
+          <div class="nb-modal-title" id="nb-modal-title">New Note</div>
+          <span class="fv-autosave" id="nb-autosave"><span class="fv-autosave-dot"></span><span class="fv-autosave-label">Draft saved</span></span>
+        </div>
         <button class="nb-modal-close" onclick="nbCloseModal()">&times;</button>
       </div>
       <div class="nb-modal-body">
@@ -9503,8 +9550,27 @@ window.dispatchEvent(new Event('supabase-ready'));
       var balRaw = (document.getElementById('acc-balance').value||'').trim();
       var bal = parseFloat(balRaw);
 
-      if(!name){ alert('Account name is required'); document.getElementById('acc-name').focus(); return; }
-      if(!balRaw || isNaN(bal) || bal < 0){ alert('Starting balance must be a number ≥ 0'); document.getElementById('acc-balance').focus(); return; }
+      // Clear previous errors
+      if(typeof tqClearFieldError === 'function'){
+        ['acc-name','acc-balance'].forEach(function(fid){ tqClearFieldError(fid); });
+      }
+
+      var hasError = false;
+      if(!name){
+        if(typeof tqShowFieldError === 'function') tqShowFieldError('acc-name', 'Account name is required');
+        else { alert('Account name is required'); document.getElementById('acc-name').focus(); }
+        hasError = true;
+      }
+      if(!balRaw || isNaN(bal) || bal < 0){
+        if(typeof tqShowFieldError === 'function') tqShowFieldError('acc-balance', 'Starting balance must be a number ≥ 0');
+        else { alert('Starting balance must be a number ≥ 0'); document.getElementById('acc-balance').focus(); }
+        hasError = true;
+      }
+      if(hasError){
+        var firstErr = document.querySelector('#acc-modal .fv-error');
+        if(firstErr) firstErr.scrollIntoView({behavior:'smooth', block:'center'});
+        return;
+      }
 
       var accs = accLoad();
 
@@ -10623,6 +10689,701 @@ window.dispatchEvent(new Event('supabase-ready'));
 
   })();
   // ══ END ONBOARDING MODULE ══
+
+  // ██  FORM VALIDATION MODULE — universal, used by Trade/Account/Notebook/CS/Resources/Playbook modals
+  // ██  Provides: tqValidate, tqShowFieldError, tqClearFieldError, tqSetButtonValidity,
+  // ██             tqWireForm (high-level API), tqDraftSave/Load/Clear (draft autosave)
+  (function(){
+
+    var DRAFT_PREFIX = 'tq_draft_';
+    var DRAFT_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+    // ── Inject error message DOM under a field ──
+    function _findErrorContainer(input){
+      // Walk up to find sibling .fv-error-msg, or create one
+      var parent = input.closest('.jr-field') || input.parentElement;
+      if(!parent) return null;
+      var existing = parent.querySelector('.fv-error-msg');
+      return { parent: parent, existing: existing };
+    }
+
+    function tqShowFieldError(fieldId, msg){
+      var input = document.getElementById(fieldId);
+      if(!input) return;
+      var container = _findErrorContainer(input);
+      if(!container) return;
+      container.parent.classList.add('fv-error');
+      // Remove existing error first
+      if(container.existing) container.existing.remove();
+      // Add new error
+      var err = document.createElement('div');
+      err.className = 'fv-error-msg';
+      err.innerHTML = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>'+msg+'</span>';
+      container.parent.appendChild(err);
+    }
+    window.tqShowFieldError = tqShowFieldError;
+
+    function tqClearFieldError(fieldId){
+      var input = document.getElementById(fieldId);
+      if(!input) return;
+      var container = _findErrorContainer(input);
+      if(!container) return;
+      container.parent.classList.remove('fv-error');
+      if(container.existing) container.existing.remove();
+    }
+    window.tqClearFieldError = tqClearFieldError;
+
+    // Validate a single field against rules
+    // rules: { required, min, max, type, custom (fn returning string|null) }
+    function tqValidate(fieldId, rules, opts){
+      opts = opts || {};
+      var input = document.getElementById(fieldId);
+      if(!input) return { valid: true };
+
+      var val = input.value;
+      var trimmed = (val||'').toString().trim();
+
+      // Required check
+      if(rules.required && !trimmed){
+        return { valid: false, error: rules.requiredMsg || 'This field is required' };
+      }
+
+      // Type check (number)
+      if(rules.type === 'number' && trimmed){
+        var num = parseFloat(trimmed);
+        if(isNaN(num)) return { valid: false, error: 'Must be a number' };
+        if(rules.min !== undefined && num < rules.min){
+          return { valid: false, error: 'Must be ≥ ' + rules.min };
+        }
+        if(rules.max !== undefined && num > rules.max){
+          return { valid: false, error: 'Must be ≤ ' + rules.max };
+        }
+      }
+
+      // Type check (date) — basic ISO check
+      if(rules.type === 'date' && trimmed){
+        var d = new Date(trimmed);
+        if(isNaN(d.getTime())) return { valid: false, error: 'Invalid date' };
+      }
+
+      // Custom validator
+      if(rules.custom && typeof rules.custom === 'function'){
+        var customErr = rules.custom(trimmed, input);
+        if(customErr) return { valid: false, error: customErr };
+      }
+
+      return { valid: true };
+    }
+    window.tqValidate = tqValidate;
+
+    // Set save button enabled/disabled
+    function tqSetButtonValidity(btnId, isValid){
+      var btn = document.getElementById(btnId);
+      if(!btn) return;
+      if(isValid){
+        btn.classList.remove('fv-save-disabled');
+        btn.removeAttribute('aria-disabled');
+      } else {
+        btn.classList.add('fv-save-disabled');
+        btn.setAttribute('aria-disabled', 'true');
+      }
+    }
+    window.tqSetButtonValidity = tqSetButtonValidity;
+
+    // High-level API: wire up a form. Pass config:
+    // {
+    //   modalId: 'jr-modal',
+    //   saveBtnId: 'jr-save-btn',
+    //   fields: { 'jr-date': {required:true, type:'date'}, ... },
+    //   validateAll: () => boolean   (called on save click)
+    // }
+    function tqWireForm(cfg){
+      if(!cfg || !cfg.fields) return;
+
+      function validateField(fieldId){
+        var rules = cfg.fields[fieldId];
+        if(!rules) return true;
+        var result = tqValidate(fieldId, rules);
+        if(result.valid){
+          tqClearFieldError(fieldId);
+        } else {
+          tqShowFieldError(fieldId, result.error);
+        }
+        return result.valid;
+      }
+
+      function validateAllFields(){
+        var allValid = true;
+        Object.keys(cfg.fields).forEach(function(fid){
+          if(!validateField(fid)) allValid = false;
+        });
+        if(cfg.saveBtnId) tqSetButtonValidity(cfg.saveBtnId, allValid);
+        return allValid;
+      }
+
+      // Wire blur listeners on each field — validate when user leaves field
+      Object.keys(cfg.fields).forEach(function(fid){
+        var el = document.getElementById(fid);
+        if(!el) return;
+        if(el._fvWired) return;
+        el._fvWired = true;
+        // Validate on blur (after user leaves field)
+        el.addEventListener('blur', function(){
+          validateField(fid);
+          if(cfg.saveBtnId) tqSetButtonValidity(cfg.saveBtnId, _isFormValid());
+        });
+        // Clear error on input (give user benefit of doubt while typing)
+        el.addEventListener('input', function(){
+          var container = _findErrorContainer(el);
+          if(container && container.parent.classList.contains('fv-error')){
+            // re-check immediately on input
+            validateField(fid);
+          }
+          if(cfg.saveBtnId) tqSetButtonValidity(cfg.saveBtnId, _isFormValid());
+        });
+        el.addEventListener('change', function(){
+          validateField(fid);
+          if(cfg.saveBtnId) tqSetButtonValidity(cfg.saveBtnId, _isFormValid());
+        });
+      });
+
+      function _isFormValid(){
+        var ok = true;
+        Object.keys(cfg.fields).forEach(function(fid){
+          var r = tqValidate(fid, cfg.fields[fid]);
+          if(!r.valid) ok = false;
+        });
+        return ok;
+      }
+
+      // Initial check (when modal opens)
+      if(cfg.saveBtnId){
+        setTimeout(function(){ tqSetButtonValidity(cfg.saveBtnId, _isFormValid()); }, 50);
+      }
+
+      // Return the validateAll fn so save handler can call it
+      return validateAllFields;
+    }
+    window.tqWireForm = tqWireForm;
+
+    // ════════════ DRAFT AUTOSAVE ════════════
+    function _draftKey(modalKey, editId){
+      return DRAFT_PREFIX + modalKey + '_' + (editId || 'new');
+    }
+
+    // Save draft to localStorage
+    function tqDraftSave(modalKey, editId, data){
+      try{
+        var payload = {
+          data: data,
+          savedAt: new Date().toISOString()
+        };
+        rfxSet(_draftKey(modalKey, editId), JSON.stringify(payload));
+      }catch(e){ console.warn('Draft save failed', e); }
+    }
+    window.tqDraftSave = tqDraftSave;
+
+    // Load draft if exists and not stale
+    function tqDraftLoad(modalKey, editId){
+      try{
+        var raw = rfxGet(_draftKey(modalKey, editId));
+        if(!raw) return null;
+        var payload = JSON.parse(raw);
+        if(!payload || !payload.savedAt) return null;
+        var age = Date.now() - new Date(payload.savedAt).getTime();
+        if(age > DRAFT_TTL_MS){
+          // Expired — clean up
+          tqDraftClear(modalKey, editId);
+          return null;
+        }
+        return payload;
+      }catch(e){ return null; }
+    }
+    window.tqDraftLoad = tqDraftLoad;
+
+    function tqDraftClear(modalKey, editId){
+      try{ rfxSet(_draftKey(modalKey, editId), ''); localStorage.removeItem(_draftKey(modalKey, editId)); }catch(e){}
+    }
+    window.tqDraftClear = tqDraftClear;
+
+    function tqDraftAge(savedAt){
+      try{
+        var ms = Date.now() - new Date(savedAt).getTime();
+        var min = Math.floor(ms / 60000);
+        if(min < 1) return 'just now';
+        if(min < 60) return min + ' min ago';
+        var hr = Math.floor(min / 60);
+        if(hr < 24) return hr + ' hour' + (hr === 1 ? '' : 's') + ' ago';
+        return 'over a day ago';
+      }catch(e){ return ''; }
+    }
+    window.tqDraftAge = tqDraftAge;
+
+    // Draft autosave indicator helpers
+    function tqAutosaveIndicator(elId, state){
+      var el = document.getElementById(elId);
+      if(!el) return;
+      el.classList.add('show');
+      el.classList.toggle('saving', state === 'saving');
+      var label = el.querySelector('.fv-autosave-label');
+      if(label){
+        label.textContent = state === 'saving' ? 'Saving draft...' : 'Draft saved';
+      }
+      if(state === 'saved'){
+        // Auto-hide after 2s
+        clearTimeout(el._hideTimer);
+        el._hideTimer = setTimeout(function(){ el.classList.remove('show'); }, 2000);
+      }
+    }
+    window.tqAutosaveIndicator = tqAutosaveIndicator;
+
+    // Cleanup all expired drafts on page load
+    function tqDraftCleanupExpired(){
+      try{
+        var keys = [];
+        for(var i = 0; i < localStorage.length; i++){
+          var k = localStorage.key(i);
+          if(k && k.indexOf(DRAFT_PREFIX) === 0) keys.push(k);
+        }
+        keys.forEach(function(k){
+          try{
+            var raw = localStorage.getItem(k);
+            if(!raw){ localStorage.removeItem(k); return; }
+            var payload = JSON.parse(raw);
+            if(!payload || !payload.savedAt){ localStorage.removeItem(k); return; }
+            var age = Date.now() - new Date(payload.savedAt).getTime();
+            if(age > DRAFT_TTL_MS) localStorage.removeItem(k);
+          }catch(e){ /* corrupt — remove */ try{ localStorage.removeItem(k); }catch(_){} }
+        });
+      }catch(e){}
+    }
+
+    // Cleanup on init
+    setTimeout(tqDraftCleanupExpired, 2000);
+
+    // ════════════ TRADE MODAL WIRING ════════════
+    // Wire when user opens jr-modal — listens for the modal becoming visible
+    var _jrFormValidator = null;
+    var _jrInitialState = null;
+    var _jrDraftTimer = null;
+
+    function _jrSnapshotState(){
+      var ids = ['jr-date','jr-pair','jr-pnl-input','jr-comm','jr-entry','jr-sl','jr-tp','jr-exit','jr-lots','jr-rr','jr-rr-achieved','jr-pips','jr-mfe','jr-mae','jr-risk-pct','jr-notes','jr-account','jr-setup','jr-tv-link','jr-tv-image','jr-psych-note','jr-entry-time','jr-exit-time','jr-duration'];
+      var snap = {};
+      ids.forEach(function(id){ var el = document.getElementById(id); if(el) snap[id] = el.value; });
+      return snap;
+    }
+
+    function _jrIsDirty(){
+      if(!_jrInitialState) return false;
+      var current = _jrSnapshotState();
+      for(var k in current){ if(current[k] !== _jrInitialState[k]) return true; }
+      return false;
+    }
+
+    function _jrAutoSaveDraft(){
+      var editId = (typeof jrEditId !== 'undefined') ? jrEditId : null;
+      if(!_jrIsDirty()) return;
+      tqAutosaveIndicator('jr-autosave', 'saving');
+      var data = _jrSnapshotState();
+      tqDraftSave('jr', editId, data);
+      setTimeout(function(){ tqAutosaveIndicator('jr-autosave', 'saved'); }, 250);
+    }
+
+    function _jrRestoreDraft(data){
+      if(!data) return;
+      Object.keys(data).forEach(function(id){
+        var el = document.getElementById(id);
+        if(el && data[id] !== undefined) el.value = data[id];
+      });
+      // Re-validate after restore
+      if(_jrFormValidator) _jrFormValidator();
+    }
+
+    function _jrShowDraftBanner(draft){
+      var modalBody = document.querySelector('#jr-modal .jr-modal-body');
+      if(!modalBody) return;
+      // Remove existing banner
+      var existing = modalBody.querySelector('.fv-draft-banner');
+      if(existing) existing.remove();
+
+      var banner = document.createElement('div');
+      banner.className = 'fv-draft-banner';
+      banner.innerHTML = [
+        '<div class="fv-draft-banner-icon"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg></div>',
+        '<div class="fv-draft-banner-text">You have an <b>unsaved draft</b> from ' + tqDraftAge(draft.savedAt) + '. Restore?</div>',
+        '<div class="fv-draft-banner-actions">',
+        '  <button class="fv-draft-btn primary" id="jr-draft-restore">Restore</button>',
+        '  <button class="fv-draft-btn" id="jr-draft-discard">Discard</button>',
+        '</div>'
+      ].join('');
+      modalBody.insertBefore(banner, modalBody.firstChild);
+
+      document.getElementById('jr-draft-restore').onclick = function(){
+        _jrRestoreDraft(draft.data);
+        banner.remove();
+      };
+      document.getElementById('jr-draft-discard').onclick = function(){
+        var editId = (typeof jrEditId !== 'undefined') ? jrEditId : null;
+        tqDraftClear('jr', editId);
+        banner.remove();
+      };
+    }
+
+    // Hook into showPage / openJrModal lifecycle by observing modal class change
+    function _jrWatchModal(){
+      var modal = document.getElementById('jr-modal');
+      if(!modal) return;
+      var wasOpen = modal.classList.contains('open');
+
+      var observer = new MutationObserver(function(mutations){
+        var isOpen = modal.classList.contains('open');
+        if(isOpen && !wasOpen){
+          // Modal just opened — wait for content to populate, then wire validation + draft
+          setTimeout(_jrOnModalOpen, 200);
+        } else if(!isOpen && wasOpen){
+          // Modal just closed
+          if(_jrDraftTimer){ clearInterval(_jrDraftTimer); _jrDraftTimer = null; }
+        }
+        wasOpen = isOpen;
+      });
+      observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
+    }
+
+    function _jrOnModalOpen(){
+      // Wire validation
+      _jrFormValidator = tqWireForm({
+        modalId: 'jr-modal',
+        saveBtnId: 'jr-save-btn',
+        fields: {
+          'jr-date': { required: true, type: 'date', requiredMsg: 'Date is required' },
+          'jr-pair': { required: true, requiredMsg: 'Please select a pair' },
+          'jr-pnl-input': { required: true, type: 'number', requiredMsg: 'P&L is required' }
+        }
+      });
+
+      // Snapshot initial state for dirty check
+      _jrInitialState = _jrSnapshotState();
+
+      // Check for existing draft
+      var editId = (typeof jrEditId !== 'undefined') ? jrEditId : null;
+      var draft = tqDraftLoad('jr', editId);
+      if(draft && draft.data){
+        // Only show banner if draft differs from current state
+        var differs = false;
+        for(var k in draft.data){ if(draft.data[k] !== _jrInitialState[k]){ differs = true; break; } }
+        if(differs) _jrShowDraftBanner(draft);
+      }
+
+      // Start autosave every 5 seconds
+      if(_jrDraftTimer) clearInterval(_jrDraftTimer);
+      _jrDraftTimer = setInterval(_jrAutoSaveDraft, 5000);
+    }
+
+    // Wrap close to add discard confirmation + draft cleanup on real close
+    setTimeout(function(){
+      _jrWatchModal();
+      // Wrap closeJrModal to clear draft on intentional close (Save fired) — but ask if dirty close
+      if(typeof window.closeJrModal === 'function' && !window.closeJrModal._fvWrapped){
+        var origClose = window.closeJrModal;
+        window.closeJrModal = function(force){
+          if(!force && _jrIsDirty()){
+            if(!confirm('You have unsaved changes. Discard them?\n\n(Your draft is auto-saved and will be there when you reopen.)')){
+              return;
+            }
+          }
+          if(_jrDraftTimer){ clearInterval(_jrDraftTimer); _jrDraftTimer = null; }
+          origClose.apply(this, arguments);
+        };
+        window.closeJrModal._fvWrapped = true;
+      }
+      // Wrap jrSaveTrade to clear draft on successful save
+      if(typeof window.jrSaveTrade === 'function' && !window.jrSaveTrade._fvWrapped){
+        var origSave = window.jrSaveTrade;
+        window.jrSaveTrade = function(){
+          var prevTradeCount;
+          try{ prevTradeCount = JSON.parse(rfxGet('rf_trades')||'[]').length; }catch(e){ prevTradeCount = -1; }
+          var result = origSave.apply(this, arguments);
+          // After save, if modal is closed (i.e. save was successful), clear draft
+          setTimeout(function(){
+            var modal = document.getElementById('jr-modal');
+            if(modal && !modal.classList.contains('open')){
+              var editId = (typeof jrEditId !== 'undefined') ? jrEditId : null;
+              tqDraftClear('jr', editId);
+              tqDraftClear('jr', null); // also clear new-trade draft
+            }
+          }, 100);
+          return result;
+        };
+        window.jrSaveTrade._fvWrapped = true;
+      }
+    }, 1500);
+
+    // ════════════ ACCOUNT MODAL WIRING ════════════
+    var _accFormValidator = null;
+    var _accInitialState = null;
+    var _accDraftTimer = null;
+
+    function _accSnapshotState(){
+      var ids = ['acc-name','acc-type','acc-currency','acc-balance','acc-broker','acc-platform','acc-number','acc-propfirm'];
+      var snap = {};
+      ids.forEach(function(id){ var el = document.getElementById(id); if(el) snap[id] = el.value; });
+      var active = document.getElementById('acc-active');
+      if(active) snap['acc-active'] = active.checked ? '1' : '0';
+      return snap;
+    }
+
+    function _accIsDirty(){
+      if(!_accInitialState) return false;
+      var current = _accSnapshotState();
+      for(var k in current){ if(current[k] !== _accInitialState[k]) return true; }
+      return false;
+    }
+
+    function _accAutoSaveDraft(){
+      var editId = document.getElementById('acc-edit-id') ? document.getElementById('acc-edit-id').value : null;
+      if(!_accIsDirty()) return;
+      tqAutosaveIndicator('acc-autosave', 'saving');
+      var data = _accSnapshotState();
+      tqDraftSave('acc', editId || 'new', data);
+      setTimeout(function(){ tqAutosaveIndicator('acc-autosave', 'saved'); }, 250);
+    }
+
+    function _accRestoreDraft(data){
+      if(!data) return;
+      Object.keys(data).forEach(function(id){
+        var el = document.getElementById(id);
+        if(!el) return;
+        if(id === 'acc-active'){ el.checked = (data[id] === '1'); }
+        else el.value = data[id];
+      });
+      if(_accFormValidator) _accFormValidator();
+    }
+
+    function _accShowDraftBanner(draft){
+      var modalBody = document.querySelector('#acc-modal .jr-modal-body');
+      if(!modalBody) return;
+      var existing = modalBody.querySelector('.fv-draft-banner');
+      if(existing) existing.remove();
+      var banner = document.createElement('div');
+      banner.className = 'fv-draft-banner';
+      banner.innerHTML = [
+        '<div class="fv-draft-banner-icon"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg></div>',
+        '<div class="fv-draft-banner-text">You have an <b>unsaved draft</b> from ' + tqDraftAge(draft.savedAt) + '. Restore?</div>',
+        '<div class="fv-draft-banner-actions">',
+        '  <button class="fv-draft-btn primary" id="acc-draft-restore">Restore</button>',
+        '  <button class="fv-draft-btn" id="acc-draft-discard">Discard</button>',
+        '</div>'
+      ].join('');
+      modalBody.insertBefore(banner, modalBody.firstChild.nextSibling); // after hidden input
+      document.getElementById('acc-draft-restore').onclick = function(){ _accRestoreDraft(draft.data); banner.remove(); };
+      document.getElementById('acc-draft-discard').onclick = function(){
+        var editId = document.getElementById('acc-edit-id') ? document.getElementById('acc-edit-id').value : null;
+        tqDraftClear('acc', editId || 'new');
+        banner.remove();
+      };
+    }
+
+    function _accWatchModal(){
+      var modal = document.getElementById('acc-modal');
+      if(!modal) return;
+      var wasOpen = modal.classList.contains('open');
+      var observer = new MutationObserver(function(){
+        var isOpen = modal.classList.contains('open');
+        if(isOpen && !wasOpen){ setTimeout(_accOnModalOpen, 200); }
+        else if(!isOpen && wasOpen){
+          if(_accDraftTimer){ clearInterval(_accDraftTimer); _accDraftTimer = null; }
+        }
+        wasOpen = isOpen;
+      });
+      observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
+    }
+
+    function _accOnModalOpen(){
+      _accFormValidator = tqWireForm({
+        modalId: 'acc-modal',
+        saveBtnId: 'acc-save-btn',
+        fields: {
+          'acc-name': { required: true, requiredMsg: 'Account name is required' },
+          'acc-balance': { required: true, type: 'number', min: 0, requiredMsg: 'Starting balance is required' }
+        }
+      });
+      _accInitialState = _accSnapshotState();
+      var editId = document.getElementById('acc-edit-id') ? document.getElementById('acc-edit-id').value : null;
+      var draft = tqDraftLoad('acc', editId || 'new');
+      if(draft && draft.data){
+        var differs = false;
+        for(var k in draft.data){ if(draft.data[k] !== _accInitialState[k]){ differs = true; break; } }
+        if(differs) _accShowDraftBanner(draft);
+      }
+      if(_accDraftTimer) clearInterval(_accDraftTimer);
+      _accDraftTimer = setInterval(_accAutoSaveDraft, 5000);
+    }
+
+    setTimeout(function(){
+      _accWatchModal();
+      // Wrap closeAddAccountModal
+      if(typeof window.closeAddAccountModal === 'function' && !window.closeAddAccountModal._fvWrapped){
+        var origAccClose = window.closeAddAccountModal;
+        window.closeAddAccountModal = function(force){
+          if(!force && _accIsDirty()){
+            if(!confirm('You have unsaved changes. Discard them?\n\n(Your draft is auto-saved.)')) return;
+          }
+          if(_accDraftTimer){ clearInterval(_accDraftTimer); _accDraftTimer = null; }
+          origAccClose.apply(this, arguments);
+        };
+        window.closeAddAccountModal._fvWrapped = true;
+      }
+      // Wrap saveAccountModal to clear draft on success
+      if(typeof window.saveAccountModal === 'function' && !window.saveAccountModal._fvWrapped){
+        var origAccSave = window.saveAccountModal;
+        window.saveAccountModal = function(){
+          var result = origAccSave.apply(this, arguments);
+          setTimeout(function(){
+            var modal = document.getElementById('acc-modal');
+            if(modal && !modal.classList.contains('open')){
+              tqDraftClear('acc', 'new');
+              // Also clear any editId-specific draft
+              try{
+                var keys = [];
+                for(var i = 0; i < localStorage.length; i++){ var k = localStorage.key(i); if(k && k.indexOf('tq_draft_acc_') === 0) keys.push(k); }
+                keys.forEach(function(k){ localStorage.removeItem(k); });
+              }catch(e){}
+            }
+          }, 100);
+          return result;
+        };
+        window.saveAccountModal._fvWrapped = true;
+      }
+    }, 1500);
+
+    // ════════════ NOTEBOOK MODAL WIRING ════════════
+    // Notebook is simpler — only has one optional content field, but we still want autosave
+    var _nbInitialState = null;
+    var _nbDraftTimer = null;
+
+    function _nbSnapshotState(){
+      var ids = ['nb-type','nb-date','nb-title','nb-content'];
+      var snap = {};
+      ids.forEach(function(id){ var el = document.getElementById(id); if(el) snap[id] = el.value; });
+      var pinned = document.getElementById('nb-pinned');
+      if(pinned) snap['nb-pinned'] = pinned.checked ? '1' : '0';
+      return snap;
+    }
+
+    function _nbIsDirty(){
+      if(!_nbInitialState) return false;
+      var current = _nbSnapshotState();
+      for(var k in current){ if(current[k] !== _nbInitialState[k]) return true; }
+      return false;
+    }
+
+    function _nbAutoSaveDraft(){
+      var editId = (typeof nbEditId !== 'undefined') ? nbEditId : null;
+      if(!_nbIsDirty()) return;
+      tqAutosaveIndicator('nb-autosave', 'saving');
+      tqDraftSave('nb', editId || 'new', _nbSnapshotState());
+      setTimeout(function(){ tqAutosaveIndicator('nb-autosave', 'saved'); }, 250);
+    }
+
+    function _nbRestoreDraft(data){
+      if(!data) return;
+      Object.keys(data).forEach(function(id){
+        var el = document.getElementById(id);
+        if(!el) return;
+        if(id === 'nb-pinned'){ el.checked = (data[id] === '1'); }
+        else el.value = data[id];
+      });
+    }
+
+    function _nbShowDraftBanner(draft){
+      var modalBody = document.querySelector('#nb-modal .nb-modal-body');
+      if(!modalBody) return;
+      var existing = modalBody.querySelector('.fv-draft-banner');
+      if(existing) existing.remove();
+      var banner = document.createElement('div');
+      banner.className = 'fv-draft-banner';
+      banner.innerHTML = [
+        '<div class="fv-draft-banner-icon"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg></div>',
+        '<div class="fv-draft-banner-text">You have an <b>unsaved draft</b> from ' + tqDraftAge(draft.savedAt) + '. Restore?</div>',
+        '<div class="fv-draft-banner-actions">',
+        '  <button class="fv-draft-btn primary" id="nb-draft-restore">Restore</button>',
+        '  <button class="fv-draft-btn" id="nb-draft-discard">Discard</button>',
+        '</div>'
+      ].join('');
+      modalBody.insertBefore(banner, modalBody.firstChild);
+      document.getElementById('nb-draft-restore').onclick = function(){ _nbRestoreDraft(draft.data); banner.remove(); };
+      document.getElementById('nb-draft-discard').onclick = function(){
+        var editId = (typeof nbEditId !== 'undefined') ? nbEditId : null;
+        tqDraftClear('nb', editId || 'new');
+        banner.remove();
+      };
+    }
+
+    function _nbWatchModal(){
+      var modal = document.getElementById('nb-modal');
+      if(!modal) return;
+      var wasOpen = modal.classList.contains('open');
+      var observer = new MutationObserver(function(){
+        var isOpen = modal.classList.contains('open');
+        if(isOpen && !wasOpen){ setTimeout(_nbOnModalOpen, 200); }
+        else if(!isOpen && wasOpen){
+          if(_nbDraftTimer){ clearInterval(_nbDraftTimer); _nbDraftTimer = null; }
+        }
+        wasOpen = isOpen;
+      });
+      observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
+    }
+
+    function _nbOnModalOpen(){
+      _nbInitialState = _nbSnapshotState();
+      var editId = (typeof nbEditId !== 'undefined') ? nbEditId : null;
+      var draft = tqDraftLoad('nb', editId || 'new');
+      if(draft && draft.data){
+        var differs = false;
+        for(var k in draft.data){ if(draft.data[k] !== _nbInitialState[k]){ differs = true; break; } }
+        if(differs) _nbShowDraftBanner(draft);
+      }
+      if(_nbDraftTimer) clearInterval(_nbDraftTimer);
+      _nbDraftTimer = setInterval(_nbAutoSaveDraft, 5000);
+    }
+
+    setTimeout(function(){
+      _nbWatchModal();
+      // Wrap nbCloseModal for discard confirmation
+      if(typeof window.nbCloseModal === 'function' && !window.nbCloseModal._fvWrapped){
+        var origNbClose = window.nbCloseModal;
+        window.nbCloseModal = function(force){
+          if(!force && _nbIsDirty()){
+            if(!confirm('You have unsaved changes. Discard them?\n\n(Your draft is auto-saved.)')) return;
+          }
+          if(_nbDraftTimer){ clearInterval(_nbDraftTimer); _nbDraftTimer = null; }
+          origNbClose.apply(this, arguments);
+        };
+        window.nbCloseModal._fvWrapped = true;
+      }
+      // Wrap nbSave to clear drafts
+      if(typeof window.nbSave === 'function' && !window.nbSave._fvWrapped){
+        var origNbSave = window.nbSave;
+        window.nbSave = function(){
+          var result = origNbSave.apply(this, arguments);
+          setTimeout(function(){
+            var modal = document.getElementById('nb-modal');
+            if(modal && !modal.classList.contains('open')){
+              tqDraftClear('nb', 'new');
+              try{
+                for(var i = 0; i < localStorage.length; i++){ var k = localStorage.key(i); if(k && k.indexOf('tq_draft_nb_') === 0) localStorage.removeItem(k); }
+              }catch(e){}
+            }
+          }, 100);
+          return result;
+        };
+        window.nbSave._fvWrapped = true;
+      }
+    }, 1500);
+
+  })();
+  // ══ END FORM VALIDATION MODULE ══
 
   // ██  COCKPIT SNAPSHOT VIEWER MODULE
   // ██  Full-screen view of frozen pre-market analysis from any trade.
@@ -15528,9 +16289,36 @@ window.dispatchEvent(new Event('supabase-ready'));
     var grossPnl = jrNum('jr-pnl-input');
     var comm = jrNum('jr-comm');
     var netPnl = grossPnl - comm;
-    if(!date){ alert('Please enter a date'); return; }
-    if(!pair){ alert('Please select a pair'); return; }
-    if(grossPnl===0 && !document.getElementById('jr-pnl-input').value.trim()){ alert('Please enter P&L'); return; }
+
+    // Clear all previous errors first
+    if(typeof tqClearFieldError === 'function'){
+      ['jr-date','jr-pair','jr-pnl-input'].forEach(function(fid){ tqClearFieldError(fid); });
+    }
+
+    // Validate with inline errors
+    var hasError = false;
+    if(!date){
+      if(typeof tqShowFieldError === 'function') tqShowFieldError('jr-date', 'Date is required');
+      else alert('Please enter a date');
+      hasError = true;
+    }
+    if(!pair){
+      if(typeof tqShowFieldError === 'function') tqShowFieldError('jr-pair', 'Pair is required');
+      else alert('Please select a pair');
+      if(!hasError){ hasError = true; }
+    }
+    var pnlVal = (document.getElementById('jr-pnl-input').value||'').trim();
+    if(grossPnl===0 && !pnlVal){
+      if(typeof tqShowFieldError === 'function') tqShowFieldError('jr-pnl-input', 'P&L is required');
+      else alert('Please enter P&L');
+      hasError = true;
+    }
+    if(hasError){
+      // Scroll first error into view
+      var firstErr = document.querySelector('.jr-modal .fv-error');
+      if(firstErr) firstErr.scrollIntoView({behavior:'smooth', block:'center'});
+      return;
+    }
 
     var setupSel = document.getElementById('jr-setup');
     var setupId = setupSel.value || '';
