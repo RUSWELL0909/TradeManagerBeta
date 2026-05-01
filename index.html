@@ -3358,7 +3358,7 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
 .fv-required-tag{display:inline-block;font-size:8px;font-weight:800;color:#ff505f;background:rgba(255,80,95,.08);padding:1px 6px;border-radius:8px;margin-left:6px;letter-spacing:.5px;vertical-align:middle;font-family:'Inter',sans-serif}
 
 /* Field error state — red border + shake animation */
-.fv-error input,.fv-error select,.fv-error textarea,.fv-error .jr-input,.fv-error .jr-select{border-color:#ff505f!important;background:rgba(255,80,95,.04)!important}
+.fv-error input,.fv-error select,.fv-error textarea,.fv-error .jr-input,.fv-error .jr-select,.fv-error .pb-input,.fv-error .form-input,.fv-error .form-select{border-color:#ff505f!important;background:rgba(255,80,95,.04)!important}
 .fv-error{animation:fvShake .35s ease-out}
 @keyframes fvShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
 
@@ -3388,6 +3388,45 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
 .fv-autosave-dot{width:5px;height:5px;border-radius:50%;background:#2ecc8a}
 .fv-autosave.saving .fv-autosave-dot{background:#f0b429;animation:fvPulse 1s ease-in-out infinite}
 @keyframes fvPulse{0%,100%{opacity:.4}50%{opacity:1}}
+
+/* ══ ARCHIVED ACCOUNTS + SMART DELETE DIALOG ══ */
+.acc-row.archived{opacity:.55}
+.acc-row.archived .acc-name-cell{color:var(--text3)}
+.lc-badge.archived{background:rgba(120,120,140,.12);color:var(--text3);border:1px solid rgba(120,120,140,.3)}
+
+/* Section divider on My Accounts page (Active vs Archived) */
+.acc-section-divider{display:flex;align-items:center;gap:12px;margin:24px 0 12px;padding:0 4px;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;font-family:'Inter',sans-serif}
+.acc-section-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.acc-section-count{display:inline-block;background:var(--bg3);color:var(--text3);font-size:10px;padding:2px 8px;border-radius:8px}
+
+/* Smart delete dialog — modal with 4 options as cards */
+.sdl-modal{position:fixed;inset:0;background:rgba(8,6,18,.78);backdrop-filter:blur(8px);z-index:9998;display:none;align-items:center;justify-content:center;padding:24px;overflow-y:auto}
+.sdl-modal.open{display:flex}
+.sdl-box{max-width:560px;width:100%;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px 28px 24px;box-shadow:0 20px 80px rgba(0,0,0,.5);animation:obSlideUp .35s cubic-bezier(.22,1,.36,1)}
+.sdl-head{margin-bottom:16px}
+.sdl-title{font-size:18px;font-weight:700;color:var(--text);font-family:'Syne',sans-serif;margin-bottom:6px}
+.sdl-sub{font-size:12px;color:var(--text3);line-height:1.5;font-family:'Inter',sans-serif}
+.sdl-sub b{color:var(--text2)}
+.sdl-options{display:flex;flex-direction:column;gap:8px;margin:18px 0 14px}
+.sdl-option{background:var(--bg3);border:1.5px solid var(--border);border-radius:12px;padding:14px 16px;cursor:pointer;transition:all .2s;display:flex;align-items:flex-start;gap:12px;text-align:left}
+.sdl-option:hover{border-color:var(--accent3);background:rgba(124,90,240,.04)}
+.sdl-option.recommended{border-color:rgba(46,204,138,.4);background:rgba(46,204,138,.04)}
+.sdl-option.recommended:hover{border-color:#2ecc8a;background:rgba(46,204,138,.08)}
+.sdl-option.danger:hover{border-color:#ff505f;background:rgba(255,80,95,.06)}
+.sdl-option-icon{flex-shrink:0;width:34px;height:34px;border-radius:9px;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:18px}
+.sdl-option.recommended .sdl-option-icon{background:rgba(46,204,138,.12)}
+.sdl-option.danger .sdl-option-icon{background:rgba(255,80,95,.08)}
+.sdl-option-info{flex:1;min-width:0}
+.sdl-option-title{font-size:13px;font-weight:700;color:var(--text);font-family:'Inter',sans-serif;display:flex;align-items:center;gap:8px;margin-bottom:3px}
+.sdl-option.recommended .sdl-option-title{color:#2ecc8a}
+.sdl-option.danger .sdl-option-title{color:#ff505f}
+.sdl-option-tag{font-size:8px;font-weight:800;background:rgba(46,204,138,.15);color:#2ecc8a;padding:2px 6px;border-radius:6px;text-transform:uppercase;letter-spacing:.5px}
+.sdl-option-desc{font-size:11px;color:var(--text3);line-height:1.5;font-family:'Inter',sans-serif}
+.sdl-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:8px}
+
+/* Transfer trades destination select */
+.sdl-transfer-select{width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;font-family:'Inter',sans-serif;margin:8px 0 14px}
+.sdl-transfer-info{font-size:11px;color:var(--text3);background:rgba(124,90,240,.06);border:1px solid rgba(124,90,240,.15);border-radius:8px;padding:10px 12px;line-height:1.5;font-family:'Inter',sans-serif}
 
 /* ══ COCKPIT SNAPSHOT VIEWER (full pre-market analysis frozen at trade time) ══ */
 .sv-modal{position:fixed;inset:0;background:rgba(8,6,18,.78);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9998;display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:32px 16px}
@@ -5537,6 +5576,7 @@ window.dispatchEvent(new Event('supabase-ready'));
     </div>
   </div>
 
+
   <!-- ═══ DAY VIEW ═══ -->
   <div id="page-dayview" class="page">
     <div class="page-header">
@@ -6635,7 +6675,10 @@ window.dispatchEvent(new Event('supabase-ready'));
   <div class="pb-overlay" id="pb-overlay">
     <div class="pb-builder">
       <div class="pb-builder-header">
-        <div class="pb-builder-title" id="pb-builder-title">New Setup</div>
+        <div style="display:flex;align-items:center;flex:1;min-width:0">
+          <div class="pb-builder-title" id="pb-builder-title">New Setup</div>
+          <span class="fv-autosave" id="pb-autosave"><span class="fv-autosave-dot"></span><span class="fv-autosave-label">Draft saved</span></span>
+        </div>
         <button class="pb-builder-close" onclick="closePbBuilder()">✕</button>
       </div>
       <!-- Step dots -->
@@ -7053,13 +7096,19 @@ window.dispatchEvent(new Event('supabase-ready'));
     <div class="rs-grid" id="rs-grid"></div>
     <div class="nb-modal" id="rs-modal">
       <div class="nb-modal-box" style="max-width:560px">
-        <div class="nb-modal-head"><div class="nb-modal-title" id="rs-modal-title">New Resource</div><button class="nb-modal-close" onclick="rsCloseModal()">&times;</button></div>
+        <div class="nb-modal-head">
+          <div style="display:flex;align-items:center;flex:1;min-width:0">
+            <div class="nb-modal-title" id="rs-modal-title">New Resource</div>
+            <span class="fv-autosave" id="rs-autosave"><span class="fv-autosave-dot"></span><span class="fv-autosave-label">Draft saved</span></span>
+          </div>
+          <button class="nb-modal-close" onclick="rsCloseModal()">&times;</button>
+        </div>
         <div class="nb-modal-body">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
             <div><label style="font-size:9px;color:var(--text3);font-family:'Inter',sans-serif;font-weight:600;display:block;margin-bottom:4px">Category</label><select id="rs-cat" style="width:100%;padding:9px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px;font-family:'Inter',sans-serif"><option value="link">Link</option><option value="rule">Trading Rule</option><option value="mentor">Mentor Note</option><option value="reference">Reference</option></select></div>
             <div><label style="font-size:9px;color:var(--text3);font-family:'Inter',sans-serif;font-weight:600;display:block;margin-bottom:4px">URL (optional)</label><input type="url" id="rs-url" placeholder="https://..." style="width:100%;padding:9px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px;font-family:'Inter',sans-serif"></div>
           </div>
-          <div style="margin-bottom:14px"><label style="font-size:9px;color:var(--text3);font-family:'Inter',sans-serif;font-weight:600;display:block;margin-bottom:4px">Title</label><input type="text" id="rs-title" placeholder="Resource title..." style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;font-family:'Inter',sans-serif"></div>
+          <div style="margin-bottom:14px"><label style="font-size:9px;color:var(--text3);font-family:'Inter',sans-serif;font-weight:600;display:block;margin-bottom:4px">Title<span class="fv-required-tag">REQUIRED</span></label><input type="text" id="rs-title" placeholder="Resource title..." style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;font-family:'Inter',sans-serif"></div>
           <div><label style="font-size:9px;color:var(--text3);font-family:'Inter',sans-serif;font-weight:600;display:block;margin-bottom:4px">Description</label><textarea class="nb-textarea" id="rs-desc" style="min-height:100px" placeholder="Notes..."></textarea></div>
         </div>
         <div class="nb-modal-footer"><button class="pb-btn pb-btn-ghost" style="color:var(--red);border-color:rgba(224,92,122,.15)" id="rs-delete-btn" onclick="rsDelete()">Delete</button><button class="pb-btn pb-btn-primary" onclick="rsSave()">Save</button></div>
@@ -7076,6 +7125,7 @@ window.dispatchEvent(new Event('supabase-ready'));
     <div class="tr-tabs" id="tr-tabs">
       <button class="tr-tab active" data-tab="all" onclick="trSetTab('all')">All <span class="tr-tab-count" id="tr-count-all">0</span></button>
       <button class="tr-tab" data-tab="trades" onclick="trSetTab('trades')">Trades <span class="tr-tab-count" id="tr-count-trades">0</span></button>
+      <button class="tr-tab" data-tab="accounts" onclick="trSetTab('accounts')">Accounts <span class="tr-tab-count" id="tr-count-accounts">0</span></button>
       <button class="tr-tab" data-tab="notes" onclick="trSetTab('notes')">Notes <span class="tr-tab-count" id="tr-count-notes">0</span></button>
       <button class="tr-tab" data-tab="cases" onclick="trSetTab('cases')">Case Studies <span class="tr-tab-count" id="tr-count-cases">0</span></button>
       <button class="tr-tab" data-tab="playbook" onclick="trSetTab('playbook')">Playbook <span class="tr-tab-count" id="tr-count-playbook">0</span></button>
@@ -7171,13 +7221,19 @@ window.dispatchEvent(new Event('supabase-ready'));
 <!-- MODAL: ADD CASE STUDY -->
 <div id="modal-addCS" class="modal-overlay">
   <div class="modal">
-    <div class="modal-header"><div class="modal-title">Add Case Study</div><button class="modal-close" id="close-cs-modal">✕</button></div>
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;flex:1;min-width:0">
+        <div class="modal-title">Add Case Study</div>
+        <span class="fv-autosave" id="cs-autosave"><span class="fv-autosave-dot"></span><span class="fv-autosave-label">Draft saved</span></span>
+      </div>
+      <button class="modal-close" id="close-cs-modal">✕</button>
+    </div>
     <div class="form-grid">
-      <div class="form-group"><label class="form-label">Pair</label><select class="form-select" id="cs-pair"><option>EUR/USD</option><option>GBP/USD</option><option>USD/CAD</option><option>USD/CHF</option><option>USD/JPY</option><option>AUD/USD</option><option>NZD/USD</option><option>GBP/JPY</option><option>EUR/GBP</option><option>EUR/JPY</option></select></div>
+      <div class="form-group"><label class="form-label">Pair<span class="fv-required-tag">REQUIRED</span></label><select class="form-select" id="cs-pair"><option>EUR/USD</option><option>GBP/USD</option><option>USD/CAD</option><option>USD/CHF</option><option>USD/JPY</option><option>AUD/USD</option><option>NZD/USD</option><option>GBP/JPY</option><option>EUR/GBP</option><option>EUR/JPY</option></select></div>
       <div class="form-group"><label class="form-label">Session (KTW)</label><select class="form-select" id="cs-session"><option>Asia KTW</option><option>London KTW</option><option>NY KTW</option><option>Outside KTW</option></select></div>
-      <div class="form-group"><label class="form-label">Date</label><input class="form-input" id="cs-date" type="date"></div>
-      <div class="form-group"><label class="form-label">Outcome</label><select class="form-select" id="cs-outcome"><option value="win">Win</option><option value="loss">Loss</option><option value="breakeven">Breakeven</option></select></div>
-      <div class="form-group full"><label class="form-label">Title / Setup Name</label><input class="form-input" id="cs-title" placeholder="e.g. Liquidity Sweep + FVG Fill"></div>
+      <div class="form-group"><label class="form-label">Date<span class="fv-required-tag">REQUIRED</span></label><input class="form-input" id="cs-date" type="date"></div>
+      <div class="form-group"><label class="form-label">Outcome<span class="fv-required-tag">REQUIRED</span></label><select class="form-select" id="cs-outcome"><option value="win">Win</option><option value="loss">Loss</option><option value="breakeven">Breakeven</option></select></div>
+      <div class="form-group full"><label class="form-label">Title / Setup Name<span class="fv-required-tag">REQUIRED</span></label><input class="form-input" id="cs-title" placeholder="e.g. Liquidity Sweep + FVG Fill"></div>
       <div class="form-group full"><label class="form-label">Analysis</label><textarea class="form-textarea" id="cs-notes" placeholder="Describe the setup, confluences, execution..."></textarea></div>
       <div class="form-group full"><label class="form-label">Screenshot</label>
         <label class="upload-area"><input type="file" id="cs-image" accept="image/*"><div id="cs-image-preview">📎 Click to upload chart screenshot</div></label>
@@ -9395,6 +9451,29 @@ window.dispatchEvent(new Event('supabase-ready'));
     function accLoad(){
       try{ return JSON.parse(rfxGet('rf_accounts')||'[]'); }catch(e){ return []; }
     }
+
+    // Public helper: returns only non-deleted, non-archived accounts (use for dropdowns)
+    window.getActiveAccounts = function(){
+      try{
+        var arr = JSON.parse(rfxGet('rf_accounts')||'[]');
+        return arr.filter(function(a){ return !a.deleted && !a.archived; });
+      }catch(e){ return []; }
+    };
+    // Public helper: returns non-deleted accounts (incl. archived — for showing trades in journal etc.)
+    window.getVisibleAccounts = function(){
+      try{
+        var arr = JSON.parse(rfxGet('rf_accounts')||'[]');
+        return arr.filter(function(a){ return !a.deleted; });
+      }catch(e){ return []; }
+    };
+    // Public helper: returns non-deleted trades (the default for ALL stats/render outside Trash)
+    // Note: this includes trades whose account is archived — that's correct, archived ≠ hidden
+    window.getActiveTrades = function(){
+      try{
+        var arr = JSON.parse(rfxGet('rf_trades')||'[]');
+        return arr.filter(function(t){ return !t.deleted; });
+      }catch(e){ return []; }
+    };
     function accSave(list){
       rfxSet('rf_accounts', JSON.stringify(list));
       // Sync to cloud if signed in
@@ -9430,6 +9509,78 @@ window.dispatchEvent(new Event('supabase-ready'));
       return 'background:rgba(46,204,138,.12);color:#2ecc8a;border:1px solid rgba(46,204,138,.3)';
     }
 
+    // ── Helper: build one row HTML (extracted for reuse in active+archived sections) ──
+    function _buildAccRow(a, trades){
+      var liveBalance = accBalanceWithPnL(a, trades);
+      var startBal = parseFloat(a.startingBalance||a.balance)||0;
+      var deltaPct = startBal > 0 ? ((liveBalance - startBal)/startBal*100) : 0;
+      var deltaColor = deltaPct >= 0 ? '#2ecc8a' : '#ff505f';
+      var deltaSign = deltaPct >= 0 ? '+' : '';
+      var brokerStr = a.broker || (a.propFirm ? a.propFirm : '—');
+      if(a.broker && a.propFirm) brokerStr = a.broker + ' · ' + a.propFirm;
+      var statusOn = a.active !== false;
+      var isArchived = !!a.archived;
+      var archivedClass = isArchived ? ' archived' : '';
+
+      // Action buttons depend on archived state
+      var actionBtns;
+      if(isArchived){
+        actionBtns = [
+          '    <button onclick="unarchiveAccount(\''+escapeHtml(a.id)+'\')" title="Unarchive" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:6px;border-radius:6px;transition:all .15s" onmouseover="this.style.background=\'rgba(46,204,138,.1)\';this.style.color=\'#2ecc8a\'" onmouseout="this.style.background=\'none\';this.style.color=\'var(--text3)\'">',
+          '      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12a9 9 0 0118 0M3 12l3-3M3 12l3 3"/></svg>',
+          '    </button>',
+          '    <button onclick="deleteAccount(\''+escapeHtml(a.id)+'\')" title="Delete" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:6px;border-radius:6px;transition:all .15s" onmouseover="this.style.background=\'rgba(255,80,95,.1)\';this.style.color=\'#ff505f\'" onmouseout="this.style.background=\'none\';this.style.color=\'var(--text3)\'">',
+          '      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 01-2 2H9a2 2 0 01-2-2L5 6"/></svg>',
+          '    </button>'
+        ].join('');
+      } else {
+        actionBtns = [
+          '    <button onclick="openEditAccountModal(\''+escapeHtml(a.id)+'\')" title="Edit" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:6px;border-radius:6px;transition:all .15s" onmouseover="this.style.background=\'var(--bg3)\';this.style.color=\'var(--accent3)\'" onmouseout="this.style.background=\'none\';this.style.color=\'var(--text3)\'">',
+          '      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
+          '    </button>',
+          '    <button onclick="archiveAccount(\''+escapeHtml(a.id)+'\')" title="Archive (read-only, keeps history)" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:6px;border-radius:6px;transition:all .15s" onmouseover="this.style.background=\'rgba(240,180,41,.1)\';this.style.color=\'#f0b429\'" onmouseout="this.style.background=\'none\';this.style.color=\'var(--text3)\'">',
+          '      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/></svg>',
+          '    </button>',
+          '    <button onclick="clearAccountTrades(\''+escapeHtml(a.id)+'\')" title="Clear all trades (keeps account)" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:6px;border-radius:6px;transition:all .15s" onmouseover="this.style.background=\'rgba(96,165,250,.1)\';this.style.color=\'#60a5fa\'" onmouseout="this.style.background=\'none\';this.style.color=\'var(--text3)\'">',
+          '      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M10 11v6M14 11v6"/></svg>',
+          '    </button>',
+          '    <button onclick="deleteAccount(\''+escapeHtml(a.id)+'\')" title="Delete account + all trades" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:6px;border-radius:6px;transition:all .15s" onmouseover="this.style.background=\'rgba(255,80,95,.1)\';this.style.color=\'#ff505f\'" onmouseout="this.style.background=\'none\';this.style.color=\'var(--text3)\'">',
+          '      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>',
+          '    </button>'
+        ].join('');
+      }
+
+      // Status column: archived badge OR ON/OFF toggle
+      var statusCol;
+      if(isArchived){
+        statusCol = '<span class="lc-badge archived"><span class="lc-dot"></span>Archived</span>';
+      } else {
+        statusCol = [
+          '<label style="display:inline-flex;align-items:center;cursor:pointer;gap:6px" title="Toggle active">',
+          '  <input type="checkbox" '+(statusOn?'checked':'')+' onchange="accToggleActive(\''+escapeHtml(a.id)+'\', this.checked)" style="width:14px;height:14px;cursor:pointer;accent-color:var(--accent)">',
+          '  <span style="font-size:10px;color:'+(statusOn?'#2ecc8a':'var(--text3)')+';font-weight:600">'+(statusOn?'ON':'OFF')+'</span>',
+          '</label>'
+        ].join('');
+      }
+
+      return [
+        '<div class="acc-row'+archivedClass+'" data-id="'+escapeHtml(a.id)+'" style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 100px 130px;padding:14px 20px;border-bottom:1px solid var(--border);align-items:center;transition:background .15s" onmouseover="this.style.background=\'var(--bg3)\'" onmouseout="this.style.background=\'transparent\'">',
+        '  <div class="acc-name-cell" style="min-width:0">',
+        '    <div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(a.name||'(unnamed)')+'</div>',
+        a.accountNumber ? '    <div style="font-size:10px;color:var(--text3);font-family:\'DM Mono\',monospace;margin-top:2px">#'+escapeHtml(a.accountNumber)+'</div>' : '',
+        '  </div>',
+        '  <div style="font-size:12px;color:var(--text2)">'+escapeHtml(brokerStr)+(a.platform?'<div style="font-size:10px;color:var(--text3);margin-top:2px">'+escapeHtml(a.platform)+'</div>':'')+'</div>',
+        '  <div>',
+        '    <div style="font-size:13px;font-weight:600;color:var(--text);font-family:\'DM Mono\',monospace">'+accFmtCcy(liveBalance, a.currency)+'</div>',
+        '    <div style="font-size:10px;color:'+deltaColor+';margin-top:2px;font-family:\'DM Mono\',monospace">'+deltaSign+deltaPct.toFixed(2)+'%</div>',
+        '  </div>',
+        '  <div><span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;'+accTypeBadgeStyle(a.type)+'">'+accTypeLabel(a.type)+'</span></div>',
+        '  <div>'+statusCol+'</div>',
+        '  <div style="display:flex;justify-content:flex-end;gap:4px">'+actionBtns+'</div>',
+        '</div>'
+      ].join('');
+    }
+
     // ── RENDER PAGE ──
     function renderAccountsPage(){
       var body = document.getElementById('accounts-table-body');
@@ -9448,47 +9599,73 @@ window.dispatchEvent(new Event('supabase-ready'));
 
       if(empty) empty.style.display = 'none';
 
-      body.innerHTML = accs.map(function(a){
-        var liveBalance = accBalanceWithPnL(a, trades);
-        var startBal = parseFloat(a.startingBalance||a.balance)||0;
-        var deltaPct = startBal > 0 ? ((liveBalance - startBal)/startBal*100) : 0;
-        var deltaColor = deltaPct >= 0 ? '#2ecc8a' : '#ff505f';
-        var deltaSign = deltaPct >= 0 ? '+' : '';
-        var brokerStr = a.broker || (a.propFirm ? a.propFirm : '—');
-        if(a.broker && a.propFirm) brokerStr = a.broker + ' · ' + a.propFirm;
-        var statusOn = a.active !== false;
+      // Split into active and archived
+      var active = accs.filter(function(a){ return !a.archived; });
+      var archived = accs.filter(function(a){ return !!a.archived; });
 
-        return [
-          '<div class="acc-row" data-id="'+escapeHtml(a.id)+'" style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 80px 44px;padding:14px 20px;border-bottom:1px solid var(--border);align-items:center;transition:background .15s" onmouseover="this.style.background=\'var(--bg3)\'" onmouseout="this.style.background=\'transparent\'">',
-          '  <div style="min-width:0">',
-          '    <div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(a.name||'(unnamed)')+'</div>',
-          a.accountNumber ? '    <div style="font-size:10px;color:var(--text3);font-family:\'DM Mono\',monospace;margin-top:2px">#'+escapeHtml(a.accountNumber)+'</div>' : '',
-          '  </div>',
-          '  <div style="font-size:12px;color:var(--text2)">'+escapeHtml(brokerStr)+(a.platform?'<div style="font-size:10px;color:var(--text3);margin-top:2px">'+escapeHtml(a.platform)+'</div>':'')+'</div>',
-          '  <div>',
-          '    <div style="font-size:13px;font-weight:600;color:var(--text);font-family:\'DM Mono\',monospace">'+accFmtCcy(liveBalance, a.currency)+'</div>',
-          '    <div style="font-size:10px;color:'+deltaColor+';margin-top:2px;font-family:\'DM Mono\',monospace">'+deltaSign+deltaPct.toFixed(2)+'%</div>',
-          '  </div>',
-          '  <div><span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;'+accTypeBadgeStyle(a.type)+'">'+accTypeLabel(a.type)+'</span></div>',
-          '  <div>',
-          '    <label style="display:inline-flex;align-items:center;cursor:pointer;gap:6px" title="Toggle active">',
-          '      <input type="checkbox" '+(statusOn?'checked':'')+' onchange="accToggleActive(\''+escapeHtml(a.id)+'\', this.checked)" style="width:14px;height:14px;cursor:pointer;accent-color:var(--accent)">',
-          '      <span style="font-size:10px;color:'+(statusOn?'#2ecc8a':'var(--text3)')+';font-weight:600">'+(statusOn?'ON':'OFF')+'</span>',
-          '    </label>',
-          '  </div>',
-          '  <div style="display:flex;justify-content:flex-end;gap:4px">',
-          '    <button onclick="openEditAccountModal(\''+escapeHtml(a.id)+'\')" title="Edit" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:6px;border-radius:6px;transition:all .15s" onmouseover="this.style.background=\'var(--bg3)\';this.style.color=\'var(--accent3)\'" onmouseout="this.style.background=\'none\';this.style.color=\'var(--text3)\'">',
-          '      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
-          '    </button>',
-          '    <button onclick="deleteAccount(\''+escapeHtml(a.id)+'\')" title="Delete" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:6px;border-radius:6px;transition:all .15s" onmouseover="this.style.background=\'rgba(255,80,95,.1)\';this.style.color=\'#ff505f\'" onmouseout="this.style.background=\'none\';this.style.color=\'var(--text3)\'">',
-          '      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 01-2 2H9a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>',
-          '    </button>',
-          '  </div>',
-          '</div>'
-        ].join('');
-      }).join('');
+      var html = '';
+      // Active section
+      if(active.length){
+        html += active.map(function(a){ return _buildAccRow(a, trades); }).join('');
+      }
+      // Archived section divider + rows
+      if(archived.length){
+        html += '<div class="acc-section-divider"><span>Archived</span><span class="acc-section-count">'+archived.length+'</span></div>';
+        html += archived.map(function(a){ return _buildAccRow(a, trades); }).join('');
+      }
+      body.innerHTML = html;
     }
     window.renderAccountsPage = renderAccountsPage;
+
+    // ── ARCHIVE / UNARCHIVE ──
+    function archiveAccount(id){
+      var accs = accLoad();
+      var idx = accs.findIndex(function(x){return x.id===id;});
+      if(idx<0) return;
+      var a = accs[idx];
+
+      var trades = [];
+      try{ trades = JSON.parse(rfxGet('rf_trades')||'[]'); }catch(e){}
+      var attachedCount = trades.filter(function(t){return t.account === id && !t.deleted;}).length;
+
+      var msg = 'Archive "' + (a.name||'') + '"?\n\n';
+      msg += '✅ All ' + attachedCount + ' trades stay visible in your reports.\n';
+      msg += '🔒 Account becomes read-only — no new trades can be added to it.\n';
+      msg += '↶ You can unarchive anytime from My Accounts.';
+      if(!confirm(msg)) return;
+
+      a.archived = true;
+      a.archivedAt = new Date().toISOString();
+      accs[idx] = a;
+      accSave(accs);
+      renderAccountsPage();
+      // Refresh other places that show account dropdowns
+      _accSyncDropdowns();
+    }
+    window.archiveAccount = archiveAccount;
+
+    function unarchiveAccount(id){
+      var accs = accLoad();
+      var idx = accs.findIndex(function(x){return x.id===id;});
+      if(idx<0) return;
+      var a = accs[idx];
+
+      delete a.archived;
+      delete a.archivedAt;
+      accs[idx] = a;
+      accSave(accs);
+      renderAccountsPage();
+      _accSyncDropdowns();
+    }
+    window.unarchiveAccount = unarchiveAccount;
+
+    // Helper to refresh account dropdowns across the app after archive/unarchive
+    function _accSyncDropdowns(){
+      // Trigger re-population of common dropdowns
+      try{ if(typeof renderJournal === 'function') renderJournal(); }catch(e){}
+      try{ if(typeof updateDashboard === 'function') updateDashboard(); }catch(e){}
+      try{ if(typeof ckRender === 'function' && document.getElementById('page-cockpit') && document.getElementById('page-cockpit').classList.contains('active')) ckRender(); }catch(e){}
+    }
 
     // ── MODAL: OPEN / CLOSE ──
     function openAddAccountModal(){
@@ -9618,34 +9795,106 @@ window.dispatchEvent(new Event('supabase-ready'));
     }
     window.saveAccountModal = saveAccountModal;
 
-    // ── DELETE ──
+    // ── DELETE — simple cascade with confirm ──
     function deleteAccount(id){
       var accs = accLoad();
       var a = accs.find(function(x){ return x.id === id; });
       if(!a) return;
 
-      // Count attached trades
       var trades = [];
       try{ trades = JSON.parse(rfxGet('rf_trades')||'[]'); }catch(e){}
-      var attached = trades.filter(function(t){ return t.account === id; }).length;
+      var attached = trades.filter(function(t){ return t.account === id && !t.deleted; });
+      var attachedCount = attached.length;
 
-      var msg = 'Delete account "' + (a.name||'') + '"?';
-      if(attached > 0) msg += '\n\nWARNING: This account has ' + attached + ' attached trade' + (attached===1?'':'s') + '. Those trades will remain in your journal but will lose their account link.';
-      msg += '\n\nThis cannot be undone.';
+      var msg;
+      if(attachedCount === 0){
+        msg = 'Move "' + (a.name||'') + '" to Trash?\n\nNo trades attached. Restorable from Trash for 90 days.';
+      } else {
+        msg = 'Move "' + (a.name||'') + '" AND all ' + attachedCount + ' attached trades to Trash?\n\n';
+        msg += '✅ Restorable for 90 days from Trash.\n';
+        msg += '⚠ After 90 days, permanently deleted.\n\n';
+        msg += 'If you want to keep your data, use Archive instead.';
+      }
       if(!confirm(msg)) return;
 
-      accs = accs.filter(function(x){ return x.id !== id; });
-      accSave(accs);
+      // Cascade soft-delete
+      var cascadeId = 'cascade_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
+      var cascadeAt = new Date().toISOString();
 
-      // Also remove from cloud
-      if(window._tqSupa && window._tqUser){
-        try{ _tqSupa.from('accounts').delete().eq('user_id', _tqUser.id).eq('external_id', id); }catch(e){}
+      if(attachedCount > 0){
+        trades.forEach(function(t){
+          if(t.account === id && !t.deleted){
+            t.deleted = true;
+            t.deletedAt = cascadeAt;
+            t._cascadeFromAccount = id;
+            t._cascadeId = cascadeId;
+            if(window.tqPushTrade){ try{ tqPushTrade(t); }catch(e){} }
+          }
+        });
+        rfxSet('rf_trades', JSON.stringify(trades));
       }
 
+      // Soft-delete the account
+      var idx = accs.findIndex(function(x){return x.id===id;});
+      if(idx >= 0){
+        accs[idx].deleted = true;
+        accs[idx].deletedAt = cascadeAt;
+        if(attachedCount > 0) accs[idx]._cascadeId = cascadeId;
+        accSave(accs);
+        if(window._tqSupa && window._tqUser){
+          try{ _tqSupa.from('accounts').delete().eq('user_id', _tqUser.id).eq('external_id', id); }catch(e){}
+        }
+      }
+
+      // Refresh
       renderAccountsPage();
-      if(typeof updateDashboard === 'function') try{ updateDashboard(); }catch(e){}
+      _accSyncDropdowns();
+      if(typeof trUpdateBadge === 'function') try{ trUpdateBadge(); }catch(e){}
     }
     window.deleteAccount = deleteAccount;
+
+    // ── CLEAR ALL TRADES (TradeZella-style) ──
+    // Soft-deletes all trades of account but keeps account intact
+    function clearAccountTrades(id){
+      var accs = accLoad();
+      var a = accs.find(function(x){ return x.id === id; });
+      if(!a) return;
+
+      var trades = [];
+      try{ trades = JSON.parse(rfxGet('rf_trades')||'[]'); }catch(e){}
+      var attached = trades.filter(function(t){ return t.account === id && !t.deleted; });
+      if(attached.length === 0){
+        alert('"' + (a.name||'') + '" has no trades to clear.');
+        return;
+      }
+
+      var msg = 'Clear all ' + attached.length + ' trades from "' + (a.name||'') + '"?\n\n';
+      msg += '✅ Trades go to Trash, restorable for 90 days.\n';
+      msg += 'The account itself stays — you can keep adding new trades.\n\n';
+      msg += 'If you want to remove the account too, use Delete.';
+      if(!confirm(msg)) return;
+
+      var cascadeId = 'clear_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
+      var cascadeAt = new Date().toISOString();
+      var cleared = 0;
+
+      trades.forEach(function(t){
+        if(t.account === id && !t.deleted){
+          t.deleted = true;
+          t.deletedAt = cascadeAt;
+          t._cascadeFromAccount = id;
+          t._cascadeId = cascadeId;
+          cleared++;
+          if(window.tqPushTrade){ try{ tqPushTrade(t); }catch(e){} }
+        }
+      });
+      rfxSet('rf_trades', JSON.stringify(trades));
+
+      renderAccountsPage();
+      _accSyncDropdowns();
+      if(typeof trUpdateBadge === 'function') try{ trUpdateBadge(); }catch(e){}
+    }
+    window.clearAccountTrades = clearAccountTrades;
 
     // ── TOGGLE ACTIVE ──
     function accToggleActive(id, on){
@@ -9699,6 +9948,7 @@ window.dispatchEvent(new Event('supabase-ready'));
 
   })();
   // ══ END MY ACCOUNTS MODULE ══
+
 
   // ██  ACTIVE TRADES MODULE — simplified
   // ██  Shows open trades (no exit yet) in a rail above the cockpit board.
@@ -9935,6 +10185,7 @@ window.dispatchEvent(new Event('supabase-ready'));
     var CLEANUP_KEY = 'tq_last_trash_cleanup';
     var TRASH_TYPES = {
       trade:    { storeKey: 'rf_trades',         label: 'Trade',       cssClass: 'trade' },
+      account:  { storeKey: 'rf_accounts',       label: 'Account',     cssClass: 'trade' },
       note:     { storeKey: 'rossfx-notebook',   label: 'Note',        cssClass: 'note' },
       case:     { storeKey: 'tb_cs',             label: 'Case Study',  cssClass: 'case' },
       playbook: { storeKey: 'rossfx-playbook',   label: 'Playbook',    cssClass: 'playbook' }
@@ -9973,18 +10224,49 @@ window.dispatchEvent(new Event('supabase-ready'));
       var list = trLoadAll(typeKey);
       var idx = list.findIndex(function(x){return x.id===id;});
       if(idx < 0) return;
+      var item = list[idx];
+      var cascadeId = item._cascadeId;
+
       delete list[idx].deleted;
       delete list[idx].deletedAt;
+      delete list[idx]._cascadeId;
       trSaveAll(typeKey, list);
       trCloudSync(typeKey, list[idx], false);
+
+      // CASCADE RESTORE: if restoring an account that was cascade-deleted with trades,
+      // also restore all its trades
+      if(typeKey === 'account' && cascadeId){
+        var trades = trLoadAll('trade');
+        var restoredCount = 0;
+        trades.forEach(function(t){
+          if(t.deleted && t._cascadeId === cascadeId){
+            delete t.deleted;
+            delete t.deletedAt;
+            delete t._cascadeId;
+            delete t._cascadeFromAccount;
+            restoredCount++;
+            trCloudSync('trade', t, false);
+          }
+        });
+        if(restoredCount > 0){
+          trSaveAll('trade', trades);
+          console.log('Cascade-restored', restoredCount, 'trades for account', id);
+        }
+      }
+
+      // CASCADE RESTORE: if restoring a single trade that was part of cascade — that's fine alone, account stays deleted
+      // (user can choose to restore them individually)
 
       // Re-render relevant page
       trRender();
       trUpdateBadge();
       if(typeKey === 'trade' && typeof renderJournal === 'function') try{ renderJournal(); }catch(e){}
+      if(typeKey === 'account' && typeof renderAccountsPage === 'function') try{ renderAccountsPage(); }catch(e){}
+      if(typeKey === 'account' && typeof renderJournal === 'function') try{ renderJournal(); }catch(e){}
       if(typeKey === 'note' && typeof nbRender === 'function') try{ nbRender(); }catch(e){}
       if(typeKey === 'case' && typeof window.csRender === 'function') try{ window.csRender(); }catch(e){}
       if(typeKey === 'playbook' && typeof renderPbCards === 'function') try{ renderPbCards(); }catch(e){}
+      if(typeof updateDashboard === 'function') try{ updateDashboard(); }catch(e){}
     }
     window.trRestoreItem = trRestoreItem;
 
@@ -10082,6 +10364,9 @@ window.dispatchEvent(new Event('supabase-ready'));
         var dirLabel = (dir === 'sell' || dir === 'short') ? 'Short' : (dir === 'buy' || dir === 'long' ? 'Long' : '');
         return (item.pair || '—') + (dirLabel ? ' · ' + dirLabel : '') + (item.date ? ' · ' + item.date : '');
       }
+      if(typeKey === 'account'){
+        return item.name || '(unnamed account)';
+      }
       if(typeKey === 'note'){
         return item.title || (item.content ? item.content.slice(0, 60) + (item.content.length > 60 ? '...' : '') : '(untitled note)');
       }
@@ -10102,6 +10387,21 @@ window.dispatchEvent(new Event('supabase-ready'));
         if(item.pnl !== undefined && item.pnl !== null){
           var sign = item.pnl >= 0 ? '+' : '';
           bits.push(sign + item.pnl);
+        }
+        if(item._cascadeFromAccount) bits.push('cascade-deleted with account');
+        return bits.join(' · ');
+      }
+      if(typeKey === 'account'){
+        var bits = [];
+        if(item.type) bits.push(item.type);
+        if(item.broker) bits.push(item.broker);
+        if(item._cascadeId){
+          // Count cascade trades
+          try{
+            var trades = JSON.parse(rfxGet('rf_trades')||'[]');
+            var ct = trades.filter(function(t){return t._cascadeId === item._cascadeId;}).length;
+            if(ct > 0) bits.push('+ ' + ct + ' trades');
+          }catch(e){}
         }
         return bits.join(' · ');
       }
@@ -10129,6 +10429,7 @@ window.dispatchEvent(new Event('supabase-ready'));
 
     function trIconSvg(typeKey){
       if(typeKey === 'trade')    return '<svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>';
+      if(typeKey === 'account')  return '<svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>';
       if(typeKey === 'note')     return '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
       if(typeKey === 'case')     return '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>';
       if(typeKey === 'playbook') return '<svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>';
@@ -10140,14 +10441,15 @@ window.dispatchEvent(new Event('supabase-ready'));
       var all = trGetAllDeleted();
 
       // Update tab counts
-      var counts = { all: all.length, trades: 0, notes: 0, cases: 0, playbook: 0 };
+      var counts = { all: all.length, trades: 0, accounts: 0, notes: 0, cases: 0, playbook: 0 };
       all.forEach(function(rec){
         if(rec.typeKey === 'trade') counts.trades++;
+        else if(rec.typeKey === 'account') counts.accounts++;
         else if(rec.typeKey === 'note') counts.notes++;
         else if(rec.typeKey === 'case') counts.cases++;
         else if(rec.typeKey === 'playbook') counts.playbook++;
       });
-      ['all','trades','notes','cases','playbook'].forEach(function(t){
+      ['all','trades','accounts','notes','cases','playbook'].forEach(function(t){
         var el = document.getElementById('tr-count-'+t);
         if(el) el.textContent = counts[t];
       });
@@ -10155,7 +10457,7 @@ window.dispatchEvent(new Event('supabase-ready'));
       // Filter by current tab
       var filtered = all;
       if(_trCurrentTab !== 'all'){
-        var tabToType = { trades: 'trade', notes: 'note', cases: 'case', playbook: 'playbook' };
+        var tabToType = { trades: 'trade', accounts: 'account', notes: 'note', cases: 'case', playbook: 'playbook' };
         var wantType = tabToType[_trCurrentTab];
         filtered = all.filter(function(rec){return rec.typeKey === wantType;});
       }
@@ -10700,8 +11002,11 @@ window.dispatchEvent(new Event('supabase-ready'));
 
     // ── Inject error message DOM under a field ──
     function _findErrorContainer(input){
-      // Walk up to find sibling .fv-error-msg, or create one
-      var parent = input.closest('.jr-field') || input.parentElement;
+      // Walk up to find a known field container
+      var parent = input.closest('.jr-field')
+                || input.closest('.form-group')
+                || input.closest('.pb-section')
+                || input.parentElement;
       if(!parent) return null;
       var existing = parent.querySelector('.fv-error-msg');
       return { parent: parent, existing: existing };
@@ -11379,6 +11684,350 @@ window.dispatchEvent(new Event('supabase-ready'));
           return result;
         };
         window.nbSave._fvWrapped = true;
+      }
+    }, 1500);
+
+    // ════════════ RESOURCES MODAL WIRING ════════════
+    var _rsInitialState = null;
+    var _rsDraftTimer = null;
+
+    function _rsSnapshotState(){
+      var ids = ['rs-cat','rs-url','rs-title','rs-desc'];
+      var snap = {};
+      ids.forEach(function(id){ var el = document.getElementById(id); if(el) snap[id] = el.value; });
+      return snap;
+    }
+    function _rsIsDirty(){
+      if(!_rsInitialState) return false;
+      var c = _rsSnapshotState();
+      for(var k in c){ if(c[k] !== _rsInitialState[k]) return true; }
+      return false;
+    }
+    function _rsAutoSaveDraft(){
+      var editId = (typeof rsEditId !== 'undefined') ? rsEditId : null;
+      if(!_rsIsDirty()) return;
+      tqAutosaveIndicator('rs-autosave','saving');
+      tqDraftSave('rs', editId || 'new', _rsSnapshotState());
+      setTimeout(function(){ tqAutosaveIndicator('rs-autosave','saved'); }, 250);
+    }
+    function _rsRestoreDraft(data){
+      if(!data) return;
+      Object.keys(data).forEach(function(id){ var el = document.getElementById(id); if(el && data[id] !== undefined) el.value = data[id]; });
+    }
+    function _rsShowDraftBanner(draft){
+      var modalBody = document.querySelector('#rs-modal .nb-modal-body');
+      if(!modalBody) return;
+      var existing = modalBody.querySelector('.fv-draft-banner');
+      if(existing) existing.remove();
+      var banner = document.createElement('div');
+      banner.className = 'fv-draft-banner';
+      banner.innerHTML = [
+        '<div class="fv-draft-banner-icon"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg></div>',
+        '<div class="fv-draft-banner-text">Unsaved draft from <b>' + tqDraftAge(draft.savedAt) + '</b>. Restore?</div>',
+        '<div class="fv-draft-banner-actions">',
+        '  <button class="fv-draft-btn primary" id="rs-draft-restore">Restore</button>',
+        '  <button class="fv-draft-btn" id="rs-draft-discard">Discard</button>',
+        '</div>'
+      ].join('');
+      modalBody.insertBefore(banner, modalBody.firstChild);
+      document.getElementById('rs-draft-restore').onclick = function(){ _rsRestoreDraft(draft.data); banner.remove(); };
+      document.getElementById('rs-draft-discard').onclick = function(){
+        var editId = (typeof rsEditId !== 'undefined') ? rsEditId : null;
+        tqDraftClear('rs', editId || 'new');
+        banner.remove();
+      };
+    }
+
+    function _rsWatchModal(){
+      var modal = document.getElementById('rs-modal');
+      if(!modal) return;
+      var wasOpen = modal.classList.contains('open');
+      var observer = new MutationObserver(function(){
+        var isOpen = modal.classList.contains('open');
+        if(isOpen && !wasOpen){ setTimeout(_rsOnModalOpen, 200); }
+        else if(!isOpen && wasOpen){ if(_rsDraftTimer){ clearInterval(_rsDraftTimer); _rsDraftTimer = null; } }
+        wasOpen = isOpen;
+      });
+      observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
+    }
+    function _rsOnModalOpen(){
+      _rsInitialState = _rsSnapshotState();
+      var editId = (typeof rsEditId !== 'undefined') ? rsEditId : null;
+      var draft = tqDraftLoad('rs', editId || 'new');
+      if(draft && draft.data){
+        var differs = false;
+        for(var k in draft.data){ if(draft.data[k] !== _rsInitialState[k]){ differs = true; break; } }
+        if(differs) _rsShowDraftBanner(draft);
+      }
+      if(_rsDraftTimer) clearInterval(_rsDraftTimer);
+      _rsDraftTimer = setInterval(_rsAutoSaveDraft, 5000);
+    }
+
+    setTimeout(function(){
+      _rsWatchModal();
+      if(typeof window.rsCloseModal === 'function' && !window.rsCloseModal._fvWrapped){
+        var origRsClose = window.rsCloseModal;
+        window.rsCloseModal = function(force){
+          if(!force && _rsIsDirty()){
+            if(!confirm('You have unsaved changes. Discard them?\n\n(Your draft is auto-saved.)')) return;
+          }
+          if(_rsDraftTimer){ clearInterval(_rsDraftTimer); _rsDraftTimer = null; }
+          origRsClose.apply(this, arguments);
+        };
+        window.rsCloseModal._fvWrapped = true;
+      }
+    }, 1500);
+
+    // ════════════ CASE STUDY MODAL WIRING ════════════
+    var _csInitialState = null;
+    var _csDraftTimer = null;
+
+    function _csSnapshotState(){
+      var ids = ['cs-pair','cs-session','cs-date','cs-outcome','cs-title','cs-notes'];
+      var snap = {};
+      ids.forEach(function(id){ var el = document.getElementById(id); if(el) snap[id] = el.value; });
+      return snap;
+    }
+    function _csIsDirty(){
+      if(!_csInitialState) return false;
+      var c = _csSnapshotState();
+      for(var k in c){ if(c[k] !== _csInitialState[k]) return true; }
+      return false;
+    }
+    function _csAutoSaveDraft(){
+      var editId = (typeof csEditId !== 'undefined') ? csEditId : null;
+      if(!_csIsDirty()) return;
+      tqAutosaveIndicator('cs-autosave','saving');
+      tqDraftSave('cs', editId || 'new', _csSnapshotState());
+      setTimeout(function(){ tqAutosaveIndicator('cs-autosave','saved'); }, 250);
+    }
+    function _csRestoreDraft(data){
+      if(!data) return;
+      Object.keys(data).forEach(function(id){ var el = document.getElementById(id); if(el && data[id] !== undefined) el.value = data[id]; });
+    }
+    function _csShowDraftBanner(draft){
+      var modalBody = document.querySelector('#modal-addCS .form-grid');
+      if(!modalBody) return;
+      var existing = modalBody.parentElement.querySelector('.fv-draft-banner');
+      if(existing) existing.remove();
+      var banner = document.createElement('div');
+      banner.className = 'fv-draft-banner';
+      banner.style.gridColumn = '1/-1';
+      banner.innerHTML = [
+        '<div class="fv-draft-banner-icon"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg></div>',
+        '<div class="fv-draft-banner-text">Unsaved draft from <b>' + tqDraftAge(draft.savedAt) + '</b>. Restore?</div>',
+        '<div class="fv-draft-banner-actions">',
+        '  <button class="fv-draft-btn primary" id="cs-draft-restore">Restore</button>',
+        '  <button class="fv-draft-btn" id="cs-draft-discard">Discard</button>',
+        '</div>'
+      ].join('');
+      modalBody.parentElement.insertBefore(banner, modalBody);
+      document.getElementById('cs-draft-restore').onclick = function(){ _csRestoreDraft(draft.data); banner.remove(); };
+      document.getElementById('cs-draft-discard').onclick = function(){
+        var editId = (typeof csEditId !== 'undefined') ? csEditId : null;
+        tqDraftClear('cs', editId || 'new');
+        banner.remove();
+      };
+    }
+
+    function _csWatchModal(){
+      var modal = document.getElementById('modal-addCS');
+      if(!modal) return;
+      var wasOpen = modal.classList.contains('open');
+      var observer = new MutationObserver(function(){
+        var isOpen = modal.classList.contains('open');
+        if(isOpen && !wasOpen){ setTimeout(_csOnModalOpen, 200); }
+        else if(!isOpen && wasOpen){ if(_csDraftTimer){ clearInterval(_csDraftTimer); _csDraftTimer = null; } }
+        wasOpen = isOpen;
+      });
+      observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
+    }
+    function _csOnModalOpen(){
+      _csInitialState = _csSnapshotState();
+      var editId = (typeof csEditId !== 'undefined') ? csEditId : null;
+      var draft = tqDraftLoad('cs', editId || 'new');
+      if(draft && draft.data){
+        var differs = false;
+        for(var k in draft.data){ if(draft.data[k] !== _csInitialState[k]){ differs = true; break; } }
+        if(differs) _csShowDraftBanner(draft);
+      }
+      if(_csDraftTimer) clearInterval(_csDraftTimer);
+      _csDraftTimer = setInterval(_csAutoSaveDraft, 5000);
+    }
+
+    setTimeout(function(){
+      _csWatchModal();
+      // Wrap close (cancel/X) for discard confirmation
+      var cancelBtn = document.getElementById('cancel-cs-modal');
+      var closeBtn = document.getElementById('close-cs-modal');
+      [cancelBtn, closeBtn].forEach(function(btn){
+        if(!btn || btn._fvWrapped) return;
+        var orig = btn.onclick;
+        btn.addEventListener('click', function(e){
+          if(_csIsDirty()){
+            if(!confirm('You have unsaved changes. Discard them?\n\n(Your draft is auto-saved.)')){
+              e.stopImmediatePropagation();
+              e.preventDefault();
+              return;
+            }
+          }
+          if(_csDraftTimer){ clearInterval(_csDraftTimer); _csDraftTimer = null; }
+        }, true);
+        btn._fvWrapped = true;
+      });
+      // Wrap save click — clear draft on success
+      var saveBtn = document.getElementById('save-cs-btn');
+      if(saveBtn && !saveBtn._fvSaveWrapped){
+        saveBtn.addEventListener('click', function(){
+          setTimeout(function(){
+            var modal = document.getElementById('modal-addCS');
+            if(modal && !modal.classList.contains('open')){
+              try{ for(var i = 0; i < localStorage.length; i++){ var k = localStorage.key(i); if(k && k.indexOf('tq_draft_cs_') === 0) localStorage.removeItem(k); } }catch(e){}
+            }
+          }, 200);
+        });
+        saveBtn._fvSaveWrapped = true;
+      }
+    }, 1500);
+
+    // ════════════ PLAYBOOK BUILDER WIRING ════════════
+    // Multi-step wizard — per-step validation + draft autosave + close confirmation
+    var _pbInitialState = null;
+    var _pbDraftTimer = null;
+
+    function _pbSnapshotState(){
+      // pbDraft is a global object — snapshot of it as JSON
+      try{
+        return (typeof pbDraft !== 'undefined') ? JSON.parse(JSON.stringify(pbDraft)) : {};
+      }catch(e){ return {}; }
+    }
+    function _pbIsDirty(){
+      if(!_pbInitialState) return false;
+      try{
+        return JSON.stringify(_pbSnapshotState()) !== JSON.stringify(_pbInitialState);
+      }catch(e){ return false; }
+    }
+    function _pbAutoSaveDraft(){
+      var editId = (typeof pbEditId !== 'undefined') ? pbEditId : null;
+      if(!_pbIsDirty()) return;
+      tqAutosaveIndicator('pb-autosave','saving');
+      tqDraftSave('pb', editId || 'new', { state: _pbSnapshotState(), step: (typeof pbStep !== 'undefined' ? pbStep : 0) });
+      setTimeout(function(){ tqAutosaveIndicator('pb-autosave','saved'); }, 250);
+    }
+    function _pbRestoreDraft(data){
+      if(!data || !data.state) return;
+      try{
+        if(typeof pbDraft !== 'undefined'){
+          // Restore each property
+          Object.keys(data.state).forEach(function(k){ pbDraft[k] = data.state[k]; });
+        }
+        if(typeof pbStep !== 'undefined' && typeof data.step === 'number'){
+          window.pbStep = data.step;
+        }
+        if(typeof renderPbStep === 'function') renderPbStep();
+      }catch(e){ console.warn('pb restore failed', e); }
+    }
+    function _pbShowDraftBanner(draft){
+      var headerArea = document.querySelector('.pb-builder-header');
+      if(!headerArea) return;
+      var existing = document.querySelector('#pb-overlay .fv-draft-banner');
+      if(existing) existing.remove();
+      var banner = document.createElement('div');
+      banner.className = 'fv-draft-banner';
+      banner.style.margin = '0 28px 12px';
+      banner.innerHTML = [
+        '<div class="fv-draft-banner-icon"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg></div>',
+        '<div class="fv-draft-banner-text">Unsaved playbook draft from <b>' + tqDraftAge(draft.savedAt) + '</b>. Restore?</div>',
+        '<div class="fv-draft-banner-actions">',
+        '  <button class="fv-draft-btn primary" id="pb-draft-restore">Restore</button>',
+        '  <button class="fv-draft-btn" id="pb-draft-discard">Discard</button>',
+        '</div>'
+      ].join('');
+      headerArea.parentElement.insertBefore(banner, headerArea.nextSibling);
+      document.getElementById('pb-draft-restore').onclick = function(){ _pbRestoreDraft(draft.data); banner.remove(); };
+      document.getElementById('pb-draft-discard').onclick = function(){
+        var editId = (typeof pbEditId !== 'undefined') ? pbEditId : null;
+        tqDraftClear('pb', editId || 'new');
+        banner.remove();
+      };
+    }
+
+    function _pbWatchOverlay(){
+      var modal = document.getElementById('pb-overlay');
+      if(!modal) return;
+      var wasOpen = modal.classList.contains('open');
+      var observer = new MutationObserver(function(){
+        var isOpen = modal.classList.contains('open');
+        if(isOpen && !wasOpen){ setTimeout(_pbOnOpen, 300); }
+        else if(!isOpen && wasOpen){ if(_pbDraftTimer){ clearInterval(_pbDraftTimer); _pbDraftTimer = null; } }
+        wasOpen = isOpen;
+      });
+      observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
+    }
+    function _pbOnOpen(){
+      _pbInitialState = _pbSnapshotState();
+      var editId = (typeof pbEditId !== 'undefined') ? pbEditId : null;
+      var draft = tqDraftLoad('pb', editId || 'new');
+      if(draft && draft.data){
+        try{
+          if(JSON.stringify(draft.data.state) !== JSON.stringify(_pbInitialState)){
+            _pbShowDraftBanner(draft);
+          }
+        }catch(e){}
+      }
+      if(_pbDraftTimer) clearInterval(_pbDraftTimer);
+      _pbDraftTimer = setInterval(_pbAutoSaveDraft, 5000);
+    }
+
+    setTimeout(function(){
+      _pbWatchOverlay();
+      // Wrap closePbBuilder with discard confirmation
+      if(typeof window.closePbBuilder === 'function' && !window.closePbBuilder._fvWrapped){
+        var origPbClose = window.closePbBuilder;
+        window.closePbBuilder = function(force){
+          if(!force && _pbIsDirty()){
+            if(!confirm('You have unsaved playbook changes. Discard them?\n\n(Your draft is auto-saved.)')) return;
+          }
+          if(_pbDraftTimer){ clearInterval(_pbDraftTimer); _pbDraftTimer = null; }
+          origPbClose.apply(this, arguments);
+        };
+        window.closePbBuilder._fvWrapped = true;
+      }
+      // Wrap pbBuilderNext to validate Step 0 (name) before advancing
+      if(typeof window.pbBuilderNext === 'function' && !window.pbBuilderNext._fvWrapped){
+        var origPbNext = window.pbBuilderNext;
+        window.pbBuilderNext = function(){
+          // Step 0: validate name
+          if(typeof pbStep !== 'undefined' && pbStep === 0){
+            var nameInput = document.getElementById('pb-name');
+            if(nameInput){
+              var nameVal = (nameInput.value || '').trim();
+              tqClearFieldError('pb-name');
+              if(!nameVal){
+                tqShowFieldError('pb-name', 'Setup name is required');
+                nameInput.focus();
+                return;
+              }
+            }
+          }
+          return origPbNext.apply(this, arguments);
+        };
+        window.pbBuilderNext._fvWrapped = true;
+      }
+      // Wrap pbSaveSetup to clear draft on success
+      if(typeof window.pbSaveSetup === 'function' && !window.pbSaveSetup._fvWrapped){
+        var origPbSave = window.pbSaveSetup;
+        window.pbSaveSetup = function(){
+          var result = origPbSave.apply(this, arguments);
+          setTimeout(function(){
+            var modal = document.getElementById('pb-overlay');
+            if(modal && !modal.classList.contains('open')){
+              try{ for(var i = 0; i < localStorage.length; i++){ var k = localStorage.key(i); if(k && k.indexOf('tq_draft_pb_') === 0) localStorage.removeItem(k); } }catch(e){}
+            }
+          }, 200);
+          return result;
+        };
+        window.pbSaveSetup._fvWrapped = true;
       }
     }, 1500);
 
@@ -14582,12 +15231,46 @@ window.dispatchEvent(new Event('supabase-ready'));
 
   // SAVE CASE STUDY (create or update)
   $('save-cs-btn').addEventListener('click', function(){
+    var pairVal = $('cs-pair').value;
+    var dateVal = $('cs-date').value;
+    var outcomeVal = $('cs-outcome').value;
+    var titleVal = ($('cs-title').value||'').trim();
+
+    // Clear previous errors
+    if(typeof tqClearFieldError === 'function'){
+      ['cs-pair','cs-date','cs-outcome','cs-title'].forEach(function(fid){ tqClearFieldError(fid); });
+    }
+
+    var hasError = false;
+    if(!pairVal){
+      if(typeof tqShowFieldError === 'function') tqShowFieldError('cs-pair','Pair is required');
+      hasError = true;
+    }
+    if(!dateVal){
+      if(typeof tqShowFieldError === 'function') tqShowFieldError('cs-date','Date is required');
+      hasError = true;
+    }
+    if(!outcomeVal){
+      if(typeof tqShowFieldError === 'function') tqShowFieldError('cs-outcome','Outcome is required');
+      hasError = true;
+    }
+    if(!titleVal){
+      if(typeof tqShowFieldError === 'function') tqShowFieldError('cs-title','Title is required');
+      hasError = true;
+    }
+    if(hasError){
+      if(typeof tqShowFieldError !== 'function') alert('Please fill in all required fields');
+      var firstErr = document.querySelector('#modal-addCS .fv-error');
+      if(firstErr) firstErr.scrollIntoView({behavior:'smooth', block:'center'});
+      return;
+    }
+
     var data = {
-      pair: $('cs-pair').value,
+      pair: pairVal,
       session: $('cs-session').value,
-      date: $('cs-date').value,
-      outcome: $('cs-outcome').value,
-      title: $('cs-title').value || 'Untitled Setup',
+      date: dateVal,
+      outcome: outcomeVal,
+      title: titleVal,
       notes: $('cs-notes').value,
       image: csImageData
     };
@@ -14805,10 +15488,25 @@ window.dispatchEvent(new Event('supabase-ready'));
     // Populate account dropdown
     var accSel = document.getElementById('jr-account');
     if(accSel){
-      var accs = [];
-      try{accs=JSON.parse(rfxGet('rf_accounts')||'[]');}catch(e){}
+      // Show only active accounts in dropdown — but if editing a trade tied to archived account, include that one too
+      var accs = (typeof getActiveAccounts === 'function') ? getActiveAccounts() : [];
+      // If editing existing trade with archived account, include it so user sees the full link
+      try{
+        var allAccs = JSON.parse(rfxGet('rf_accounts')||'[]');
+        if(jrEditId){
+          var allTrades = JSON.parse(rfxGet('rf_trades')||'[]');
+          var editingTrade = allTrades.find(function(t){return t.id===jrEditId;});
+          if(editingTrade && editingTrade.account){
+            var existingAcc = allAccs.find(function(a){return a.id===editingTrade.account && !a.deleted;});
+            if(existingAcc && !accs.find(function(a){return a.id===existingAcc.id;})){
+              accs.push(existingAcc);
+            }
+          }
+        }
+      }catch(e){}
       accSel.innerHTML='<option value="">Select account</option>'+accs.map(function(a){
-        return '<option value="'+a.id+'">'+a.name+' ('+a.type+')</option>';
+        var label = a.name + ' (' + a.type + ')' + (a.archived?' · archived':'');
+        return '<option value="'+a.id+'">'+label+'</option>';
       }).join('');
     }
     // Populate setup dropdown from Playbook (with fallback defaults)
@@ -16508,8 +17206,11 @@ window.dispatchEvent(new Event('supabase-ready'));
     if(setupSel){ setupSel.innerHTML='<option>All Setups</option>'+Object.keys(allSetups).sort().map(function(s){return '<option>'+s+'</option>';}).join(''); setupSel.value=prevS; if(setupSel.value!==prevS) setupSel.value='All Setups'; }
     if(sessSel){ sessSel.innerHTML='<option>All Sessions</option>'+Object.keys(allSessions).sort().map(function(s){return '<option>'+s+'</option>';}).join(''); sessSel.value=prevSess; if(sessSel.value!==prevSess) sessSel.value='All Sessions'; }
     if(accFSel){
-      var accs2=[];try{accs2=JSON.parse(rfxGet('rf_accounts')||'[]');}catch(e){}
-      accFSel.innerHTML='<option>All Accounts</option>'+accs2.map(function(a){return '<option value="'+a.id+'">'+a.name+'</option>';}).join('');
+      // Show all visible accounts (incl. archived) so users can filter archived trades
+      var accs2 = (typeof getVisibleAccounts === 'function') ? getVisibleAccounts() : [];
+      accFSel.innerHTML='<option>All Accounts</option>'+accs2.map(function(a){
+        return '<option value="'+a.id+'">'+a.name+(a.archived?' (archived)':'')+'</option>';
+      }).join('');
       accFSel.value=prevAcc; if(accFSel.value!==prevAcc) accFSel.value='All Accounts';
     }
 
@@ -16912,7 +17613,7 @@ window.dispatchEvent(new Event('supabase-ready'));
     dvRender();
   }
   function dvGetTrades(){
-    var raw=JSON.parse(rfxGet('rf_trades')||'[]');
+    var raw = (typeof getActiveTrades === 'function') ? getActiveTrades() : JSON.parse(rfxGet('rf_trades')||'[]').filter(function(t){return !t.deleted;});
     raw.forEach(autoDetectSession);
     return raw;
   }
@@ -19478,7 +20179,24 @@ window.dispatchEvent(new Event('supabase-ready'));
   window.rsNew=rsNew;
   function rsCloseModal(){document.getElementById('rs-modal').classList.remove('open');}
   window.rsCloseModal=rsCloseModal;
-  function rsSave(){var resources=rsGetAll();var r={id:rsEditId||('rs_'+Date.now()),cat:document.getElementById('rs-cat').value,url:document.getElementById('rs-url').value,title:document.getElementById('rs-title').value.trim()||'Untitled',desc:document.getElementById('rs-desc').value,updated:new Date().toISOString()};if(rsEditId){var idx=resources.findIndex(function(x){return x.id===rsEditId;});if(idx>=0)resources[idx]=r;}else{resources.unshift(r);}rsSaveAll(resources);rsCloseModal();rsRender();}
+  function rsSave(){
+    var title=(document.getElementById('rs-title').value||'').trim();
+    if(typeof tqClearFieldError==='function')tqClearFieldError('rs-title');
+    if(!title){
+      if(typeof tqShowFieldError==='function')tqShowFieldError('rs-title','Title is required');
+      else alert('Title is required');
+      return;
+    }
+    var resources=rsGetAll();
+    var r={id:rsEditId||('rs_'+Date.now()),cat:document.getElementById('rs-cat').value,url:document.getElementById('rs-url').value,title:title,desc:document.getElementById('rs-desc').value,updated:new Date().toISOString()};
+    if(rsEditId){var idx=resources.findIndex(function(x){return x.id===rsEditId;});if(idx>=0)resources[idx]=r;}else{resources.unshift(r);}
+    rsSaveAll(resources);rsCloseModal(true);rsRender();
+    // Clear draft on save
+    if(typeof tqDraftClear==='function'){
+      tqDraftClear('rs','new');
+      try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf('tq_draft_rs_')===0)localStorage.removeItem(k);}}catch(e){}
+    }
+  }
   window.rsSave=rsSave;
   function rsEdit(id){var r=rsGetAll().find(function(x){return x.id===id;});if(!r)return;rsEditId=id;document.getElementById('rs-modal-title').textContent='Edit Resource';document.getElementById('rs-cat').value=r.cat||'link';document.getElementById('rs-url').value=r.url||'';document.getElementById('rs-title').value=r.title||'';document.getElementById('rs-desc').value=r.desc||'';document.getElementById('rs-delete-btn').style.display='inline-flex';document.getElementById('rs-modal').classList.add('open');}
   window.rsEdit=rsEdit;
@@ -21461,7 +22179,7 @@ window.dispatchEvent(new Event('supabase-ready'));
     if(pbStep===0){
       // BASICS
       var colors = ['#7c5af0','#2ecc8a','#e05c7a','#fbbf24','#60a5fa','#f472b6','#34d399','#fb923c'];
-      h += '<div class="pb-section"><div class="pb-section-title">Setup Name</div><div class="pb-section-desc">Give this setup a clear, recognizable name</div>'
+      h += '<div class="pb-section"><div class="pb-section-title">Setup Name<span class="fv-required-tag">REQUIRED</span></div><div class="pb-section-desc">Give this setup a clear, recognizable name</div>'
         +'<input class="pb-input" id="pb-name" placeholder="e.g. London Breakout, NY Reversal..." value="'+(pbDraft.name||'')+'" oninput="pbDraft.name=this.value"></div>';
       h += '<div class="pb-section"><div class="pb-section-title">Description</div><div class="pb-section-desc">What is this setup? When do you trade it?</div>'
         +'<textarea class="pb-input pb-textarea" id="pb-desc" placeholder="Describe entry conditions, ideal market state, what makes this an A+ setup..." oninput="pbDraft.description=this.value">'+(pbDraft.description||'')+'</textarea></div>';
@@ -21615,7 +22333,19 @@ window.dispatchEvent(new Event('supabase-ready'));
 
   // ── Save setup ──
   function pbSaveSetup(){
-    if(!pbDraft.name||!pbDraft.name.trim()){ alert('Please enter a setup name'); pbStep=0; renderPbStep(); return; }
+    if(!pbDraft.name||!pbDraft.name.trim()){
+      pbStep=0; renderPbStep();
+      setTimeout(function(){
+        if(typeof tqShowFieldError === 'function'){
+          tqShowFieldError('pb-name','Setup name is required');
+          var el = document.getElementById('pb-name');
+          if(el) el.focus();
+        } else {
+          alert('Please enter a setup name');
+        }
+      }, 50);
+      return;
+    }
     var setups = getPlaybooks();
     if(pbEditId){
       var idx = setups.findIndex(function(s){return s.id===pbEditId;});
@@ -22006,8 +22736,8 @@ window.dispatchEvent(new Event('supabase-ready'));
   }
 
   function updateDashboard() {
-    // Load real trades from localStorage
-    var raw = JSON.parse(rfxGet('rf_trades')||'[]');
+    // Load real trades from localStorage — exclude deleted (Trash items)
+    var raw = (typeof getActiveTrades === 'function') ? getActiveTrades() : JSON.parse(rfxGet('rf_trades')||'[]').filter(function(t){return !t.deleted;});
     raw.forEach(autoDetectSession);
     // Refresh AI insights widget (non-blocking)
     setTimeout(function(){ if(typeof window.dashAIRender==='function') window.dashAIRender(); }, 150);
@@ -22034,14 +22764,15 @@ window.dispatchEvent(new Event('supabase-ready'));
     }
     var all = raw;
 
-    // Populate account filter from rf_accounts
+    // Populate account filter from rf_accounts — exclude deleted
     var filter = document.getElementById('dash-account-filter');
     if(filter){
-      var accounts=[];try{accounts=JSON.parse(rfxGet('rf_accounts')||'[]');}catch(e){}
+      var accounts = (typeof getVisibleAccounts === 'function') ? getVisibleAccounts() : [];
       var prevVal=filter.value;
       filter.innerHTML='<option value="all">All accounts</option>';
       accounts.forEach(function(a){
-        filter.innerHTML+='<option value="'+a.id+'"'+(prevVal===a.id?' selected':'')+'>'+a.name+'</option>';
+        var label = a.name + (a.archived ? ' (archived)' : '');
+        filter.innerHTML+='<option value="'+a.id+'"'+(prevVal===a.id?' selected':'')+'>'+label+'</option>';
       });
     }
     var selAcc = filter ? filter.value : 'all';
