@@ -7676,26 +7676,49 @@ window.dispatchEvent(new Event('supabase-ready'));
   // If the active user.id differs from the last-seen one, wipe user-scoped local
   // keys before any pull/push runs. The wipe only happens on actual switch.
   var TQ_USER_DATA_KEYS = [
-    'rf_trades','rf_accounts','rf_notebooks','tq_pb','tb_cs',
-    'rossfx-cockpit3','rfx_settings','rf_backup_counter',
+    // Core data
+    'rf_trades','rf_accounts','rossfx-notebook','rossfx-playbook','tb_cs',
+    'rossfx-cockpit3',
+    // Settings & preferences (user-specific)
+    'rf_custom_tags','rfx_settings','rf_theme','rossfx-tz',
+    'rf_dash_widgets','rf_dash_templates','rf_dash_view',
+    'rf_news_ccy','rf_news_range','rf_news_filter',
+    // Backup / counters
+    'rf_last_backup','rf_backup_counter',
+    // Lists / drafts
     'tq_user_lists','tq_pinned_setups','tq_drafts',
-    'rfx_ai_conversations','tq_economic_cache'
+    // AI conversations cache
+    'rfx_ai_conversations',
+    // Economic calendar cache (user can have own cached view state)
+    'tq_economic_cache',
+    // Version marker (will be re-set on next load)
+    'tq_version'
   ];
   function tqWipeUserData(){
     TQ_USER_DATA_KEYS.forEach(function(k){
       try{ rfxRemove(k); }catch(e){}
       try{ localStorage.removeItem(k); }catch(e){}
     });
-    // Also clear any _tq* draft keys that auto-saved
+    // Also clear any draft/scratch keys created at runtime (jr/ck/nb/pb/rs/acc autosaves etc.)
     try{
       for(var i=localStorage.length-1; i>=0; i--){
         var key = localStorage.key(i);
-        if(key && (key.indexOf('_draft_')===0 || key.indexOf('rfx_')===0 || key.indexOf('tq_draft_')===0)){
+        if(!key) continue;
+        if(key.indexOf('_draft_')>-1 ||
+           key.indexOf('tq_draft_')===0 ||
+           key.indexOf('rfx_draft')===0 ||
+           key.indexOf('jr_draft')===0 ||
+           key.indexOf('ck_draft')===0 ||
+           key.indexOf('nb_draft')===0 ||
+           key.indexOf('pb_draft')===0 ||
+           key.indexOf('rs_draft')===0 ||
+           key.indexOf('acc_draft')===0 ||
+           key.indexOf('cs_draft')===0){
           localStorage.removeItem(key);
         }
       }
     }catch(e){}
-    console.log('TradeQuill: User data wiped');
+    console.log('TradeQuill: User data wiped ('+TQ_USER_DATA_KEYS.length+' keys + drafts)');
   }
   window.tqWipeUserData = tqWipeUserData;
 
@@ -9419,6 +9442,33 @@ window.dispatchEvent(new Event('supabase-ready'));
   }
   window.tqAssignOrphans = tqAssignOrphans;
 
+  function tqDeleteOrphans(){
+    var trades = [];
+    try{ trades = JSON.parse(rfxGet('rf_trades')||'[]'); }catch(e){}
+    var accs = [];
+    try{ accs = JSON.parse(rfxGet('rf_accounts')||'[]'); }catch(e){}
+    var validIds = {};
+    accs.forEach(function(a){ if(a && a.id && !a.deleted) validIds[a.id] = true; });
+    var deletedAt = new Date().toISOString();
+    var deletedCount = 0;
+    trades.forEach(function(t){
+      if(t.deleted) return;
+      if(!t.account || !validIds[t.account]){
+        t.deleted = true;
+        t.deletedAt = deletedAt;
+        t._cascadeId = 'orphan_purge_'+Date.now();
+        deletedCount++;
+        if(window.tqPushTrade){ try{ tqPushTrade(t); }catch(e){} }
+      }
+    });
+    if(deletedCount > 0){
+      rfxSet('rf_trades', JSON.stringify(trades));
+      console.log('TradeQuill: Soft-deleted',deletedCount,'orphan trades to Trash');
+    }
+    return deletedCount;
+  }
+  window.tqDeleteOrphans = tqDeleteOrphans;
+
   function tqShowOrphanModal(){
     var orphans = tqDetectOrphans();
     if(orphans.length === 0) return;
@@ -9437,11 +9487,15 @@ window.dispatchEvent(new Event('supabase-ready'));
 
     var bodyHtml;
     if(activeAccs.length === 0){
+      // No accounts yet — only options are: create one (then assign), or delete all orphans
       bodyHtml = '<div style="font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:16px">' +
         '<strong>'+orphans.length+'</strong> trades aren\'t linked to any trading account, and you have no accounts yet.<br><br>' +
-        'TradeQuill requires every trade to belong to an account (like TradeZella).' +
+        'TradeQuill requires every trade to belong to an account. Either create one to assign them, or move them to Trash.' +
         '</div>' +
-        '<button id="tq-orphan-create" style="width:100%;background:var(--accent);color:#fff;border:none;padding:12px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">+ Create First Account</button>';
+        '<div style="display:flex;gap:8px">' +
+          '<button id="tq-orphan-purge" style="flex:1;background:rgba(255,80,95,.1);color:#ff505f;border:1px solid rgba(255,80,95,.3);padding:11px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">Delete all '+orphans.length+'</button>' +
+          '<button id="tq-orphan-create" style="flex:2;background:var(--accent);color:#fff;border:none;padding:11px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">+ Create First Account</button>' +
+        '</div>';
     } else {
       bodyHtml = '<div style="font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:14px">' +
         '<strong>'+orphans.length+'</strong> of your trades aren\'t assigned to an account.<br>' +
@@ -9449,15 +9503,16 @@ window.dispatchEvent(new Event('supabase-ready'));
         '</div>' +
         '<label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">Assign to</label>' +
         '<select id="tq-orphan-target" class="jr-select" style="width:100%;padding:10px;font-size:13px;margin-bottom:14px">'+optionsHtml+'</select>' +
-        '<div style="display:flex;gap:8px">' +
-        '<button id="tq-orphan-create" style="flex:1;background:var(--bg3);color:var(--text);border:1px solid var(--border);padding:11px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">+ New Account</button>' +
-        '<button id="tq-orphan-assign" style="flex:2;background:var(--accent);color:#fff;border:none;padding:11px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Assign all '+orphans.length+'</button>' +
+        '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+          '<button id="tq-orphan-purge" style="flex:1;min-width:120px;background:rgba(255,80,95,.1);color:#ff505f;border:1px solid rgba(255,80,95,.3);padding:10px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">Delete all</button>' +
+          '<button id="tq-orphan-create" style="flex:1;min-width:120px;background:var(--bg3);color:var(--text);border:1px solid var(--border);padding:10px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">+ New Account</button>' +
+          '<button id="tq-orphan-assign" style="flex:2;min-width:160px;background:var(--accent);color:#fff;border:none;padding:10px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Assign all '+orphans.length+'</button>' +
         '</div>';
     }
 
     var html =
       '<div id="tq-orphan-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px">' +
-        '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;max-width:460px;width:100%;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.5)">' +
+        '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;max-width:480px;width:100%;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.5)">' +
           '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">' +
             '<div style="width:32px;height:32px;background:rgba(240,180,41,.15);border-radius:8px;display:flex;align-items:center;justify-content:center">' +
               '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f0b429" stroke-width="2"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>' +
@@ -9473,6 +9528,24 @@ window.dispatchEvent(new Event('supabase-ready'));
 
     var assignBtn = document.getElementById('tq-orphan-assign');
     var createBtn = document.getElementById('tq-orphan-create');
+    var purgeBtn  = document.getElementById('tq-orphan-purge');
+
+    function _closeOrphan(){
+      var m = document.getElementById('tq-orphan-modal'); if(m) m.remove();
+    }
+    function _refreshAfter(){
+      if(typeof renderJournal === 'function') try{ renderJournal(); }catch(e){}
+      if(typeof updateDashboard === 'function') try{ updateDashboard(); }catch(e){}
+      if(typeof updateReports === 'function') try{ updateReports(); }catch(e){}
+      if(typeof renderAccountsPage === 'function') try{ renderAccountsPage(); }catch(e){}
+    }
+    function _toast(msg, color){
+      var t = document.createElement('div');
+      t.textContent = msg;
+      t.style.cssText = 'position:fixed;bottom:24px;right:24px;background:'+(color||'#2ecc8a')+';color:#fff;padding:12px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:99999;box-shadow:0 8px 20px rgba(0,0,0,.3)';
+      document.body.appendChild(t);
+      setTimeout(function(){ t.remove(); }, 3000);
+    }
 
     if(assignBtn){
       assignBtn.addEventListener('click', function(){
@@ -9480,39 +9553,28 @@ window.dispatchEvent(new Event('supabase-ready'));
         var target = sel ? sel.value : '';
         if(!target){ alert('Please choose an account'); return; }
         var n = tqAssignOrphans(target);
-        var modal = document.getElementById('tq-orphan-modal');
-        if(modal) modal.remove();
-        // Refresh everything
-        if(typeof renderJournal === 'function') try{ renderJournal(); }catch(e){}
-        if(typeof updateDashboard === 'function') try{ updateDashboard(); }catch(e){}
-        if(typeof updateReports === 'function') try{ updateReports(); }catch(e){}
-        if(typeof renderAccountsPage === 'function') try{ renderAccountsPage(); }catch(e){}
-        // Toast
-        var toast = document.createElement('div');
-        toast.textContent = '✓ '+n+' trades assigned';
-        toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#2ecc8a;color:#fff;padding:12px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:99999;box-shadow:0 8px 20px rgba(0,0,0,.3)';
-        document.body.appendChild(toast);
-        setTimeout(function(){ toast.remove(); }, 3000);
+        _closeOrphan();
+        _refreshAfter();
+        _toast('✓ '+n+' trades assigned');
+      });
+    }
+    if(purgeBtn){
+      purgeBtn.addEventListener('click', function(){
+        if(!confirm('Move '+orphans.length+' unassigned trades to Trash? Restorable for 90 days.')) return;
+        var n = tqDeleteOrphans();
+        _closeOrphan();
+        _refreshAfter();
+        _toast('✓ '+n+' trades moved to Trash');
       });
     }
     if(createBtn){
       createBtn.addEventListener('click', function(){
-        // Close orphan modal, open Add Account modal, then re-show orphan modal after save
-        var modal = document.getElementById('tq-orphan-modal');
-        if(modal) modal.remove();
-        if(typeof openAddAccountModal === 'function'){
-          openAddAccountModal();
-          // Re-trigger after the user closes the account modal
-          var watcher = setInterval(function(){
-            var accModal = document.getElementById('acc-modal');
-            if(!accModal || accModal.style.display === 'none' || !accModal.classList.contains('show')){
-              clearInterval(watcher);
-              setTimeout(tqShowOrphanModal, 300);
-            }
-          }, 500);
-        } else {
-          alert('Please open the My Accounts page and create an account first.');
-        }
+        // Just close orphan modal and open Add Account modal.
+        // saveAccountModal hooks back into tqShowOrphanModal after a successful save,
+        // so we don't need any polling watcher here.
+        _closeOrphan();
+        if(typeof openAddAccountModal === 'function') openAddAccountModal();
+        else alert('Please open the My Accounts page and create an account first.');
       });
     }
   }
@@ -10142,6 +10204,13 @@ window.dispatchEvent(new Event('supabase-ready'));
 
       // Refresh other parts of the app that depend on accounts
       if(typeof updateDashboard === 'function') try{ updateDashboard(); }catch(e){}
+
+      // After creating first account, re-prompt orphan migration if needed
+      if(typeof tqDetectOrphans === 'function' && typeof tqShowOrphanModal === 'function'){
+        setTimeout(function(){
+          if(tqDetectOrphans().length > 0) tqShowOrphanModal();
+        }, 400);
+      }
     }
     window.saveAccountModal = saveAccountModal;
 
