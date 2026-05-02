@@ -7734,6 +7734,53 @@ window.dispatchEvent(new Event('supabase-ready'));
   }
   window.tqGuardUserSwitch = tqGuardUserSwitch;
 
+  // ── Cloud wipe (DESTRUCTIVE) ──
+  // Deletes ALL of the current user's data from Supabase tables. Pairs with
+  // tqWipeUserData() to give a complete fresh-start for testing or when the
+  // user explicitly wants to nuke everything. Returns a Promise that resolves
+  // when all delete calls have finished.
+  function tqWipeCloud(){
+    if(!_tqSupa || !_tqUser){
+      console.error('TradeQuill: Not authenticated, cannot wipe cloud');
+      return Promise.reject(new Error('not authenticated'));
+    }
+    var uid = _tqUser.id;
+    console.log('TradeQuill: Wiping cloud for user', uid.slice(0,8)+'…');
+    var tables = ['trades','accounts','notebooks','playbook_models','cockpit_sessions','resources','ai_conversations'];
+    var promises = tables.map(function(table){
+      return _tqSupa.from(table).delete().eq('user_id', uid).then(function(r){
+        if(r && r.error) console.error('Wipe error on', table, ':', r.error);
+        else console.log('TradeQuill: Wiped table', table);
+      });
+    });
+    return Promise.all(promises).then(function(){
+      console.log('TradeQuill: Cloud wipe complete');
+      return true;
+    });
+  }
+  window.tqWipeCloud = tqWipeCloud;
+
+  // Full nuclear reset: clears local + cloud + reloads page
+  function tqResetEverything(){
+    return tqConfirm(
+      'Permanently delete ALL your TradeQuill data — local AND cloud — and start as a new user?\n\nThis cannot be undone.',
+      {title:'Reset everything', okLabel:'Delete everything', danger:true}
+    ).then(function(ok){
+      if(!ok) return false;
+      return tqWipeCloud().then(function(){
+        tqWipeUserData();
+        try{ localStorage.removeItem('tq_last_user_id'); }catch(e){}
+        tqToast('Reset complete — reloading…', {type:'success', duration:2000});
+        setTimeout(function(){ location.reload(); }, 1500);
+        return true;
+      }).catch(function(e){
+        tqToast('Reset failed: '+e.message, {type:'error'});
+        return false;
+      });
+    });
+  }
+  window.tqResetEverything = tqResetEverything;
+
   // ── Eye toggle ──
   function tqToggleEye(){
     var inp=document.getElementById('tq-auth-pass');
@@ -7859,18 +7906,18 @@ window.dispatchEvent(new Event('supabase-ready'));
   window.tqSkipAuth = tqSkipAuth;
 
   function tqLogout(){
-    if(!confirm('Sign out? Local data will be cleared from this browser. Your trades stay safe in the cloud and will sync back when you sign in.')) return;
-    tqUnsubscribeRealtime();
-    if(_tqSupa) _tqSupa.auth.signOut();
-    _tqUser = null;
-    tqWipeUserData();
-    try{ localStorage.removeItem('tq_last_user_id'); }catch(e){}
-    tqHideUserBar();
-    // Show auth overlay again
-    var ov = document.getElementById('tq-auth-overlay');
-    if(ov){ov.classList.remove('hidden');ov.style.display='flex';}
-    // Hard reload to flush all module state
-    setTimeout(function(){ location.reload(); }, 200);
+    tqConfirm('Sign out? Local data will be cleared from this browser. Your trades stay safe in the cloud and will sync back when you sign in.', {title:'Sign out', okLabel:'Sign out'}).then(function(ok){
+      if(!ok) return;
+      tqUnsubscribeRealtime();
+      if(_tqSupa) _tqSupa.auth.signOut();
+      _tqUser = null;
+      tqWipeUserData();
+      try{ localStorage.removeItem('tq_last_user_id'); }catch(e){}
+      tqHideUserBar();
+      var ov = document.getElementById('tq-auth-overlay');
+      if(ov){ov.classList.remove('hidden');ov.style.display='flex';}
+      setTimeout(function(){ location.reload(); }, 200);
+    });
   }
   window.tqLogout = tqLogout;
 
@@ -8101,6 +8148,33 @@ window.dispatchEvent(new Event('supabase-ready'));
       });
   }
   window.tqPushTrade = tqPushTrade;
+
+  // ══ SYNC: Push many trades in a SINGLE upsert (eliminates lag on bulk ops) ══
+  function tqPushTradesBatch(trades){
+    if(!_tqSupa || !_tqUser) return Promise.resolve();
+    if(!trades || !trades.length) return Promise.resolve();
+    // Set echo guards for all so realtime doesn't bounce them
+    var rows = trades.map(function(t){
+      if(t && t.id) _tqOwnWrites[t.id] = Date.now();
+      var r = tqTradeToRow(t);
+      r.user_id = _tqUser.id;
+      return r;
+    });
+    tqSetSyncStatus('syncing','Syncing '+rows.length+'...');
+    return _tqSupa.from('trades').upsert(rows, {onConflict:'user_id,external_id'}).then(function(res){
+      if(res.error){
+        console.error('Batch push error:', res.error);
+        tqSetSyncStatus('error','Sync error');
+      } else {
+        tqSetSyncStatus('ok','Synced '+rows.length);
+        console.log('TradeQuill: Batch-pushed', rows.length, 'trades');
+      }
+    }).catch(function(e){
+      console.error('Batch push threw:', e);
+      tqSetSyncStatus('error','Sync error');
+    });
+  }
+  window.tqPushTradesBatch = tqPushTradesBatch;
 
   // ══ SYNC: Delete trade from Supabase ══
   function tqDeleteTrade(tradeId){
@@ -9023,7 +9097,16 @@ window.dispatchEvent(new Event('supabase-ready'));
       external_id: n.id||null,
       title: n.title||'Untitled',
       content: n.content||'',
-      tags: {type:n.type||'free',pinned:!!n.pinned,mood:n.mood||0,date:n.date||''},
+      tags: {
+        type:n.type||'free',
+        pinned:!!n.pinned,
+        mood:n.mood||0,
+        date:n.date||'',
+        // Sync-critical: preserve soft-delete state across cloud round-trip
+        deleted: !!n.deleted,
+        deletedAt: n.deletedAt||null,
+        _cascadeId: n._cascadeId||null
+      },
       images: n.images||[],
       created_at: n.created||new Date().toISOString(),
       updated_at: n.updated||new Date().toISOString()
@@ -9042,7 +9125,11 @@ window.dispatchEvent(new Event('supabase-ready'));
       mood:tags.mood||0,
       images:row.images||[],
       created:row.created_at||'',
-      updated:row.updated_at||''
+      updated:row.updated_at||'',
+      // Sync-critical: read back soft-delete state
+      deleted: !!tags.deleted,
+      deletedAt: tags.deletedAt||null,
+      _cascadeId: tags._cascadeId||null
     };
   }
   function tqPushNotebook(note){
@@ -9076,14 +9163,32 @@ window.dispatchEvent(new Event('supabase-ready'));
         return;
       }
       var cloudMap={};cloud.forEach(function(r){if(r.external_id)cloudMap[r.external_id]=r;});
-      var merged=[];var toPush=[];
-      cloud.forEach(function(r){merged.push(tqRowToNote(r));});
+      var localMap={};local.forEach(function(n){if(n&&n.id)localMap[n.id]=n;});
+      var merged=[];var toPush=[];var corrections=[];
+      cloud.forEach(function(r){
+        var cloudN = tqRowToNote(r);
+        var localN = localMap[cloudN.id];
+        if(localN && localN.deleted && !cloudN.deleted){
+          // Local says deleted, cloud doesn't know — local wins, queue correction push
+          cloudN.deleted = true;
+          cloudN.deletedAt = localN.deletedAt || new Date().toISOString();
+          if(localN._cascadeId) cloudN._cascadeId = localN._cascadeId;
+          corrections.push(cloudN);
+        }
+        merged.push(cloudN);
+      });
       local.forEach(function(n){if(!cloudMap[n.id]){merged.push(n);toPush.push(n);}});
       rfxSet('rossfx-notebook',JSON.stringify(merged));
-      console.log('TradeQuill: Merged',merged.length,'notebooks');
+      console.log('TradeQuill: Merged',merged.length,'notebooks ('+toPush.length+' local-only, '+corrections.length+' soft-delete corrections)');
       if(toPush.length>0){
         var rows=toPush.map(function(n){var r=tqNoteToRow(n);r.user_id=_tqUser.id;return r;});
         _tqSupa.from('notebooks').upsert(rows,{onConflict:'user_id,external_id'});
+      }
+      if(corrections.length>0){
+        var corrRows = corrections.map(function(n){var r=tqNoteToRow(n);r.user_id=_tqUser.id;return r;});
+        _tqSupa.from('notebooks').upsert(corrRows,{onConflict:'user_id,external_id'}).then(function(rc){
+          if(!rc.error) console.log('TradeQuill: Re-synced',corrections.length,'soft-deleted notes to cloud');
+        });
       }
       if(typeof nbRender==='function')nbRender();
     });
@@ -9426,16 +9531,18 @@ window.dispatchEvent(new Event('supabase-ready'));
     accs.forEach(function(a){ if(a && a.id && !a.deleted) validIds[a.id] = true; });
     if(!validIds[targetAccountId]){ console.error('Target account not valid:', targetAccountId); return 0; }
     var assigned = 0;
+    var pending = [];
     trades.forEach(function(t){
       if(t.deleted) return;
       if(!t.account || !validIds[t.account]){
         t.account = targetAccountId;
         assigned++;
-        if(window.tqPushTrade){ try{ tqPushTrade(t); }catch(e){} }
+        pending.push(t);
       }
     });
     if(assigned > 0){
       rfxSet('rf_trades', JSON.stringify(trades));
+      if(window.tqPushTradesBatch && pending.length) try{ tqPushTradesBatch(pending); }catch(e){}
       console.log('TradeQuill: Assigned',assigned,'orphan trades to account',targetAccountId);
     }
     return assigned;
@@ -9451,6 +9558,7 @@ window.dispatchEvent(new Event('supabase-ready'));
     accs.forEach(function(a){ if(a && a.id && !a.deleted) validIds[a.id] = true; });
     var deletedAt = new Date().toISOString();
     var deletedCount = 0;
+    var pending = [];
     trades.forEach(function(t){
       if(t.deleted) return;
       if(!t.account || !validIds[t.account]){
@@ -9458,11 +9566,12 @@ window.dispatchEvent(new Event('supabase-ready'));
         t.deletedAt = deletedAt;
         t._cascadeId = 'orphan_purge_'+Date.now();
         deletedCount++;
-        if(window.tqPushTrade){ try{ tqPushTrade(t); }catch(e){} }
+        pending.push(t);
       }
     });
     if(deletedCount > 0){
       rfxSet('rf_trades', JSON.stringify(trades));
+      if(window.tqPushTradesBatch && pending.length) try{ tqPushTradesBatch(pending); }catch(e){}
       console.log('TradeQuill: Soft-deleted',deletedCount,'orphan trades to Trash');
     }
     return deletedCount;
@@ -9637,7 +9746,17 @@ window.dispatchEvent(new Event('supabase-ready'));
       external_id: String(cs.id),
       category: 'case_study',
       title: cs.title||'Untitled',
-      description: JSON.stringify({pair:cs.pair||'',session:cs.session||'',date:cs.date||'',outcome:cs.outcome||'',notes:cs.notes||''}),
+      // Stuff sync-critical fields into description JSON since resources table is shared
+      description: JSON.stringify({
+        pair:cs.pair||'',
+        session:cs.session||'',
+        date:cs.date||'',
+        outcome:cs.outcome||'',
+        notes:cs.notes||'',
+        deleted: !!cs.deleted,
+        deletedAt: cs.deletedAt||null,
+        _cascadeId: cs._cascadeId||null
+      }),
       url: (cs.image&&typeof cs.image==='string'&&cs.image.indexOf('data:')!==0)?cs.image:null
     };
   }
@@ -9652,7 +9771,10 @@ window.dispatchEvent(new Event('supabase-ready'));
       outcome: meta.outcome||'',
       title: row.title||'',
       notes: meta.notes||'',
-      image: row.url||null
+      image: row.url||null,
+      deleted: !!meta.deleted,
+      deletedAt: meta.deletedAt||null,
+      _cascadeId: meta._cascadeId||null
     };
   }
   function tqPushCaseStudies(){
@@ -9674,11 +9796,28 @@ window.dispatchEvent(new Event('supabase-ready'));
       var local=JSON.parse(rfxGet('tb_cs')||'[]');
       if(cloud.length===0&&local.length>0){tqPushCaseStudies();return;}
       var cloudMap={};cloud.forEach(function(r){if(r.external_id)cloudMap[r.external_id]=r;});
-      var merged=[];
-      cloud.forEach(function(r){merged.push(tqRowToCs(r));});
+      var localMap={};local.forEach(function(c){if(c&&c.id!=null)localMap[String(c.id)]=c;});
+      var merged=[];var corrections=[];
+      cloud.forEach(function(r){
+        var cloudC = tqRowToCs(r);
+        var localC = localMap[String(cloudC.id)];
+        if(localC && localC.deleted && !cloudC.deleted){
+          cloudC.deleted = true;
+          cloudC.deletedAt = localC.deletedAt || new Date().toISOString();
+          if(localC._cascadeId) cloudC._cascadeId = localC._cascadeId;
+          corrections.push(cloudC);
+        }
+        merged.push(cloudC);
+      });
       local.forEach(function(c){if(!cloudMap[String(c.id)])merged.push(c);});
       rfxSet('tb_cs',JSON.stringify(merged));
-      console.log('TradeQuill: Merged',merged.length,'case studies');
+      console.log('TradeQuill: Merged',merged.length,'case studies ('+corrections.length+' soft-delete corrections)');
+      if(corrections.length>0){
+        var corrRows = corrections.map(function(c){var r=tqCsToRow(c);r.user_id=_tqUser.id;return r;});
+        _tqSupa.from('resources').upsert(corrRows,{onConflict:'user_id,external_id'}).then(function(rc){
+          if(!rc.error) console.log('TradeQuill: Re-synced',corrections.length,'soft-deleted case studies to cloud');
+        });
+      }
       if(typeof renderCS==='function')renderCS();
     });
   }
@@ -9867,16 +10006,18 @@ window.dispatchEvent(new Event('supabase-ready'));
       var bulkId = 'bulk_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
       var bulkAt = new Date().toISOString();
       var count = 0;
+      var pending = [];
       trades.forEach(function(t){
         if(!t.deleted){
           t.deleted = true;
           t.deletedAt = bulkAt;
           t._cascadeId = bulkId;
           count++;
-          if(window.tqPushTrade){ try{ tqPushTrade(t); }catch(e){} }
+          pending.push(t);
         }
       });
       rfxSet('rf_trades', JSON.stringify(trades));
+      if(window.tqPushTradesBatch && pending.length) try{ tqPushTradesBatch(pending); }catch(e){}
 
       // Refresh everything
       if(typeof renderJournal === 'function') try{ renderJournal(); }catch(e){}
@@ -10226,57 +10367,64 @@ window.dispatchEvent(new Event('supabase-ready'));
       var attachedCount = attached.length;
 
       var msg;
+      var title;
       if(attachedCount === 0){
+        title = 'Delete account';
         msg = 'Move "' + (a.name||'') + '" to Trash?\n\nNo trades attached. Restorable from Trash for 90 days.';
       } else {
+        title = 'Delete account + ' + attachedCount + ' trades';
         msg = 'Move "' + (a.name||'') + '" AND all ' + attachedCount + ' attached trades to Trash?\n\n';
         msg += '✅ Restorable for 90 days from Trash.\n';
         msg += '⚠ After 90 days, permanently deleted.\n\n';
         msg += 'If you want to keep your data, use Archive instead.';
       }
-      if(!confirm(msg)) return;
+      tqConfirm(msg, {title:title, okLabel:'Move to Trash', danger:true}).then(function(ok){
+        if(!ok) return;
 
-      // Cascade soft-delete
-      var cascadeId = 'cascade_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
-      var cascadeAt = new Date().toISOString();
+        // Cascade soft-delete
+        var cascadeId = 'cascade_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
+        var cascadeAt = new Date().toISOString();
 
-      if(attachedCount > 0){
-        trades.forEach(function(t){
-          if(t.account === id && !t.deleted){
-            t.deleted = true;
-            t.deletedAt = cascadeAt;
-            t._cascadeFromAccount = id;
-            t._cascadeId = cascadeId;
-            if(window.tqPushTrade){ try{ tqPushTrade(t); }catch(e){} }
-          }
-        });
-        rfxSet('rf_trades', JSON.stringify(trades));
-      }
-
-      // Soft-delete the account
-      var idx = accs.findIndex(function(x){return x.id===id;});
-      if(idx >= 0){
-        accs[idx].deleted = true;
-        accs[idx].deletedAt = cascadeAt;
-        if(attachedCount > 0) accs[idx]._cascadeId = cascadeId;
-        accSave(accs);
-        if(window._tqSupa && window._tqUser){
-          try{
-            _tqSupa.from('accounts').delete().eq('user_id', _tqUser.id).eq('external_id', id).then(function(r){
-              if(r && r.error) console.error('Account cloud delete failed for', id, ':', r.error, '— will retry on next pull');
-              else console.log('TradeQuill: Cloud-deleted account', id);
-            });
-          }catch(e){ console.error('Account cloud delete threw:', e); }
+        if(attachedCount > 0){
+          var pending = [];
+          trades.forEach(function(t){
+            if(t.account === id && !t.deleted){
+              t.deleted = true;
+              t.deletedAt = cascadeAt;
+              t._cascadeFromAccount = id;
+              t._cascadeId = cascadeId;
+              pending.push(t);
+            }
+          });
+          rfxSet('rf_trades', JSON.stringify(trades));
+          if(window.tqPushTradesBatch && pending.length) try{ tqPushTradesBatch(pending); }catch(e){}
         }
-      }
 
-      // Refresh
-      renderAccountsPage();
-      _accSyncDropdowns();
-      if(typeof trUpdateBadge === 'function') try{ trUpdateBadge(); }catch(e){}
-      if(typeof updateDashboard === 'function') try{ updateDashboard(); }catch(e){}
-      if(typeof renderJournal === 'function') try{ renderJournal(); }catch(e){}
-      if(typeof updateReports === 'function') try{ updateReports(); }catch(e){}
+        // Soft-delete the account
+        var idx = accs.findIndex(function(x){return x.id===id;});
+        if(idx >= 0){
+          accs[idx].deleted = true;
+          accs[idx].deletedAt = cascadeAt;
+          if(attachedCount > 0) accs[idx]._cascadeId = cascadeId;
+          accSave(accs);
+          if(window._tqSupa && window._tqUser){
+            try{
+              _tqSupa.from('accounts').delete().eq('user_id', _tqUser.id).eq('external_id', id).then(function(r){
+                if(r && r.error) console.error('Account cloud delete failed for', id, ':', r.error, '— will retry on next pull');
+                else console.log('TradeQuill: Cloud-deleted account', id);
+              });
+            }catch(e){ console.error('Account cloud delete threw:', e); }
+          }
+        }
+
+        // Refresh
+        renderAccountsPage();
+        _accSyncDropdowns();
+        if(typeof trUpdateBadge === 'function') try{ trUpdateBadge(); }catch(e){}
+        if(typeof updateDashboard === 'function') try{ updateDashboard(); }catch(e){}
+        if(typeof renderJournal === 'function') try{ renderJournal(); }catch(e){}
+        if(typeof updateReports === 'function') try{ updateReports(); }catch(e){}
+      });
     }
     window.deleteAccount = deleteAccount;
 
@@ -10299,30 +10447,34 @@ window.dispatchEvent(new Event('supabase-ready'));
       msg += '✅ Trades go to Trash, restorable for 90 days.\n';
       msg += 'The account itself stays — you can keep adding new trades.\n\n';
       msg += 'If you want to remove the account too, use Delete.';
-      if(!confirm(msg)) return;
+      tqConfirm(msg, {title:'Clear '+attached.length+' trades', okLabel:'Clear trades', danger:true}).then(function(ok){
+        if(!ok) return;
 
-      var cascadeId = 'clear_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
-      var cascadeAt = new Date().toISOString();
-      var cleared = 0;
+        var cascadeId = 'clear_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
+        var cascadeAt = new Date().toISOString();
+        var cleared = 0;
+        var pending = [];
 
-      trades.forEach(function(t){
-        if(t.account === id && !t.deleted){
-          t.deleted = true;
-          t.deletedAt = cascadeAt;
-          t._cascadeFromAccount = id;
-          t._cascadeId = cascadeId;
-          cleared++;
-          if(window.tqPushTrade){ try{ tqPushTrade(t); }catch(e){} }
-        }
+        trades.forEach(function(t){
+          if(t.account === id && !t.deleted){
+            t.deleted = true;
+            t.deletedAt = cascadeAt;
+            t._cascadeFromAccount = id;
+            t._cascadeId = cascadeId;
+            cleared++;
+            pending.push(t);
+          }
+        });
+        rfxSet('rf_trades', JSON.stringify(trades));
+        if(window.tqPushTradesBatch && pending.length) try{ tqPushTradesBatch(pending); }catch(e){}
+
+        renderAccountsPage();
+        _accSyncDropdowns();
+        if(typeof trUpdateBadge === 'function') try{ trUpdateBadge(); }catch(e){}
+        if(typeof updateDashboard === 'function') try{ updateDashboard(); }catch(e){}
+        if(typeof renderJournal === 'function') try{ renderJournal(); }catch(e){}
+        if(typeof updateReports === 'function') try{ updateReports(); }catch(e){}
       });
-      rfxSet('rf_trades', JSON.stringify(trades));
-
-      renderAccountsPage();
-      _accSyncDropdowns();
-      if(typeof trUpdateBadge === 'function') try{ trUpdateBadge(); }catch(e){}
-      if(typeof updateDashboard === 'function') try{ updateDashboard(); }catch(e){}
-      if(typeof renderJournal === 'function') try{ renderJournal(); }catch(e){}
-      if(typeof updateReports === 'function') try{ updateReports(); }catch(e){}
     }
     window.clearAccountTrades = clearAccountTrades;
 
@@ -10961,16 +11113,20 @@ window.dispatchEvent(new Event('supabase-ready'));
     window.trSetTab = trSetTab;
 
     function trConfirmHardDelete(typeKey, id){
-      if(!confirm('Permanently delete this item?\n\nThis cannot be undone.')) return;
-      trHardDeleteItem(typeKey, id);
+      tqConfirm('Permanently delete this item?\n\nThis cannot be undone.', {title:'Permanent delete', okLabel:'Delete forever', danger:true}).then(function(ok){
+        if(!ok) return;
+        trHardDeleteItem(typeKey, id);
+      });
     }
     window.trConfirmHardDelete = trConfirmHardDelete;
 
     function trEmptyAll(){
       var all = trGetAllDeleted();
       if(!all.length) return;
-      if(!confirm('Permanently delete all '+all.length+' items in trash?\n\nThis cannot be undone.')) return;
-      all.forEach(function(rec){ trHardDeleteItem(rec.typeKey, rec.item.id); });
+      tqConfirm('Permanently delete all '+all.length+' items in trash?\n\nThis cannot be undone.', {title:'Empty Trash', okLabel:'Delete '+all.length+' items', danger:true}).then(function(ok){
+        if(!ok) return;
+        all.forEach(function(rec){ trHardDeleteItem(rec.typeKey, rec.item.id); });
+      });
     }
     window.trEmptyAll = trEmptyAll;
 
@@ -16521,18 +16677,20 @@ window.dispatchEvent(new Event('supabase-ready'));
   function jrBulkDelete(){
     var ids=Object.keys(jrSelected);
     if(!ids.length) return;
-    if(!confirm('Move '+ids.length+' trades to Trash?\n\nThey will be auto-deleted after 90 days, but you can restore them from Trash anytime.')) return;
-    if(typeof trSoftDelete === 'function'){
-      ids.forEach(function(tid){ trSoftDelete('trade', tid); });
-    } else {
-      var trades=JSON.parse(rfxGet('rf_trades')||'[]');
-      trades=trades.filter(function(t){return !jrSelected[t.id];});
-      rfxSet('rf_trades',JSON.stringify(trades));
-      ids.forEach(function(tid){tqDeleteTrade(tid);});
-    }
-    jrSelected={};
-    document.getElementById('jr-bulk-bar').className='jr-bulk-bar';
-    renderJournal();
+    tqConfirm('Move '+ids.length+' trades to Trash?\n\nThey will be auto-deleted after 90 days, but you can restore them from Trash anytime.', {title:'Delete '+ids.length+' trades', okLabel:'Move to Trash', danger:true}).then(function(ok){
+      if(!ok) return;
+      if(typeof trSoftDelete === 'function'){
+        ids.forEach(function(tid){ trSoftDelete('trade', tid); });
+      } else {
+        var trades=JSON.parse(rfxGet('rf_trades')||'[]');
+        trades=trades.filter(function(t){return !jrSelected[t.id];});
+        rfxSet('rf_trades',JSON.stringify(trades));
+        ids.forEach(function(tid){tqDeleteTrade(tid);});
+      }
+      jrSelected={};
+      document.getElementById('jr-bulk-bar').className='jr-bulk-bar';
+      renderJournal();
+    });
   }
   window.jrBulkDelete = jrBulkDelete;
 
@@ -17257,6 +17415,119 @@ window.dispatchEvent(new Event('supabase-ready'));
     clearTimeout(_rfxToastTimer);
   }
 
+  // ══════════════════════════════════════════════════════
+  // ██  IN-APP DIALOG SYSTEM — replaces ugly browser alert/confirm
+  // ══════════════════════════════════════════════════════
+  // tqToast(msg, opts?) — bottom-right success/info/error toast (auto-hide)
+  // tqAlert(msg, opts?) — same as toast, monkey-patches window.alert
+  // tqConfirm(msg, opts?) → Promise<boolean> — beautiful in-app modal
+
+  function tqToast(msg, opts){
+    opts = opts || {};
+    var type = opts.type || 'info'; // 'success' | 'error' | 'info' | 'warn'
+    var duration = opts.duration || 3500;
+    var existing = document.getElementById('tq-toast');
+    if(existing) existing.remove();
+
+    var colors = {
+      success: {bg:'#2ecc8a', icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>'},
+      error:   {bg:'#ff505f', icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'},
+      warn:    {bg:'#f0b429', icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>'},
+      info:    {bg:'#7c5af0', icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'}
+    };
+    var c = colors[type] || colors.info;
+
+    var el = document.createElement('div');
+    el.id = 'tq-toast';
+    el.style.cssText = 'position:fixed;bottom:24px;right:24px;background:'+c.bg+';color:#fff;padding:12px 18px;border-radius:10px;font-size:13px;font-weight:500;z-index:99999;box-shadow:0 8px 24px rgba(0,0,0,.25);display:flex;align-items:center;gap:10px;max-width:420px;font-family:Inter,sans-serif;opacity:0;transform:translateY(8px);transition:opacity .2s ease, transform .2s ease';
+    el.innerHTML = '<span style="display:flex;align-items:center;flex-shrink:0">'+c.icon+'</span><span>'+String(msg).replace(/</g,'&lt;')+'</span>';
+    document.body.appendChild(el);
+    requestAnimationFrame(function(){ el.style.opacity='1'; el.style.transform='translateY(0)'; });
+    setTimeout(function(){
+      el.style.opacity='0';
+      el.style.transform='translateY(8px)';
+      setTimeout(function(){ if(el.parentNode) el.remove(); }, 250);
+    }, duration);
+  }
+  window.tqToast = tqToast;
+
+  function tqAlert(msg, opts){ return tqToast(msg, opts); }
+  window.tqAlert = tqAlert;
+
+  // Promise-based confirm — replaces browser confirm() with a styled modal
+  function tqConfirm(msg, opts){
+    opts = opts || {};
+    var title = opts.title || 'Confirm';
+    var okLabel = opts.okLabel || 'Confirm';
+    var cancelLabel = opts.cancelLabel || 'Cancel';
+    var danger = !!opts.danger;
+    return new Promise(function(resolve){
+      var prev = document.getElementById('tq-confirm-modal');
+      if(prev) prev.remove();
+      var okStyle = danger
+        ? 'background:#ff505f;color:#fff;border:none'
+        : 'background:var(--accent);color:#fff;border:none';
+      var html =
+        '<div id="tq-confirm-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;font-family:Inter,sans-serif">' +
+          '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;max-width:440px;width:100%;padding:26px;box-shadow:0 20px 60px rgba(0,0,0,.5)">' +
+            '<div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:8px">'+String(title).replace(/</g,'&lt;')+'</div>' +
+            '<div style="font-size:13px;color:var(--text2);line-height:1.55;margin-bottom:20px;white-space:pre-wrap">'+String(msg).replace(/</g,'&lt;')+'</div>' +
+            '<div style="display:flex;gap:8px;justify-content:flex-end">' +
+              '<button id="tq-confirm-cancel" style="background:var(--bg3);color:var(--text);border:1px solid var(--border);padding:9px 18px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">'+cancelLabel+'</button>' +
+              '<button id="tq-confirm-ok" style="'+okStyle+';padding:9px 18px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">'+okLabel+'</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      var w = document.createElement('div');
+      w.innerHTML = html;
+      document.body.appendChild(w.firstElementChild);
+
+      function done(result){
+        var m = document.getElementById('tq-confirm-modal');
+        if(m) m.remove();
+        document.removeEventListener('keydown', onKey);
+        resolve(result);
+      }
+      function onKey(e){
+        if(e.key === 'Escape') done(false);
+        else if(e.key === 'Enter') done(true);
+      }
+      document.getElementById('tq-confirm-ok').onclick = function(){ done(true); };
+      document.getElementById('tq-confirm-cancel').onclick = function(){ done(false); };
+      document.getElementById('tq-confirm-modal').onclick = function(e){
+        if(e.target.id === 'tq-confirm-modal') done(false);
+      };
+      document.addEventListener('keydown', onKey);
+      // Focus OK button so Enter/Space works immediately
+      setTimeout(function(){
+        var okBtn = document.getElementById('tq-confirm-ok');
+        if(okBtn) okBtn.focus();
+      }, 30);
+    });
+  }
+  window.tqConfirm = tqConfirm;
+
+  // Monkey-patch window.alert so the 44+ legacy alert() calls render as toasts.
+  // We keep window.confirm native for now — confirm() is sync (returns boolean),
+  // and rewriting all 33 call-sites to async would be a separate pass. The most
+  // visible delete flows are migrated to tqConfirm explicitly below.
+  (function(){
+    var nativeAlert = window.alert;
+    window.alert = function(msg){
+      // If toast system not yet ready, fall back to native
+      if(typeof tqToast !== 'function'){ return nativeAlert.call(window, msg); }
+      // Heuristic: errors / warnings flagged by leading icon or keyword
+      var s = String(msg||'');
+      var type = 'info';
+      if(/^✓/.test(s) || /success/i.test(s)) type = 'success';
+      else if(/^⚠|^❌|error|fail|invalid|cannot|can't/i.test(s)) type = 'error';
+      else if(/please|required|need|must/i.test(s)) type = 'warn';
+      tqToast(s, {type:type, duration: type==='error' ? 5000 : 3500});
+    };
+    window._nativeAlert = nativeAlert; // escape hatch if ever needed
+  })();
+  // ══ END IN-APP DIALOG SYSTEM ══
+
   // ── Backup reminder (fires every 10 trades added since last export) ──
   var BACKUP_REMINDER_INTERVAL = 10;
   function rfxTrackBackupReminder() {
@@ -17705,17 +17976,18 @@ window.dispatchEvent(new Event('supabase-ready'));
 
   // ── Delete trade (soft delete — goes to Trash, restorable for 90 days) ──
   function jrDeleteTrade(id){
-    if(!confirm('Move this trade to Trash?\n\nIt will be auto-deleted after 90 days, but you can restore it from Trash anytime.')) return;
-    if(typeof trSoftDelete === 'function'){
-      trSoftDelete('trade', id);
-    } else {
-      // Fallback: hard delete if trash module unavailable
-      var trades = JSON.parse(rfxGet('rf_trades')||'[]');
-      trades = trades.filter(function(t){return t.id!==id;});
-      rfxSet('rf_trades', JSON.stringify(trades));
-      tqDeleteTrade(id);
-    }
-    renderJournal();
+    tqConfirm('Move this trade to Trash?\n\nIt will be auto-deleted after 90 days, but you can restore it from Trash anytime.', {title:'Delete trade', okLabel:'Move to Trash', danger:true}).then(function(ok){
+      if(!ok) return;
+      if(typeof trSoftDelete === 'function'){
+        trSoftDelete('trade', id);
+      } else {
+        var trades = JSON.parse(rfxGet('rf_trades')||'[]');
+        trades = trades.filter(function(t){return t.id!==id;});
+        rfxSet('rf_trades', JSON.stringify(trades));
+        tqDeleteTrade(id);
+      }
+      renderJournal();
+    });
   }
   window.jrDeleteTrade = jrDeleteTrade;
 
@@ -21372,12 +21644,14 @@ window.dispatchEvent(new Event('supabase-ready'));
   document.addEventListener('keydown',function(e){if(e.key==='Escape') closeLightbox();});
 
   function ckReset(){
-    if(!confirm('Reset today\'s cockpit? All analysis will be cleared.'))return;
-    rfxRemove(CK_KEY);ckData=null;ckRoadmaps=[];
-    document.querySelectorAll('#ck-session-row .ck-btn').forEach(function(b){b.classList.remove('on');});
-    document.getElementById('ck-pairs-row').innerHTML='';
-    document.getElementById('ck-session-notes').value='';
-    ckRenderRoadmaps();ckRenderBoards();ckUpdateProgress();
+    tqConfirm('Reset today\'s cockpit? All analysis will be cleared.', {title:'Reset cockpit', okLabel:'Reset', danger:true}).then(function(ok){
+      if(!ok) return;
+      rfxRemove(CK_KEY);ckData=null;ckRoadmaps=[];
+      document.querySelectorAll('#ck-session-row .ck-btn').forEach(function(b){b.classList.remove('on');});
+      document.getElementById('ck-pairs-row').innerHTML='';
+      document.getElementById('ck-session-notes').value='';
+      ckRenderRoadmaps();ckRenderBoards();ckUpdateProgress();
+    });
   }
   window.ckReset=ckReset;
 
