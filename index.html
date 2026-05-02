@@ -7910,7 +7910,21 @@ window.dispatchEvent(new Event('supabase-ready'));
         entryTime: t.entryTime||'',
         exitTime: t.exitTime||'',
         tvLink: t.tvLink||'',
-        tvImage: t.tvImage||''
+        tvImage: t.tvImage||'',
+        // ── Sync-critical lifecycle/trash fields (added 2026-05) ──
+        // These MUST round-trip through Supabase or soft-delete is lost
+        deleted: !!t.deleted,
+        deletedAt: t.deletedAt||null,
+        _cascadeId: t._cascadeId||null,
+        _cascadeFromAccount: t._cascadeFromAccount||null,
+        lifecycle: t.lifecycle||null,
+        processStatus: t.processStatus||null,
+        reviewAnswers: t.reviewAnswers||null,
+        planAt: t.planAt||null,
+        liveAt: t.liveAt||null,
+        closedAt: t.closedAt||null,
+        cancelAt: t.cancelAt||null,
+        cancelReason: t.cancelReason||null
       }
     };
     return row;
@@ -7973,7 +7987,20 @@ window.dispatchEvent(new Event('supabase-ready'));
       tvLink: ex.tvLink||'',
       tvImage: ex.tvImage||'',
       created: row.created_at||new Date().toISOString(),
-      cockpitSnapshot: row.cockpit_snapshot||null
+      cockpitSnapshot: row.cockpit_snapshot||null,
+      // ── Sync-critical lifecycle/trash fields (added 2026-05) ──
+      deleted: !!ex.deleted,
+      deletedAt: ex.deletedAt||null,
+      _cascadeId: ex._cascadeId||null,
+      _cascadeFromAccount: ex._cascadeFromAccount||null,
+      lifecycle: ex.lifecycle||null,
+      processStatus: ex.processStatus||null,
+      reviewAnswers: ex.reviewAnswers||null,
+      planAt: ex.planAt||null,
+      liveAt: ex.liveAt||null,
+      closedAt: ex.closedAt||null,
+      cancelAt: ex.cancelAt||null,
+      cancelReason: ex.cancelReason||null
     };
   }
 
@@ -8046,7 +8073,9 @@ window.dispatchEvent(new Event('supabase-ready'));
           tqPushAllLocal();
           return;
         }
-        // Merge strategy: cloud wins for conflicts, keep local-only trades
+        // Merge strategy: cloud wins for conflicts, keep local-only trades.
+        // EXCEPTION: if local has deleted:true but cloud row lacks it (legacy row pushed
+        // before the field round-tripped), preserve local state and re-push to fix cloud.
         var localTrades = JSON.parse(rfxGet('rf_trades')||'[]');
         var cloudMap = {};
         cloudTrades.forEach(function(row){
@@ -8057,13 +8086,22 @@ window.dispatchEvent(new Event('supabase-ready'));
 
         var merged = [];
         var mergedIds = {};
-        // Add all cloud trades (converted to portal format)
+        var needsCorrectionPush = []; // Local-deleted but cloud doesn't know
+        // Add all cloud trades (converted to portal format), preserving local soft-delete on conflict
         cloudTrades.forEach(function(row){
-          var t = tqRowToTrade(row);
-          if(!mergedIds[t.id]){
-            merged.push(t);
-            mergedIds[t.id] = true;
+          var cloudT = tqRowToTrade(row);
+          if(mergedIds[cloudT.id]) return;
+          var localT = localMap[cloudT.id];
+          if(localT && localT.deleted && !cloudT.deleted){
+            // Local says deleted, cloud doesn't — local wins, queue re-push
+            cloudT.deleted = true;
+            cloudT.deletedAt = localT.deletedAt || new Date().toISOString();
+            if(localT._cascadeId) cloudT._cascadeId = localT._cascadeId;
+            if(localT._cascadeFromAccount) cloudT._cascadeFromAccount = localT._cascadeFromAccount;
+            needsCorrectionPush.push(cloudT);
           }
+          merged.push(cloudT);
+          mergedIds[cloudT.id] = true;
         });
         // Add local-only trades (not in cloud, not already merged)
         var toPush = [];
@@ -8077,7 +8115,7 @@ window.dispatchEvent(new Event('supabase-ready'));
 
         rfxSet('rf_trades', JSON.stringify(merged));
         tqSetSyncStatus('ok', merged.length + ' trades synced');
-        console.log('TradeQuill: Merged', merged.length, 'trades ('+cloudTrades.length+' cloud + '+toPush.length+' local-only)');
+        console.log('TradeQuill: Merged', merged.length, 'trades ('+cloudTrades.length+' cloud + '+toPush.length+' local-only, '+needsCorrectionPush.length+' soft-delete corrections)');
 
         // Push local-only trades to cloud
         if(toPush.length > 0){
@@ -8091,6 +8129,23 @@ window.dispatchEvent(new Event('supabase-ready'));
             if(r2.error) console.error('Batch push error:', r2.error);
             else console.log('TradeQuill: Pushed', toPush.length, 'local trades to cloud');
             tqSetSyncStatus('ok','Synced');
+          });
+        }
+
+        // Correction push: re-upsert trades that were soft-deleted locally but
+        // whose cloud row lacks deleted=true (legacy data from before the fix).
+        // After this, soft-delete is durable across reload/realtime.
+        if(needsCorrectionPush.length > 0){
+          var corrRows = needsCorrectionPush.map(function(t){
+            var r = tqTradeToRow(t);
+            r.user_id = _tqUser.id;
+            // Set echo guards so realtime doesn't bounce them back as not-deleted
+            _tqOwnWrites[t.id] = Date.now();
+            return r;
+          });
+          _tqSupa.from('trades').upsert(corrRows, {onConflict:'user_id,external_id'}).then(function(rc){
+            if(rc.error) console.error('Soft-delete correction push error:', rc.error);
+            else console.log('TradeQuill: Re-synced', needsCorrectionPush.length, 'soft-deleted trades to cloud');
           });
         }
 
@@ -8157,7 +8212,19 @@ window.dispatchEvent(new Event('supabase-ready'));
       var trade = tqRowToTrade(row);
       var idx = -1;
       for(var i=0;i<local.length;i++){ if(local[i].id === trade.id){idx=i;break;} }
-      if(idx >= 0) local[idx] = trade; else local.unshift(trade);
+      if(idx >= 0){
+        // Conflict guard: if local says deleted but the incoming row doesn't reflect that,
+        // the other client is on stale data — preserve our delete and re-push the truth.
+        if(local[idx].deleted && !trade.deleted){
+          console.log('TradeQuill realtime: ignoring stale not-deleted update for soft-deleted trade', trade.id);
+          // Re-push so the cloud (and other clients) catch up
+          if(window.tqPushTrade){ try{ tqPushTrade(local[idx]); }catch(e){} }
+          return;
+        }
+        local[idx] = trade;
+      } else {
+        local.unshift(trade);
+      }
     }
 
     rfxSet('rf_trades', JSON.stringify(local));
@@ -9624,7 +9691,7 @@ window.dispatchEvent(new Event('supabase-ready'));
       var empty = document.getElementById('accounts-empty');
       if(!body) return;
 
-      var accs = accLoad();
+      var accs = accLoad().filter(function(a){ return !a.deleted; }); // hide soft-deleted (in Trash)
       var trades = [];
       try{ trades = JSON.parse(rfxGet('rf_trades')||'[]'); }catch(e){}
 
