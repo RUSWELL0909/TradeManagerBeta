@@ -4575,7 +4575,7 @@ window.dispatchEvent(new Event('supabase-ready'));
       <button class="pb-btn pb-btn-ghost" style="padding:6px 16px;font-size:10px" onclick="tqBackupExport()">↓ Backup JSON</button>
       <button class="pb-btn pb-btn-ghost" style="padding:6px 16px;font-size:10px" onclick="jrExportCSV()">↓ Export CSV</button>
       <label class="pb-btn pb-btn-ghost" style="padding:6px 16px;font-size:10px;cursor:pointer;display:inline-flex;align-items:center;gap:6px">↑ Import CSV
-        <input type="file" id="jr-csv-input" accept=".csv" style="display:none" onchange="jrProcessCSV(this)">
+        <input type="file" id="jr-csv-input" accept=".csv" style="display:none" onchange="jrCsvPreImport(this)">
       </label>
     </div>
   </div>
@@ -7645,6 +7645,7 @@ window.dispatchEvent(new Event('supabase-ready'));
         if(res.data && res.data.session){
           _tqUser = res.data.session.user;
           console.log('TradeQuill: Session restored for', _tqUser.email);
+          tqGuardUserSwitch(_tqUser.id);
           tqHideAuth();
           tqShowUserBar();
           tqPullAll(); // sync all on load
@@ -7654,6 +7655,7 @@ window.dispatchEvent(new Event('supabase-ready'));
       _tqSupa.auth.onAuthStateChange(function(event, session){
         if(session && session.user){
           _tqUser = session.user;
+          tqGuardUserSwitch(_tqUser.id);
           tqHideAuth();
           tqShowUserBar();
         } else {
@@ -7667,6 +7669,47 @@ window.dispatchEvent(new Event('supabase-ready'));
       tqHideAuth();
     }
   }
+
+  // ── User-switch isolation ──
+  // Prevents one user's localStorage data leaking into another user's Supabase
+  // when the same browser is shared between accounts.
+  // If the active user.id differs from the last-seen one, wipe user-scoped local
+  // keys before any pull/push runs. The wipe only happens on actual switch.
+  var TQ_USER_DATA_KEYS = [
+    'rf_trades','rf_accounts','rf_notebooks','tq_pb','tb_cs',
+    'rossfx-cockpit3','rfx_settings','rf_backup_counter',
+    'tq_user_lists','tq_pinned_setups','tq_drafts',
+    'rfx_ai_conversations','tq_economic_cache'
+  ];
+  function tqWipeUserData(){
+    TQ_USER_DATA_KEYS.forEach(function(k){
+      try{ rfxRemove(k); }catch(e){}
+      try{ localStorage.removeItem(k); }catch(e){}
+    });
+    // Also clear any _tq* draft keys that auto-saved
+    try{
+      for(var i=localStorage.length-1; i>=0; i--){
+        var key = localStorage.key(i);
+        if(key && (key.indexOf('_draft_')===0 || key.indexOf('rfx_')===0 || key.indexOf('tq_draft_')===0)){
+          localStorage.removeItem(key);
+        }
+      }
+    }catch(e){}
+    console.log('TradeQuill: User data wiped');
+  }
+  window.tqWipeUserData = tqWipeUserData;
+
+  function tqGuardUserSwitch(currentUserId){
+    if(!currentUserId) return;
+    var last = '';
+    try{ last = localStorage.getItem('tq_last_user_id') || ''; }catch(e){}
+    if(last && last !== currentUserId){
+      console.log('TradeQuill: Different user detected ('+last.slice(0,8)+'… → '+currentUserId.slice(0,8)+'…). Wiping local data.');
+      tqWipeUserData();
+    }
+    try{ localStorage.setItem('tq_last_user_id', currentUserId); }catch(e){}
+  }
+  window.tqGuardUserSwitch = tqGuardUserSwitch;
 
   // ── Eye toggle ──
   function tqToggleEye(){
@@ -7774,6 +7817,7 @@ window.dispatchEvent(new Event('supabase-ready'));
         tqShowMsg('Check your email to confirm your account!','success');
       } else {
         _tqUser = res.data.user;
+        if(_tqUser && _tqUser.id) tqGuardUserSwitch(_tqUser.id);
         tqHideAuth();
         tqShowUserBar();
         tqPullAll();
@@ -7792,13 +7836,18 @@ window.dispatchEvent(new Event('supabase-ready'));
   window.tqSkipAuth = tqSkipAuth;
 
   function tqLogout(){
+    if(!confirm('Sign out? Local data will be cleared from this browser. Your trades stay safe in the cloud and will sync back when you sign in.')) return;
     tqUnsubscribeRealtime();
     if(_tqSupa) _tqSupa.auth.signOut();
     _tqUser = null;
+    tqWipeUserData();
+    try{ localStorage.removeItem('tq_last_user_id'); }catch(e){}
     tqHideUserBar();
     // Show auth overlay again
     var ov = document.getElementById('tq-auth-overlay');
     if(ov){ov.classList.remove('hidden');ov.style.display='flex';}
+    // Hard reload to flush all module state
+    setTimeout(function(){ location.reload(); }, 200);
   }
   window.tqLogout = tqLogout;
 
@@ -9308,6 +9357,8 @@ window.dispatchEvent(new Event('supabase-ready'));
     setTimeout(tqSubscribeRealtime, 3000); // ← realtime after initial pull
     setTimeout(function(){ if(typeof tqSubscribeAIRealtime==='function') tqSubscribeAIRealtime(); }, 3500);
     setTimeout(tqPullCaseStudies, 3000);
+    // Phase 4: enforce account-required (TradeZella-style) after pulls complete
+    if(typeof tqInitAccountEnforcement === 'function') tqInitAccountEnforcement();
   }
 
   // Export all sync functions to window
@@ -9318,6 +9369,170 @@ window.dispatchEvent(new Event('supabase-ready'));
   window.tqPullCockpit=tqPullCockpit;
   window.tqPullCaseStudies=tqPullCaseStudies;
   window.tqPullAll=tqPullAll;
+
+  // ══════════════════════════════════════════════════════════════
+  // ██  ACCOUNT ENFORCEMENT — TradeZella-style: trades MUST have an account
+  // ══════════════════════════════════════════════════════════════
+  // Detects orphan trades (no account_id, or account_id pointing to deleted/missing account)
+  // and prompts user to bulk-assign them to an existing or new account.
+
+  function tqDetectOrphans(){
+    var trades = [];
+    try{ trades = JSON.parse(rfxGet('rf_trades')||'[]'); }catch(e){}
+    var accs = [];
+    try{ accs = JSON.parse(rfxGet('rf_accounts')||'[]'); }catch(e){}
+    var validIds = {};
+    accs.forEach(function(a){
+      if(a && a.id && !a.deleted) validIds[a.id] = true;
+    });
+    return trades.filter(function(t){
+      if(t.deleted) return false; // Trash items don't count
+      if(!t.account) return true;
+      return !validIds[t.account];
+    });
+  }
+  window.tqDetectOrphans = tqDetectOrphans;
+
+  function tqAssignOrphans(targetAccountId){
+    if(!targetAccountId) return 0;
+    var trades = [];
+    try{ trades = JSON.parse(rfxGet('rf_trades')||'[]'); }catch(e){}
+    var accs = [];
+    try{ accs = JSON.parse(rfxGet('rf_accounts')||'[]'); }catch(e){}
+    var validIds = {};
+    accs.forEach(function(a){ if(a && a.id && !a.deleted) validIds[a.id] = true; });
+    if(!validIds[targetAccountId]){ console.error('Target account not valid:', targetAccountId); return 0; }
+    var assigned = 0;
+    trades.forEach(function(t){
+      if(t.deleted) return;
+      if(!t.account || !validIds[t.account]){
+        t.account = targetAccountId;
+        assigned++;
+        if(window.tqPushTrade){ try{ tqPushTrade(t); }catch(e){} }
+      }
+    });
+    if(assigned > 0){
+      rfxSet('rf_trades', JSON.stringify(trades));
+      console.log('TradeQuill: Assigned',assigned,'orphan trades to account',targetAccountId);
+    }
+    return assigned;
+  }
+  window.tqAssignOrphans = tqAssignOrphans;
+
+  function tqShowOrphanModal(){
+    var orphans = tqDetectOrphans();
+    if(orphans.length === 0) return;
+    var accs = [];
+    try{ accs = JSON.parse(rfxGet('rf_accounts')||'[]'); }catch(e){}
+    var activeAccs = accs.filter(function(a){ return a && !a.deleted; });
+
+    // Remove any existing instance
+    var prev = document.getElementById('tq-orphan-modal');
+    if(prev) prev.remove();
+
+    var optionsHtml = activeAccs.map(function(a){
+      var label = (a.name||'(unnamed)') + (a.archived ? ' (archived)' : '');
+      return '<option value="'+a.id+'">'+label.replace(/</g,'&lt;')+'</option>';
+    }).join('');
+
+    var bodyHtml;
+    if(activeAccs.length === 0){
+      bodyHtml = '<div style="font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:16px">' +
+        '<strong>'+orphans.length+'</strong> trades aren\'t linked to any trading account, and you have no accounts yet.<br><br>' +
+        'TradeQuill requires every trade to belong to an account (like TradeZella).' +
+        '</div>' +
+        '<button id="tq-orphan-create" style="width:100%;background:var(--accent);color:#fff;border:none;padding:12px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">+ Create First Account</button>';
+    } else {
+      bodyHtml = '<div style="font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:14px">' +
+        '<strong>'+orphans.length+'</strong> of your trades aren\'t assigned to an account.<br>' +
+        'Choose where they belong (you can move individual trades later from the Journal).' +
+        '</div>' +
+        '<label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">Assign to</label>' +
+        '<select id="tq-orphan-target" class="jr-select" style="width:100%;padding:10px;font-size:13px;margin-bottom:14px">'+optionsHtml+'</select>' +
+        '<div style="display:flex;gap:8px">' +
+        '<button id="tq-orphan-create" style="flex:1;background:var(--bg3);color:var(--text);border:1px solid var(--border);padding:11px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">+ New Account</button>' +
+        '<button id="tq-orphan-assign" style="flex:2;background:var(--accent);color:#fff;border:none;padding:11px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Assign all '+orphans.length+'</button>' +
+        '</div>';
+    }
+
+    var html =
+      '<div id="tq-orphan-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px">' +
+        '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;max-width:460px;width:100%;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.5)">' +
+          '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">' +
+            '<div style="width:32px;height:32px;background:rgba(240,180,41,.15);border-radius:8px;display:flex;align-items:center;justify-content:center">' +
+              '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f0b429" stroke-width="2"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>' +
+            '</div>' +
+            '<div style="font-size:16px;font-weight:600;color:var(--text)">Trades without an account</div>' +
+          '</div>' +
+          '<div style="margin-top:14px">'+bodyHtml+'</div>' +
+        '</div>' +
+      '</div>';
+    var div = document.createElement('div');
+    div.innerHTML = html;
+    document.body.appendChild(div.firstElementChild);
+
+    var assignBtn = document.getElementById('tq-orphan-assign');
+    var createBtn = document.getElementById('tq-orphan-create');
+
+    if(assignBtn){
+      assignBtn.addEventListener('click', function(){
+        var sel = document.getElementById('tq-orphan-target');
+        var target = sel ? sel.value : '';
+        if(!target){ alert('Please choose an account'); return; }
+        var n = tqAssignOrphans(target);
+        var modal = document.getElementById('tq-orphan-modal');
+        if(modal) modal.remove();
+        // Refresh everything
+        if(typeof renderJournal === 'function') try{ renderJournal(); }catch(e){}
+        if(typeof updateDashboard === 'function') try{ updateDashboard(); }catch(e){}
+        if(typeof updateReports === 'function') try{ updateReports(); }catch(e){}
+        if(typeof renderAccountsPage === 'function') try{ renderAccountsPage(); }catch(e){}
+        // Toast
+        var toast = document.createElement('div');
+        toast.textContent = '✓ '+n+' trades assigned';
+        toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#2ecc8a;color:#fff;padding:12px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:99999;box-shadow:0 8px 20px rgba(0,0,0,.3)';
+        document.body.appendChild(toast);
+        setTimeout(function(){ toast.remove(); }, 3000);
+      });
+    }
+    if(createBtn){
+      createBtn.addEventListener('click', function(){
+        // Close orphan modal, open Add Account modal, then re-show orphan modal after save
+        var modal = document.getElementById('tq-orphan-modal');
+        if(modal) modal.remove();
+        if(typeof openAddAccountModal === 'function'){
+          openAddAccountModal();
+          // Re-trigger after the user closes the account modal
+          var watcher = setInterval(function(){
+            var accModal = document.getElementById('acc-modal');
+            if(!accModal || accModal.style.display === 'none' || !accModal.classList.contains('show')){
+              clearInterval(watcher);
+              setTimeout(tqShowOrphanModal, 300);
+            }
+          }, 500);
+        } else {
+          alert('Please open the My Accounts page and create an account first.');
+        }
+      });
+    }
+  }
+  window.tqShowOrphanModal = tqShowOrphanModal;
+
+  // Trigger orphan migration check on startup, after pulls settle.
+  // Wait long enough for tqPullAll's chained pulls to complete (~4s) so we don't
+  // trigger on stale local-only data before cloud catches up.
+  function tqInitAccountEnforcement(){
+    setTimeout(function(){
+      var orphans = tqDetectOrphans();
+      if(orphans.length > 0){
+        console.log('TradeQuill: Found',orphans.length,'orphan trades — prompting for assignment');
+        tqShowOrphanModal();
+      }
+    }, 5000);
+  }
+  window.tqInitAccountEnforcement = tqInitAccountEnforcement;
+
+  // ══ END ACCOUNT ENFORCEMENT MODULE ══
 
   // ══ COCKPIT SESSIONS SYNC ══
   function tqCkToRow(d){
@@ -15576,16 +15791,6 @@ window.dispatchEvent(new Event('supabase-ready'));
 
   // [MOVED to top of IIFE — storage must init before first rfxGet call]
   // Seed memory with embedded trades if localStorage is empty/blocked
-  var _EMBEDDED_TRADES = null;
-  try { _EMBEDDED_TRADES = JSON.parse(document.getElementById('rfx-embedded-data').textContent); } catch(e){}
-  if(_EMBEDDED_TRADES && _EMBEDDED_TRADES.length > 0){
-    var existing = [];
-    try { existing = JSON.parse(rfxGet('rf_trades')||'[]'); } catch(e){}
-    if(!existing || existing.length === 0){
-      rfxSet('rf_trades', JSON.stringify(_EMBEDDED_TRADES));
-    }
-  }
-
   var _BAKED_TRADES = [];
 
   // ── Auto-detect session from entry time ──
@@ -15629,6 +15834,39 @@ window.dispatchEvent(new Event('supabase-ready'));
 
   // ── Modal open/close ──
   function openJrModal(editId){
+    // TradeZella architecture: trades MUST belong to an account.
+    // Block "Add Trade" if user has no accounts (Edit is allowed — preserves history).
+    if(!editId){
+      var __accs = [];
+      try{ __accs = JSON.parse(rfxGet('rf_accounts')||'[]'); }catch(e){}
+      var __activeAccs = __accs.filter(function(a){ return a && !a.deleted; });
+      if(__activeAccs.length === 0){
+        var prev = document.getElementById('tq-jr-block-modal');
+        if(prev) prev.remove();
+        var blockHtml =
+          '<div id="tq-jr-block-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px">' +
+            '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;max-width:400px;width:100%;padding:28px">' +
+              '<div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px">Create an account first</div>' +
+              '<div style="font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:18px">Every trade belongs to a trading account. Create at least one account to start logging trades.</div>' +
+              '<div style="display:flex;gap:8px;justify-content:flex-end">' +
+                '<button id="tq-jr-block-cancel" style="background:var(--bg3);color:var(--text);border:1px solid var(--border);padding:9px 18px;border-radius:8px;font-size:12px;cursor:pointer">Cancel</button>' +
+                '<button id="tq-jr-block-create" style="background:var(--accent);color:#fff;border:none;padding:9px 18px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">+ Create Account</button>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+        var w = document.createElement('div');
+        w.innerHTML = blockHtml;
+        document.body.appendChild(w.firstElementChild);
+        document.getElementById('tq-jr-block-cancel').onclick = function(){
+          var m = document.getElementById('tq-jr-block-modal'); if(m) m.remove();
+        };
+        document.getElementById('tq-jr-block-create').onclick = function(){
+          var m = document.getElementById('tq-jr-block-modal'); if(m) m.remove();
+          if(typeof openAddAccountModal === 'function') openAddAccountModal();
+        };
+        return;
+      }
+    }
     jrEditId = editId || null;
     if(jrEditId){
       var trades = getTradesArr();
@@ -17001,7 +17239,7 @@ window.dispatchEvent(new Event('supabase-ready'));
   // ── Import CSV ──
   function jrImportCSV(){document.getElementById('jr-csv-input').click();}
   window.jrImportCSV = jrImportCSV;
-  function jrProcessCSV(input){
+  function jrProcessCSV(input, forcedAccount){
     if(!input.files||!input.files[0]) return;
     var reader=new FileReader();
     reader.onload=function(e){
@@ -17066,7 +17304,7 @@ window.dispatchEvent(new Event('supabase-ready'));
           id:'tr_imp_'+Date.now()+'_'+i+'_'+Math.random().toString(36).slice(2,5),
           date:dateVal,
           pair:pairVal,
-          account:col('account'),
+          account: forcedAccount || col('account'),
           direction:col('direction')||'buy',
           setup:col('setup'),
           emotion:col('emotion'),
@@ -17137,11 +17375,108 @@ window.dispatchEvent(new Event('supabase-ready'));
       if(typeof updateDashboard==='function')updateDashboard();
       if(typeof dvRender==='function')dvRender();
       if(typeof updateReports==='function')updateReports();
+      // TradeZella-style: after import, check for orphans (rows missing account_id) and prompt
+      if(added>0 && typeof tqShowOrphanModal==='function'){
+        setTimeout(function(){
+          if(typeof tqDetectOrphans==='function' && tqDetectOrphans().length > 0){
+            tqShowOrphanModal();
+          }
+        }, 800);
+      }
     };
     reader.readAsText(input.files[0]);
     input.value='';
   }
   window.jrProcessCSV = jrProcessCSV;
+
+  // ── TradeZella-style pre-import account picker ──
+  // Shown BEFORE parsing. Forces user to pick a target account, blocking import
+  // if no accounts exist. Trades are imported with t.account = forcedAccount,
+  // ignoring any "account" column in the CSV. This guarantees no orphans.
+  function jrCsvPreImport(input){
+    if(!input || !input.files || !input.files[0]){ return; }
+    var file = input.files[0];
+
+    var accs = [];
+    try{ accs = JSON.parse(rfxGet('rf_accounts')||'[]'); }catch(e){}
+    var activeAccs = accs.filter(function(a){ return a && !a.deleted; });
+
+    // No accounts → block import, redirect to account creation
+    if(activeAccs.length === 0){
+      input.value = '';
+      var prevBlock = document.getElementById('tq-csv-block-modal');
+      if(prevBlock) prevBlock.remove();
+      var blockHtml =
+        '<div id="tq-csv-block-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px">' +
+          '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;max-width:400px;width:100%;padding:28px">' +
+            '<div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px">Create an account first</div>' +
+            '<div style="font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:18px">Every trade in TradeQuill belongs to a trading account. Please create at least one account before importing.</div>' +
+            '<div style="display:flex;gap:8px;justify-content:flex-end">' +
+              '<button id="tq-csv-block-cancel" style="background:var(--bg3);color:var(--text);border:1px solid var(--border);padding:9px 18px;border-radius:8px;font-size:12px;cursor:pointer">Cancel</button>' +
+              '<button id="tq-csv-block-create" style="background:var(--accent);color:#fff;border:none;padding:9px 18px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">+ Create Account</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      var w = document.createElement('div');
+      w.innerHTML = blockHtml;
+      document.body.appendChild(w.firstElementChild);
+      document.getElementById('tq-csv-block-cancel').onclick = function(){
+        var m = document.getElementById('tq-csv-block-modal'); if(m) m.remove();
+      };
+      document.getElementById('tq-csv-block-create').onclick = function(){
+        var m = document.getElementById('tq-csv-block-modal'); if(m) m.remove();
+        if(typeof openAddAccountModal === 'function') openAddAccountModal();
+      };
+      return;
+    }
+
+    // Quick row count for display (lightweight pre-parse)
+    var reader = new FileReader();
+    reader.onload = function(e){
+      var raw = (e.target.result||'').replace(/^\ufeff/,'').replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+      var rowCount = Math.max(0, (raw.match(/\n/g)||[]).length); // header + N data rows ≈ \n count
+
+      // Build picker modal
+      var prev = document.getElementById('tq-csv-pick-modal');
+      if(prev) prev.remove();
+      var optionsHtml = activeAccs.map(function(a){
+        var label = (a.name||'(unnamed)') + (a.archived ? ' (archived)' : '');
+        return '<option value="'+a.id+'">'+label.replace(/</g,'&lt;')+'</option>';
+      }).join('');
+      var fileLabel = (file.name||'CSV').replace(/</g,'&lt;');
+      var html =
+        '<div id="tq-csv-pick-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px">' +
+          '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;max-width:460px;width:100%;padding:28px">' +
+            '<div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px">Import to which account?</div>' +
+            '<div style="font-size:12px;color:var(--text3);margin-bottom:18px;font-family:\'DM Mono\',monospace">'+fileLabel+' · ~'+rowCount+' rows</div>' +
+            '<label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">Account</label>' +
+            '<select id="tq-csv-pick-target" class="jr-select" style="width:100%;padding:10px;font-size:13px;margin-bottom:18px">'+optionsHtml+'</select>' +
+            '<div style="display:flex;gap:8px;justify-content:flex-end">' +
+              '<button id="tq-csv-pick-cancel" style="background:var(--bg3);color:var(--text);border:1px solid var(--border);padding:9px 18px;border-radius:8px;font-size:12px;cursor:pointer">Cancel</button>' +
+              '<button id="tq-csv-pick-import" style="background:var(--accent);color:#fff;border:none;padding:9px 18px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">Import</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      var w = document.createElement('div');
+      w.innerHTML = html;
+      document.body.appendChild(w.firstElementChild);
+
+      document.getElementById('tq-csv-pick-cancel').onclick = function(){
+        var m = document.getElementById('tq-csv-pick-modal'); if(m) m.remove();
+        input.value = '';
+      };
+      document.getElementById('tq-csv-pick-import').onclick = function(){
+        var sel = document.getElementById('tq-csv-pick-target');
+        var target = sel ? sel.value : '';
+        if(!target){ alert('Please choose an account'); return; }
+        var m = document.getElementById('tq-csv-pick-modal'); if(m) m.remove();
+        // Now run the actual import with forced account
+        jrProcessCSV(input, target);
+      };
+    };
+    reader.readAsText(file);
+  }
+  window.jrCsvPreImport = jrCsvPreImport;
 
   // ── Save trade ──
   function jrSaveTrade(){
@@ -17172,6 +17507,12 @@ window.dispatchEvent(new Event('supabase-ready'));
     if(grossPnl===0 && !pnlVal){
       if(typeof tqShowFieldError === 'function') tqShowFieldError('jr-pnl-input', 'P&L is required');
       else alert('Please enter P&L');
+      hasError = true;
+    }
+    var accVal = (document.getElementById('jr-account').value||'').trim();
+    if(!accVal){
+      if(typeof tqShowFieldError === 'function') tqShowFieldError('jr-account', 'Account is required');
+      else alert('Please choose an account');
       hasError = true;
     }
     if(hasError){
@@ -20987,6 +21328,36 @@ window.dispatchEvent(new Event('supabase-ready'));
   window.ckUpdateChecklist=ckUpdateChecklist;
 
   function ckTakeTrade(pair){
+    // TradeZella architecture: block plan/take trade if no accounts exist
+    var __ckAccs = [];
+    try{ __ckAccs = JSON.parse(rfxGet('rf_accounts')||'[]'); }catch(e){}
+    var __ckActive = __ckAccs.filter(function(a){ return a && !a.deleted; });
+    if(__ckActive.length === 0){
+      var prev = document.getElementById('tq-ck-block-modal');
+      if(prev) prev.remove();
+      var blockHtml =
+        '<div id="tq-ck-block-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px">' +
+          '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;max-width:400px;width:100%;padding:28px">' +
+            '<div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px">Create an account first</div>' +
+            '<div style="font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:18px">Every plan/trade belongs to an account. Add a trading account to start planning.</div>' +
+            '<div style="display:flex;gap:8px;justify-content:flex-end">' +
+              '<button id="tq-ck-block-cancel" style="background:var(--bg3);color:var(--text);border:1px solid var(--border);padding:9px 18px;border-radius:8px;font-size:12px;cursor:pointer">Cancel</button>' +
+              '<button id="tq-ck-block-create" style="background:var(--accent);color:#fff;border:none;padding:9px 18px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">+ Create Account</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      var w = document.createElement('div');
+      w.innerHTML = blockHtml;
+      document.body.appendChild(w.firstElementChild);
+      document.getElementById('tq-ck-block-cancel').onclick = function(){
+        var m = document.getElementById('tq-ck-block-modal'); if(m) m.remove();
+      };
+      document.getElementById('tq-ck-block-create').onclick = function(){
+        var m = document.getElementById('tq-ck-block-modal'); if(m) m.remove();
+        if(typeof openAddAccountModal === 'function') openAddAccountModal();
+      };
+      return;
+    }
     // Save current cockpit state first
     ckAutoSave();
 
