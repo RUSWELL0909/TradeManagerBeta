@@ -9126,12 +9126,43 @@ window.dispatchEvent(new Event('supabase-ready'));
       var local=JSON.parse(rfxGet('rf_accounts')||'[]');
       if(cloud.length===0&&local.length>0){tqPushAccounts();return;}
       var cloudMap={};cloud.forEach(function(r){if(r.external_id)cloudMap[r.external_id]=r;});
+      var localMap={};local.forEach(function(a){if(a&&a.id)localMap[a.id]=a;});
       var merged=[];
-      cloud.forEach(function(r){merged.push(tqRowToAcc(r));});
-      local.forEach(function(a){if(!cloudMap[a.id])merged.push(a);});
+      var needsCloudDelete=[]; // local-deleted but still in cloud — re-delete
+      cloud.forEach(function(r){
+        var localT = localMap[r.external_id];
+        if(localT && localT.deleted){
+          // Local says deleted, cloud still has it — preserve local state, schedule cloud cleanup
+          merged.push(localT);
+          needsCloudDelete.push(r.external_id);
+          return;
+        }
+        var converted = tqRowToAcc(r);
+        // Preserve local-only flags that don't round-trip through cloud (archived, deletedAt, _cascadeId)
+        if(localT){
+          if(localT.archived) converted.archived = true;
+          if(localT.deletedAt) converted.deletedAt = localT.deletedAt;
+          if(localT._cascadeId) converted._cascadeId = localT._cascadeId;
+        }
+        merged.push(converted);
+      });
+      // Add local-only accounts (not in cloud)
+      local.forEach(function(a){
+        if(!cloudMap[a.id]) merged.push(a);
+      });
       rfxSet('rf_accounts',JSON.stringify(merged));
-      console.log('TradeQuill: Merged',merged.length,'accounts');
+      console.log('TradeQuill: Merged',merged.length,'accounts ('+needsCloudDelete.length+' pending cloud cleanup)');
+      // Re-issue cloud delete for accounts that local marked deleted but cloud still has
+      if(needsCloudDelete.length > 0 && _tqSupa && _tqUser){
+        needsCloudDelete.forEach(function(extId){
+          _tqSupa.from('accounts').delete().eq('user_id', _tqUser.id).eq('external_id', extId).then(function(r){
+            if(r.error) console.error('Cloud account cleanup error for', extId, ':', r.error);
+            else console.log('TradeQuill: Cloud-deleted stuck account', extId);
+          });
+        });
+      }
       if(typeof renderAccountsPage==='function')renderAccountsPage();
+      if(typeof updateDashboard==='function')updateDashboard();
     });
   }
 
@@ -9946,7 +9977,12 @@ window.dispatchEvent(new Event('supabase-ready'));
         if(attachedCount > 0) accs[idx]._cascadeId = cascadeId;
         accSave(accs);
         if(window._tqSupa && window._tqUser){
-          try{ _tqSupa.from('accounts').delete().eq('user_id', _tqUser.id).eq('external_id', id); }catch(e){}
+          try{
+            _tqSupa.from('accounts').delete().eq('user_id', _tqUser.id).eq('external_id', id).then(function(r){
+              if(r && r.error) console.error('Account cloud delete failed for', id, ':', r.error, '— will retry on next pull');
+              else console.log('TradeQuill: Cloud-deleted account', id);
+            });
+          }catch(e){ console.error('Account cloud delete threw:', e); }
         }
       }
 
@@ -9954,6 +9990,9 @@ window.dispatchEvent(new Event('supabase-ready'));
       renderAccountsPage();
       _accSyncDropdowns();
       if(typeof trUpdateBadge === 'function') try{ trUpdateBadge(); }catch(e){}
+      if(typeof updateDashboard === 'function') try{ updateDashboard(); }catch(e){}
+      if(typeof renderJournal === 'function') try{ renderJournal(); }catch(e){}
+      if(typeof updateReports === 'function') try{ updateReports(); }catch(e){}
     }
     window.deleteAccount = deleteAccount;
 
@@ -9997,6 +10036,9 @@ window.dispatchEvent(new Event('supabase-ready'));
       renderAccountsPage();
       _accSyncDropdowns();
       if(typeof trUpdateBadge === 'function') try{ trUpdateBadge(); }catch(e){}
+      if(typeof updateDashboard === 'function') try{ updateDashboard(); }catch(e){}
+      if(typeof renderJournal === 'function') try{ renderJournal(); }catch(e){}
+      if(typeof updateReports === 'function') try{ updateReports(); }catch(e){}
     }
     window.clearAccountTrades = clearAccountTrades;
 
