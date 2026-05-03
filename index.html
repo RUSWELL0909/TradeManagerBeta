@@ -18428,26 +18428,119 @@ window.dispatchEvent(new Event('supabase-ready'));
       }
 
       var parsed=parseCSV(raw);
-      if(parsed.length<2){alert('CSV is empty');return;}
+      if(parsed.length<2){
+        if(typeof tqAlert === 'function') tqAlert('CSV is empty', {type:'error'});
+        else alert('CSV is empty');
+        return;
+      }
       var headers=parsed[0].map(function(h){return h.trim().toLowerCase().replace(/[^\x20-\x7e]/g,'');});
       console.log('CSV Import: '+parsed.length+' rows, headers:',headers);
-      console.log('Date col:',headers.indexOf('date'),'Pair col:',headers.indexOf('pair'),'P&L col:',headers.indexOf('net p&l'));
+
+      // ── Smart header detection ──
+      // Supports the most common broker / journal CSV exports out of the box:
+      //   • MT4 / MT5 history export:  Open Time, Symbol, Profit, Volume, Open Price, S/L, T/P, Close Time, Close Price, Commission, Swap
+      //   • TradeZella export:         Date Opened, Date Closed, Symbol, Side, Net P/L, Quantity
+      //   • Tradervue:                 Date, Symbol, Side, Volume, Net P/L
+      //   • cTrader:                   Opened, Closed, Symbol, Side, Volume, Net P/L
+      //   • Edgewonk:                  Trade Date, Instrument, P/L
+      //   • TradeQuill own export:     Open Time, Symbol, Profit (matches MT5 — round-trip works)
+      function findHeader(candidates){
+        for(var ci=0; ci<candidates.length; ci++){
+          var idx = headers.indexOf(candidates[ci]);
+          if(idx >= 0) return idx;
+        }
+        return -1;
+      }
+
+      var DATE_ALIASES = ['date','open time','opened','date opened','close time','closed','date closed','trade date','entry date','entry time','time'];
+      var PAIR_ALIASES = ['symbol','pair','ticker','instrument','market','asset'];
+      var PNL_ALIASES  = ['profit','net p&l','net p/l','net pnl','pnl','p&l','p/l','realized profit','realised profit','profit & loss','net profit','gain','realized p&l'];
+
+      var dateIdx = findHeader(DATE_ALIASES);
+      var pairIdx = findHeader(PAIR_ALIASES);
+      var pnlIdx  = findHeader(PNL_ALIASES);
+
+      if(dateIdx < 0 || pairIdx < 0 || pnlIdx < 0){
+        var missing = [];
+        if(dateIdx < 0) missing.push('• Date — looked for: Date / Open Time / Opened / Date Opened / Trade Date');
+        if(pairIdx < 0) missing.push('• Symbol — looked for: Symbol / Pair / Ticker / Instrument');
+        if(pnlIdx  < 0) missing.push('• P&L — looked for: Profit / Net P&L / Net P/L / PnL / P/L');
+        var foundHeaders = headers.slice(0, 15).map(function(h){return '"'+h+'"';}).join(', ');
+        var msg = "Couldn't recognize this CSV format.\n\n" +
+                  "Missing required columns:\n" + missing.join('\n') +
+                  "\n\nYour file has these headers:\n" + foundHeaders + (headers.length>15?', …':'') +
+                  "\n\nSupported formats: MT4 / MT5, TradeZella, Tradervue, cTrader, Edgewonk.\n" +
+                  "Most brokers export in MT4/MT5 format by default — that should work.\n\n" +
+                  "If this is a custom export, rename the date column to 'Open Time' and the P&L column to 'Profit'.";
+        if(typeof tqConfirm === 'function'){
+          tqConfirm(msg, {title:'CSV format not recognized', okLabel:'Got it', cancelLabel:'Cancel'});
+        } else {
+          alert(msg);
+        }
+        console.error('CSV import failed — required columns not found. Headers:', headers);
+        return;
+      }
+
+      console.log('CSV detected: date col='+dateIdx+' (', headers[dateIdx]+'), pair col='+pairIdx+' (', headers[pairIdx]+'), pnl col='+pnlIdx+' (', headers[pnlIdx]+')');
+
       var trades=JSON.parse(rfxGet('rf_trades')||'[]');
       // Remove demo trades on import
       trades=trades.filter(function(t){return !t._demo;});
-      var added=0;var dupes=0;
+      var added=0;var dupes=0;var skipped=0;
       var existingIds={};trades.forEach(function(t){existingIds[t.date+'_'+t.pair+'_'+t.pnl]=true;});
 
       for(var i=1;i<parsed.length;i++){
         var cols=parsed[i];
-        if(cols.length<5) continue;
-        var dateIdx=headers.indexOf('date');
-        var pairIdx=headers.indexOf('pair');
-        var pnlIdx=headers.indexOf('net p&l');if(pnlIdx<0)pnlIdx=headers.indexOf('pnl');if(pnlIdx<0)pnlIdx=headers.indexOf('p&l');
-        if(dateIdx<0||pairIdx<0||pnlIdx<0) continue;
+        if(cols.length < Math.max(dateIdx, pairIdx, pnlIdx) + 1){ skipped++; continue; }
+
         var dateVal=cols[dateIdx]||'';
-        var pairVal=(cols[pairIdx]||'').toUpperCase();
-        var pnlVal=parseFloat(cols[pnlIdx])||0;
+        var pairVal=(cols[pairIdx]||'').toUpperCase().trim();
+
+        // Normalize P&L: handles "$1,234.56", "(123.45)" parentheses-negative, EU "1.234,56"
+        var pnlRaw = String(cols[pnlIdx]||'').trim();
+        var pnlClean = pnlRaw.replace(/[$€£¥\s]/g, '');
+        var isParenNeg = /^\(.+\)$/.test(pnlClean);
+        if(isParenNeg) pnlClean = '-' + pnlClean.slice(1, -1);
+        // EU decimal: more commas than dots → comma is the decimal separator
+        var nDots = (pnlClean.match(/\./g)||[]).length;
+        var nCommas = (pnlClean.match(/,/g)||[]).length;
+        if(nCommas > nDots){
+          pnlClean = pnlClean.replace(/\./g, '').replace(',', '.');
+        } else if(nCommas > 0 && nDots > 0){
+          // US thousand-separator: 1,234.56 → 1234.56
+          pnlClean = pnlClean.replace(/,/g, '');
+        } else if(nCommas === 1 && nDots === 0){
+          // Ambiguous "1234,56" — treat as decimal if 2 digits after comma
+          if(/,\d{2}$/.test(pnlClean)) pnlClean = pnlClean.replace(',', '.');
+          else pnlClean = pnlClean.replace(/,/g, '');
+        }
+        var pnlVal=parseFloat(pnlClean)||0;
+
+        // Normalize date to YYYY-MM-DD
+        if(dateVal){
+          var dateStr = String(dateVal).trim();
+          // Strip time portion if present (after space or 'T')
+          var dateOnly = dateStr.split(/[\sT]/)[0];
+          if(/^\d{4}-\d{2}-\d{2}$/.test(dateOnly)){
+            dateVal = dateOnly;
+          } else {
+            // Try DD.MM.YYYY / DD/MM/YYYY / MM/DD/YYYY / DD-MM-YYYY
+            var dmy = dateOnly.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{2,4})$/);
+            if(dmy){
+              var d1 = parseInt(dmy[1]), d2 = parseInt(dmy[2]), yr = parseInt(dmy[3]);
+              if(yr < 100) yr += 2000;
+              var day, month;
+              // Heuristic: if first > 12 → DD/MM; if second > 12 → MM/DD; else default DD/MM (more common globally + MT5 default)
+              if(d1 > 12){ day = d1; month = d2; }
+              else if(d2 > 12){ month = d1; day = d2; }
+              else { day = d1; month = d2; }
+              dateVal = yr + '-' + (month<10?'0':'') + month + '-' + (day<10?'0':'') + day;
+            }
+          }
+        }
+
+        if(!dateVal || !pairVal){ skipped++; continue; }
+
         // Duplicate check
         var dupeKey=dateVal+'_'+pairVal+'_'+pnlVal;
         if(existingIds[dupeKey]){dupes++;continue;}
@@ -18455,6 +18548,17 @@ window.dispatchEvent(new Event('supabase-ready'));
 
         var col=function(name){var idx=headers.indexOf(name);return idx>=0&&cols[idx]?cols[idx].trim():'';};
         var colF=function(name){return parseFloat(col(name))||0;};
+
+        // Detect direction from common aliases (Type / Side / Direction)
+        var dirRaw = (col('type')||col('side')||col('direction')||'buy').toLowerCase();
+        var direction = (dirRaw.indexOf('sell')>=0||dirRaw.indexOf('short')>=0) ? 'sell' : 'buy';
+
+        // Volume / lots — different brokers use different names
+        var lotsVal = colF('volume') || colF('lots') || colF('quantity') || colF('size');
+
+        // Entry / exit prices
+        var entryVal = colF('open price') || colF('entry') || colF('price open') || colF('entry price');
+        var exitVal  = colF('close price') || colF('exit')  || colF('price close') || colF('exit price');
 
         trades.push({
           id:'tr_imp_'+Date.now()+'_'+i+'_'+Math.random().toString(36).slice(2,5),
@@ -18471,24 +18575,37 @@ window.dispatchEvent(new Event('supabase-ready'));
             }catch(e){}
             return 'USD';
           })(),
-          direction:col('direction')||'buy',
+          direction: direction,
           setup:col('setup'),
           emotion:col('emotion'),
           pnl:pnlVal,
           grossPnl:colF('gross p&l')||pnlVal,
-          entry:colF('entry'),
-          sl:colF('sl'),
-          tp:colF('tp'),
-          exit:colF('exit'),
-          lots:colF('lots'),
+          entry: entryVal,
+          sl: colF('s/l') || colF('sl') || colF('stop loss'),
+          tp: colF('t/p') || colF('tp') || colF('take profit'),
+          exit: exitVal,
+          lots: lotsVal,
           grade:col('grade'),
           planFollowed:col('plan followed'),
           status:col('status'),
           session:col('session'),
-          entryTime:col('entry time'),
-          exitTime:col('exit time'),
-          commission:colF('commission'),
-          notes:col('notes'),
+          entryTime: (function(){
+            // MT5 puts time in "Open Time" column, e.g. "2024-05-02 14:30:00"
+            var ot = String(cols[dateIdx]||'').trim();
+            var tm = ot.match(/(\d{2}:\d{2}(?::\d{2})?)/);
+            return col('entry time') || (tm ? tm[1].slice(0,5) : '');
+          })(),
+          exitTime: (function(){
+            var ctIdx = headers.indexOf('close time');
+            if(ctIdx >= 0 && cols[ctIdx]){
+              var tm = String(cols[ctIdx]).match(/(\d{2}:\d{2}(?::\d{2})?)/);
+              if(tm) return tm[1].slice(0,5);
+            }
+            return col('exit time') || '';
+          })(),
+          commission: colF('commission') || colF('comm'),
+          swap: colF('swap'),
+          notes: col('notes') || col('comment'),
           confluences:col('confluences')?col('confluences').split(';').filter(Boolean):[],
           psychTags:col('mistakes')?col('mistakes').split(';').filter(Boolean):[],
           dailyBias:col('daily bias'),
