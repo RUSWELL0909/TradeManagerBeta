@@ -36,18 +36,27 @@
     lk.href = url;
     document.head.appendChild(lk);
   }catch(e){ console.warn('PWA manifest registration failed', e); }
-  // Note: A true offline service worker requires a separate sw.js file at the
-  // site root (browser security forbids blob: URL service workers from
-  // intercepting fetches). For this single-file build, manifest alone enables
-  // "Install to homescreen" on iOS/Android — the main UX win. Full offline
-  // support would require breaking the single-file pattern.
+  // Real Service Worker — caches shell for offline use.
+  // Lives in sw.js at site root. Browser security forbids blob: URL SWs from
+  // intercepting fetch, so the file must be served from same origin.
+  try{
+    if('serviceWorker' in navigator){
+      window.addEventListener('load', function(){
+        navigator.serviceWorker.register('./sw.js').then(function(reg){
+          console.log('TradeQuill: Service worker registered (scope:', reg.scope+')');
+        }).catch(function(err){
+          console.warn('TradeQuill: SW registration failed (offline mode unavailable)', err);
+        });
+      });
+    }
+  }catch(e){ console.warn('SW setup error', e); }
 })();
 </script>
 <!-- Content Security Policy — restricts where the app can connect, blocking exfiltration via XSS.
      'unsafe-inline' is unavoidable for the single-file architecture (inline scripts/styles).
      We allow only known endpoints: Supabase (data), Anthropic (AI Coach via Worker), Cloudflare Workers (custom),
      TradingView (charts), Forex Factory (news), Google Fonts, and data: for embedded SVGs/images. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.anthropic.com https://*.workers.dev https://api.exchangerate.host https://www.tradingview.com https://*.tradingview.com https://www.forexfactory.com; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; frame-src https://*.tradingview.com https://www.tradingview.com;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.anthropic.com https://*.workers.dev https://api.exchangerate.host https://api.frankfurter.app https://www.tradingview.com https://*.tradingview.com https://www.forexfactory.com; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; frame-src https://*.tradingview.com https://www.tradingview.com;">
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%230a0814'/%3E%3Cpath d='M160 380V160c0-12 8-24 20-28l100-36c8-3 16 3 16 12v240' stroke='%237c5af0' stroke-width='20' fill='none' stroke-linecap='round'/%3E%3Cpath d='M296 200l60-20v180' stroke='%232ecc8a' stroke-width='14' fill='none' stroke-linecap='round'/%3E%3Cpath d='M140 320l40-60 30 20 40-50 30 30 40-40' stroke='%237c5af0' stroke-width='10' fill='none' stroke-linecap='round' stroke-linejoin='round' opacity='.4'/%3E%3C/svg%3E">
 <title>TradeQuill</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Syne:wght@600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Libre+Caslon+Display&display=swap" rel="stylesheet">
@@ -3894,6 +3903,22 @@ window.dispatchEvent(new Event('supabase-ready'));
       <div class="ap-cards" id="ap-cards"></div>
     </div>
 
+    <!-- PRE-TRADE READINESS CHECKLIST -->
+    <div id="ck-pretrade-checklist" style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 22px;margin-bottom:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text);font-family:'Syne',sans-serif">Pre-Trade Readiness</div>
+            <div style="font-size:10px;color:var(--text3);margin-top:2px">Verify before pressing buy/sell. <span id="ck-checklist-score" style="color:var(--accent);font-weight:600">0/6</span> ready</div>
+          </div>
+        </div>
+        <button onclick="ckChecklistReset()" style="background:none;border:none;color:var(--text3);font-size:10px;cursor:pointer">Reset</button>
+      </div>
+      <div id="ck-checklist-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px"></div>
+      <div id="ck-checklist-banner" style="margin-top:10px;display:none"></div>
+    </div>
+
     <!-- SESSION + PAIR SELECTOR -->
     <div class="ck-top-bar">
       <div class="ck-top-section">
@@ -4036,7 +4061,7 @@ window.dispatchEvent(new Event('supabase-ready'));
 
       <!-- WWA hint -->
       <div style="position:relative;z-index:1;animation:welcomeFadeUp .5s ease-out .65s both">
-        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 20px;display:flex;align-items:center;gap:14px;text-align:left;margin-bottom:20px;position:relative;overflow:hidden;transition:border-color .3s" onmouseover="this.style.borderColor='rgba(124,90,240,.25)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 20px;display:flex;align-items:center;gap:14px;text-align:left;margin-bottom:14px;position:relative;overflow:hidden;transition:border-color .3s" onmouseover="this.style.borderColor='rgba(124,90,240,.25)'" onmouseout="this.style.borderColor='var(--border)'">
           <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 10%,rgba(124,90,240,.12) 50%,transparent 90%)"></div>
           <div style="width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,rgba(124,90,240,.1),rgba(96,165,250,.06));display:flex;align-items:center;justify-content:center;flex-shrink:0">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
@@ -4046,6 +4071,14 @@ window.dispatchEvent(new Event('supabase-ready'));
             <div style="font-size:11px;color:var(--text3);font-family:'Inter',sans-serif;margin-top:2px">Playbook → Community → enter <span style="color:var(--accent);font-weight:700;font-family:'DM Mono',monospace;background:rgba(124,90,240,.08);padding:1px 6px;border-radius:4px">WWA2025</span></div>
           </div>
         </div>
+      </div>
+
+      <!-- Try with sample data -->
+      <div style="position:relative;z-index:1;animation:welcomeFadeUp .5s ease-out .7s both;margin-bottom:20px">
+        <button onclick="tqLoadSampleData()" style="background:linear-gradient(135deg,rgba(46,204,138,.08),rgba(96,165,250,.04));border:1px dashed rgba(46,204,138,.3);border-radius:12px;padding:14px 24px;cursor:pointer;color:var(--text);font-family:Inter,sans-serif;font-size:12px;font-weight:600;transition:all .15s;display:inline-flex;align-items:center;gap:10px" onmouseover="this.style.borderColor='rgba(46,204,138,.5)';this.style.background='linear-gradient(135deg,rgba(46,204,138,.12),rgba(96,165,250,.06))'" onmouseout="this.style.borderColor='rgba(46,204,138,.3)';this.style.background='linear-gradient(135deg,rgba(46,204,138,.08),rgba(96,165,250,.04))'">
+          <span style="font-size:18px">🎮</span>
+          <span>Try with sample data <span style="color:var(--text3);font-weight:400;margin-left:4px">— 55 demo trades, no commitment</span></span>
+        </button>
       </div>
 
       <div style="position:relative;z-index:1;animation:welcomeFadeUp .5s ease-out .8s both;display:flex;justify-content:center">
@@ -4080,7 +4113,8 @@ window.dispatchEvent(new Event('supabase-ready'));
           <option value="NZD">NZD (NZ$)</option>
         </select>
         <div id="dash-view-switcher" style="display:flex;gap:2px;padding:3px;background:var(--bg2);border:1px solid var(--border);border-radius:8px">
-          <button class="dash-view-btn active" data-view="dollar" onclick="dashSetView('dollar')" title="Dollar view" style="padding:5px 10px;border:none;background:var(--accent);color:white;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">$</button>
+          <button class="dash-view-btn active" data-view="dollar" onclick="dashSetView('dollar')" title="Dollar view (display currency)" style="padding:5px 10px;border:none;background:var(--accent);color:white;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">$</button>
+          <button class="dash-view-btn" data-view="rmultiple" onclick="dashSetView('rmultiple')" title="R-Multiple view (P&L in R units of risk)" style="padding:5px 10px;border:none;background:transparent;color:var(--text3);border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">R</button>
           <button class="dash-view-btn" data-view="percent" onclick="dashSetView('percent')" title="Percentage view" style="padding:5px 10px;border:none;background:transparent;color:var(--text3);border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">%</button>
           <button class="dash-view-btn" data-view="privacy" onclick="dashSetView('privacy')" title="Privacy view (hide amounts)" style="padding:5px 10px;border:none;background:transparent;color:var(--text3);border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">👁</button>
         </div>
@@ -4467,6 +4501,14 @@ window.dispatchEvent(new Event('supabase-ready'));
               </div>
             </div>
           </div>
+          <!-- GOALS WIDGET -->
+          <div class="card" data-widget="goals" style="padding:14px 16px;display:flex;flex-direction:column">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <span class="dash-label" style="font-size:10px">Goals</span>
+              <button onclick="tqOpenGoals()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:11px;padding:0" title="Manage goals">+</button>
+            </div>
+            <div id="dash-goals-list" style="display:flex;flex-direction:column;gap:6px;font-family:Inter,sans-serif"></div>
+          </div>
         </div>
 
         <!-- RECENT TRADES + CALENDAR -->
@@ -4631,9 +4673,15 @@ window.dispatchEvent(new Event('supabase-ready'));
         <select class="jr-select" id="jr-session-filter" style="width:110px;padding:5px 8px;font-size:11px" onchange="renderJournal()"><option>All Sessions</option></select>
         <select class="jr-select" id="jr-account-filter" style="width:120px;padding:5px 8px;font-size:11px" onchange="renderJournal()"><option>All Accounts</option></select>
         <select class="jr-select" id="jr-grade-filter" style="width:90px;padding:5px 8px;font-size:11px" onchange="renderJournal()"><option>All Grades</option><option>A+</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
+        <select class="jr-select" id="jr-pinned-filter" style="width:100px;padding:5px 8px;font-size:11px" onchange="renderJournal()"><option value="">All trades</option><option value="pinned">★ Pinned only</option></select>
         <select class="jr-select" id="jr-dir-filter" style="width:100px;padding:5px 8px;font-size:11px" onchange="renderJournal()"><option>All Dirs</option><option value="buy">Long</option><option value="sell">Short</option></select>
         <select class="jr-select" id="jr-tag-filter" style="width:110px;padding:5px 8px;font-size:11px" onchange="renderJournal()"><option>All Tags</option></select>
         <div style="flex:1"></div>
+        <!-- Saved filter presets -->
+        <select id="jr-preset-load" class="jr-select" style="width:140px;padding:5px 8px;font-size:11px" title="Load saved filter">
+          <option value="">Saved filters…</option>
+        </select>
+        <button class="jr-filter" style="padding:4px 10px;font-size:10px" onclick="jrSaveFilterPreset()" title="Save current filters as preset">★ Save</button>
         <!-- Date range presets — TradeZella-style quick filters -->
         <div style="display:inline-flex;gap:2px;background:var(--bg3);border-radius:6px;padding:2px;border:1px solid var(--border);margin-right:6px" id="jr-date-presets">
           <button class="jr-date-preset" data-preset="7d" style="padding:3px 8px;font-size:10px;background:transparent;border:none;color:var(--text2);border-radius:4px;cursor:pointer;font-family:Inter,sans-serif">7d</button>
@@ -5909,6 +5957,18 @@ window.dispatchEvent(new Event('supabase-ready'));
 
   <!-- ═══ REPORTS ═══ -->
   <div id="page-reports" class="page">
+    <div id="reports-empty-state" style="display:none;text-align:center;padding:80px 40px;font-family:Inter,sans-serif">
+      <div style="width:96px;height:96px;margin:0 auto 24px;background:rgba(124,90,240,.08);border-radius:24px;display:flex;align-items:center;justify-content:center">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><path d="M3 3v18h18M7 17l4-4 4 4 5-5"/></svg>
+      </div>
+      <div style="font-size:20px;font-weight:600;color:var(--text);margin-bottom:8px">No trades to analyze yet</div>
+      <div style="font-size:13px;color:var(--text2);max-width:380px;margin:0 auto 28px;line-height:1.6">Reports unlock the deepest insights — equity curve, drawdown analysis, R:R distribution, MFE/MAE, quant ratios and more. Add at least 5 trades to get started.</div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <button onclick="showPage('journal');setTimeout(function(){if(typeof openJrModal==='function')openJrModal();},150)" style="background:var(--accent);color:#fff;border:none;padding:11px 22px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">+ Add first trade</button>
+        <button onclick="showPage('journal')" style="background:var(--bg3);color:var(--text);border:1px solid var(--border);padding:11px 22px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Go to Journal</button>
+      </div>
+    </div>
+    <div id="reports-content">
     <div class="page-header">
       <div><div class="page-title">Reports</div><div class="page-sub">Deep analytics & edge detection · <span id="rpt-trade-count">0</span> trades analyzed</div></div>
       <button class="btn btn-ghost" style="font-size:11px;padding:8px 16px" onclick="openExportModal()">↓ Export PDF</button>
@@ -6317,6 +6377,41 @@ window.dispatchEvent(new Event('supabase-ready'));
         <div id="rpt-mfe-mae" style="margin-top:14px"></div>
       </div>
 
+      <!-- HOUR × DAY HEATMAP -->
+      <div class="rpt-card rpt-anim rpt-d11" style="margin-top:14px">
+        <div class="rpt-card-hdr"><span class="rpt-card-title">When You Trade Best <span class="info-icon" data-tip="Heat map of P&L by hour of day × day of week. Find your golden window — the time-slot where you consistently win.">i</span></span><span class="badge">edge finder</span></div>
+        <div class="rpt-card-desc">Each cell = hour of day × day of week. Color = net P&L. Hover for trade count + win rate.</div>
+        <div id="rpt-hourday-heatmap" style="margin-top:14px;overflow-x:auto"></div>
+      </div>
+
+      <!-- R:R DISTRIBUTION -->
+      <div class="rpt-card rpt-anim rpt-d11" style="margin-top:14px">
+        <div class="rpt-card-hdr"><span class="rpt-card-title">R:R Distribution <span class="info-icon" data-tip="How are your trades distributed by R:R? Disciplined traders show concentration around 1.5-3.0 R. Many trades at 1:1 or below = revenge / scratch trades.">i</span></span><span class="badge">edgewonk</span></div>
+        <div class="rpt-card-desc">A disciplined trader's R:R distribution should cluster between 1.5 and 3.0.</div>
+        <div id="rpt-rr-distribution" style="margin-top:14px"></div>
+      </div>
+
+      <!-- HOLD-TIME ANALYSIS -->
+      <div class="rpt-card rpt-anim rpt-d11" style="margin-top:14px">
+        <div class="rpt-card-hdr"><span class="rpt-card-title">Hold Time Analysis <span class="info-icon" data-tip="How long do your winners vs losers stay open? Winners >> Losers means you cut losses fast (good). Winners < Losers = you ride losers, paper-hand winners.">i</span></span></div>
+        <div class="rpt-card-desc">Quick on losses, patient with winners — that's the goal.</div>
+        <div id="rpt-hold-time" style="margin-top:14px"></div>
+      </div>
+
+      <!-- ADVANCED RATIOS -->
+      <div class="rpt-card rpt-anim rpt-d11" style="margin-top:14px">
+        <div class="rpt-card-hdr"><span class="rpt-card-title">Quant Ratios <span class="info-icon" data-tip="Standard quantitative ratios. Sharpe > 1 is good, > 2 excellent. Calmar > 1 means returns exceed worst drawdown. Sortino is Sharpe but only counts downside volatility.">i</span></span><span class="badge">advanced</span></div>
+        <div class="rpt-card-desc">Industry-standard performance ratios for serious traders.</div>
+        <div id="rpt-quant-ratios" style="margin-top:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px"></div>
+      </div>
+
+      <!-- CONFLUENCE CORRELATION -->
+      <div class="rpt-card rpt-anim rpt-d11" style="margin-top:14px">
+        <div class="rpt-card-hdr"><span class="rpt-card-title">Confluence Correlation <span class="info-icon" data-tip="Which 2-confluence combinations work best for you? Like a chemistry chart — some pairings amplify edge, others nullify it.">i</span></span><span class="badge">advanced</span></div>
+        <div class="rpt-card-desc">Pairs of confluences ranked by your historical win rate when both present.</div>
+        <div id="rpt-confluence-pairs" style="margin-top:14px"></div>
+      </div>
+
       <!-- BY ACCOUNT BREAKDOWN -->
       <div class="rpt-card rpt-anim rpt-d11" style="margin-top:14px">
         <div class="rpt-card-hdr"><span class="rpt-card-title">Performance by Account <span class="info-icon" data-tip="Compare P&L, win rate, and trade count across your accounts.">i</span></span></div>
@@ -6705,6 +6800,7 @@ window.dispatchEvent(new Event('supabase-ready'));
         <div id="rpt-cross-insights" style="display:grid;grid-template-columns:1fr 1fr;gap:12px"></div>
       </div>
     </div>
+    </div><!-- /reports-content -->
 
   </div>
   <div id="page-playbook" class="page">
@@ -6993,6 +7089,17 @@ window.dispatchEvent(new Event('supabase-ready'));
 
   <!-- ═══ AI COACH ═══ -->
   <div id="page-aicoach" class="page">
+    <div id="aicoach-empty-state" style="display:none;text-align:center;padding:80px 40px;font-family:Inter,sans-serif">
+      <div style="width:96px;height:96px;margin:0 auto 24px;background:linear-gradient(135deg,rgba(124,90,240,.12),rgba(155,126,248,.08));border-radius:24px;display:flex;align-items:center;justify-content:center">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><path d="M12 2a4 4 0 014 4v1a2 2 0 012 2v1a2 2 0 01-2 2H8a2 2 0 01-2-2V9a2 2 0 012-2V6a4 4 0 014-4z"/><path d="M6 12v2a6 6 0 0012 0v-2"/></svg>
+      </div>
+      <div style="font-size:20px;font-weight:600;color:var(--text);margin-bottom:8px">AI Coach needs your trades</div>
+      <div style="font-size:13px;color:var(--text2);max-width:380px;margin:0 auto 28px;line-height:1.6">Claude analyzes patterns in your trade history — revenge trading, plan adherence, time-of-day drift. Add at least 5 trades and the AI Coach will surface insights you can't see yourself.</div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <button onclick="showPage('journal');setTimeout(function(){if(typeof openJrModal==='function')openJrModal();},150)" style="background:var(--accent);color:#fff;border:none;padding:11px 22px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">+ Add first trade</button>
+      </div>
+    </div>
+    <div id="aicoach-content">
     <div class="page-header">
       <div><div class="page-title">AI Coach</div><div class="page-sub">Mentor-style trade analysis · powered by Claude</div></div>
     </div>
@@ -7104,6 +7211,7 @@ window.dispatchEvent(new Event('supabase-ready'));
         <div id="ai-whatif-response" style="font-size:12px;color:var(--text2);line-height:1.7;margin-top:8px;display:flex;flex-direction:column;gap:8px"></div>
       </div>
     </div>
+    </div><!-- /aicoach-content -->
   </div>
 
   <!-- ═══ YOUR EDGE (Level 5: Adaptive Coaching) ═══ -->
@@ -7413,6 +7521,36 @@ window.dispatchEvent(new Event('supabase-ready'));
         </div>
       </div>
 
+      <!-- Trading preferences section -->
+      <div style="padding:14px 16px;background:var(--bg2);border-radius:10px;border:1px solid var(--border)">
+        <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.5px;margin-bottom:10px">TRADING PREFERENCES</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div>
+            <label style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:4px">Methodology</label>
+            <select id="settings-methodology" style="width:100%;padding:8px 10px;background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;font-family:Inter,sans-serif">
+              <option value="WWA">WWA — Wakar Asim</option>
+              <option value="SMC">Smart Money Concepts</option>
+              <option value="ICT">ICT — Inner Circle</option>
+              <option value="priceaction">Classical Price Action</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:4px">Display Currency</label>
+            <select id="settings-currency" style="width:100%;padding:8px 10px;background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;font-family:Inter,sans-serif">
+              <option value="USD">USD ($)</option>
+              <option value="EUR">EUR (€)</option>
+              <option value="GBP">GBP (£)</option>
+              <option value="JPY">JPY (¥)</option>
+              <option value="CHF">CHF</option>
+              <option value="CAD">CAD (C$)</option>
+              <option value="AUD">AUD (A$)</option>
+            </select>
+          </div>
+        </div>
+        <div style="font-size:10px;color:var(--text3);line-height:1.5">Methodology shapes AI Coach analysis. Display currency converts P&L from each account's native currency.</div>
+      </div>
+
       <!-- Data section -->
       <div style="padding:14px 16px;background:var(--bg2);border-radius:10px;border:1px solid var(--border)">
         <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.5px;margin-bottom:10px">YOUR DATA</div>
@@ -7427,6 +7565,12 @@ window.dispatchEvent(new Event('supabase-ready'));
           <button onclick="settingsExport()" style="flex:1;padding:8px;border-radius:6px;border:1px solid var(--border);background:var(--card);cursor:pointer;font-size:11px;color:var(--text);font-weight:600">💾 Export JSON</button>
           <button onclick="settingsClearConfirm()" style="flex:1;padding:8px;border-radius:6px;border:1px solid rgba(224,92,122,.3);background:rgba(224,92,122,.05);cursor:pointer;font-size:11px;color:var(--red);font-weight:600">🗑 Clear local data</button>
         </div>
+      </div>
+
+      <!-- Help / FAQ section -->
+      <div style="padding:14px 16px;background:var(--bg2);border-radius:10px;border:1px solid var(--border)">
+        <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.5px;margin-bottom:10px">HELP & FAQ</div>
+        <div id="settings-faq-list" style="display:flex;flex-direction:column;gap:6px"></div>
       </div>
 
       <!-- About section -->
@@ -7468,6 +7612,58 @@ window.dispatchEvent(new Event('supabase-ready'));
     var theme = document.documentElement.getAttribute('data-theme') || 'dark';
     document.querySelectorAll('.settings-theme-btn').forEach(function(b){b.classList.remove('active');});
     var active = document.getElementById('set-theme-'+theme); if(active) active.classList.add('active');
+    // Sync methodology + currency selectors with current values
+    var methSel = document.getElementById('settings-methodology');
+    if(methSel && typeof tqGetMethodology === 'function'){
+      methSel.value = tqGetMethodology();
+      if(!methSel._wired){
+        methSel._wired = true;
+        methSel.addEventListener('change', function(){
+          try{
+            var s = JSON.parse(rfxGet('rfx_settings')||'{}');
+            s.methodology = methSel.value;
+            rfxSet('rfx_settings', JSON.stringify(s));
+            rfxSet('tq_user_mode', methSel.value);
+            if(typeof tqPushSettings === 'function') tqPushSettings();
+            if(typeof tqToast === 'function') tqToast('Methodology updated — AI Coach will use new context', {type:'success'});
+          }catch(e){}
+        });
+      }
+    }
+    var ccySel = document.getElementById('settings-currency');
+    if(ccySel && typeof tqGetDisplayCurrency === 'function'){
+      ccySel.value = tqGetDisplayCurrency();
+      if(!ccySel._wired){
+        ccySel._wired = true;
+        ccySel.addEventListener('change', function(){
+          if(typeof tqSetDisplayCurrency === 'function') tqSetDisplayCurrency(ccySel.value);
+        });
+      }
+    }
+    // Render FAQ
+    var faqList = document.getElementById('settings-faq-list');
+    if(faqList && !faqList._rendered){
+      faqList._rendered = true;
+      var FAQ = [
+        {q:'How do I import trades from MT4/MT5?', a:'Go to Journal → Import CSV. Export your account history from MT5 (right-click history tab → Save As Report → CSV) and pick that file. TradeQuill auto-detects standard MT4/MT5/TradeZella column names. Before import you\'ll be asked to choose which TradeQuill account the trades belong to.'},
+        {q:'Can I have multiple accounts (FTMO + live + demo)?', a:'Yes. My Accounts page → +Add new account. Each account has its own currency and funded-rule limits. Dashboard aggregates across all accounts and converts to your display currency.'},
+        {q:'Where is my data stored?', a:'Locally in your browser (localStorage) and synced to Supabase cloud (encrypted). Both work offline — local writes immediately, cloud syncs in background. Export anytime via Settings → Export JSON.'},
+        {q:'How do I delete a trade?', a:'In Journal, click the trash icon on a row, or select multiple via checkboxes and click Delete. Trades go to Trash for 90 days where you can restore them, then are permanently deleted.'},
+        {q:'What does "lifecycle" mean?', a:'Trades have stages: Plan (you\'ve identified a setup), Live (you opened position), Closed (you closed it), or Cancelled (setup didn\'t play out). You can plan a trade in Cockpit then promote it through stages.'},
+        {q:'How does AI Coach work?', a:'AI Coach analyzes your trade patterns using Claude AI. It detects revenge trading, plan adherence drift, time-of-day patterns, etc. Methodology in Settings shapes the analysis lens (WWA / SMC / ICT / etc.).'},
+        {q:'Can I share my journal with my mentor?', a:'Mentor mode is on the roadmap — not available yet. For now, export JSON and share manually.'},
+        {q:'What if I run out of storage?', a:'Browsers limit localStorage to ~5-10MB. Screenshots auto-migrate to cloud storage as you add more. If you hit the limit, run tqMigrateScreenshots() in console or remove old screenshots.'},
+        {q:'How do funded rules work?', a:'In My Accounts, edit any prop/funded account and set Daily Loss Limit (% of starting balance), Max Drawdown Limit, Profit Target. The dashboard shows progress bars and warns when you approach limits.'},
+        {q:'Is my data private?', a:'Yes. Each user\'s data is isolated by Supabase Row-Level Security — physically impossible for another user to read. Single-file architecture means no third-party scripts collecting your trades.'},
+        {q:'How do I report a bug?', a:'Click the 💬 button in the bottom-right corner. Describe what happened, send. Includes anonymized debug info (trade count, browser, screen size — no trade contents).'}
+      ];
+      faqList.innerHTML = FAQ.map(function(f, i){
+        return '<details style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:8px 12px;cursor:pointer">' +
+                 '<summary style="font-size:11px;color:var(--text);font-weight:600;list-style:none;display:flex;align-items:center;justify-content:space-between"><span>'+f.q.replace(/</g,'&lt;')+'</span><span style="color:var(--text3);font-size:10px">›</span></summary>' +
+                 '<div style="font-size:11px;color:var(--text2);line-height:1.6;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">'+f.a.replace(/</g,'&lt;')+'</div>' +
+               '</details>';
+      }).join('');
+    }
     m.classList.add('show');
   };
   window.settingsClose = function(){
@@ -8508,7 +8704,8 @@ window.dispatchEvent(new Event('supabase-ready'));
         cancelAt: t.cancelAt||null,
         cancelReason: t.cancelReason||null,
         _lastWriteId: t._lastWriteId||null,
-        currency: t.currency||null
+        currency: t.currency||null,
+        pinned: !!t.pinned
       }
     };
     return row;
@@ -8586,7 +8783,8 @@ window.dispatchEvent(new Event('supabase-ready'));
       cancelAt: ex.cancelAt||null,
       cancelReason: ex.cancelReason||null,
       _lastWriteId: ex._lastWriteId||null,
-      currency: ex.currency||null
+      currency: ex.currency||null,
+      pinned: !!ex.pinned
     };
   }
 
@@ -8640,12 +8838,14 @@ window.dispatchEvent(new Event('supabase-ready'));
       if(res.error){
         console.error('Batch push error:', res.error);
         tqSetSyncStatus('error','Sync error');
+        if(typeof tqToast==='function') tqToast('⚠ Failed to sync '+rows.length+' trades: '+(res.error.message||res.error.code||'unknown'), {type:'error', duration:6000});
       } else {
         tqSetSyncStatus('ok','Synced '+rows.length);
       }
     }).catch(function(e){
       console.error('Batch push threw:', e);
       tqSetSyncStatus('error','Sync error');
+      if(typeof tqToast==='function') tqToast('⚠ Sync error: '+(e&&e.message||'network'), {type:'error', duration:6000});
     });
   }
   window.tqPushTradesBatch = tqPushTradesBatch;
@@ -8673,6 +8873,15 @@ window.dispatchEvent(new Event('supabase-ready'));
   window.tqDeleteTrade = tqDeleteTrade;
 
   // ══ SYNC: Pull all trades from Supabase on login ══
+  // ── Sync loop circuit breaker ──
+  // If correction push gets queued for the SAME set of trade IDs across multiple pulls,
+  // the cloud isn't accepting our writes (RLS, schema, network). Stop hammering Supabase.
+  var _tqCorrMemo = { sig: '', repeats: 0, disabled: false };
+  function _tqCorrSignature(arr){
+    var ids = arr.map(function(t){ return t.id; }).sort();
+    return ids.length + ':' + ids.slice(0,20).join(',') + (ids.length>20?'...':'');
+  }
+
   function tqPullTrades(){
     if(!_tqSupa || !_tqUser) return;
     tqSetSyncStatus('syncing','Pulling...');
@@ -8745,9 +8954,14 @@ window.dispatchEvent(new Event('supabase-ready'));
             return r;
           });
           _tqSupa.from('trades').upsert(rows, {onConflict:'user_id,external_id'}).then(function(r2){
-            if(r2.error) console.error('Batch push error:', r2.error);
-            else console.log('TradeQuill: Pushed', toPush.length, 'local trades to cloud');
-            tqSetSyncStatus('ok','Synced');
+            if(r2.error){
+              console.error('Batch push error:', r2.error);
+              tqSetSyncStatus('error','Push failed');
+              if(typeof tqToast==='function') tqToast('⚠ Failed to sync '+toPush.length+' trades to cloud: '+(r2.error.message||r2.error.code||'unknown error'), {type:'error', duration:6000});
+            } else {
+              console.log('TradeQuill: Pushed', toPush.length, 'local trades to cloud');
+              tqSetSyncStatus('ok','Synced');
+            }
           });
         }
 
@@ -8755,18 +8969,51 @@ window.dispatchEvent(new Event('supabase-ready'));
         // whose cloud row lacks deleted=true (legacy data from before the fix).
         // After this, soft-delete is durable across reload/realtime.
         if(needsCorrectionPush.length > 0){
-          var corrWriteId = 'wc_' + Date.now() + '_' + Math.random().toString(36).slice(2,10);
-          var corrRows = needsCorrectionPush.map(function(t){
-            t._lastWriteId = corrWriteId;
-            _tqOwnWrites[t.id] = {ts: Date.now(), writeId: corrWriteId};
-            var r = tqTradeToRow(t);
-            r.user_id = _tqUser.id;
-            return r;
-          });
-          _tqSupa.from('trades').upsert(corrRows, {onConflict:'user_id,external_id'}).then(function(rc){
-            if(rc.error) console.error('Soft-delete correction push error:', rc.error);
-            else console.log('TradeQuill: Re-synced', needsCorrectionPush.length, 'soft-deleted trades to cloud');
-          });
+          // ── Circuit breaker ──
+          // If we keep needing to correct the SAME trades pull after pull, the writes
+          // aren't sticking (RLS denial, schema mismatch, etc). Stop the loop.
+          var corrSig = _tqCorrSignature(needsCorrectionPush);
+          if(_tqCorrMemo.sig === corrSig){
+            _tqCorrMemo.repeats++;
+          } else {
+            _tqCorrMemo.sig = corrSig;
+            _tqCorrMemo.repeats = 1;
+          }
+          if(_tqCorrMemo.repeats >= 3){
+            if(!_tqCorrMemo.disabled){
+              _tqCorrMemo.disabled = true;
+              console.error('TradeQuill: Correction push circuit breaker TRIPPED. Same '+needsCorrectionPush.length+' trades needing soft-delete correction across 3 pulls — cloud is not accepting writes. Disabling auto-correction for this session. Local soft-delete still works.');
+              if(typeof tqToast==='function') tqToast('⚠ Cloud sync loop detected for '+needsCorrectionPush.length+' deleted trades. Auto-correction paused. Trades remain hidden locally.', {type:'error', duration:8000});
+              tqSetSyncStatus('error','Sync paused');
+            }
+          } else if(!_tqCorrMemo.disabled){
+            var corrWriteId = 'wc_' + Date.now() + '_' + Math.random().toString(36).slice(2,10);
+            var corrRows = needsCorrectionPush.map(function(t){
+              t._lastWriteId = corrWriteId;
+              _tqOwnWrites[t.id] = {ts: Date.now(), writeId: corrWriteId};
+              var r = tqTradeToRow(t);
+              r.user_id = _tqUser.id;
+              return r;
+            });
+            _tqSupa.from('trades').upsert(corrRows, {onConflict:'user_id,external_id'}).then(function(rc){
+              if(rc.error){
+                console.error('Soft-delete correction push error:', rc.error);
+                if(typeof tqToast==='function') tqToast('⚠ Soft-delete correction failed: '+(rc.error.message||rc.error.code||'unknown'), {type:'error', duration:6000});
+              } else {
+                console.log('TradeQuill: Re-synced', needsCorrectionPush.length, 'soft-deleted trades to cloud (attempt '+_tqCorrMemo.repeats+'/3)');
+                // On success, reset memo so future legitimate corrections work
+                if(_tqCorrMemo.repeats === 1){
+                  // First-time success likely fixes everything; clear memo on next pull
+                  setTimeout(function(){ _tqCorrMemo.sig=''; _tqCorrMemo.repeats=0; }, 3000);
+                }
+              }
+            });
+          }
+        } else {
+          // No corrections needed → loop is healthy, reset memo
+          _tqCorrMemo.sig = '';
+          _tqCorrMemo.repeats = 0;
+          _tqCorrMemo.disabled = false;
         }
 
         // Refresh UI
@@ -10006,16 +10253,34 @@ window.dispatchEvent(new Event('supabase-ready'));
 
   // ══ MASTER PULL — called on login ══
   function tqPullAll(){
+    // Show loading banner during initial pull (3-5 sec total). User sees something is happening.
+    if(!document.getElementById('tq-pull-banner')){
+      var banner = document.createElement('div');
+      banner.id = 'tq-pull-banner';
+      banner.style.cssText = 'position:fixed;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent));background-size:200% 100%;animation:tqPullProg 1.4s linear infinite;z-index:99998';
+      document.body.appendChild(banner);
+      // Inject keyframes once
+      if(!document.getElementById('tq-pull-css')){
+        var st = document.createElement('style');
+        st.id = 'tq-pull-css';
+        st.textContent = '@keyframes tqPullProg{0%{background-position:200% 0}100%{background-position:-200% 0}}';
+        document.head.appendChild(st);
+      }
+      // Auto-remove after 5s (when all pulls should be done)
+      setTimeout(function(){
+        var b = document.getElementById('tq-pull-banner');
+        if(b){ b.style.transition='opacity .4s'; b.style.opacity='0'; setTimeout(function(){ if(b.parentNode) b.remove(); }, 400); }
+      }, 5000);
+    }
     tqPullTrades();
     setTimeout(tqPullNotebooks, 500);
     setTimeout(tqPullPlaybooks, 1000);
     setTimeout(tqPullAccounts, 1500);
     setTimeout(tqPullSettings, 2000);
     setTimeout(tqPullCockpit, 2500);
-    setTimeout(tqSubscribeRealtime, 3000); // ← realtime after initial pull
+    setTimeout(tqSubscribeRealtime, 3000);
     setTimeout(function(){ if(typeof tqSubscribeAIRealtime==='function') tqSubscribeAIRealtime(); }, 3500);
     setTimeout(tqPullCaseStudies, 3000);
-    // Phase 4: enforce account-required (TradeZella-style) after pulls complete
     if(typeof tqInitAccountEnforcement === 'function') tqInitAccountEnforcement();
   }
 
@@ -11105,11 +11370,68 @@ window.dispatchEvent(new Event('supabase-ready'));
     }
     window.tqFundedStatus = tqFundedStatus;
 
+    // ── Daily-loss / drawdown breach notifier ──
+    // Runs after every trade save. Compares each funded account's current state
+    // against its limits and shows a toast + browser notification on breach.
+    // Also supports "approaching" warnings at 80% threshold.
+    function tqCheckFundedBreaches(){
+      try{
+        var accs = JSON.parse(rfxGet('rf_accounts')||'[]').filter(function(a){return a&&!a.deleted;});
+        var trades = JSON.parse(rfxGet('rf_trades')||'[]').filter(function(t){return !t.deleted;});
+        var alerted = [];
+        accs.forEach(function(a){
+          var st = tqFundedStatus(a, trades);
+          if(!st) return;
+          if(st.breaches.length > 0){
+            st.breaches.forEach(function(b){ alerted.push({severity:'breach', acc:a.name, msg:b}); });
+          } else if(st.warnings.length > 0){
+            st.warnings.forEach(function(w){ alerted.push({severity:'warn', acc:a.name, msg:w}); });
+          }
+        });
+        if(alerted.length === 0) return;
+
+        // Show toast for each (max 2 to not spam)
+        alerted.slice(0,2).forEach(function(al){
+          var msg = al.acc + ': ' + al.msg;
+          if(typeof tqToast === 'function'){
+            tqToast(msg, {type: al.severity === 'breach' ? 'error' : 'warn', duration: 9000});
+          }
+        });
+
+        // Browser notification (if permission granted) — for hard breaches only
+        var hardBreaches = alerted.filter(function(a){return a.severity === 'breach';});
+        if(hardBreaches.length > 0 && 'Notification' in window){
+          if(Notification.permission === 'granted'){
+            try{
+              new Notification('TradeQuill — Funded rule breached', {
+                body: hardBreaches.map(function(b){return b.acc+': '+b.msg;}).join('\n'),
+                tag: 'tq-breach',
+                requireInteraction: true
+              });
+            }catch(e){ console.warn('Notification failed', e); }
+          } else if(Notification.permission !== 'denied'){
+            // Auto-request on first breach
+            Notification.requestPermission();
+          }
+        }
+      }catch(e){ console.error('tqCheckFundedBreaches error:', e); }
+    }
+    window.tqCheckFundedBreaches = tqCheckFundedBreaches;
+
     // ── DELETE — simple cascade with confirm ──
     function deleteAccount(id){
       var accs = accLoad();
       var a = accs.find(function(x){ return x.id === id; });
-      if(!a) return;
+      if(!a){
+        console.warn('TradeQuill deleteAccount: account not found in localStorage. id=', id, '| available ids=', accs.map(function(x){return x.id;}));
+        if(typeof tqToast==='function') tqToast('⚠ Account not found (id: '+id+'). It may already be deleted or the page is out of sync. Try reloading.', {type:'error', duration:6000});
+        return;
+      }
+      if(a.deleted){
+        console.warn('TradeQuill deleteAccount: account already soft-deleted. id=', id, 'name=', a.name);
+        if(typeof tqToast==='function') tqToast('Account "'+(a.name||'unnamed')+'" is already in Trash.', {type:'info', duration:4000});
+        return;
+      }
       var trades = [];
       try{ trades = JSON.parse(rfxGet('rf_trades')||'[]'); }catch(e){}
       var attached = trades.filter(function(t){ return t.account === id && !t.deleted; });
@@ -14035,23 +14357,25 @@ window.dispatchEvent(new Event('supabase-ready'));
     var statusEl = $('pip-rate-status');
     if (statusEl) statusEl.textContent = 'Fetching live rates...';
     try {
-      // Fetch all major pairs directly from freeforexapi
-      var pairs = ['EURUSD','GBPUSD','AUDUSD','NZDUSD','USDCAD','USDCHF','USDJPY','GBPJPY','EURJPY','EURGBP'];
-      var res = await fetch('https://www.freeforexapi.com/api/live?pairs=' + pairs.join(','));
+      // Use exchangerate.host (CORS-safe, in CSP allowlist). Returns USD-base rates,
+      // we compute pair rates client-side. freeforexapi.com was blocked by CORS.
+      var res = await fetch('https://api.exchangerate.host/latest?base=USD&symbols=EUR,GBP,JPY,CHF,CAD,AUD,NZD');
       var data = await res.json();
       if (data && data.rates) {
-        pairs.forEach(function(p){
-          if (data.rates[p]) liveRates[p] = data.rates[p].rate;
-        });
-        // Also set USD-based for pip calc
-        liveRates['USDCAD'] = liveRates['USDCAD'];
-        liveRates['USDCHF'] = liveRates['USDCHF'];
-        liveRates['USDJPY'] = liveRates['USDJPY'];
-        liveRates['GBPUSD'] = liveRates['GBPUSD'];
-        liveRates['EURUSD'] = liveRates['EURUSD'];
-        liveRates['AUDUSD'] = liveRates['AUDUSD'];
-        liveRates['NZDUSD'] = liveRates['NZDUSD'];
-        liveRates['EURGBP'] = liveRates['EURGBP'];
+        var r = data.rates;
+        // USD/X pairs (1 USD = X.X foreign)
+        liveRates['USDCAD'] = r.CAD || liveRates['USDCAD'];
+        liveRates['USDCHF'] = r.CHF || liveRates['USDCHF'];
+        liveRates['USDJPY'] = r.JPY || liveRates['USDJPY'];
+        // X/USD pairs (1 foreign = 1/r.X USD)
+        liveRates['EURUSD'] = r.EUR ? 1/r.EUR : liveRates['EURUSD'];
+        liveRates['GBPUSD'] = r.GBP ? 1/r.GBP : liveRates['GBPUSD'];
+        liveRates['AUDUSD'] = r.AUD ? 1/r.AUD : liveRates['AUDUSD'];
+        liveRates['NZDUSD'] = r.NZD ? 1/r.NZD : liveRates['NZDUSD'];
+        // Cross pairs (computed)
+        if (r.EUR && r.GBP) liveRates['EURGBP'] = r.GBP / r.EUR;
+        if (r.EUR && r.JPY) liveRates['EURJPY'] = r.JPY / r.EUR;
+        if (r.GBP && r.JPY) liveRates['GBPJPY'] = r.JPY / r.GBP;
         ratesLoaded = true;
         calcPipValues();
         calcAll();
@@ -14087,6 +14411,7 @@ window.dispatchEvent(new Event('supabase-ready'));
         }
       } catch(ge) { /* gold fetch failed, use default */ }
     } catch(e) {
+      console.warn('TradeQuill: Live rates fetch failed:', e);
       if (statusEl) {
         statusEl.textContent = '⚠ Using estimated rates';
         statusEl.style.color = 'var(--yellow)';
@@ -14127,7 +14452,20 @@ window.dispatchEvent(new Event('supabase-ready'));
     if (id === 'resources' && window.rsRender) setTimeout(rsRender, 100);
     if (id === 'cockpit' && window.ckRender) setTimeout(ckRender, 100);
     if (id === 'news' && window.newsLoadWidget && !_newsLoaded) setTimeout(newsLoadWidget, 150);
-    if (id === 'aicoach' && window.aiCoachInit) setTimeout(aiCoachInit, 150);
+    if (id === 'aicoach' && window.aiCoachInit){
+      // Toggle empty state based on trade count
+      var aiTrades = (typeof getActiveTrades === 'function') ? getActiveTrades() : [];
+      var aiEmpty = document.getElementById('aicoach-empty-state');
+      var aiContent = document.getElementById('aicoach-content');
+      if(aiTrades.length < 5){
+        if(aiEmpty) aiEmpty.style.display = 'block';
+        if(aiContent) aiContent.style.display = 'none';
+      } else {
+        if(aiEmpty) aiEmpty.style.display = 'none';
+        if(aiContent) aiContent.style.display = 'block';
+        setTimeout(aiCoachInit, 150);
+      }
+    }
     if (id === 'youredge' && window.yeRender) setTimeout(yeRender, 100);
     if (id === 'trash' && window.trRender) setTimeout(trRender, 50);
   }
@@ -14945,7 +15283,15 @@ window.dispatchEvent(new Event('supabase-ready'));
     var raw = ((typeof getActiveTrades==='function')?getActiveTrades():JSON.parse(rfxGet('rf_trades')||'[]').filter(function(t){return !t.deleted;}));
     raw.forEach(autoDetectSession);
     var allTrades = raw;
-    if (allTrades.length === 0) return;
+    var emptyEl = document.getElementById('reports-empty-state');
+    var contentEl = document.getElementById('reports-content');
+    if (allTrades.length === 0) {
+      if(emptyEl) emptyEl.style.display = 'block';
+      if(contentEl) contentEl.style.display = 'none';
+      return;
+    }
+    if(emptyEl) emptyEl.style.display = 'none';
+    if(contentEl) contentEl.style.display = 'block';
 
     // ── FILTER: Period ──
     var activePill = document.querySelector('.rpt-pill.active');
@@ -15729,9 +16075,64 @@ window.dispatchEvent(new Event('supabase-ready'));
 
       if(canvas._chart)canvas._chart.destroy();
       canvas._chart=new Chart(canvas,{type:'line',data:{labels:labels3,datasets:[
-        {data:equity.slice(1),borderColor:'#60a5fa',borderWidth:1.5,pointRadius:0,tension:.3,fill:false,order:1},
-        {data:dd.slice(1),borderColor:'rgba(224,92,122,.4)',borderWidth:0,pointRadius:0,tension:.3,fill:true,backgroundColor:'rgba(224,92,122,.08)',order:2}
-      ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{display:false},y:{grid:{color:'rgba(124,90,240,.04)'},ticks:{font:{size:9},color:'#888',callback:function(v){return(v>=0?'+':'')+v}}}}}});
+        {label:'Equity', data:equity.slice(1),borderColor:'#60a5fa',borderWidth:1.5,pointRadius:0,pointHoverRadius:4,tension:.3,fill:false,order:1},
+        {label:'Drawdown', data:dd.slice(1),borderColor:'rgba(224,92,122,.4)',borderWidth:0,pointRadius:0,tension:.3,fill:true,backgroundColor:'rgba(224,92,122,.08)',order:2}
+      ]},options:{
+        responsive:true,maintainAspectRatio:false,
+        interaction:{mode:'index', intersect:false},
+        plugins:{
+          legend:{display:false},
+          tooltip:{
+            enabled:true,
+            backgroundColor:'rgba(15,13,28,.95)',
+            borderColor:'rgba(124,90,240,.4)',
+            borderWidth:1,
+            padding:10,
+            titleFont:{size:11, weight:'600'},
+            bodyFont:{size:11},
+            callbacks:{
+              title:function(items){
+                var idx = items[0].dataIndex;
+                var trade = sorted[idx];
+                if(!trade) return '';
+                return (trade.date||'')+' · '+(trade.pair||'')+' · '+(trade.direction||'').toUpperCase();
+              },
+              label:function(item){
+                var idx = item.dataIndex;
+                var trade = sorted[idx];
+                if(!trade) return '';
+                if(item.datasetIndex === 0){
+                  var pnl = tqConvertTradePnl(trade);
+                  var ccy = (typeof tqGetDisplayCurrency==='function')?tqGetDisplayCurrency():'USD';
+                  var sym = ({USD:'$',EUR:'€',GBP:'£',JPY:'¥'})[ccy] || '';
+                  return [
+                    'Equity: '+sym+(item.parsed.y).toFixed(2),
+                    'This trade: '+(pnl>=0?'+':'')+sym+pnl.toFixed(2),
+                    'Setup: '+(trade.setup||'—')+' · Grade: '+(trade.grade||'—')
+                  ];
+                } else {
+                  return 'Drawdown: '+item.parsed.y.toFixed(2);
+                }
+              },
+              afterBody:function(items){
+                return ['','(click point to view trade details)'];
+              }
+            }
+          }
+        },
+        onClick:function(evt, elements){
+          if(!elements || elements.length === 0) return;
+          var idx = elements[0].index;
+          var trade = sorted[idx];
+          if(trade && trade.id && typeof openJrModal === 'function'){
+            openJrModal(trade.id);
+          }
+        },
+        onHover:function(evt, elements){
+          evt.native.target.style.cursor = elements && elements.length > 0 ? 'pointer' : 'default';
+        },
+        scales:{x:{display:false},y:{grid:{color:'rgba(124,90,240,.04)'},ticks:{font:{size:9},color:'#888',callback:function(v){return(v>=0?'+':'')+v}}}}
+      }});
     })();
 
     // ══════════════════════════════════════════
@@ -15870,6 +16271,395 @@ window.dispatchEvent(new Event('supabase-ready'));
       h+='</div></div>';
 
       mfmEl.innerHTML=h;
+    })();
+
+    // ══════════════════════════════════════════
+    // ── HOUR × DAY HEATMAP ──
+    // ══════════════════════════════════════════
+    (function(){
+      var hdEl = el('rpt-hourday-heatmap');
+      if(!hdEl) return;
+      var dayNames = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+      // Build 7×24 grid keyed by [day][hour]
+      var grid = {};
+      for(var d=0; d<7; d++){
+        grid[d] = {};
+        for(var h=0; h<24; h++) grid[d][h] = {count:0, wins:0, pnl:0};
+      }
+      var counted = 0;
+      t.forEach(function(x){
+        if(!x.date) return;
+        var dt = new Date(x.date+'T'+(x.entryTime||'12:00')+':00');
+        if(isNaN(dt.getTime())) return;
+        // ISO weekday: Monday=0 ... Sunday=6
+        var dayIdx = (dt.getDay() + 6) % 7;
+        var hr = parseInt((x.entryTime||'12:00').split(':')[0]);
+        if(isNaN(hr)) hr = 12;
+        var p = tqConvertTradePnl(x);
+        grid[dayIdx][hr].count++;
+        grid[dayIdx][hr].pnl += p;
+        if(p > 0) grid[dayIdx][hr].wins++;
+        counted++;
+      });
+      if(counted === 0){
+        hdEl.innerHTML = '<div style="color:var(--text3);font-size:11px;padding:20px 0;text-align:center">No timestamped trades — set Entry Time on trades to populate this heatmap.</div>';
+        return;
+      }
+      // Find max abs P&L for color scaling
+      var maxAbs = 0;
+      for(var d2=0; d2<7; d2++){
+        for(var h2=0; h2<24; h2++){
+          var ap = Math.abs(grid[d2][h2].pnl);
+          if(ap > maxAbs) maxAbs = ap;
+        }
+      }
+      // Render grid: rows = days, cols = hours
+      var html = '<div style="min-width:720px"><div style="display:grid;grid-template-columns:50px repeat(24,1fr);gap:1px;font-family:DM Mono,monospace;font-size:9px">';
+      // Header row: hour labels
+      html += '<div></div>';
+      for(var hh=0; hh<24; hh++){
+        html += '<div style="text-align:center;color:var(--text3);font-size:9px;padding:2px 0">'+(hh<10?'0':'')+hh+'</div>';
+      }
+      // Day rows
+      for(var dd=0; dd<7; dd++){
+        html += '<div style="color:var(--text3);font-weight:700;display:flex;align-items:center;font-size:10px">'+dayNames[dd]+'</div>';
+        for(var hr3=0; hr3<24; hr3++){
+          var cell = grid[dd][hr3];
+          var bg, txt;
+          if(cell.count === 0){
+            bg = 'transparent';
+            txt = 'rgba(255,255,255,0.05)';
+          } else {
+            var intensity = maxAbs > 0 ? Math.min(1, Math.abs(cell.pnl) / maxAbs) : 0;
+            if(cell.pnl > 0){
+              bg = 'rgba(46,204,138,'+(0.15 + intensity*0.65)+')';
+              txt = intensity > 0.4 ? '#fff' : 'var(--green)';
+            } else if(cell.pnl < 0){
+              bg = 'rgba(224,92,122,'+(0.15 + intensity*0.65)+')';
+              txt = intensity > 0.4 ? '#fff' : 'var(--red)';
+            } else {
+              bg = 'rgba(124,90,240,.05)';
+              txt = 'var(--text3)';
+            }
+          }
+          var wr = cell.count > 0 ? Math.round(cell.wins / cell.count * 100) : 0;
+          var tooltip = cell.count > 0 ? (cell.count+' trades · '+wr+'% WR · '+(cell.pnl>=0?'+':'')+cell.pnl.toFixed(0)) : 'No trades';
+          html += '<div title="'+tooltip+'" style="background:'+bg+';color:'+txt+';height:24px;display:flex;align-items:center;justify-content:center;border-radius:2px;font-size:9px;font-weight:600;cursor:default">'+(cell.count>0?cell.count:'')+'</div>';
+        }
+      }
+      html += '</div></div>';
+      // Legend
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:10px;color:var(--text3)">' +
+                '<span>Hover for details · empty = no trades · color = net P&L</span>' +
+                '<span style="display:flex;align-items:center;gap:6px"><span style="width:14px;height:14px;background:rgba(224,92,122,.6);border-radius:2px"></span> Loss <span style="width:14px;height:14px;background:rgba(46,204,138,.6);border-radius:2px;margin-left:8px"></span> Profit</span>' +
+              '</div>';
+      // Insight: best slot
+      var bestSlot = null, worstSlot = null, bestPnl = -Infinity, worstPnl = Infinity;
+      for(var d3=0; d3<7; d3++){
+        for(var h4=0; h4<24; h4++){
+          var c = grid[d3][h4];
+          if(c.count >= 3){
+            if(c.pnl > bestPnl){ bestPnl = c.pnl; bestSlot = {d:d3, h:h4, c:c}; }
+            if(c.pnl < worstPnl){ worstPnl = c.pnl; worstSlot = {d:d3, h:h4, c:c}; }
+          }
+        }
+      }
+      if(bestSlot && worstSlot && bestSlot !== worstSlot){
+        var bestLabel = dayNames[bestSlot.d] + ' ' + (bestSlot.h<10?'0':'') + bestSlot.h + ':00';
+        var worstLabel = dayNames[worstSlot.d] + ' ' + (worstSlot.h<10?'0':'') + worstSlot.h + ':00';
+        html += '<div style="margin-top:10px;padding:10px 12px;background:rgba(124,90,240,.05);border-left:3px solid var(--accent);border-radius:6px;font-size:11px;color:var(--text2)">' +
+                  '<strong style="color:var(--green)">★ Golden window: '+bestLabel+'</strong> — '+bestSlot.c.count+' trades, '+bestSlot.c.pnl.toFixed(0)+' net' +
+                  ' &nbsp;·&nbsp; <strong style="color:var(--red)">⚠ Avoid: '+worstLabel+'</strong> — '+worstSlot.c.count+' trades, '+worstSlot.c.pnl.toFixed(0)+' net' +
+                '</div>';
+      }
+      hdEl.innerHTML = html;
+    })();
+
+    // ══════════════════════════════════════════
+    // ── R:R DISTRIBUTION HISTOGRAM ──
+    // ══════════════════════════════════════════
+    (function(){
+      var rrEl = el('rpt-rr-distribution');
+      if(!rrEl) return;
+      // Bucket trades by their planned R:R (or computed if missing)
+      // Buckets: <1, 1-1.5, 1.5-2, 2-3, 3-5, 5+
+      var buckets = [
+        {label:'< 1', min:0,    max:1,    count:0, wPnl:0, wins:0},
+        {label:'1-1.5', min:1,  max:1.5,  count:0, wPnl:0, wins:0},
+        {label:'1.5-2', min:1.5,max:2,    count:0, wPnl:0, wins:0},
+        {label:'2-3',   min:2,  max:3,    count:0, wPnl:0, wins:0},
+        {label:'3-5',   min:3,  max:5,    count:0, wPnl:0, wins:0},
+        {label:'5+',    min:5,  max:9999, count:0, wPnl:0, wins:0}
+      ];
+      var counted = 0;
+      t.forEach(function(x){
+        var rr = parseFloat(x.rrTarget);
+        // Fallback: compute from entry/sl/tp if not stored
+        if(!rr || isNaN(rr)){
+          var e2 = parseFloat(x.entry), s2 = parseFloat(x.sl), tp2 = parseFloat(x.tp);
+          if(e2 && s2 && tp2){
+            var risk = Math.abs(e2 - s2);
+            var reward = Math.abs(tp2 - e2);
+            if(risk > 0) rr = reward / risk;
+          }
+        }
+        if(!rr || isNaN(rr) || rr < 0) return;
+        for(var i=0;i<buckets.length;i++){
+          if(rr >= buckets[i].min && rr < buckets[i].max){
+            buckets[i].count++;
+            buckets[i].wPnl += tqConvertTradePnl(x);
+            if(tqConvertTradePnl(x) > 0) buckets[i].wins++;
+            counted++;
+            break;
+          }
+        }
+      });
+      if(counted === 0){
+        rrEl.innerHTML = '<div style="color:var(--text3);font-size:11px;padding:20px 0;text-align:center">No R:R data — set Take Profit and Stop Loss on trades to populate this chart.</div>';
+        return;
+      }
+      var maxCount = Math.max.apply(null, buckets.map(function(b){return b.count;}));
+      var html = '<div style="display:grid;grid-template-columns:60px 1fr 80px 60px 60px;gap:10px;align-items:center;font-size:11px">';
+      html += '<div style="font-size:10px;color:var(--text3);font-weight:700">R:R</div>';
+      html += '<div style="font-size:10px;color:var(--text3);font-weight:700">DISTRIBUTION</div>';
+      html += '<div style="font-size:10px;color:var(--text3);font-weight:700;text-align:right">TRADES</div>';
+      html += '<div style="font-size:10px;color:var(--text3);font-weight:700;text-align:right">WR</div>';
+      html += '<div style="font-size:10px;color:var(--text3);font-weight:700;text-align:right">P&L</div>';
+      buckets.forEach(function(b){
+        var pct = maxCount > 0 ? (b.count / maxCount * 100) : 0;
+        var wr = b.count > 0 ? Math.round(b.wins / b.count * 100) : 0;
+        var pnlCol = b.wPnl >= 0 ? 'var(--green)' : 'var(--red)';
+        var barCol = b.label === '< 1' ? 'rgba(224,92,122,.5)' : (b.label === '5+' ? 'rgba(46,204,138,.5)' : 'rgba(124,90,240,.5)');
+        html += '<div style="font-weight:600;color:var(--text)">'+b.label+'</div>';
+        html += '<div style="background:var(--bg3);height:24px;border-radius:4px;overflow:hidden;position:relative"><div style="background:'+barCol+';width:'+pct+'%;height:100%;transition:width .3s"></div></div>';
+        html += '<div style="text-align:right;color:var(--text2)">'+b.count+'</div>';
+        html += '<div style="text-align:right;color:var(--text3)">'+wr+'%</div>';
+        html += '<div style="text-align:right;color:'+pnlCol+';font-weight:600">'+(b.wPnl>=0?'+':'')+b.wPnl.toFixed(0)+'</div>';
+      });
+      html += '</div>';
+      // Insight
+      var below1 = buckets[0].count;
+      var goldenZone = buckets[2].count + buckets[3].count;  // 1.5-3
+      var insight = '';
+      if(below1 / counted > 0.3){
+        insight = '<div style="margin-top:14px;padding:10px 12px;background:rgba(224,92,122,.06);border-left:3px solid var(--red);border-radius:6px;font-size:11px;color:var(--text2)"><strong style="color:var(--red)">⚠ '+Math.round(below1/counted*100)+'% of your trades are below 1:1 R:R.</strong> Likely revenge trades or scratching out before SL. Discipline opportunity.</div>';
+      } else if(goldenZone / counted > 0.5){
+        insight = '<div style="margin-top:14px;padding:10px 12px;background:rgba(46,204,138,.06);border-left:3px solid var(--green);border-radius:6px;font-size:11px;color:var(--text2)"><strong style="color:var(--green)">✓ '+Math.round(goldenZone/counted*100)+'% of trades in the 1.5-3R sweet spot.</strong> Disciplined R:R selection.</div>';
+      }
+      html += insight;
+      rrEl.innerHTML = html;
+    })();
+
+    // ══════════════════════════════════════════
+    // ── HOLD TIME ANALYSIS ──
+    // ══════════════════════════════════════════
+    (function(){
+      var htEl = el('rpt-hold-time');
+      if(!htEl) return;
+      function durationMin(x){
+        if(x.duration && !isNaN(parseFloat(x.duration))) return parseFloat(x.duration);
+        // Compute from entryTime/exitTime if both present
+        if(x.entryTime && x.exitTime){
+          var e2 = x.entryTime.split(':');
+          var x2 = x.exitTime.split(':');
+          if(e2.length >= 2 && x2.length >= 2){
+            var em = parseInt(e2[0])*60 + parseInt(e2[1]);
+            var xm = parseInt(x2[0])*60 + parseInt(x2[1]);
+            var diff = xm - em;
+            if(diff < 0) diff += 1440; // crossed midnight
+            return diff;
+          }
+        }
+        return null;
+      }
+      var winnerDurations = [], loserDurations = [];
+      t.forEach(function(x){
+        var d = durationMin(x);
+        if(d == null) return;
+        var p = tqConvertTradePnl(x);
+        if(p > 0) winnerDurations.push(d);
+        else if(p < 0) loserDurations.push(d);
+      });
+      if(winnerDurations.length === 0 && loserDurations.length === 0){
+        htEl.innerHTML = '<div style="color:var(--text3);font-size:11px;padding:20px 0;text-align:center">No duration data — set Entry Time and Exit Time on trades to populate.</div>';
+        return;
+      }
+      function avg(arr){ return arr.length ? arr.reduce(function(a,b){return a+b;},0) / arr.length : 0; }
+      function median(arr){
+        if(arr.length === 0) return 0;
+        var s = arr.slice().sort(function(a,b){return a-b;});
+        var mid = Math.floor(s.length / 2);
+        return s.length % 2 ? s[mid] : (s[mid-1] + s[mid]) / 2;
+      }
+      function fmt(min){
+        if(min < 60) return min.toFixed(0)+' min';
+        var h = Math.floor(min/60), m = Math.round(min%60);
+        return h+'h '+(m>0?m+'m':'');
+      }
+      var avgW = avg(winnerDurations), avgL = avg(loserDurations);
+      var medW = median(winnerDurations), medL = median(loserDurations);
+      var ratio = avgL > 0 ? avgW / avgL : 0;
+      var insight = '';
+      if(ratio > 1.5){
+        insight = '<div style="margin-top:14px;padding:10px 12px;background:rgba(46,204,138,.06);border-left:3px solid var(--green);border-radius:6px;font-size:11px;color:var(--text2)"><strong style="color:var(--green)">✓ Quick on losses, patient with winners.</strong> Winners held '+ratio.toFixed(1)+'× longer than losers — textbook trader behavior.</div>';
+      } else if(ratio < 0.7 && ratio > 0){
+        insight = '<div style="margin-top:14px;padding:10px 12px;background:rgba(224,92,122,.06);border-left:3px solid var(--red);border-radius:6px;font-size:11px;color:var(--text2)"><strong style="color:var(--red)">⚠ You hold losers '+(1/ratio).toFixed(1)+'× longer than winners.</strong> Classic paper-handing pattern. Cut losers faster, ride winners.</div>';
+      }
+      htEl.innerHTML =
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">' +
+          '<div style="padding:14px;background:rgba(46,204,138,.04);border:1px solid rgba(46,204,138,.15);border-radius:8px">' +
+            '<div style="font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;margin-bottom:8px">WINNERS ('+winnerDurations.length+')</div>' +
+            '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:4px"><span>Avg hold</span><span style="color:var(--text);font-weight:600">'+fmt(avgW)+'</span></div>' +
+            '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2)"><span>Median</span><span style="color:var(--text);font-weight:600">'+fmt(medW)+'</span></div>' +
+          '</div>' +
+          '<div style="padding:14px;background:rgba(224,92,122,.04);border:1px solid rgba(224,92,122,.15);border-radius:8px">' +
+            '<div style="font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;margin-bottom:8px">LOSERS ('+loserDurations.length+')</div>' +
+            '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:4px"><span>Avg hold</span><span style="color:var(--text);font-weight:600">'+fmt(avgL)+'</span></div>' +
+            '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2)"><span>Median</span><span style="color:var(--text);font-weight:600">'+fmt(medL)+'</span></div>' +
+          '</div>' +
+        '</div>' + insight;
+    })();
+
+    // ══════════════════════════════════════════
+    // ── QUANT RATIOS (Sharpe / Calmar / Sortino) ──
+    // ══════════════════════════════════════════
+    (function(){
+      var qrEl = el('rpt-quant-ratios');
+      if(!qrEl) return;
+      if(t.length < 5){
+        qrEl.innerHTML = '<div style="grid-column:1/-1;color:var(--text3);font-size:11px;padding:14px 0;text-align:center">Need at least 5 trades to compute meaningful ratios</div>';
+        return;
+      }
+      // Trade-by-trade returns (using converted P&L). Anchor to first account's starting balance, fallback $10k.
+      var startBal = 10000;
+      try{
+        var accs3 = JSON.parse(rfxGet('rf_accounts')||'[]').filter(function(a){return a&&!a.deleted;});
+        if(accs3.length > 0) startBal = parseFloat(accs3[0].startingBalance || accs3[0].balance) || 10000;
+      }catch(e){}
+      // Daily returns (group trades by date)
+      var byDay = {};
+      t.forEach(function(x){
+        if(!x.date) return;
+        if(!byDay[x.date]) byDay[x.date] = 0;
+        byDay[x.date] += tqConvertTradePnl(x);
+      });
+      var dailyPnls = Object.keys(byDay).sort().map(function(d){ return byDay[d]; });
+      if(dailyPnls.length < 3){
+        qrEl.innerHTML = '<div style="grid-column:1/-1;color:var(--text3);font-size:11px;padding:14px 0;text-align:center">Need at least 3 trading days to compute meaningful ratios</div>';
+        return;
+      }
+      var dailyReturns = dailyPnls.map(function(p){ return p / startBal; });
+      var meanRet = dailyReturns.reduce(function(a,b){return a+b;},0) / dailyReturns.length;
+      var variance = dailyReturns.reduce(function(a,b){return a + Math.pow(b - meanRet, 2);},0) / dailyReturns.length;
+      var stdDev = Math.sqrt(variance);
+      // Annualize (~252 trading days)
+      var sharpe = stdDev > 0 ? (meanRet / stdDev) * Math.sqrt(252) : 0;
+      // Sortino: downside dev only
+      var downside = dailyReturns.filter(function(r){return r < 0;});
+      var downsideVar = downside.length > 0 ? downside.reduce(function(a,b){return a + b*b;},0) / downside.length : 0;
+      var downsideStd = Math.sqrt(downsideVar);
+      var sortino = downsideStd > 0 ? (meanRet / downsideStd) * Math.sqrt(252) : 0;
+      // Calmar: annualized return / max drawdown
+      var cumulative = 0, peak = 0, maxDD = 0;
+      dailyPnls.forEach(function(p){
+        cumulative += p;
+        if(cumulative > peak) peak = cumulative;
+        var dd = peak - cumulative;
+        if(dd > maxDD) maxDD = dd;
+      });
+      var totalReturn = cumulative / startBal;
+      var annualizedReturn = totalReturn * (252 / dailyPnls.length);
+      var maxDDPct = maxDD / startBal;
+      var calmar = maxDDPct > 0 ? annualizedReturn / maxDDPct : 0;
+
+      function ratioCard(label, value, benchmarks, tip){
+        var col = 'var(--text3)';
+        if(value >= benchmarks[1]) col = 'var(--green)';
+        else if(value >= benchmarks[0]) col = '#f0b429';
+        else if(value < 0) col = 'var(--red)';
+        return '<div style="padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">' +
+                 '<div style="font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;margin-bottom:6px">'+label+'</div>' +
+                 '<div style="font-size:22px;font-weight:700;color:'+col+';font-family:DM Mono,monospace">'+(isFinite(value)?value.toFixed(2):'—')+'</div>' +
+                 '<div style="font-size:10px;color:var(--text3);margin-top:4px">'+tip+'</div>' +
+               '</div>';
+      }
+      qrEl.innerHTML =
+        ratioCard('Sharpe Ratio', sharpe, [1, 2], '> 1 good, > 2 excellent') +
+        ratioCard('Sortino Ratio', sortino, [1.5, 3], 'Downside-only Sharpe') +
+        ratioCard('Calmar Ratio', calmar, [1, 3], 'Return / max drawdown');
+    })();
+
+    // ══════════════════════════════════════════
+    // ── CONFLUENCE PAIR CORRELATION ──
+    // ══════════════════════════════════════════
+    (function(){
+      var cpEl = el('rpt-confluence-pairs');
+      if(!cpEl) return;
+      // Collect all confluence + setup tags per trade. Treat setup as a confluence too.
+      var tagged = t.map(function(x){
+        var tags = [];
+        if(Array.isArray(x.confluences)) tags = tags.concat(x.confluences);
+        if(x.trigger) tags.push(x.trigger);
+        if(x.setup) tags.push('setup:'+x.setup);
+        if(x.session) tags.push('session:'+x.session);
+        // Dedup
+        var seen = {}; var out = [];
+        tags.forEach(function(tg){ if(tg && !seen[tg]){ seen[tg]=1; out.push(tg); } });
+        return {tags: out, pnl: tqConvertTradePnl(x), win: tqConvertTradePnl(x) > 0};
+      }).filter(function(rec){ return rec.tags.length >= 2; });
+
+      if(tagged.length < 5){
+        cpEl.innerHTML = '<div style="color:var(--text3);font-size:11px;padding:14px 0;text-align:center">Need at least 5 trades with 2+ tags each (confluences/setup/session). Tag your trades to populate this analysis.</div>';
+        return;
+      }
+      // Build pair stats: for each unordered pair (a,b) → count, wins, pnl
+      var pairs = {};
+      tagged.forEach(function(rec){
+        for(var i=0; i<rec.tags.length; i++){
+          for(var j=i+1; j<rec.tags.length; j++){
+            var k1 = rec.tags[i], k2 = rec.tags[j];
+            var pairKey = k1 < k2 ? k1+' + '+k2 : k2+' + '+k1;
+            if(!pairs[pairKey]) pairs[pairKey] = {count:0, wins:0, pnl:0};
+            pairs[pairKey].count++;
+            pairs[pairKey].pnl += rec.pnl;
+            if(rec.win) pairs[pairKey].wins++;
+          }
+        }
+      });
+      // Filter pairs with at least 3 trades, sort by win rate then by P&L
+      var topPairs = Object.keys(pairs).map(function(k){
+        var p = pairs[k];
+        return {k:k, count:p.count, wr:p.count>0?(p.wins/p.count*100):0, pnl:p.pnl};
+      }).filter(function(p){ return p.count >= 3; }).sort(function(a,b){
+        if(b.wr !== a.wr) return b.wr - a.wr;
+        return b.pnl - a.pnl;
+      });
+      if(topPairs.length === 0){
+        cpEl.innerHTML = '<div style="color:var(--text3);font-size:11px;padding:14px 0;text-align:center">No confluence pairs with 3+ trades yet — add more tagged trades.</div>';
+        return;
+      }
+      var top = topPairs.slice(0, 8);
+      var bottom = topPairs.slice(-Math.min(4, Math.floor(topPairs.length/2))).reverse();
+
+      function renderRow(p, isWorst){
+        var col = p.pnl >= 0 ? 'var(--green)' : 'var(--red)';
+        var wrCol = p.wr >= 60 ? 'var(--green)' : (p.wr >= 45 ? 'var(--text2)' : 'var(--red)');
+        var labelClean = p.k.replace(/setup:/g,'').replace(/session:/g,'');
+        return '<div style="display:grid;grid-template-columns:1fr 60px 60px 70px;gap:10px;padding:8px 10px;background:'+(isWorst?'rgba(224,92,122,.04)':'rgba(46,204,138,.04)')+';border-radius:6px;margin-bottom:4px;font-size:11px;align-items:center">' +
+                 '<div style="color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+labelClean.replace(/</g,'&lt;')+'</div>' +
+                 '<div style="text-align:right;color:var(--text3)">'+p.count+' trades</div>' +
+                 '<div style="text-align:right;color:'+wrCol+';font-weight:600">'+p.wr.toFixed(0)+'% WR</div>' +
+                 '<div style="text-align:right;color:'+col+';font-weight:700;font-family:DM Mono,monospace">'+(p.pnl>=0?'+':'')+p.pnl.toFixed(0)+'</div>' +
+               '</div>';
+      }
+      var html = '';
+      html += '<div style="font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;margin-bottom:8px">★ TOP COMBINATIONS</div>';
+      top.forEach(function(p){ html += renderRow(p, false); });
+      if(bottom.length > 0 && bottom[0].wr < 50){
+        html += '<div style="font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;margin:14px 0 8px">⚠ AVOID (low WR)</div>';
+        bottom.forEach(function(p){ html += renderRow(p, true); });
+      }
+      cpEl.innerHTML = html;
     })();
 
     // ══════════════════════════════════════════
@@ -18943,6 +19733,8 @@ window.dispatchEvent(new Event('supabase-ready'));
     rfxSet('rf_trades', JSON.stringify(trades));
     if(!jrEditId) rfxTrackBackupReminder(); // Track new trade for backup reminder
     tqPushTrade(trade); // ← Supabase sync
+    // Check funded rules on every save — proactive notification before broker bans
+    if(typeof tqCheckFundedBreaches === 'function') setTimeout(tqCheckFundedBreaches, 100);
     // Upload screenshots to CDN (background, replaces base64 with URLs)
     if(trade.screenshots&&trade.screenshots.length>0&&typeof tqUploadTradeScreenshots==='function'){
       tqUploadTradeScreenshots(trade);
@@ -18972,6 +19764,340 @@ window.dispatchEvent(new Event('supabase-ready'));
     });
   }
   window.jrDeleteTrade = jrDeleteTrade;
+
+  // ── Pin / unpin a trade for later review ──
+  function jrTogglePin(id){
+    var trades = JSON.parse(rfxGet('rf_trades')||'[]');
+    var idx = trades.findIndex(function(t){return t.id===id;});
+    if(idx < 0) return;
+    trades[idx].pinned = !trades[idx].pinned;
+    rfxSet('rf_trades', JSON.stringify(trades));
+    if(window.tqPushTrade) try{ tqPushTrade(trades[idx]); }catch(e){}
+    renderJournal();
+    if(typeof tqToast === 'function'){
+      tqToast(trades[idx].pinned ? '★ Pinned for review' : 'Unpinned', {type:'info', duration:1500});
+    }
+  }
+  window.jrTogglePin = jrTogglePin;
+
+  // ══════════════════════════════════════════════════════
+  // ██  DEMO MODE — generates 55 sample trades for new users
+  // ══════════════════════════════════════════════════════
+  // Lets new users explore the full app immediately without manual data entry.
+  // Generated trades are flagged isDemo:true and use a synthetic demo account.
+  function tqLoadSampleData(){
+    if(typeof tqConfirm !== 'function'){ alert('Loading sample data...'); }
+    var msg = 'Load 55 sample trades into a demo account?\n\nThis lets you explore the full app — Dashboard, Reports, AI Coach, Calendar — with realistic data.\n\nDemo data is flagged and easy to remove later.';
+    var go = function(){
+      // Create demo account if doesn't exist
+      var accs = JSON.parse(rfxGet('rf_accounts')||'[]');
+      var demoAcc = accs.find(function(a){ return a.id === 'acc_demo_sample'; });
+      if(!demoAcc){
+        demoAcc = {
+          id: 'acc_demo_sample',
+          name: 'Demo Account',
+          type: 'demo',
+          currency: 'USD',
+          startingBalance: 10000,
+          balance: 10000,
+          broker: 'Sample MT5',
+          platform: 'MT5',
+          accountNumber: 'DEMO-12345',
+          active: true,
+          createdAt: new Date().toISOString(),
+          isDemo: true
+        };
+        accs.push(demoAcc);
+        rfxSet('rf_accounts', JSON.stringify(accs));
+        if(typeof tqInvalidateAccCcyMap === 'function') tqInvalidateAccCcyMap();
+        if(window.tqPushAccounts) try{ tqPushAccounts(); }catch(e){}
+      }
+      // Generate trades
+      var pairs = ['EURUSD','GBPUSD','XAUUSD','USDJPY','GBPJPY','AUDUSD','EURJPY'];
+      var pipSizes = {EURUSD:0.0001, GBPUSD:0.0001, AUDUSD:0.0001, XAUUSD:0.01, USDJPY:0.01, GBPJPY:0.01, EURJPY:0.01};
+      var pipVals = {EURUSD:10, GBPUSD:10, AUDUSD:10, XAUUSD:10, USDJPY:6.5, GBPJPY:6.5, EURJPY:6.5};
+      var basePrices = {EURUSD:1.0850, GBPUSD:1.2640, XAUUSD:2340, USDJPY:152.30, GBPJPY:192.50, AUDUSD:0.6580, EURJPY:165.20};
+      var setups = ['Liquidity Sweep','NY Trap','SMT Continuation','BOS Pullback','FVG Mitigation'];
+      var sessions = ['London','New York','Asia','London','New York']; // weighted to London/NY
+      var grades = ['A+','A','B','B','C'];
+      var emotions = ['Calm','Confident','Disciplined','Anxious','FOMO'];
+
+      function rand(min, max){ return Math.random() * (max - min) + min; }
+      function pick(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
+
+      var trades = JSON.parse(rfxGet('rf_trades')||'[]');
+      var now = new Date();
+      var generated = [];
+      for(var i=0; i<55; i++){
+        var daysAgo = Math.floor(Math.random() * 90) + 1;
+        var date = new Date(now);
+        date.setDate(date.getDate() - daysAgo);
+        // Skip weekends
+        while(date.getDay() === 0 || date.getDay() === 6){ date.setDate(date.getDate() + 1); }
+        var pair = pick(pairs);
+        var dir = Math.random() < 0.5 ? 'buy' : 'sell';
+        var lots = pick([0.1, 0.2, 0.25, 0.5, 0.75, 1.0]);
+        var isWinner = Math.random() < 0.55;
+        var pipChange = isWinner ? Math.floor(rand(8, 45)) : -Math.floor(rand(10, 30));
+        var pnl = +(pipChange * pipVals[pair] * lots).toFixed(2);
+        var commission = +(-lots * 7).toFixed(2);
+        var session = pick(sessions);
+        var hour = session === 'London' ? 8 + Math.floor(Math.random()*4) : session === 'New York' ? 13 + Math.floor(Math.random()*4) : 1 + Math.floor(Math.random()*5);
+        var min = pick([0,5,10,15,20,25,30,35,40,45,50,55]);
+        var entryTime = (hour<10?'0':'')+hour+':'+(min<10?'0':'')+min;
+        var holdMin = Math.floor(rand(15, 240));
+        var exitDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), hour, min);
+        exitDate.setMinutes(exitDate.getMinutes() + holdMin);
+        var exitTime = (exitDate.getHours()<10?'0':'')+exitDate.getHours()+':'+(exitDate.getMinutes()<10?'0':'')+exitDate.getMinutes();
+        var basePrice = basePrices[pair] + rand(-0.05, 0.05) * basePrices[pair];
+        var slPips = Math.floor(rand(15, 40));
+        var tpPips = Math.floor(rand(20, 80));
+        var entryPrice = +basePrice.toFixed(pair.indexOf('JPY')>=0 ? 3 : pair === 'XAUUSD' ? 2 : 5);
+        var sl = dir === 'buy' ? entryPrice - slPips * pipSizes[pair] : entryPrice + slPips * pipSizes[pair];
+        var tp = dir === 'buy' ? entryPrice + tpPips * pipSizes[pair] : entryPrice - tpPips * pipSizes[pair];
+        var exitPrice = entryPrice + (dir === 'buy' ? 1 : -1) * pipChange * pipSizes[pair];
+
+        var t = {
+          id: 'tr_demo_'+Date.now()+'_'+i+'_'+Math.random().toString(36).slice(2,5),
+          date: date.toISOString().slice(0,10),
+          pair: pair,
+          symbol: pair,
+          account: 'acc_demo_sample',
+          currency: 'USD',
+          direction: dir,
+          setup: pick(setups),
+          confluences: ['HTF Alignment', 'Liquidity Confirmed'],
+          dailyBias: dir === 'buy' ? 'Bullish' : 'Bearish',
+          session: session,
+          rrTarget: (tpPips / slPips).toFixed(1),
+          riskPct: (rand(0.5, 1.5)).toFixed(2),
+          pips: pipChange,
+          entry: entryPrice,
+          sl: +sl.toFixed(pair.indexOf('JPY')>=0 ? 3 : pair === 'XAUUSD' ? 2 : 5),
+          tp: +tp.toFixed(pair.indexOf('JPY')>=0 ? 3 : pair === 'XAUUSD' ? 2 : 5),
+          exit: +exitPrice.toFixed(pair.indexOf('JPY')>=0 ? 3 : pair === 'XAUUSD' ? 2 : 5),
+          lots: lots,
+          pnl: pnl,
+          grossPnl: pnl,
+          commission: commission,
+          entryTime: entryTime,
+          exitTime: exitTime,
+          duration: holdMin,
+          grade: pick(grades),
+          emotion: pick(emotions),
+          planFollowed: Math.random() < 0.7 ? 'yes' : 'partial',
+          status: pnl > 0 ? 'TP' : pnl < 0 ? 'SL' : 'BE',
+          lifecycle: 'closed',
+          notes: '',
+          screenshots: [],
+          created: date.toISOString(),
+          isDemo: true
+        };
+        trades.push(t);
+        generated.push(t);
+      }
+      rfxSet('rf_trades', JSON.stringify(trades));
+      if(window.tqPushTradesBatch && generated.length){
+        try{ tqPushTradesBatch(generated); }catch(e){}
+      }
+      // Refresh UI
+      if(typeof updateDashboard === 'function') updateDashboard();
+      if(typeof renderJournal === 'function') renderJournal();
+      if(typeof updateReports === 'function') updateReports();
+      if(typeof tqToast === 'function') tqToast('✓ 55 sample trades loaded into Demo Account', {type:'success', duration:4000});
+    };
+    tqConfirm(msg, {title:'Load sample data?', okLabel:'Load 55 trades', cancelLabel:'Cancel'}).then(function(ok){
+      if(ok) go();
+    });
+  }
+  window.tqLoadSampleData = tqLoadSampleData;
+  // Goals = simple targets the trader sets. Dashboard shows progress.
+  // Types: monthly_pnl, weekly_pnl, win_rate, trades_per_week, profit_factor.
+
+  function tqGoalsLoad(){
+    try{ return JSON.parse(rfxGet('tq_goals')||'[]'); }catch(e){ return []; }
+  }
+  function tqGoalsSave(goals){
+    rfxSet('tq_goals', JSON.stringify(goals||[]));
+    if(typeof tqPushSettings === 'function') try{ tqPushSettings(); }catch(e){}
+  }
+  window.tqGoalsLoad = tqGoalsLoad;
+
+  // Compute current value for a goal based on trades within its period
+  function tqGoalProgress(goal){
+    if(!goal) return {current:0, target:goal.target, pct:0, label:''};
+    var allTrades = (typeof getActiveTrades === 'function') ? getActiveTrades() : [];
+    var now = new Date();
+    var startDate;
+    if(goal.period === 'week'){
+      // Monday of this week
+      var dow = now.getDay() === 0 ? 6 : now.getDay() - 1;
+      startDate = new Date(now); startDate.setDate(now.getDate() - dow); startDate.setHours(0,0,0,0);
+    } else if(goal.period === 'month'){
+      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    } else if(goal.period === 'year'){
+      startDate = new Date(now.getFullYear(), 0, 1);
+    } else {
+      startDate = new Date(0);
+    }
+    var startStr = startDate.toISOString().slice(0,10);
+    var trades = allTrades.filter(function(t){ return (t.date||'') >= startStr; });
+
+    var current = 0, label = '', target = goal.target;
+    var ccy = (typeof tqGetDisplayCurrency === 'function') ? tqGetDisplayCurrency() : 'USD';
+    var sym = ({USD:'$',EUR:'€',GBP:'£',JPY:'¥'})[ccy] || '';
+
+    if(goal.type === 'pnl'){
+      current = trades.reduce(function(s,t){ return s + tqConvertTradePnl(t); }, 0);
+      label = sym + Math.round(current).toLocaleString() + ' / ' + sym + Math.round(target).toLocaleString();
+    } else if(goal.type === 'win_rate'){
+      var wins = trades.filter(function(t){ return tqConvertTradePnl(t) > 0; }).length;
+      current = trades.length > 0 ? (wins / trades.length * 100) : 0;
+      label = current.toFixed(0) + '% / ' + target.toFixed(0) + '%';
+    } else if(goal.type === 'trades'){
+      current = trades.length;
+      label = current + ' / ' + target + ' trades';
+    } else if(goal.type === 'profit_factor'){
+      var stats = (typeof tqMetrics === 'function') ? tqMetrics(trades) : null;
+      current = stats && stats.profitFactor && isFinite(stats.profitFactor) ? stats.profitFactor : 0;
+      label = current.toFixed(2) + ' / ' + target.toFixed(2);
+    }
+    var pct = target > 0 ? Math.min(100, Math.max(0, (current / target) * 100)) : 0;
+    return {current:current, target:target, pct:pct, label:label};
+  }
+  window.tqGoalProgress = tqGoalProgress;
+
+  // Render goals widget on Dashboard
+  function tqRenderGoalsWidget(){
+    var listEl = document.getElementById('dash-goals-list');
+    if(!listEl) return;
+    var goals = tqGoalsLoad();
+    if(goals.length === 0){
+      listEl.innerHTML = '<button onclick="tqOpenGoals()" style="padding:8px;background:rgba(124,90,240,.06);border:1px dashed rgba(124,90,240,.3);color:var(--text2);border-radius:6px;font-size:11px;cursor:pointer;width:100%">+ Set your first goal</button>';
+      return;
+    }
+    listEl.innerHTML = goals.slice(0,3).map(function(g){
+      var p = tqGoalProgress(g);
+      var col = p.pct >= 100 ? 'var(--green)' : p.pct >= 75 ? '#f0b429' : 'var(--accent)';
+      var icon = ({pnl:'💰', win_rate:'🎯', trades:'📊', profit_factor:'⚡'})[g.type] || '🎯';
+      return '<div style="font-size:11px">' +
+               '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">' +
+                 '<span style="color:var(--text2);font-size:10px"><span style="margin-right:4px">'+icon+'</span>'+(g.name||g.type).replace(/</g,'&lt;')+'</span>' +
+                 '<span style="color:'+col+';font-weight:600;font-size:10px;font-family:DM Mono,monospace">'+p.label+'</span>' +
+               '</div>' +
+               '<div style="background:var(--bg3);border-radius:3px;height:5px;overflow:hidden"><div style="background:'+col+';height:100%;width:'+p.pct+'%;transition:width .4s"></div></div>' +
+             '</div>';
+    }).join('');
+  }
+  window.tqRenderGoalsWidget = tqRenderGoalsWidget;
+
+  // Goals management modal
+  function tqOpenGoals(){
+    var prev = document.getElementById('tq-goals-modal');
+    if(prev) prev.remove();
+    var goals = tqGoalsLoad();
+    var html = '<div id="tq-goals-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;font-family:Inter,sans-serif" onclick="if(event.target===this)tqCloseGoals()">' +
+                 '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;max-width:520px;width:100%;padding:24px;max-height:85vh;overflow-y:auto">' +
+                   '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">' +
+                     '<div style="font-size:16px;font-weight:600;color:var(--text)">Trading Goals</div>' +
+                     '<button onclick="tqCloseGoals()" style="background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer">✕</button>' +
+                   '</div>' +
+                   '<div style="font-size:11px;color:var(--text3);line-height:1.5;margin-bottom:14px">Set targets that show as progress bars on your Dashboard. Goals reset each new week/month/year automatically.</div>' +
+                   '<div id="tq-goals-list-modal" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px"></div>' +
+                   '<div style="border-top:1px solid var(--border);padding-top:14px;margin-top:14px">' +
+                     '<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">+ ADD NEW GOAL</div>' +
+                     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">' +
+                       '<select id="tq-goal-type" style="padding:8px;background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px">' +
+                         '<option value="pnl">P&L target</option>' +
+                         '<option value="win_rate">Win rate target (%)</option>' +
+                         '<option value="trades">Trade count target</option>' +
+                         '<option value="profit_factor">Profit Factor target</option>' +
+                       '</select>' +
+                       '<select id="tq-goal-period" style="padding:8px;background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px">' +
+                         '<option value="week">This week</option>' +
+                         '<option value="month" selected>This month</option>' +
+                         '<option value="year">This year</option>' +
+                         '<option value="all">All time</option>' +
+                       '</select>' +
+                     '</div>' +
+                     '<div style="display:grid;grid-template-columns:2fr 1fr 80px;gap:8px">' +
+                       '<input id="tq-goal-name" type="text" placeholder="e.g. Pay rent" style="padding:8px;background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px">' +
+                       '<input id="tq-goal-target" type="number" placeholder="Target" style="padding:8px;background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px">' +
+                       '<button onclick="tqAddGoal()" style="background:var(--accent);color:#fff;border:none;padding:8px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Add</button>' +
+                     '</div>' +
+                   '</div>' +
+                 '</div>' +
+               '</div>';
+    var w = document.createElement('div');
+    w.innerHTML = html;
+    document.body.appendChild(w.firstElementChild);
+    tqRenderGoalsModalList();
+  }
+  window.tqOpenGoals = tqOpenGoals;
+  function tqCloseGoals(){ var m = document.getElementById('tq-goals-modal'); if(m) m.remove(); }
+  window.tqCloseGoals = tqCloseGoals;
+
+  function tqRenderGoalsModalList(){
+    var listEl = document.getElementById('tq-goals-list-modal');
+    if(!listEl) return;
+    var goals = tqGoalsLoad();
+    if(goals.length === 0){
+      listEl.innerHTML = '<div style="text-align:center;color:var(--text3);font-size:12px;padding:20px 0">No goals yet. Add one below.</div>';
+      return;
+    }
+    listEl.innerHTML = goals.map(function(g){
+      var p = tqGoalProgress(g);
+      var typeLabels = {pnl:'P&L', win_rate:'Win rate', trades:'Trades', profit_factor:'Profit Factor'};
+      var periodLabels = {week:'this week', month:'this month', year:'this year', all:'all time'};
+      var col = p.pct >= 100 ? 'var(--green)' : p.pct >= 75 ? '#f0b429' : 'var(--accent)';
+      return '<div style="padding:12px;background:var(--card);border:1px solid var(--border);border-radius:8px">' +
+               '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:6px">' +
+                 '<div>' +
+                   '<div style="font-size:13px;font-weight:600;color:var(--text)">'+(g.name||typeLabels[g.type]).replace(/</g,'&lt;')+'</div>' +
+                   '<div style="font-size:10px;color:var(--text3)">'+typeLabels[g.type]+' · '+periodLabels[g.period]+'</div>' +
+                 '</div>' +
+                 '<button onclick="tqDeleteGoal(\''+g.id+'\')" title="Delete goal" style="background:none;border:none;color:var(--text3);font-size:14px;cursor:pointer;padding:0 4px">✕</button>' +
+               '</div>' +
+               '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">' +
+                 '<span style="font-size:11px;color:var(--text3)">Progress</span>' +
+                 '<span style="font-size:11px;color:'+col+';font-weight:600;font-family:DM Mono,monospace">'+p.label+'</span>' +
+               '</div>' +
+               '<div style="background:var(--bg3);border-radius:3px;height:6px;overflow:hidden"><div style="background:'+col+';height:100%;width:'+p.pct+'%"></div></div>' +
+             '</div>';
+    }).join('');
+  }
+  window.tqRenderGoalsModalList = tqRenderGoalsModalList;
+
+  function tqAddGoal(){
+    var type = (document.getElementById('tq-goal-type')||{}).value || 'pnl';
+    var period = (document.getElementById('tq-goal-period')||{}).value || 'month';
+    var name = ((document.getElementById('tq-goal-name')||{}).value || '').trim();
+    var target = parseFloat((document.getElementById('tq-goal-target')||{}).value || '');
+    if(!target || target <= 0){ if(typeof tqToast==='function') tqToast('Set a positive target', {type:'warn'}); return; }
+    var goal = {
+      id: 'goal_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),
+      type: type, period: period, target: target,
+      name: name || ('My '+type+' goal'),
+      createdAt: new Date().toISOString()
+    };
+    var goals = tqGoalsLoad();
+    goals.push(goal);
+    tqGoalsSave(goals);
+    document.getElementById('tq-goal-name').value = '';
+    document.getElementById('tq-goal-target').value = '';
+    tqRenderGoalsModalList();
+    tqRenderGoalsWidget();
+    if(typeof tqToast === 'function') tqToast('Goal added', {type:'success'});
+  }
+  window.tqAddGoal = tqAddGoal;
+
+  function tqDeleteGoal(id){
+    var goals = tqGoalsLoad().filter(function(g){return g.id !== id;});
+    tqGoalsSave(goals);
+    tqRenderGoalsModalList();
+    tqRenderGoalsWidget();
+  }
+  window.tqDeleteGoal = tqDeleteGoal;
 
   // ── Filter ──
   function jrFilter(type, btn){
@@ -19032,6 +20158,74 @@ window.dispatchEvent(new Event('supabase-ready'));
           });
         }
       });
+      // Saved filter presets
+      var presetSel = document.getElementById('jr-preset-load');
+      if(presetSel && !presetSel._jrWired){
+        presetSel._jrWired = true;
+        // Populate from storage
+        function repopulatePresets(){
+          var stored = {};
+          try{ stored = JSON.parse(rfxGet('tq_filter_presets_journal')||'{}'); }catch(e){}
+          var keys = Object.keys(stored).sort();
+          presetSel.innerHTML = '<option value="">Saved filters…</option>' +
+            keys.map(function(k){ return '<option value="'+k.replace(/</g,'&lt;')+'">'+k.replace(/</g,'&lt;')+'</option>'; }).join('') +
+            (keys.length > 0 ? '<option value="__delete">— Manage saved…</option>' : '');
+        }
+        repopulatePresets();
+        presetSel.addEventListener('change', function(){
+          var name = presetSel.value;
+          if(!name){ return; }
+          if(name === '__delete'){
+            // Show simple management UI via prompt
+            var stored = {};
+            try{ stored = JSON.parse(rfxGet('tq_filter_presets_journal')||'{}'); }catch(e){}
+            var keys = Object.keys(stored);
+            if(keys.length === 0){ presetSel.value = ''; return; }
+            tqConfirm('Delete a saved filter?\n\n'+keys.join('\n'), {title:'Manage filters', okLabel:'Clear all', cancelLabel:'Cancel', danger:true}).then(function(ok){
+              if(ok){ rfxRemove('tq_filter_presets_journal'); repopulatePresets(); tqToast('All saved filters cleared', {type:'info'}); }
+            });
+            presetSel.value = '';
+            return;
+          }
+          var stored = {};
+          try{ stored = JSON.parse(rfxGet('tq_filter_presets_journal')||'{}'); }catch(e){}
+          var preset = stored[name];
+          if(!preset){ presetSel.value = ''; return; }
+          // Apply preset
+          ['jr-pair-filter','jr-setup-filter','jr-session-filter','jr-account-filter','jr-grade-filter','jr-dir-filter','jr-tag-filter','jr-date-from','jr-date-to'].forEach(function(id){
+            var el = document.getElementById(id);
+            if(el && preset[id] != null) el.value = preset[id];
+          });
+          renderJournal();
+          tqToast('Loaded preset: '+name, {type:'info', duration:1800});
+        });
+      }
+      // Save preset function exposed globally
+      window.jrSaveFilterPreset = function(){
+        var current = {};
+        ['jr-pair-filter','jr-setup-filter','jr-session-filter','jr-account-filter','jr-grade-filter','jr-dir-filter','jr-tag-filter','jr-date-from','jr-date-to'].forEach(function(id){
+          var el = document.getElementById(id);
+          if(el) current[id] = el.value;
+        });
+        // Use prompt for now (in-app modal would be nicer but we need text input)
+        var name = prompt('Save current filters as:', '');
+        if(!name) return;
+        name = name.trim().slice(0, 40);
+        if(!name) return;
+        var stored = {};
+        try{ stored = JSON.parse(rfxGet('tq_filter_presets_journal')||'{}'); }catch(e){}
+        stored[name] = current;
+        rfxSet('tq_filter_presets_journal', JSON.stringify(stored));
+        var sel = document.getElementById('jr-preset-load');
+        if(sel && sel._jrWired === true){
+          // Re-trigger populate by tripping the wired flag and re-running
+          sel._jrWired = false;
+          // Clear options then trigger by re-rendering
+          renderJournal();
+        }
+        if(typeof tqToast === 'function') tqToast('Saved preset: '+name, {type:'success'});
+      };
+
       // Date preset chips
       document.querySelectorAll('#jr-date-presets .jr-date-preset').forEach(function(b){
         if(b._jrWired) return;
@@ -19173,6 +20367,10 @@ window.dispatchEvent(new Event('supabase-ready'));
     var dateTo=document.getElementById('jr-date-to');
     if(dateFrom&&dateFrom.value) t=t.filter(function(x){return (x.date||'')>=dateFrom.value;});
     if(dateTo&&dateTo.value) t=t.filter(function(x){return (x.date||'')<=dateTo.value;});
+
+    // Pinned filter
+    var pinnedSel = document.getElementById('jr-pinned-filter');
+    if(pinnedSel && pinnedSel.value === 'pinned') t = t.filter(function(x){ return !!x.pinned; });
 
     // Sort
     var sort = (document.getElementById('jr-sort')||{}).value||'date-desc';
@@ -19436,7 +20634,7 @@ window.dispatchEvent(new Event('supabase-ready'));
             +'<td style="font-weight:600;font-family:\'Inter\',sans-serif;color:'+(pnl2>=0?'var(--green)':'var(--red)')+'">'+(pnl2>=0?'+':'')+' $'+Math.abs(pnl2).toLocaleString('en-US')+'</td>'
             +'<td class="jr-running" style="color:'+(running>=0?'var(--green)':'var(--red)')+'">'+(running>=0?'+':'')+' $'+Math.abs(running).toLocaleString('en-US')+'</td>'
             +'<td><span class="jr-pill '+resultCls+'">'+result+'</span></td>'
-            +'<td onclick="event.stopPropagation()" style="white-space:nowrap"><button style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:13px;padding:4px 6px" onclick="aiChatOpen(\''+tr.id+'\')" title="Ask AI about this trade">✨</button><button style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;padding:4px" onclick="jrDeleteTrade(\''+tr.id+'\')" title="Delete trade">✕</button></td>'
+            +'<td onclick="event.stopPropagation()" style="white-space:nowrap"><button style="background:none;border:none;color:'+(tr.pinned?'#f0b429':'var(--text3)')+';cursor:pointer;font-size:13px;padding:4px" onclick="jrTogglePin(\''+tr.id+'\')" title="'+(tr.pinned?'Unpin':'Pin for later review')+'">'+(tr.pinned?'★':'☆')+'</button><button style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:13px;padding:4px 6px" onclick="aiChatOpen(\''+tr.id+'\')" title="Ask AI about this trade">✨</button><button style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;padding:4px" onclick="jrDeleteTrade(\''+tr.id+'\')" title="Delete trade">✕</button></td>'
             +'</tr>';
         });
       });
@@ -22673,12 +23871,128 @@ window.dispatchEvent(new Event('supabase-ready'));
       ckRenderRoadmaps();
       ckRenderBoards();
     }
-    // Update performance strip
+    // Render performance strip
     if(typeof ckUpdatePerfStrip==='function') ckUpdatePerfStrip();
     // Render active plans rail
     if(typeof apRender==='function') apRender();
+    // Render pre-trade checklist
+    if(typeof ckRenderChecklist==='function') ckRenderChecklist();
   }
   window.ckRender=ckRender;
+
+  // ── Pre-Trade Readiness Checklist ──
+  // 6 items the trader should verify BEFORE entering a position. Score is auto-derived
+  // from cockpit + journal data where possible; rest are manual checkboxes that
+  // the trader marks. Stored in localStorage with date key — resets daily.
+  var CK_CHECKLIST_KEY = 'tq_ck_checklist';
+
+  function ckChecklistLoad(){
+    try{
+      var data = JSON.parse(rfxGet(CK_CHECKLIST_KEY)||'{}');
+      var today = new Date().toISOString().slice(0,10);
+      if(data.date !== today) return {date: today, items: {}};
+      return data;
+    }catch(e){ return {date: new Date().toISOString().slice(0,10), items: {}}; }
+  }
+  function ckChecklistSave(state){
+    rfxSet(CK_CHECKLIST_KEY, JSON.stringify(state));
+  }
+
+  function ckChecklistAutoStatus(itemId){
+    // Auto-detect status from existing data
+    if(itemId === 'daily_loss_ok'){
+      // Check if any active funded account is at/over daily loss limit today
+      try{
+        var accs = JSON.parse(rfxGet('rf_accounts')||'[]').filter(function(a){return a&&!a.deleted&&!a.archived;});
+        var trades = (typeof getActiveTrades==='function')?getActiveTrades():[];
+        for(var i=0;i<accs.length;i++){
+          var st = (typeof tqFundedStatus==='function')?tqFundedStatus(accs[i], trades):null;
+          if(st && st.breaches && st.breaches.length > 0) return 'fail';
+          if(st && st.warnings && st.warnings.length > 0) return 'warn';
+        }
+        return 'ok';
+      }catch(e){ return 'unknown'; }
+    }
+    if(itemId === 'cockpit_filled'){
+      // At least one pair analyzed in cockpit?
+      if(ckData && ckData.pairs && Object.keys(ckData.pairs).length > 0) return 'ok';
+      return 'fail';
+    }
+    if(itemId === 'session_set'){
+      if(ckData && ckData.session) return 'ok';
+      return 'fail';
+    }
+    return null; // Manual item, no auto status
+  }
+
+  function ckRenderChecklist(){
+    var grid = document.getElementById('ck-checklist-grid');
+    if(!grid) return;
+    var state = ckChecklistLoad();
+    var ITEMS = [
+      {id:'daily_loss_ok', label:'Daily loss limit OK', tip:'Auto-checked from your funded accounts', auto:true},
+      {id:'session_set', label:'Active session selected', tip:'Pick the session you\'ll trade', auto:true},
+      {id:'cockpit_filled', label:'Pre-market analysis done', tip:'Mark direction/condition for pairs', auto:true},
+      {id:'news_checked', label:'Economic calendar checked', tip:'No high-impact news in next 30 min', auto:false},
+      {id:'rr_min', label:'R:R ≥ 1.5 confirmed', tip:'Reward should justify the risk', auto:false},
+      {id:'plan_written', label:'Entry / SL / TP defined upfront', tip:'No "I\'ll figure out as it goes"', auto:false}
+    ];
+    var ready = 0;
+    grid.innerHTML = ITEMS.map(function(it){
+      var auto = it.auto ? ckChecklistAutoStatus(it.id) : null;
+      var checked, color, icon;
+      if(it.auto){
+        checked = (auto === 'ok');
+        color = auto === 'ok' ? 'var(--green)' : auto === 'warn' ? '#f0b429' : 'var(--text3)';
+        icon = auto === 'ok' ? '✓' : auto === 'warn' ? '⚠' : '○';
+      } else {
+        checked = !!state.items[it.id];
+        color = checked ? 'var(--green)' : 'var(--text3)';
+        icon = checked ? '✓' : '○';
+      }
+      if(checked) ready++;
+      return '<div onclick="'+(it.auto?'':'ckChecklistToggle(\''+it.id+'\')')+'" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:'+(checked?'rgba(46,204,138,.05)':'var(--bg2)')+';border:1px solid '+(checked?'rgba(46,204,138,.2)':'var(--border)')+';border-radius:8px;cursor:'+(it.auto?'default':'pointer')+';transition:all .15s" title="'+it.tip.replace(/"/g,'&quot;')+'">' +
+               '<div style="width:24px;height:24px;border-radius:50%;background:'+color+';display:flex;align-items:center;justify-content:center;color:'+(checked?'#fff':'transparent')+';font-size:13px;font-weight:700;border:2px solid '+(checked?color:'var(--border)')+';flex-shrink:0">'+icon+'</div>' +
+               '<div style="flex:1;min-width:0">' +
+                 '<div style="font-size:12px;color:var(--text);font-weight:500">'+it.label+(it.auto?' <span style="font-size:9px;color:var(--text3);background:var(--bg3);padding:1px 5px;border-radius:3px;margin-left:4px">auto</span>':'')+'</div>' +
+               '</div>' +
+             '</div>';
+    }).join('');
+
+    var scoreEl = document.getElementById('ck-checklist-score');
+    if(scoreEl){
+      scoreEl.textContent = ready + '/' + ITEMS.length;
+      scoreEl.style.color = ready === ITEMS.length ? 'var(--green)' : ready >= 4 ? 'var(--accent)' : '#f0b429';
+    }
+    var bannerEl = document.getElementById('ck-checklist-banner');
+    if(bannerEl){
+      if(ready === ITEMS.length){
+        bannerEl.style.display = 'block';
+        bannerEl.innerHTML = '<div style="padding:10px 12px;background:rgba(46,204,138,.06);border-left:3px solid var(--green);border-radius:6px;font-size:11px;color:var(--text2)"><strong style="color:var(--green)">✓ Ready to trade.</strong> All checks passed.</div>';
+      } else if(ready < 3){
+        bannerEl.style.display = 'block';
+        bannerEl.innerHTML = '<div style="padding:10px 12px;background:rgba(224,92,122,.06);border-left:3px solid var(--red);border-radius:6px;font-size:11px;color:var(--text2)"><strong style="color:var(--red)">⚠ Not ready.</strong> Complete at least 4 of 6 before pressing buy/sell.</div>';
+      } else {
+        bannerEl.style.display = 'none';
+      }
+    }
+  }
+  window.ckRenderChecklist = ckRenderChecklist;
+
+  function ckChecklistToggle(itemId){
+    var state = ckChecklistLoad();
+    state.items[itemId] = !state.items[itemId];
+    ckChecklistSave(state);
+    ckRenderChecklist();
+  }
+  window.ckChecklistToggle = ckChecklistToggle;
+
+  function ckChecklistReset(){
+    rfxRemove(CK_CHECKLIST_KEY);
+    ckRenderChecklist();
+    if(typeof tqToast === 'function') tqToast('Checklist reset', {type:'info', duration:1500});
+  }
+  window.ckChecklistReset = ckChecklistReset;
 
   // Roadmap screenshots
   function ckHandleRoadmap(input){
@@ -24821,6 +26135,8 @@ window.dispatchEvent(new Event('supabase-ready'));
       var __cur = tqGetDisplayCurrency();
       if(__ccyPick.value !== __cur) __ccyPick.value = __cur;
     }
+    // Refresh goals widget
+    if(typeof tqRenderGoalsWidget === 'function') try{ tqRenderGoalsWidget(); }catch(e){}
     // Refresh AI insights widget (non-blocking)
     setTimeout(function(){ if(typeof window.dashAIRender==='function') window.dashAIRender(); }, 150);
     
@@ -27595,9 +28911,109 @@ window.dispatchEvent(new Event('supabase-ready'));
 
 <!-- FLOATING ASK AI BUTTON (FAB) -->
 <div id="ai-fab" style="position:fixed;bottom:24px;right:24px;z-index:900;display:flex;flex-direction:column;gap:10px;align-items:flex-end">
+  <button id="tq-feedback-fab" onclick="tqOpenFeedback()" style="background:var(--bg2);color:var(--text);border:1px solid var(--border);width:42px;height:42px;border-radius:50%;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:16px" title="Send feedback / report a bug">💬</button>
   <button id="ai-fab-btn" onclick="aiFabOpen()" style="background:linear-gradient(135deg,#7c5af0,#9b7ef8);color:white;border:none;width:56px;height:56px;border-radius:50%;cursor:pointer;box-shadow:0 8px 24px rgba(124,90,240,.4),0 4px 12px rgba(0,0,0,.15);display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:22px" onmouseover="this.style.transform='scale(1.08)';this.style.boxShadow='0 10px 30px rgba(124,90,240,.5),0 6px 16px rgba(0,0,0,.2)'" onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 8px 24px rgba(124,90,240,.4),0 4px 12px rgba(0,0,0,.15)'" title="Ask AI anything — Ctrl+K">✨</button>
   <div id="ai-fab-hint" style="position:absolute;bottom:70px;right:0;background:rgba(15,23,42,.95);color:white;padding:6px 12px;border-radius:8px;font-size:11px;font-family:Inter,sans-serif;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s">Ask AI anything · <span style="opacity:.6">Ctrl+K</span></div>
 </div>
+
+<!-- FEEDBACK MODAL -->
+<div id="tq-feedback-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99999;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)tqCloseFeedback()">
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;max-width:480px;width:100%;padding:24px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div style="font-size:16px;font-weight:600;color:var(--text)">Send feedback</div>
+      <button onclick="tqCloseFeedback()" style="background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer">✕</button>
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:14px">
+      <button class="tq-fb-type" data-type="bug" onclick="tqFbSetType('bug',this)" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:11px;font-weight:600;cursor:pointer">🐛 Bug</button>
+      <button class="tq-fb-type" data-type="feature" onclick="tqFbSetType('feature',this)" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:11px;font-weight:600;cursor:pointer">💡 Feature</button>
+      <button class="tq-fb-type" data-type="other" onclick="tqFbSetType('other',this)" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:11px;font-weight:600;cursor:pointer">💭 Other</button>
+    </div>
+    <textarea id="tq-fb-text" placeholder="What happened? Steps to reproduce, what you expected, what actually happened..." rows="6" style="width:100%;padding:10px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;font-family:Inter,sans-serif;resize:vertical;margin-bottom:10px"></textarea>
+    <div id="tq-fb-meta" style="font-size:10px;color:var(--text3);margin-bottom:14px;line-height:1.5"></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px">
+      <button onclick="tqCloseFeedback()" style="background:var(--bg3);color:var(--text);border:1px solid var(--border);padding:9px 18px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">Cancel</button>
+      <button onclick="tqSubmitFeedback()" style="background:var(--accent);color:#fff;border:none;padding:9px 18px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">Send</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var _fbType = 'bug';
+  window.tqFbSetType = function(type, el){
+    _fbType = type;
+    document.querySelectorAll('.tq-fb-type').forEach(function(b){
+      b.style.borderColor = 'var(--border)';
+      b.style.background = 'var(--card)';
+      b.style.color = 'var(--text)';
+    });
+    if(el){ el.style.borderColor = 'var(--accent)'; el.style.background = 'rgba(124,90,240,.1)'; el.style.color = 'var(--accent)'; }
+  };
+  window.tqOpenFeedback = function(){
+    var m = document.getElementById('tq-feedback-modal');
+    if(!m) return;
+    m.style.display = 'flex';
+    // Default to bug
+    var bugBtn = document.querySelector('.tq-fb-type[data-type="bug"]');
+    if(bugBtn) tqFbSetType('bug', bugBtn);
+    // Build meta
+    var info = [];
+    try{
+      var trades = JSON.parse(localStorage.getItem('rf_trades')||'[]');
+      info.push(trades.length + ' trades');
+    }catch(e){}
+    info.push(navigator.userAgent.split(') ')[0].split('(').pop() || 'unknown browser');
+    info.push((screen.width||0)+'×'+(screen.height||0));
+    var meta = document.getElementById('tq-fb-meta');
+    if(meta) meta.textContent = 'We will attach: ' + info.join(' · ') + ' (no personal data, no trade contents)';
+    setTimeout(function(){ var ta = document.getElementById('tq-fb-text'); if(ta) ta.focus(); }, 30);
+  };
+  window.tqCloseFeedback = function(){
+    var m = document.getElementById('tq-feedback-modal');
+    if(m) m.style.display = 'none';
+    var ta = document.getElementById('tq-fb-text'); if(ta) ta.value = '';
+  };
+  window.tqSubmitFeedback = function(){
+    var ta = document.getElementById('tq-fb-text');
+    var text = ta ? ta.value.trim() : '';
+    if(!text){
+      if(typeof tqToast === 'function') tqToast('Please describe your feedback', {type:'warn'});
+      return;
+    }
+    var payload = {
+      type: _fbType,
+      text: text,
+      tradeCount: (function(){try{return JSON.parse(localStorage.getItem('rf_trades')||'[]').length;}catch(e){return 0;}})(),
+      url: location.href,
+      userAgent: navigator.userAgent,
+      timestamp: new Date().toISOString(),
+      version: rfxGet('tq_version') || 'unknown',
+      userEmail: (window._tqUser && window._tqUser.email) || ''
+    };
+    // Send to feedback worker (URL configurable, falls back to console log)
+    var FB_URL = window.TQ_FEEDBACK_URL || 'https://tradequill-feedback.gaipov-rustam.workers.dev';
+    if(FB_URL && FB_URL.indexOf('CHANGE-ME') < 0){
+      fetch(FB_URL, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)})
+        .then(function(r){
+          if(r.ok){
+            if(typeof tqToast==='function') tqToast('Thanks! Feedback sent.', {type:'success'});
+          } else {
+            console.error('Feedback submit failed:', r.status);
+            if(typeof tqToast==='function') tqToast('Couldn\'t send — please email support directly.', {type:'error'});
+          }
+        }).catch(function(e){
+          console.error('Feedback submit threw:', e);
+          if(typeof tqToast==='function') tqToast('Network error — please try again.', {type:'error'});
+        });
+    } else {
+      // Fallback: log to console so user can copy + send manually
+      console.log('TradeQuill feedback (worker not configured):', payload);
+      if(typeof tqToast==='function') tqToast('Feedback logged to console (configure worker for delivery)', {type:'info'});
+    }
+    tqCloseFeedback();
+  };
+})();
+</script>
 
 <script>
 (function(){
@@ -27608,15 +29024,194 @@ window.dispatchEvent(new Event('supabase-ready'));
     btn.addEventListener('mouseleave', function(){ hint.style.opacity='0'; });
   }
   document.addEventListener('keydown', function(e){
+    // Cmd+K → AI FAB (existing)
     if((e.ctrlKey || e.metaKey) && e.key === 'k'){
       e.preventDefault();
       if(typeof aiFabOpen === 'function') aiFabOpen();
     }
+    // Cmd+/ → Global search (new)
+    if((e.ctrlKey || e.metaKey) && (e.key === '/' || e.key === '?')){
+      e.preventDefault();
+      if(typeof tqGlobalSearchOpen === 'function') tqGlobalSearchOpen();
+    }
     if(e.key === 'Escape'){
       var fm = document.getElementById('modal-aichat');
       if(fm && fm.classList.contains('show') && typeof aiChatClose === 'function') aiChatClose();
+      var gs = document.getElementById('tq-globalsearch');
+      if(gs && gs.style.display !== 'none' && typeof tqGlobalSearchClose === 'function') tqGlobalSearchClose();
     }
   });
+
+  // ── GLOBAL SEARCH (Cmd+/ or /) ──
+  // Searches across trades, notebook entries, playbook setups by content/title/notes.
+  // Spotlight-style: instant results as you type, arrow keys to navigate, Enter to open.
+  (function(){
+    var overlay = document.createElement('div');
+    overlay.id = 'tq-globalsearch';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99999;display:none;align-items:flex-start;justify-content:center;padding-top:80px;font-family:Inter,sans-serif';
+    overlay.innerHTML =
+      '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;width:100%;max-width:640px;max-height:70vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,.5)">' +
+        '<div style="display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--border)">' +
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>' +
+          '<input id="tq-gs-input" type="text" placeholder="Search trades, notes, setups…" style="flex:1;background:none;border:none;color:var(--text);font-size:15px;font-family:Inter,sans-serif;outline:none">' +
+          '<span style="font-size:10px;color:var(--text3);background:var(--bg3);padding:3px 8px;border-radius:4px;font-family:DM Mono,monospace">ESC</span>' +
+        '</div>' +
+        '<div id="tq-gs-results" style="flex:1;overflow-y:auto;padding:8px"></div>' +
+      '</div>';
+    overlay.addEventListener('click', function(e){ if(e.target === overlay) tqGlobalSearchClose(); });
+    document.body.appendChild(overlay);
+
+    window.tqGlobalSearchOpen = function(){
+      overlay.style.display = 'flex';
+      var inp = document.getElementById('tq-gs-input');
+      if(inp){ inp.value = ''; inp.focus(); }
+      renderResults('');
+    };
+    window.tqGlobalSearchClose = function(){
+      overlay.style.display = 'none';
+    };
+
+    function renderResults(q){
+      var results = [];
+      q = (q||'').toLowerCase().trim();
+
+      // Trades
+      try{
+        var trades = JSON.parse(rfxGet('rf_trades')||'[]').filter(function(t){return !t.deleted;});
+        trades.forEach(function(t){
+          var hay = [
+            t.date, t.pair, t.direction, t.setup, t.session, t.grade, t.emotion,
+            t.notes, (t.confluences||[]).join(' '), (t.psychTags||[]).join(' '), t.account
+          ].join(' ').toLowerCase();
+          if(!q || hay.indexOf(q) >= 0){
+            results.push({
+              type:'trade',
+              icon:'📊',
+              title: (t.date||'') + ' · ' + (t.pair||'') + ' · ' + (t.direction||'').toUpperCase(),
+              sub: 'P&L: ' + (t.pnl>=0?'+':'') + (parseFloat(t.pnl)||0).toFixed(2) + ' · ' + (t.setup||'no setup') + ' · ' + (t.session||''),
+              action: function(){
+                tqGlobalSearchClose();
+                showPage('journal');
+                setTimeout(function(){ if(typeof openJrModal==='function') openJrModal(t.id); }, 150);
+              }
+            });
+          }
+        });
+      }catch(e){}
+
+      // Notebook entries
+      try{
+        var notes = JSON.parse(rfxGet('rossfx-notebook')||'[]').filter(function(n){return !n.deleted;});
+        notes.forEach(function(n){
+          var hay = (n.title+' '+n.content+' '+n.type).toLowerCase();
+          if(!q || hay.indexOf(q) >= 0){
+            results.push({
+              type:'note',
+              icon:'📝',
+              title: (n.title || '(untitled)') + ' · ' + (n.type||'free'),
+              sub: ((n.content||'').slice(0, 100)).replace(/\n/g,' '),
+              action: function(){
+                tqGlobalSearchClose();
+                showPage('notebook');
+                setTimeout(function(){ if(typeof nbOpenForEdit === 'function') nbOpenForEdit(n.id); else if(typeof nbOpenModal === 'function') nbOpenModal(n.id); }, 150);
+              }
+            });
+          }
+        });
+      }catch(e){}
+
+      // Playbook setups
+      try{
+        var setups = JSON.parse(rfxGet('rossfx-playbook')||'[]').filter(function(s){return !s.deleted;});
+        setups.forEach(function(s){
+          var hay = (s.name+' '+(s.description||'')+' '+((s.confluences||[]).join(' '))).toLowerCase();
+          if(!q || hay.indexOf(q) >= 0){
+            results.push({
+              type:'setup',
+              icon:'🎯',
+              title: s.name || '(unnamed setup)',
+              sub: (s.description||'no description').slice(0, 100),
+              action: function(){
+                tqGlobalSearchClose();
+                showPage('playbook');
+                setTimeout(function(){ if(typeof viewSetup === 'function') viewSetup(s.id); }, 150);
+              }
+            });
+          }
+        });
+      }catch(e){}
+
+      // Pages (always show in results when query matches their name)
+      var pages = [
+        {id:'dashboard', label:'Dashboard'},
+        {id:'cockpit', label:'Cockpit'},
+        {id:'journal', label:'Journal'},
+        {id:'reports', label:'Reports'},
+        {id:'notebook', label:'Notebook'},
+        {id:'playbook', label:'Playbook'},
+        {id:'accounts', label:'My Accounts'},
+        {id:'riskmonitor', label:'Risk Monitor'},
+        {id:'aicoach', label:'AI Coach'},
+        {id:'trademanager', label:'Trade Manager'},
+        {id:'progress', label:'Progress Tracker'},
+        {id:'casestudies', label:'Case Studies'},
+        {id:'trash', label:'Trash'}
+      ];
+      pages.forEach(function(p){
+        if(q && p.label.toLowerCase().indexOf(q) >= 0){
+          results.unshift({
+            type:'page',
+            icon:'→',
+            title: 'Go to ' + p.label,
+            sub: 'navigate',
+            action: function(){ tqGlobalSearchClose(); showPage(p.id); }
+          });
+        }
+      });
+
+      // Limit + render
+      var top = results.slice(0, 30);
+      var resEl = document.getElementById('tq-gs-results');
+      if(!resEl) return;
+      if(top.length === 0){
+        resEl.innerHTML = '<div style="padding:40px 20px;text-align:center;color:var(--text3);font-size:13px">' +
+                          (q ? 'No matches for "' + q.replace(/</g,'&lt;') + '"' :
+                               'Type to search trades, notes, setups…<br><br><span style="font-size:11px">Tip: search by pair, date, setup, emotion, or any text in your notes.</span>') +
+                          '</div>';
+        return;
+      }
+      var groupedHtml = top.map(function(r, i){
+        return '<div class="tq-gs-row" data-idx="'+i+'" style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:8px;cursor:pointer;transition:background .12s" onmouseover="this.style.background=\'var(--bg3)\'" onmouseout="this.style.background=\'transparent\'">' +
+                 '<span style="font-size:18px">'+r.icon+'</span>' +
+                 '<div style="flex:1;min-width:0">' +
+                   '<div style="font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+r.title.replace(/</g,'&lt;')+'</div>' +
+                   '<div style="font-size:11px;color:var(--text3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(r.sub||'').replace(/</g,'&lt;')+'</div>' +
+                 '</div>' +
+                 '<span style="font-size:9px;color:var(--text3);background:var(--bg3);padding:2px 6px;border-radius:4px">'+r.type+'</span>' +
+               '</div>';
+      }).join('');
+      resEl.innerHTML = '<div style="font-size:10px;color:var(--text3);padding:6px 14px;text-transform:uppercase;letter-spacing:.5px">'+top.length+' result'+(top.length>1?'s':'')+'</div>' + groupedHtml;
+      // Wire clicks
+      resEl.querySelectorAll('.tq-gs-row').forEach(function(row, i){
+        row.addEventListener('click', function(){ if(top[i] && top[i].action) top[i].action(); });
+      });
+    }
+
+    // Live search on input
+    document.addEventListener('input', function(e){
+      if(e.target && e.target.id === 'tq-gs-input'){
+        renderResults(e.target.value);
+      }
+    });
+    // Enter triggers first result
+    document.addEventListener('keydown', function(e){
+      if(overlay.style.display !== 'flex') return;
+      if(e.key === 'Enter'){
+        var first = document.querySelector('#tq-gs-results .tq-gs-row');
+        if(first) first.click();
+      }
+    });
+  })();
 
   // ── Pro-user keyboard shortcuts (Linear/TradeZella style) ──
   // Disabled when user is typing in an input/textarea or a modal is open.
@@ -27673,9 +29268,7 @@ window.dispatchEvent(new Event('supabase-ready'));
       }
       if(k === '/'){
         e.preventDefault();
-        // Focus journal search (or first visible search input)
-        var search = document.getElementById('jr-pair-filter') || document.querySelector('input[type="search"], input[placeholder*="earch"]');
-        if(search) search.focus();
+        if(typeof tqGlobalSearchOpen === 'function') tqGlobalSearchOpen();
         return;
       }
       if(k === '?'){
