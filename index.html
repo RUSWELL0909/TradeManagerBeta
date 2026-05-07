@@ -3813,6 +3813,13 @@ window.dispatchEvent(new Event('supabase-ready'));
       <span class="tr-sidebar-badge" id="tr-sidebar-badge" style="display:none">0</span>
     </button>
   </div>
+  <!-- ADMIN BUTTON (hidden until tq_admins check passes) -->
+  <div style="padding:0 12px 8px;display:none" id="admin-sidebar-wrap">
+    <button class="tr-sidebar-btn" id="nav-admin" onclick="showPage('admin')" style="border-color:rgba(124,90,240,.25)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7c5af0" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      <span style="color:#7c5af0">Admin</span>
+    </button>
+  </div>
   <!-- THEME SWITCHER — bottom of sidebar -->
   <div style="padding:12px;border-top:1px solid var(--border);position:relative" id="theme-wrap">
     <button onclick="document.getElementById('theme-drop').classList.toggle('show')" style="display:flex;align-items:center;gap:6px;background:none;border:1px solid var(--border);border-radius:8px;padding:7px 10px;cursor:pointer;color:var(--text3);font-size:11px;font-family:'Inter',sans-serif;width:100%;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
@@ -5039,6 +5046,39 @@ window.dispatchEvent(new Event('supabase-ready'));
           </div>
           <div class="jr-field" style="margin-bottom:10px"><label class="jr-label">CUSTOM TAGS <button onclick="jrAddCustomTag()" style="background:none;border:none;color:var(--accent3);cursor:pointer;font-size:11px;font-weight:600;padding:0 4px">+ new</button></label>
             <div class="jr-psych-tags" id="jr-custom-tags-row"></div>
+          </div>
+          <!-- TAG CATEGORIES (May 2026 — hierarchical tag system) -->
+          <div class="jr-field" style="margin-bottom:10px" id="jr-tagcats-wrap">
+            <label class="jr-label">TAG CATEGORIES <span class="info-icon" data-tip="Custom tag buckets you defined in Settings → Tag Categories. Pick options that apply to this trade. Reports shows win rate per option (e.g. 'good sleep = 72% WR').">i</span></label>
+            <div id="jr-tagcats-content" style="display:flex;flex-direction:column;gap:8px"></div>
+          </div>
+          <!-- EXECUTION QUALITY / TILTMETER (May 2026) -->
+          <div class="jr-field" style="margin-bottom:10px" id="jr-execq-wrap">
+            <label class="jr-label">EXECUTION QUALITY <span class="info-icon" data-tip="Rate your discipline on this trade. Reports → Risk → Tiltmeter shows rolling % adherence over time. Target: 70-80%. Below that = breaking rules. Above 95% = lying to yourself or rules too loose.">i</span></label>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+              <div>
+                <div style="font-size:9px;color:var(--text3);margin-bottom:5px;letter-spacing:.3px">ENTRY RULES</div>
+                <div style="display:flex;gap:4px">
+                  <button type="button" class="jr-execq-pill" data-axis="entry" data-val="yes" onclick="jrSetExecQ(this)" style="flex:1;padding:6px 4px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--text2);font-size:10px;font-weight:600;cursor:pointer">✓ Followed</button>
+                  <button type="button" class="jr-execq-pill" data-axis="entry" data-val="no" onclick="jrSetExecQ(this)" style="flex:1;padding:6px 4px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--text2);font-size:10px;font-weight:600;cursor:pointer">✗ Broken</button>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:9px;color:var(--text3);margin-bottom:5px;letter-spacing:.3px">MANAGEMENT</div>
+                <div style="display:flex;gap:4px">
+                  <button type="button" class="jr-execq-pill" data-axis="mgmt" data-val="yes" onclick="jrSetExecQ(this)" style="flex:1;padding:6px 4px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--text2);font-size:10px;font-weight:600;cursor:pointer">✓ Followed</button>
+                  <button type="button" class="jr-execq-pill" data-axis="mgmt" data-val="no" onclick="jrSetExecQ(this)" style="flex:1;padding:6px 4px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--text2);font-size:10px;font-weight:600;cursor:pointer">✗ Broken</button>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:9px;color:var(--text3);margin-bottom:5px;letter-spacing:.3px">EXIT RULES</div>
+                <div style="display:flex;gap:4px">
+                  <button type="button" class="jr-execq-pill" data-axis="exit" data-val="yes" onclick="jrSetExecQ(this)" style="flex:1;padding:6px 4px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--text2);font-size:10px;font-weight:600;cursor:pointer">✓ Followed</button>
+                  <button type="button" class="jr-execq-pill" data-axis="exit" data-val="no" onclick="jrSetExecQ(this)" style="flex:1;padding:6px 4px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--text2);font-size:10px;font-weight:600;cursor:pointer">✗ Broken</button>
+                </div>
+              </div>
+            </div>
+            <div style="font-size:9px;color:var(--text3);margin-top:6px;line-height:1.5">Skip a column if you didn't have a rule for it. Only fully-rated trades count toward Tiltmeter %.</div>
           </div>
           <div class="jr-row" style="margin-bottom:10px">
             <div class="jr-field"><label class="jr-label">GRADE</label>
@@ -6282,6 +6322,12 @@ window.dispatchEvent(new Event('supabase-ready'));
         <div id="rpt-conf-singles" style="margin-top:14px"></div>
         <div id="rpt-conf-combos" style="margin-top:18px"></div>
       </div>
+      <!-- PER-SETUP CHECKLIST PERFORMANCE (Edgewonk-style, May 2026) -->
+      <div class="rpt-card rpt-anim rpt-d4" style="margin-bottom:14px">
+        <div class="rpt-card-hdr"><span class="rpt-card-title">Per-Setup Checklist Performance <span class="info-icon" data-tip="For each setup with 5+ trades, see how each confluence affects WR. e.g. 'Order Block setup: when Liquidity Sweep present → 65% WR vs 32% absent'. Big delta = strong signal.">i</span></span><span class="badge" style="background:rgba(124,90,240,.08);color:var(--accent)">edgewonk-style</span></div>
+        <div class="rpt-card-desc">Which criteria actually matter for each setup. Sorted by WR delta — biggest signal first.</div>
+        <div id="rpt-setup-checklist" style="margin-top:14px"></div>
+      </div>
       <!-- SETUP × SESSION MATRIX -->
       <div class="rpt-card rpt-anim rpt-d5" style="margin-bottom:14px">
         <div class="rpt-card-hdr"><span class="rpt-card-title">Setup × Session Matrix <span class="info-icon" data-tip="Shows which setups work best in which sessions. Green = profitable combo, Red = losing combo. Focus on your green zones.">i</span></span><span class="badge" style="background:rgba(124,90,240,.08);color:var(--accent)">unique</span></div>
@@ -6375,6 +6421,42 @@ window.dispatchEvent(new Event('supabase-ready'));
         <div class="rpt-card-hdr"><span class="rpt-card-title">MFE / MAE Analysis <span class="info-icon" data-tip="MFE = max profit reached during trade. MAE = max drawdown during trade. Shows if you exit too early (MFE >> P&L) or hold losers too long (MAE >> loss).">i</span></span><span class="badge">edgewonk</span></div>
         <div class="rpt-card-desc">Are you leaving money on the table? Are your stops too wide?</div>
         <div id="rpt-mfe-mae" style="margin-top:14px"></div>
+      </div>
+
+      <!-- MFE CAPTURE DISTRIBUTION (May 2026 — Edgewonk visual) -->
+      <div class="rpt-card rpt-anim rpt-d11" style="margin-top:14px">
+        <div class="rpt-card-hdr"><span class="rpt-card-title">MFE Capture per Trade <span class="info-icon" data-tip="For each winning trade, how much of the available profit (MFE) you actually captured. Each dot = one trade. Higher = better exits. Cluster low = you're leaving money on the table.">i</span></span><span class="badge">edgewonk-style</span></div>
+        <div class="rpt-card-desc">Each dot is one winning trade. Y-axis = % of MFE captured. 100% = exited at the peak. 50% = took half of what was available.</div>
+        <div class="rpt-chart" style="height:240px"><canvas id="rpt-ch-mfe-capture"></canvas></div>
+        <div id="rpt-mfe-capture-summary" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px"></div>
+      </div>
+
+      <!-- TILTMETER / EXECUTION QUALITY (May 2026 — Edgewonk-style) -->
+      <div class="rpt-card rpt-anim rpt-d11" style="margin-top:14px">
+        <div class="rpt-card-hdr"><span class="rpt-card-title">Tiltmeter — Rule Adherence <span class="info-icon" data-tip="% of trades where you followed your plan, broken down by entry / management / exit rules. Sweet spot: 70-85% adherence. Below = leak. Above 95% = rules too loose or you're not honest with yourself.">i</span></span><span class="badge">edgewonk-style</span></div>
+        <div class="rpt-card-desc">How disciplined you are. Compare PnL when rules followed vs broken — see the cost of breaking your plan.</div>
+        <div id="rpt-tiltmeter-summary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px"></div>
+        <div id="rpt-tiltmeter-comparison" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px"></div>
+        <div class="rpt-chart" style="height:200px;margin-top:14px"><canvas id="rpt-ch-tiltmeter"></canvas></div>
+        <div id="rpt-tiltmeter-empty" style="display:none;padding:20px 0;text-align:center;color:var(--text3);font-size:11px;font-style:italic">Rate execution quality on at least 5 trades (in Add Trade modal) to see Tiltmeter analysis.</div>
+      </div>
+
+      <!-- TRADE MANAGEMENT vs POTENTIAL (May 2026 — Edgewonk-style) -->
+      <div class="rpt-card rpt-anim rpt-d11" style="margin-top:14px">
+        <div class="rpt-card-hdr">
+          <span class="rpt-card-title">Trade Management vs Potential <span class="info-icon" data-tip="Compares your actual equity curve to what you'd have earned if you held every trade to its target (TP) or peak price (MFE). The gap = money lost to over-management — moving stops, paper-handing winners, breaking plan early.">i</span></span>
+          <span class="badge">edgewonk-flagship</span>
+        </div>
+        <div class="rpt-card-desc">Two equity curves overlaid. Big gap = your management is costing you. Tight match = you're disciplined.</div>
+        <div style="display:flex;gap:6px;margin-top:10px;margin-bottom:6px">
+          <button class="rpt-pot-mode active" data-mode="tp" onclick="rptSetPotMode('tp')" style="padding:6px 14px;border-radius:6px;border:1px solid var(--accent);background:rgba(124,90,240,.08);color:var(--accent);font-size:11px;font-weight:600;cursor:pointer">Set-and-forget (TP)</button>
+          <button class="rpt-pot-mode" data-mode="mfe" onclick="rptSetPotMode('mfe')" style="padding:6px 14px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--text2);font-size:11px;font-weight:600;cursor:pointer">Peak Available (MFE)</button>
+        </div>
+        <div style="font-size:10px;color:var(--text3);margin-bottom:10px;line-height:1.5" id="rpt-pot-explainer">Set-and-forget: P&L if every trade had been left alone to either hit TP or SL — no early exits, no stop moves.</div>
+        <div class="rpt-chart" style="height:280px"><canvas id="rpt-ch-management"></canvas></div>
+        <div id="rpt-mgmt-summary" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px"></div>
+        <div id="rpt-mgmt-leaks" style="margin-top:14px"></div>
+        <div id="rpt-mgmt-empty" style="display:none;padding:20px 0;text-align:center;color:var(--text3);font-size:11px;font-style:italic">Need at least 5 trades with Entry, SL, and TP filled in to compute potential P&L.</div>
       </div>
 
       <!-- HOUR × DAY HEATMAP -->
@@ -6720,6 +6802,16 @@ window.dispatchEvent(new Event('supabase-ready'));
           <div id="rpt-customtag-list" style="display:flex;flex-direction:column;gap:8px"></div>
           <div id="rpt-customtag-empty" style="display:none;padding:30px 10px;text-align:center;color:var(--text3);font-size:11px;font-family:'Inter',sans-serif;font-style:italic">No custom tags created yet.<br><span style="font-size:10px;opacity:.7">Add custom tags from any trade in the journal — track entry timeframe, market conditions, mental state, anything.</span></div>
         </div>
+      </div>
+
+      <!-- TAG CATEGORIES — hierarchical (May 2026) -->
+      <div class="card rpt-anim rpt-d3" style="padding:18px 22px;margin-top:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600">📚 Tag Category Analysis <span class="info-icon" data-tip="Performance per category option. e.g. Sleep: Poor → 14% WR, Good → 72% WR. Configure categories in Settings → Tag Categories.">i</span></div>
+          <div style="font-size:9px;color:var(--text3)" id="rpt-tagcats-meta">—</div>
+        </div>
+        <div id="rpt-tagcats-list" style="display:flex;flex-direction:column;gap:14px"></div>
+        <div id="rpt-tagcats-empty" style="display:none;padding:30px 10px;text-align:center;color:var(--text3);font-size:11px;font-family:'Inter',sans-serif;font-style:italic">No trades tagged with categories yet.<br><span style="font-size:10px;opacity:.7">Configure categories in Settings → Tag Categories, then assign options when adding trades to see win rate per option.</span></div>
       </div>
 
       <!-- WITH/WITHOUT comparison -->
@@ -7367,6 +7459,148 @@ window.dispatchEvent(new Event('supabase-ready'));
     <div class="tr-list" id="tr-list"></div>
   </div>
 
+  <!-- ═══ PRIVACY POLICY / TERMS modal (May 2026) ═══ -->
+  <div id="modal-legal" class="modal-overlay">
+    <div class="modal" style="max-width:680px;width:92%">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title" id="legal-title">Privacy Policy</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:4px">Last updated: May 2026</div>
+        </div>
+        <button class="modal-close" onclick="legalClose()">✕</button>
+      </div>
+      <div style="display:flex;gap:6px;border-bottom:1px solid var(--border);margin-bottom:14px">
+        <button class="legal-tab" data-tab="privacy" onclick="legalSetTab('privacy')" style="background:none;border:none;padding:10px 14px;cursor:pointer;font-size:12px;color:var(--accent);font-weight:600;border-bottom:2px solid var(--accent)">Privacy</button>
+        <button class="legal-tab" data-tab="terms" onclick="legalSetTab('terms')" style="background:none;border:none;padding:10px 14px;cursor:pointer;font-size:12px;color:var(--text3);font-weight:600;border-bottom:2px solid transparent">Terms of Use</button>
+      </div>
+      <div style="max-height:60vh;overflow-y:auto;padding-right:8px;font-size:12px;line-height:1.7;color:var(--text2)">
+        <div id="legal-pane-privacy">
+          <p style="margin-bottom:12px"><b>TL;DR:</b> Your trades are yours. We store them encrypted, never share them, and you can export or delete everything at any time.</p>
+          <h4 style="color:var(--text);margin:14px 0 6px;font-size:13px">What we collect</h4>
+          <ul style="padding-left:20px;margin-bottom:12px">
+            <li>Account email (for sign-in)</li>
+            <li>Trade data you enter (prices, P&L, notes, screenshots)</li>
+            <li>Settings & preferences (theme, methodology, tag categories)</li>
+            <li>Anonymous error logs and page-view events to fix bugs (no trade contents)</li>
+          </ul>
+          <h4 style="color:var(--text);margin:14px 0 6px;font-size:13px">Where it's stored</h4>
+          <p style="margin-bottom:12px">Locally in your browser (localStorage) and synced to Supabase (Frankfurt, EU). Trades are isolated by Supabase Row-Level Security — physically impossible for another user to read your data. We do not sell or share data with third parties.</p>
+          <h4 style="color:var(--text);margin:14px 0 6px;font-size:13px">AI Coach</h4>
+          <p style="margin-bottom:12px">When you use AI Coach, anonymized trade summaries (no screenshots, no real names) are sent to Anthropic's Claude API for analysis. Anthropic does not train on your data. Conversations are stored on your behalf so you can revisit them.</p>
+          <h4 style="color:var(--text);margin:14px 0 6px;font-size:13px">Your rights</h4>
+          <ul style="padding-left:20px;margin-bottom:12px">
+            <li>Export: Settings → Export JSON</li>
+            <li>Delete account: contact support — we delete within 7 days</li>
+            <li>Access: everything you can see in the app is everything we store about you</li>
+          </ul>
+          <h4 style="color:var(--text);margin:14px 0 6px;font-size:13px">Cookies</h4>
+          <p style="margin-bottom:12px">We use only essential cookies (auth session). No tracking, no advertising, no third-party analytics scripts.</p>
+          <h4 style="color:var(--text);margin:14px 0 6px;font-size:13px">Contact</h4>
+          <p style="margin-bottom:12px">Questions? Open the 💬 Feedback button in the corner, or email the address shown on the landing page.</p>
+        </div>
+        <div id="legal-pane-terms" style="display:none">
+          <p style="margin-bottom:12px"><b>TL;DR:</b> TradeQuill is a journaling tool. We don't give financial advice, don't execute trades, and you're solely responsible for your trading decisions.</p>
+          <h4 style="color:var(--text);margin:14px 0 6px;font-size:13px">No financial advice</h4>
+          <p style="margin-bottom:12px">TradeQuill is an analytics and journaling tool. Nothing in the platform — including AI Coach output, reports, or insights — constitutes financial, investment, or trading advice. All decisions are yours alone.</p>
+          <h4 style="color:var(--text);margin:14px 0 6px;font-size:13px">Service availability</h4>
+          <p style="margin-bottom:12px">We provide TradeQuill "as is" without warranty. We may change features, pause service, or shut down with reasonable notice. Your data is exportable at any time.</p>
+          <h4 style="color:var(--text);margin:14px 0 6px;font-size:13px">Acceptable use</h4>
+          <ul style="padding-left:20px;margin-bottom:12px">
+            <li>One person per account</li>
+            <li>Don't try to break the platform, scrape other users' data, or abuse the AI Coach</li>
+            <li>Don't upload illegal content</li>
+            <li>We may suspend accounts that violate these rules</li>
+          </ul>
+          <h4 style="color:var(--text);margin:14px 0 6px;font-size:13px">Limitation of liability</h4>
+          <p style="margin-bottom:12px">To the maximum extent permitted by law, TradeQuill is not liable for trading losses, data loss, missed signals, or any other damages arising from use of the platform.</p>
+          <h4 style="color:var(--text);margin:14px 0 6px;font-size:13px">Changes</h4>
+          <p style="margin-bottom:12px">We may update these terms. Material changes will be communicated via email or in-app notice. Continued use after changes = acceptance.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ ADMIN PAGE (May 2026 — release readiness) ═══ -->
+  <div id="page-admin" class="page">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Admin</div>
+        <div class="page-sub">User analytics · errors · feedback</div>
+      </div>
+    </div>
+
+    <!-- Access denied state -->
+    <div id="admin-no-access" style="display:none;text-align:center;padding:80px 20px">
+      <div style="font-size:48px;margin-bottom:16px">🔒</div>
+      <div style="font-size:18px;font-weight:600;color:var(--text);margin-bottom:8px">Admin access required</div>
+      <div style="font-size:13px;color:var(--text3);max-width:400px;margin:0 auto;line-height:1.6">This page is only accessible to TradeQuill administrators. Your account doesn't have admin privileges.</div>
+    </div>
+
+    <!-- Setup state (when admin tables don't exist) -->
+    <div id="admin-needs-setup" style="display:none;padding:30px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <span style="font-size:22px">⚙️</span>
+        <div style="font-size:15px;font-weight:600;color:var(--text)">Setup required</div>
+      </div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:14px">Admin telemetry tables (<code style="background:var(--card);padding:1px 6px;border-radius:4px;font-size:11px">tq_errors</code>, <code style="background:var(--card);padding:1px 6px;border-radius:4px;font-size:11px">tq_events</code>, <code style="background:var(--card);padding:1px 6px;border-radius:4px;font-size:11px">tq_admins</code>) don't exist yet. Run this SQL in Supabase → SQL Editor to create them:</div>
+      <pre id="admin-setup-sql" style="background:var(--card);padding:14px 16px;border-radius:8px;font-size:11px;color:var(--text2);overflow-x:auto;font-family:'DM Mono',monospace;line-height:1.5;border:1px solid var(--border)"></pre>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button onclick="adminCopySQL()" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--accent);background:rgba(124,90,240,.1);color:var(--accent);font-weight:600;cursor:pointer;font-size:12px">📋 Copy SQL</button>
+        <button onclick="adminCheckSetup()" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-weight:600;cursor:pointer;font-size:12px">↻ Re-check</button>
+      </div>
+    </div>
+
+    <!-- Main admin content -->
+    <div id="admin-content" style="display:none">
+      <!-- KPI strip -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px">
+        <div class="card" style="padding:14px 16px"><div style="font-size:9px;color:var(--text3);letter-spacing:.5px;font-weight:700;margin-bottom:6px">USERS (24h)</div><div style="font-size:24px;font-weight:200;color:var(--text)" id="admin-users-24h">—</div></div>
+        <div class="card" style="padding:14px 16px"><div style="font-size:9px;color:var(--text3);letter-spacing:.5px;font-weight:700;margin-bottom:6px">EVENTS (24h)</div><div style="font-size:24px;font-weight:200;color:var(--text)" id="admin-events-24h">—</div></div>
+        <div class="card" style="padding:14px 16px"><div style="font-size:9px;color:var(--text3);letter-spacing:.5px;font-weight:700;margin-bottom:6px">ERRORS (24h)</div><div style="font-size:24px;font-weight:200;color:var(--red)" id="admin-errors-24h">—</div></div>
+        <div class="card" style="padding:14px 16px"><div style="font-size:9px;color:var(--text3);letter-spacing:.5px;font-weight:700;margin-bottom:6px">FEEDBACK (7d)</div><div style="font-size:24px;font-weight:200;color:var(--text)" id="admin-feedback-7d">—</div></div>
+      </div>
+
+      <!-- Tabs -->
+      <div style="display:flex;gap:6px;margin-bottom:14px;border-bottom:1px solid var(--border)">
+        <button class="admin-tab" data-tab="errors" onclick="adminSetTab('errors')" style="background:none;border:none;padding:10px 16px;cursor:pointer;font-size:12px;color:var(--text3);font-weight:600;border-bottom:2px solid transparent">Errors</button>
+        <button class="admin-tab" data-tab="events" onclick="adminSetTab('events')" style="background:none;border:none;padding:10px 16px;cursor:pointer;font-size:12px;color:var(--text3);font-weight:600;border-bottom:2px solid transparent">Events</button>
+        <button class="admin-tab" data-tab="users" onclick="adminSetTab('users')" style="background:none;border:none;padding:10px 16px;cursor:pointer;font-size:12px;color:var(--text3);font-weight:600;border-bottom:2px solid transparent">Users</button>
+        <button class="admin-tab" data-tab="feedback" onclick="adminSetTab('feedback')" style="background:none;border:none;padding:10px 16px;cursor:pointer;font-size:12px;color:var(--text3);font-weight:600;border-bottom:2px solid transparent">Feedback</button>
+      </div>
+
+      <!-- Errors tab -->
+      <div id="admin-tab-errors" class="admin-tab-content card" style="padding:0;overflow:hidden">
+        <div id="admin-errors-list" style="display:flex;flex-direction:column"></div>
+        <div id="admin-errors-empty" style="display:none;padding:40px 20px;text-align:center;color:var(--text3);font-size:12px">No errors logged yet 🎉</div>
+      </div>
+
+      <!-- Events tab -->
+      <div id="admin-tab-events" class="admin-tab-content card" style="display:none;padding:0;overflow:hidden">
+        <div id="admin-events-summary" style="padding:14px 16px;border-bottom:1px solid var(--border)"></div>
+        <div id="admin-events-list" style="display:flex;flex-direction:column"></div>
+        <div id="admin-events-empty" style="display:none;padding:40px 20px;text-align:center;color:var(--text3);font-size:12px">No events tracked yet</div>
+      </div>
+
+      <!-- Users tab -->
+      <div id="admin-tab-users" class="admin-tab-content card" style="display:none;padding:0;overflow:hidden">
+        <div style="padding:14px 16px;border-bottom:1px solid var(--border);font-size:11px;color:var(--text3)">Recent active users (last 7 days, grouped by session)</div>
+        <div id="admin-users-list" style="display:flex;flex-direction:column"></div>
+        <div id="admin-users-empty" style="display:none;padding:40px 20px;text-align:center;color:var(--text3);font-size:12px">No user activity yet</div>
+      </div>
+
+      <!-- Feedback tab -->
+      <div id="admin-tab-feedback" class="admin-tab-content card" style="display:none;padding:0;overflow:hidden">
+        <div style="padding:14px 16px;border-bottom:1px solid var(--border);font-size:11px;color:var(--text3)">User feedback submissions (most recent first)</div>
+        <div id="admin-feedback-list" style="display:flex;flex-direction:column"></div>
+        <div id="admin-feedback-empty" style="display:none;padding:40px 20px;text-align:center;color:var(--text3);font-size:12px">No feedback yet. Encourage users to use the 💬 Feedback button.</div>
+      </div>
+
+      <div style="text-align:right;margin-top:14px">
+        <button onclick="adminRefresh()" style="padding:8px 16px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;font-size:11px">↻ Refresh</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ═══ ONBOARDING — Mode Picker (first-run) ═══ -->
   <div class="ob-modepicker" id="ob-modepicker">
     <div class="ob-mp-box">
@@ -7551,6 +7785,19 @@ window.dispatchEvent(new Event('supabase-ready'));
         <div style="font-size:10px;color:var(--text3);line-height:1.5">Methodology shapes AI Coach analysis. Display currency converts P&L from each account's native currency.</div>
       </div>
 
+      <!-- Tag Categories section -->
+      <div style="padding:14px 16px;background:var(--bg2);border-radius:10px;border:1px solid var(--border)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.5px">TAG CATEGORIES <span class="info-icon" data-tip="Custom buckets of tags you assign per trade. e.g. Sleep (Poor/Medium/Good), Mood, Confidence. Reports shows win rate per tag — e.g. 'poor sleep = 14% WR, good sleep = 72%'.">i</span></div>
+          <button onclick="tcSettingsAddNew()" style="background:none;border:1px solid var(--border);color:var(--accent3);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:10px;font-weight:700;letter-spacing:.3px">+ ADD</button>
+        </div>
+        <div id="tc-settings-list" style="display:flex;flex-direction:column;gap:6px"></div>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <button onclick="tcSettingsResetDefaults()" style="flex:1;padding:6px;border:1px solid var(--border);background:var(--card);color:var(--text2);border-radius:6px;cursor:pointer;font-size:10px;font-weight:600">⟳ Restore defaults</button>
+        </div>
+        <div style="font-size:10px;color:var(--text3);line-height:1.5;margin-top:8px">Tags appear in the Add Trade modal as toggleable pills. Reports → Tag Analysis shows performance per tag.</div>
+      </div>
+
       <!-- Data section -->
       <div style="padding:14px 16px;background:var(--bg2);border-radius:10px;border:1px solid var(--border)">
         <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.5px;margin-bottom:10px">YOUR DATA</div>
@@ -7578,7 +7825,11 @@ window.dispatchEvent(new Event('supabase-ready'));
         <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.5px;margin-bottom:8px">ABOUT</div>
         <div style="font-size:12px;color:var(--text);font-weight:600">TradeQuill</div>
         <div style="font-size:11px;color:var(--text3);margin-top:2px">Your edge, written.</div>
-        <div style="font-size:10px;color:var(--text3);margin-top:6px">Build: Apr 2026 · v2.0 · Built for WWA community</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:6px">Build: May 2026 · v2.1 · Built for WWA community</div>
+        <div style="display:flex;gap:10px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
+          <button onclick="legalOpen('privacy')" style="background:none;border:none;color:var(--accent3);cursor:pointer;font-size:11px;padding:0;text-decoration:underline">Privacy Policy</button>
+          <button onclick="legalOpen('terms')" style="background:none;border:none;color:var(--accent3);cursor:pointer;font-size:11px;padding:0;text-decoration:underline">Terms of Use</button>
+        </div>
       </div>
     </div>
   </div>
@@ -7640,6 +7891,8 @@ window.dispatchEvent(new Event('supabase-ready'));
         });
       }
     }
+    // Render Tag Categories list
+    if(typeof tcSettingsRender === 'function') try{ tcSettingsRender(); }catch(e){ console.error('tcSettingsRender:', e); }
     // Render FAQ
     var faqList = document.getElementById('settings-faq-list');
     if(faqList && !faqList._rendered){
@@ -7703,6 +7956,108 @@ window.dispatchEvent(new Event('supabase-ready'));
   var st = document.createElement('style');
   st.textContent = '.settings-theme-btn.active{background:rgba(124,90,240,.1)!important;border-color:var(--accent)!important;color:var(--accent)!important}';
   document.head.appendChild(st);
+
+  // ══════════════════════════════════════════════════════════════
+  // ██  TAG CATEGORIES — Settings UI
+  // ══════════════════════════════════════════════════════════════
+  function tcEsc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  window.tcSettingsRender = function(){
+    var list = document.getElementById('tc-settings-list');
+    if(!list) return;
+    var cats = (typeof tcLoad === 'function') ? tcLoad() : [];
+    if(!cats.length){
+      list.innerHTML = '<div style="font-size:11px;color:var(--text3);padding:8px 0;text-align:center">No tag categories. Click + ADD to create one, or restore defaults.</div>';
+      return;
+    }
+    list.innerHTML = cats.map(function(c){
+      var pills = (c.options||[]).map(function(o){
+        return '<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:'+(c.color||'#7c5af0')+'20;color:'+(c.color||'#7c5af0')+';border-radius:10px;font-size:10px;font-weight:600">'+
+                 tcEsc(o)+
+                 '<button onclick="tcSettingsRemoveOption(\''+tcEsc(c.id)+'\',\''+tcEsc(o).replace(/'/g,"\\'")+'\')" style="background:none;border:none;color:inherit;cursor:pointer;font-size:11px;padding:0;line-height:1;opacity:.6" title="Remove option">×</button>'+
+               '</span>';
+      }).join('');
+      return '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 12px" data-cat-id="'+tcEsc(c.id)+'">'+
+               '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'+
+                 '<input value="'+tcEsc(c.name)+'" onchange="tcSettingsRenameCategory(\''+tcEsc(c.id)+'\', this.value)" style="font-size:12px;font-weight:700;color:var(--text);background:none;border:none;outline:none;flex:1;min-width:0">'+
+                 '<button onclick="tcSettingsDeleteCategory(\''+tcEsc(c.id)+'\')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:0 4px;line-height:1" title="Delete category">🗑</button>'+
+               '</div>'+
+               '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">'+pills+'</div>'+
+               '<div style="display:flex;gap:4px"><input placeholder="Add option..." onkeydown="if(event.key===\'Enter\'){tcSettingsAddOption(\''+tcEsc(c.id)+'\',this.value);this.value=\'\';}" style="flex:1;padding:4px 8px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:10px"></div>'+
+             '</div>';
+    }).join('');
+  };
+
+  window.tcSettingsAddNew = function(){
+    var name = prompt('Category name (e.g. "Sleep", "Confidence", "Day type"):');
+    if(!name || !name.trim()) return;
+    if(typeof tcAdd === 'function') tcAdd(name.trim(), []);
+    tcSettingsRender();
+  };
+
+  window.tcSettingsRenameCategory = function(id, newName){
+    if(!newName || !newName.trim()) return;
+    if(typeof tcUpdate === 'function') tcUpdate(id, {name: newName.trim()});
+  };
+
+  window.tcSettingsDeleteCategory = function(id){
+    if(!confirm('Delete this category? Existing trades keep their tags but the category disappears from the Add Trade modal.')) return;
+    if(typeof tcDelete === 'function') tcDelete(id);
+    tcSettingsRender();
+  };
+
+  window.tcSettingsAddOption = function(catId, opt){
+    if(!opt || !opt.trim()) return;
+    var cats = (typeof tcLoad === 'function') ? tcLoad() : [];
+    var c = cats.find(function(x){return x.id===catId;});
+    if(!c) return;
+    if(!c.options) c.options = [];
+    var clean = opt.trim();
+    if(c.options.indexOf(clean) >= 0) return; // dedupe
+    c.options.push(clean);
+    if(typeof tcSave === 'function') tcSave(cats);
+    tcSettingsRender();
+  };
+
+  window.tcSettingsRemoveOption = function(catId, opt){
+    var cats = (typeof tcLoad === 'function') ? tcLoad() : [];
+    var c = cats.find(function(x){return x.id===catId;});
+    if(!c || !c.options) return;
+    c.options = c.options.filter(function(o){return o !== opt;});
+    if(typeof tcSave === 'function') tcSave(cats);
+    tcSettingsRender();
+  };
+
+  window.tcSettingsResetDefaults = function(){
+    if(!confirm('Restore default tag categories? Your custom categories will be replaced. Existing trades keep their tags.')) return;
+    if(typeof tcResetDefaults === 'function') tcResetDefaults();
+    tcSettingsRender();
+    if(typeof tqToast==='function') tqToast('Default categories restored', {type:'success'});
+  };
+
+  // ══ LEGAL MODAL (May 2026) ══
+  window.legalOpen = function(tab){
+    var m = document.getElementById('modal-legal');
+    if(!m) return;
+    m.classList.add('show');
+    legalSetTab(tab || 'privacy');
+  };
+  window.legalClose = function(){
+    var m = document.getElementById('modal-legal'); if(m) m.classList.remove('show');
+  };
+  window.legalSetTab = function(tab){
+    var pP = document.getElementById('legal-pane-privacy');
+    var pT = document.getElementById('legal-pane-terms');
+    var title = document.getElementById('legal-title');
+    if(pP) pP.style.display = tab==='privacy' ? '' : 'none';
+    if(pT) pT.style.display = tab==='terms' ? '' : 'none';
+    if(title) title.textContent = tab==='terms' ? 'Terms of Use' : 'Privacy Policy';
+    Array.prototype.forEach.call(document.querySelectorAll('.legal-tab'), function(b){
+      var on = b.getAttribute('data-tab') === tab;
+      b.style.color = on ? 'var(--accent)' : 'var(--text3)';
+      b.style.borderBottomColor = on ? 'var(--accent)' : 'transparent';
+    });
+  };
 })();
 </script>
 
@@ -8282,23 +8637,30 @@ window.dispatchEvent(new Event('supabase-ready'));
       _tqSupa.auth.getSession().then(function(res){
         if(res.data && res.data.session){
           _tqUser = res.data.session.user;
+          window._tqUser = _tqUser;
           console.log('TradeQuill: Session restored for', _tqUser.email);
           tqGuardUserSwitch(_tqUser.id);
           tqHideAuth();
           tqShowUserBar();
           tqPullAll(); // sync all on load
+          tqCheckAdmin();
         }
       });
       // Listen for auth changes
       _tqSupa.auth.onAuthStateChange(function(event, session){
         if(session && session.user){
           _tqUser = session.user;
+          window._tqUser = _tqUser;
           tqGuardUserSwitch(_tqUser.id);
           tqHideAuth();
           tqShowUserBar();
+          tqCheckAdmin();
         } else {
           _tqUser = null;
+          window._tqUser = null;
           tqHideUserBar();
+          var adminWrap = document.getElementById('admin-sidebar-wrap');
+          if(adminWrap) adminWrap.style.display = 'none';
         }
       });
     } else {
@@ -8307,6 +8669,25 @@ window.dispatchEvent(new Event('supabase-ready'));
       tqHideAuth();
     }
   }
+
+  // Check if current user is admin → show admin sidebar button
+  function tqCheckAdmin(){
+    if(!_tqSupa || !_tqUser) return;
+    _tqSupa.from('tq_admins').select('user_id').eq('user_id', _tqUser.id).then(function(res){
+      var wrap = document.getElementById('admin-sidebar-wrap');
+      if(!wrap) return;
+      // Only show if explicitly admin (table exists, row matches)
+      if(!res.error && res.data && res.data.length > 0){
+        wrap.style.display = 'block';
+      } else {
+        wrap.style.display = 'none';
+      }
+    }).catch(function(){
+      var wrap = document.getElementById('admin-sidebar-wrap');
+      if(wrap) wrap.style.display = 'none';
+    });
+  }
+  window.tqCheckAdmin = tqCheckAdmin;
 
   // ── User-switch isolation ──
   // Prevents one user's localStorage data leaking into another user's Supabase
@@ -8467,13 +8848,19 @@ window.dispatchEvent(new Event('supabase-ready'));
   }
   window.tqCheckStrength=tqCheckStrength;
 
+  // Dynamic redirect URL — works whether deployed on github.io, custom domain,
+  // or localhost. Uses current origin + pathname so reset emails always come back here.
+  function _tqAuthRedirect(){
+    return window.location.origin + window.location.pathname;
+  }
+
   // ── Forgot password ──
   function tqForgotPassword(){
     if(!_tqSupa){tqShowMsg('Supabase not loaded','error');return;}
     var email=document.getElementById('tq-auth-email').value.trim();
     if(!email){tqShowMsg('Enter your email first','error');return;}
     _tqSupa.auth.resetPasswordForEmail(email,{
-      redirectTo:'https://ruswell0909.github.io/TradeManagerBeta/'
+      redirectTo: _tqAuthRedirect()
     }).then(function(res){
       if(res.error) tqShowMsg(res.error.message,'error');
       else tqShowMsg('Password reset email sent! Check your inbox.','success');
@@ -8486,7 +8873,7 @@ window.dispatchEvent(new Event('supabase-ready'));
     if(!_tqSupa){tqShowMsg('Supabase not loaded','error');return;}
     _tqSupa.auth.signInWithOAuth({
       provider:'google',
-      options:{redirectTo:'https://ruswell0909.github.io/TradeManagerBeta/'}
+      options:{redirectTo: _tqAuthRedirect()}
     });
   }
   window.tqGoogleAuth=tqGoogleAuth;
@@ -8681,6 +9068,8 @@ window.dispatchEvent(new Event('supabase-ready'));
         status: t.status||'',
         psychTags: t.psychTags||[],
         customTags: t.customTags||[],
+        tagCats: t.tagCats||{},
+        execQuality: t.execQuality||{entry:null,mgmt:null,exit:null},
         psychNote: t.psychNote||'',
         grossPnl: t.grossPnl||'',
         commission: t.commission||0,
@@ -8750,6 +9139,8 @@ window.dispatchEvent(new Event('supabase-ready'));
       planFollowed: row.plan_followed||'',
       psychTags: ex.psychTags||[],
       customTags: ex.customTags||[],
+      tagCats: ex.tagCats||{},
+      execQuality: ex.execQuality||{entry:null,mgmt:null,exit:null},
       psychNote: ex.psychNote||'',
       entry: row.entry_price||'',
       sl: row.sl_price||'',
@@ -10822,6 +11213,70 @@ window.dispatchEvent(new Event('supabase-ready'));
       try{ return JSON.parse(rfxGet('rf_accounts')||'[]'); }catch(e){ return []; }
     }
 
+    // ══════════════════════════════════════════════════════════════
+    // ██  TAG CATEGORIES — Hierarchical tag system (May 2026)
+    // ══════════════════════════════════════════════════════════════
+    // Every category is a named bucket of options. Per trade, user picks
+    // 0..N options from each bucket. Stored on trade as t.tagCats={catId:[opts]}.
+    // Reports aggregates WR/PnL per option, so user can see e.g.
+    // "poor sleep = 14% WR, good sleep = 72%".
+    var TC_DEFAULTS = [
+      {id:'sleep',     name:'Sleep',          color:'#7c5af0', options:['Poor','Medium','Good']},
+      {id:'mood',      name:'Mood',           color:'#5cc8ff', options:['Calm','Focused','Anxious','Excited','Frustrated','Tired']},
+      {id:'routine',   name:'Pre-market routine', color:'#5fd3a4', options:['Done','Skipped']},
+      {id:'confidence',name:'Confidence',     color:'#f5b840', options:['Low','Medium','High']},
+      {id:'daytype',   name:'Market type',    color:'#e05c7a', options:['Trending','Ranging','News-driven','Choppy']},
+      {id:'entrytf',   name:'Entry timeframe',color:'#9d6bff', options:['1m','3m','5m','15m','1H','4H']}
+    ];
+    function tcLoad(){
+      try{
+        var raw = rfxGet('rf_tag_categories');
+        if(!raw){
+          // First-run seed: install defaults so user has something to play with immediately
+          rfxSet('rf_tag_categories', JSON.stringify(TC_DEFAULTS));
+          return JSON.parse(JSON.stringify(TC_DEFAULTS));
+        }
+        var arr = JSON.parse(raw);
+        return Array.isArray(arr) ? arr : [];
+      }catch(e){ return []; }
+    }
+    function tcSave(arr){
+      try{
+        rfxSet('rf_tag_categories', JSON.stringify(arr||[]));
+        if(typeof tqPushSettings === 'function') try{ tqPushSettings(); }catch(e){}
+      }catch(e){}
+    }
+    function tcAdd(name, options){
+      var arr = tcLoad();
+      var id = 'tc_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+      arr.push({id:id, name:name||'New category', color:'#7c5af0', options:options||[]});
+      tcSave(arr);
+      return id;
+    }
+    function tcUpdate(id, patch){
+      var arr = tcLoad();
+      var idx = arr.findIndex(function(c){return c.id===id;});
+      if(idx<0) return false;
+      Object.assign(arr[idx], patch||{});
+      tcSave(arr);
+      return true;
+    }
+    function tcDelete(id){
+      var arr = tcLoad().filter(function(c){return c.id!==id;});
+      tcSave(arr);
+    }
+    window.tcLoad = tcLoad;
+    window.tcSave = tcSave;
+    window.tcAdd = tcAdd;
+    window.tcUpdate = tcUpdate;
+    window.tcDelete = tcDelete;
+    // Reset to defaults (used by Settings UI)
+    window.tcResetDefaults = function(){
+      rfxSet('rf_tag_categories', JSON.stringify(TC_DEFAULTS));
+      if(typeof tqPushSettings === 'function') try{ tqPushSettings(); }catch(e){}
+    };
+    // ══ END TAG CATEGORIES STORAGE ══
+
     // Public helper: returns only non-deleted, non-archived accounts (use for dropdowns)
     window.getActiveAccounts = function(){
       try{
@@ -12241,6 +12696,307 @@ window.dispatchEvent(new Event('supabase-ready'));
 
   })();
   // ══ END TRASH MODULE ══
+
+  // ══════════════════════════════════════════════════════════════
+  // ██  ADMIN MODULE (May 2026 — release readiness)
+  // ██  Read-only dashboard for errors/events/users/feedback.
+  // ██  Access controlled by tq_admins table (user_id list) — RLS makes
+  // ██  table queries 403 for non-admins, which we use as access check.
+  // ══════════════════════════════════════════════════════════════
+  (function(){
+    var SETUP_SQL = "-- TradeQuill admin telemetry tables\n" +
+"-- Run once in Supabase → SQL Editor\n\n" +
+"-- 1. Errors table (client-side error capture)\n" +
+"CREATE TABLE IF NOT EXISTS public.tq_errors (\n" +
+"  id BIGSERIAL PRIMARY KEY,\n" +
+"  session_id TEXT,\n" +
+"  user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,\n" +
+"  email TEXT,\n" +
+"  message TEXT,\n" +
+"  stack TEXT,\n" +
+"  url TEXT,\n" +
+"  page TEXT,\n" +
+"  user_agent TEXT,\n" +
+"  context JSONB,\n" +
+"  created_at TIMESTAMPTZ DEFAULT NOW()\n" +
+");\n" +
+"CREATE INDEX IF NOT EXISTS tq_errors_created_idx ON public.tq_errors(created_at DESC);\n" +
+"CREATE INDEX IF NOT EXISTS tq_errors_user_idx ON public.tq_errors(user_id);\n\n" +
+"-- 2. Events table (page views, feature usage)\n" +
+"CREATE TABLE IF NOT EXISTS public.tq_events (\n" +
+"  id BIGSERIAL PRIMARY KEY,\n" +
+"  session_id TEXT,\n" +
+"  user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,\n" +
+"  name TEXT,\n" +
+"  props JSONB,\n" +
+"  page TEXT,\n" +
+"  url TEXT,\n" +
+"  created_at TIMESTAMPTZ DEFAULT NOW()\n" +
+");\n" +
+"CREATE INDEX IF NOT EXISTS tq_events_created_idx ON public.tq_events(created_at DESC);\n" +
+"CREATE INDEX IF NOT EXISTS tq_events_user_idx ON public.tq_events(user_id);\n" +
+"CREATE INDEX IF NOT EXISTS tq_events_name_idx ON public.tq_events(name);\n\n" +
+"-- 3. Admins allowlist\n" +
+"CREATE TABLE IF NOT EXISTS public.tq_admins (\n" +
+"  user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,\n" +
+"  email TEXT,\n" +
+"  added_at TIMESTAMPTZ DEFAULT NOW()\n" +
+");\n\n" +
+"-- 4. Add YOUR user as admin (replace email below)\n" +
+"INSERT INTO public.tq_admins (user_id, email)\n" +
+"SELECT id, email FROM auth.users WHERE email = 'gaipov.rustam@gmail.com'\n" +
+"ON CONFLICT (user_id) DO NOTHING;\n\n" +
+"-- 5. RLS policies\n" +
+"ALTER TABLE public.tq_errors ENABLE ROW LEVEL SECURITY;\n" +
+"ALTER TABLE public.tq_events ENABLE ROW LEVEL SECURITY;\n" +
+"ALTER TABLE public.tq_admins ENABLE ROW LEVEL SECURITY;\n\n" +
+"-- Anyone authenticated can INSERT (write their own errors/events)\n" +
+"CREATE POLICY tq_errors_insert ON public.tq_errors FOR INSERT TO authenticated WITH CHECK (true);\n" +
+"CREATE POLICY tq_events_insert ON public.tq_events FOR INSERT TO authenticated WITH CHECK (true);\n\n" +
+"-- Only admins can SELECT all rows\n" +
+"CREATE POLICY tq_errors_admin_select ON public.tq_errors FOR SELECT TO authenticated\n" +
+"  USING (EXISTS (SELECT 1 FROM public.tq_admins WHERE user_id = auth.uid()));\n" +
+"CREATE POLICY tq_events_admin_select ON public.tq_events FOR SELECT TO authenticated\n" +
+"  USING (EXISTS (SELECT 1 FROM public.tq_admins WHERE user_id = auth.uid()));\n\n" +
+"-- Admins can read admin list (used as access check from client)\n" +
+"CREATE POLICY tq_admins_select ON public.tq_admins FOR SELECT TO authenticated\n" +
+"  USING (user_id = auth.uid() OR EXISTS (SELECT 1 FROM public.tq_admins WHERE user_id = auth.uid()));";
+
+    var _adminIsAdmin = false;
+    var _adminTab = 'errors';
+    var _adminSetupNeeded = false;
+
+    function adminEsc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function adminTimeAgo(iso){
+      try{
+        var d = new Date(iso); var s = (Date.now() - d.getTime())/1000;
+        if(s < 60) return Math.floor(s)+'s ago';
+        if(s < 3600) return Math.floor(s/60)+'m ago';
+        if(s < 86400) return Math.floor(s/3600)+'h ago';
+        return Math.floor(s/86400)+'d ago';
+      }catch(e){ return ''; }
+    }
+
+    window.adminInit = function(){
+      var noAccess = document.getElementById('admin-no-access');
+      var setupBox = document.getElementById('admin-needs-setup');
+      var content = document.getElementById('admin-content');
+      if(noAccess) noAccess.style.display = 'none';
+      if(setupBox) setupBox.style.display = 'none';
+      if(content) content.style.display = 'none';
+      if(!window._tqSupa || !window._tqUser){
+        if(noAccess) noAccess.style.display = 'block';
+        return;
+      }
+      // Check admin table for current user. 403 / no rows = not admin (or table missing).
+      window._tqSupa.from('tq_admins').select('user_id').eq('user_id', window._tqUser.id).then(function(res){
+        if(res.error){
+          // Could be: table missing (PGRST205 / 42P01) or RLS denial. Show setup hint.
+          var msg = (res.error.message||'').toLowerCase();
+          if(msg.indexOf('does not exist') >= 0 || msg.indexOf('not found') >= 0 || msg.indexOf('schema cache') >= 0 || res.error.code === '42P01'){
+            _adminSetupNeeded = true;
+            if(setupBox) setupBox.style.display = 'block';
+            var sqlEl = document.getElementById('admin-setup-sql');
+            if(sqlEl) sqlEl.textContent = SETUP_SQL;
+            return;
+          }
+          // Other error → not admin
+          if(noAccess) noAccess.style.display = 'block';
+          return;
+        }
+        if(res.data && res.data.length > 0){
+          _adminIsAdmin = true;
+          if(content) content.style.display = 'block';
+          adminSetTab('errors');
+          adminRefresh();
+        } else {
+          if(noAccess) noAccess.style.display = 'block';
+        }
+      });
+    };
+
+    window.adminCheckSetup = function(){ adminInit(); };
+    window.adminCopySQL = function(){
+      var ta = document.createElement('textarea');
+      ta.value = SETUP_SQL;
+      document.body.appendChild(ta);
+      ta.select();
+      try{ document.execCommand('copy'); }catch(e){}
+      document.body.removeChild(ta);
+      if(typeof tqToast === 'function') tqToast('SQL copied — paste in Supabase SQL Editor', {type:'success'});
+    };
+
+    window.adminSetTab = function(tab){
+      _adminTab = tab;
+      Array.prototype.forEach.call(document.querySelectorAll('.admin-tab'), function(b){
+        var on = b.getAttribute('data-tab') === tab;
+        b.style.color = on ? 'var(--accent)' : 'var(--text3)';
+        b.style.borderBottomColor = on ? 'var(--accent)' : 'transparent';
+      });
+      Array.prototype.forEach.call(document.querySelectorAll('.admin-tab-content'), function(d){
+        d.style.display = 'none';
+      });
+      var pane = document.getElementById('admin-tab-'+tab);
+      if(pane) pane.style.display = 'block';
+    };
+
+    window.adminRefresh = function(){
+      if(!_adminIsAdmin) return;
+      adminLoadKpis();
+      adminLoadErrors();
+      adminLoadEvents();
+      adminLoadUsers();
+      adminLoadFeedback();
+    };
+
+    function adminLoadKpis(){
+      var since24h = new Date(Date.now() - 24*60*60*1000).toISOString();
+      var since7d  = new Date(Date.now() - 7*24*60*60*1000).toISOString();
+      // Errors 24h
+      window._tqSupa.from('tq_errors').select('id', {count:'exact', head:true}).gte('created_at', since24h).then(function(r){
+        var el = document.getElementById('admin-errors-24h');
+        if(el) el.textContent = (r.error ? '—' : (r.count || 0));
+      });
+      // Events 24h
+      window._tqSupa.from('tq_events').select('id', {count:'exact', head:true}).gte('created_at', since24h).then(function(r){
+        var el = document.getElementById('admin-events-24h');
+        if(el) el.textContent = (r.error ? '—' : (r.count || 0));
+      });
+      // Distinct users 24h (via events)
+      window._tqSupa.from('tq_events').select('user_id').gte('created_at', since24h).limit(1000).then(function(r){
+        var el = document.getElementById('admin-users-24h');
+        if(!el) return;
+        if(r.error){ el.textContent = '—'; return; }
+        var distinct = {};
+        (r.data||[]).forEach(function(row){ if(row.user_id) distinct[row.user_id] = true; });
+        el.textContent = Object.keys(distinct).length;
+      });
+      // Feedback 7d (uses existing 'feedback' table if exists, else 0)
+      window._tqSupa.from('feedback').select('id', {count:'exact', head:true}).gte('created_at', since7d).then(function(r){
+        var el = document.getElementById('admin-feedback-7d');
+        if(el) el.textContent = (r.error ? '—' : (r.count || 0));
+      });
+    }
+
+    function adminLoadErrors(){
+      var listEl = document.getElementById('admin-errors-list');
+      var emptyEl = document.getElementById('admin-errors-empty');
+      if(!listEl) return;
+      window._tqSupa.from('tq_errors').select('*').order('created_at',{ascending:false}).limit(100).then(function(r){
+        if(r.error){ listEl.innerHTML = ''; if(emptyEl){ emptyEl.style.display='block'; emptyEl.textContent = 'Error loading: '+(r.error.message||'unknown'); } return; }
+        var rows = r.data || [];
+        if(!rows.length){ listEl.innerHTML = ''; if(emptyEl) emptyEl.style.display='block'; return; }
+        if(emptyEl) emptyEl.style.display='none';
+        listEl.innerHTML = rows.map(function(e){
+          var who = e.email || (e.user_id ? e.user_id.slice(0,8) : 'anon');
+          return '<div style="padding:12px 16px;border-bottom:1px solid var(--border)">'+
+                   '<div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:6px">'+
+                     '<div style="font-size:11px;font-weight:600;color:var(--red);font-family:DM Mono,monospace;flex:1;min-width:0;word-break:break-word">'+adminEsc(e.message||'unknown error')+'</div>'+
+                     '<div style="font-size:10px;color:var(--text3);white-space:nowrap">'+adminTimeAgo(e.created_at)+'</div>'+
+                   '</div>'+
+                   '<div style="font-size:10px;color:var(--text3);display:flex;gap:10px;flex-wrap:wrap">'+
+                     '<span>👤 '+adminEsc(who)+'</span>'+
+                     (e.page ? '<span>📄 '+adminEsc(e.page)+'</span>' : '')+
+                     (e.url ? '<span>🔗 '+adminEsc(e.url)+'</span>' : '')+
+                   '</div>'+
+                   (e.stack ? '<details style="margin-top:6px"><summary style="font-size:10px;color:var(--text3);cursor:pointer">stack trace</summary><pre style="font-size:10px;color:var(--text3);background:var(--bg);padding:8px;border-radius:4px;margin-top:4px;overflow-x:auto;font-family:DM Mono,monospace">'+adminEsc(e.stack)+'</pre></details>' : '')+
+                 '</div>';
+        }).join('');
+      });
+    }
+
+    function adminLoadEvents(){
+      var listEl = document.getElementById('admin-events-list');
+      var summaryEl = document.getElementById('admin-events-summary');
+      var emptyEl = document.getElementById('admin-events-empty');
+      if(!listEl) return;
+      window._tqSupa.from('tq_events').select('*').order('created_at',{ascending:false}).limit(200).then(function(r){
+        if(r.error){ listEl.innerHTML = ''; if(emptyEl){ emptyEl.style.display='block'; emptyEl.textContent = 'Error: '+(r.error.message||''); } return; }
+        var rows = r.data || [];
+        if(!rows.length){ listEl.innerHTML = ''; if(summaryEl) summaryEl.innerHTML = ''; if(emptyEl) emptyEl.style.display='block'; return; }
+        if(emptyEl) emptyEl.style.display='none';
+        // Summary: top events by count
+        var counts = {};
+        rows.forEach(function(e){
+          var k = e.name || '?';
+          counts[k] = (counts[k]||0) + 1;
+        });
+        var top = Object.entries(counts).sort(function(a,b){return b[1]-a[1];}).slice(0,8);
+        if(summaryEl){
+          summaryEl.innerHTML = '<div style="font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;margin-bottom:8px">TOP EVENTS</div><div style="display:flex;flex-wrap:wrap;gap:6px">'+
+            top.map(function(e){return '<span style="background:var(--bg);padding:4px 10px;border-radius:14px;font-size:11px;color:var(--text)"><b>'+adminEsc(e[0])+'</b> · '+e[1]+'</span>';}).join('')+
+          '</div>';
+        }
+        listEl.innerHTML = rows.slice(0,50).map(function(e){
+          return '<div style="padding:8px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px">'+
+                   '<div style="font-size:11px;color:var(--text);font-weight:600">'+adminEsc(e.name||'')+(e.page?' <span style="color:var(--text3);font-weight:400">on '+adminEsc(e.page)+'</span>':'')+'</div>'+
+                   '<div style="font-size:10px;color:var(--text3);white-space:nowrap">'+adminTimeAgo(e.created_at)+'</div>'+
+                 '</div>';
+        }).join('');
+      });
+    }
+
+    function adminLoadUsers(){
+      var listEl = document.getElementById('admin-users-list');
+      var emptyEl = document.getElementById('admin-users-empty');
+      if(!listEl) return;
+      var since7d = new Date(Date.now() - 7*24*60*60*1000).toISOString();
+      window._tqSupa.from('tq_events').select('user_id, name, page, created_at').gte('created_at', since7d).order('created_at',{ascending:false}).limit(2000).then(function(r){
+        if(r.error){ listEl.innerHTML = ''; if(emptyEl) emptyEl.style.display='block'; return; }
+        var rows = r.data || [];
+        if(!rows.length){ listEl.innerHTML = ''; if(emptyEl) emptyEl.style.display='block'; return; }
+        if(emptyEl) emptyEl.style.display='none';
+        // Group by user
+        var byUser = {};
+        rows.forEach(function(e){
+          var uid = e.user_id || 'anon';
+          if(!byUser[uid]){ byUser[uid] = {events:0, lastEvent: e.created_at, lastPage: e.page, pages:{}}; }
+          byUser[uid].events++;
+          byUser[uid].pages[e.page||'?'] = (byUser[uid].pages[e.page||'?']||0)+1;
+        });
+        var users = Object.entries(byUser).sort(function(a,b){return new Date(b[1].lastEvent) - new Date(a[1].lastEvent);}).slice(0,50);
+        listEl.innerHTML = users.map(function(u){
+          var topPage = Object.entries(u[1].pages).sort(function(a,b){return b[1]-a[1];})[0];
+          return '<div style="padding:12px 16px;border-bottom:1px solid var(--border)">'+
+                   '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'+
+                     '<div style="font-size:11px;color:var(--text);font-weight:600;font-family:DM Mono,monospace">'+adminEsc(u[0]==='anon'?'anonymous':u[0].slice(0,12)+'...')+'</div>'+
+                     '<div style="font-size:10px;color:var(--text3);white-space:nowrap">last: '+adminTimeAgo(u[1].lastEvent)+'</div>'+
+                   '</div>'+
+                   '<div style="font-size:10px;color:var(--text3)">'+u[1].events+' events · most active on <b>'+adminEsc(topPage[0])+'</b></div>'+
+                 '</div>';
+        }).join('');
+      });
+    }
+
+    function adminLoadFeedback(){
+      var listEl = document.getElementById('admin-feedback-list');
+      var emptyEl = document.getElementById('admin-feedback-empty');
+      if(!listEl) return;
+      window._tqSupa.from('feedback').select('*').order('created_at',{ascending:false}).limit(50).then(function(r){
+        if(r.error){
+          listEl.innerHTML = '';
+          if(emptyEl){
+            emptyEl.style.display='block';
+            emptyEl.textContent = 'Feedback table not set up yet, or RLS denied access.';
+          }
+          return;
+        }
+        var rows = r.data || [];
+        if(!rows.length){ listEl.innerHTML = ''; if(emptyEl) emptyEl.style.display='block'; return; }
+        if(emptyEl) emptyEl.style.display='none';
+        listEl.innerHTML = rows.map(function(f){
+          return '<div style="padding:14px 16px;border-bottom:1px solid var(--border)">'+
+                   '<div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:6px">'+
+                     '<div style="font-size:11px;color:var(--text);font-weight:600">'+adminEsc(f.email||'anonymous')+'</div>'+
+                     '<div style="font-size:10px;color:var(--text3);white-space:nowrap">'+adminTimeAgo(f.created_at)+'</div>'+
+                   '</div>'+
+                   '<div style="font-size:11px;color:var(--text2);line-height:1.5;white-space:pre-wrap">'+adminEsc(f.message||'')+'</div>'+
+                 '</div>';
+        }).join('');
+      });
+    }
+  })();
+  // ══ END ADMIN MODULE ══
 
   // ██  ONBOARDING MODULE — Mode picker + Guided spotlight tour
   // ██  Shows on first run only. Saves state in localStorage.
@@ -14468,6 +15224,11 @@ window.dispatchEvent(new Event('supabase-ready'));
     }
     if (id === 'youredge' && window.yeRender) setTimeout(yeRender, 100);
     if (id === 'trash' && window.trRender) setTimeout(trRender, 50);
+    if (id === 'admin' && window.adminInit) setTimeout(adminInit, 50);
+    // Telemetry: track page navigation (silent — no-op if telemetry disabled)
+    if(typeof window.tqTrackEvent === 'function'){
+      try{ window.tqTrackEvent('page_view', {page: id, prev: prevPage}); }catch(e){}
+    }
   }
 
   var prevPage = 'dashboard';
@@ -15049,8 +15810,121 @@ window.dispatchEvent(new Event('supabase-ready'));
         }).join('');
       }
     }
+
+    // ── TAG CATEGORIES ANALYSIS (May 2026 — hierarchical) ──
+    if(typeof rptRenderTagCats === 'function') try{ rptRenderTagCats(trades); }catch(e){ console.error('rptRenderTagCats:', e); }
   }
   window.rptRenderTags = rptRenderTags;
+
+  // Toggle between TP-target and MFE-peak potential modes
+  window._rptPotMode = 'tp';
+  window.rptSetPotMode = function(mode){
+    window._rptPotMode = mode;
+    Array.prototype.forEach.call(document.querySelectorAll('.rpt-pot-mode'), function(b){
+      var on = b.getAttribute('data-mode') === mode;
+      b.classList.toggle('active', on);
+      if(on){
+        b.style.background = 'rgba(124,90,240,.08)';
+        b.style.borderColor = 'var(--accent)';
+        b.style.color = 'var(--accent)';
+      } else {
+        b.style.background = 'var(--card)';
+        b.style.borderColor = 'var(--border)';
+        b.style.color = 'var(--text2)';
+      }
+    });
+    // Re-run reports to refresh the chart
+    if(typeof updateReports === 'function') updateReports();
+  };
+
+  // Aggregate trades by tagCats[catId][option] → {count, wins, pnl}
+  function rptRenderTagCats(trades){
+    var listEl = document.getElementById('rpt-tagcats-list');
+    var emptyEl = document.getElementById('rpt-tagcats-empty');
+    var metaEl = document.getElementById('rpt-tagcats-meta');
+    if(!listEl) return;
+    var cats = (typeof tcLoad === 'function') ? tcLoad() : [];
+    if(!cats.length){
+      listEl.innerHTML = '';
+      if(emptyEl) emptyEl.style.display = '';
+      if(metaEl) metaEl.textContent = '';
+      return;
+    }
+    // Aggregate: per-category, per-option
+    var taggedTotal = 0;
+    var perCat = {}; // catId → {option: {count, wins, pnl}}
+    cats.forEach(function(c){ perCat[c.id] = {}; });
+    trades.forEach(function(t){
+      var tc = t.tagCats || {};
+      var hasAny = false;
+      Object.keys(tc).forEach(function(catId){
+        if(!perCat[catId]) return;
+        var opts = tc[catId] || [];
+        opts.forEach(function(opt){
+          if(!perCat[catId][opt]) perCat[catId][opt] = {count:0, wins:0, pnl:0};
+          perCat[catId][opt].count++;
+          var pnl = (typeof tqConvertTradePnl === 'function') ? tqConvertTradePnl(t) : (parseFloat(t.pnl)||0);
+          if(pnl > 0) perCat[catId][opt].wins++;
+          perCat[catId][opt].pnl += pnl;
+          hasAny = true;
+        });
+      });
+      if(hasAny) taggedTotal++;
+    });
+
+    // Render
+    var anyData = false;
+    var html = cats.map(function(c){
+      var data = perCat[c.id] || {};
+      var entries = Object.entries(data);
+      if(entries.length === 0) return '';
+      anyData = true;
+      // Sort: highest WR first
+      entries.sort(function(a,b){
+        var wrA = a[1].count > 0 ? a[1].wins/a[1].count : 0;
+        var wrB = b[1].count > 0 ? b[1].wins/b[1].count : 0;
+        return wrB - wrA;
+      });
+      var rows = entries.map(function(e){
+        var opt = e[0], d = e[1];
+        var wr = d.count > 0 ? (d.wins/d.count*100) : 0;
+        var avg = d.count > 0 ? (d.pnl/d.count) : 0;
+        var wrColor = wr >= 60 ? 'var(--green)' : wr >= 45 ? 'var(--yellow)' : 'var(--red)';
+        var pnlColor = d.pnl >= 0 ? 'var(--green)' : 'var(--red)';
+        var pnlStr = (d.pnl >= 0 ? '+' : '-') + '$' + Math.abs(d.pnl).toFixed(0);
+        var avgStr = (avg >= 0 ? '+' : '-') + '$' + Math.abs(avg).toFixed(0);
+        var safeOpt = String(opt).replace(/</g,'&lt;');
+        return '<div style="display:grid;grid-template-columns:1.4fr 60px 80px 90px 90px;gap:10px;padding:8px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;align-items:center;font-size:11px">'+
+                 '<div style="font-weight:600;color:var(--text)">'+safeOpt+'</div>'+
+                 '<div style="color:var(--text3);text-align:right">'+d.count+' tr</div>'+
+                 '<div style="font-weight:700;color:'+wrColor+';text-align:right">'+wr.toFixed(0)+'% WR</div>'+
+                 '<div style="font-weight:600;color:'+pnlColor+';text-align:right">'+pnlStr+'</div>'+
+                 '<div style="color:var(--text3);text-align:right">'+avgStr+' avg</div>'+
+               '</div>';
+      }).join('');
+      var safeName = String(c.name||'').replace(/</g,'&lt;');
+      var color = c.color || '#7c5af0';
+      return '<div>'+
+               '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+
+                 '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+color+'"></span>'+
+                 '<span style="font-size:11px;font-weight:700;color:var(--text);letter-spacing:.3px">'+safeName.toUpperCase()+'</span>'+
+                 '<span style="font-size:9px;color:var(--text3)">· '+entries.length+' option'+(entries.length>1?'s':'')+'</span>'+
+               '</div>'+
+               '<div style="display:flex;flex-direction:column;gap:4px">'+rows+'</div>'+
+             '</div>';
+    }).filter(function(s){return !!s;}).join('');
+
+    if(!anyData){
+      listEl.innerHTML = '';
+      if(emptyEl) emptyEl.style.display = '';
+      if(metaEl) metaEl.textContent = '';
+    } else {
+      listEl.innerHTML = html;
+      if(emptyEl) emptyEl.style.display = 'none';
+      if(metaEl) metaEl.textContent = taggedTotal + ' trades tagged · ' + cats.length + ' categories';
+    }
+  }
+  window.rptRenderTagCats = rptRenderTagCats;
 
   function rptPill(btn) {
     btn.closest('.rpt-filter').querySelectorAll('.rpt-pill').forEach(function(x){ x.classList.remove('active'); });
@@ -15581,6 +16455,111 @@ window.dispatchEvent(new Event('supabase-ready'));
       combosHtml='<div style="color:var(--text3);font-size:11px">Need 3+ trades with the same confluence pair to show combos</div>';
     }
     if(el('rpt-conf-combos'))el('rpt-conf-combos').innerHTML=combosHtml;
+
+    // ── PER-SETUP CHECKLIST PERFORMANCE (Edgewonk-style, May 2026) ──
+    // For each setup with 5+ trades, compute WR/PnL when each confluence
+    // is present vs absent. Big delta = strong signal for that criterion.
+    try {
+      var setupGroups = {}; // setup name → [trades]
+      t.forEach(function(x){
+        var sname = (x.setup || '').trim();
+        if(!sname) return; // skip impulse trades
+        if(!setupGroups[sname]) setupGroups[sname] = [];
+        setupGroups[sname].push(x);
+      });
+      var setupNames = Object.keys(setupGroups).filter(function(s){
+        return setupGroups[s].length >= 5; // min 5 trades to be meaningful
+      }).sort(function(a,b){
+        return setupGroups[b].length - setupGroups[a].length;
+      });
+
+      var checklistHtml = '';
+      if(setupNames.length === 0){
+        checklistHtml = '<div style="color:var(--text3);font-size:11px;padding:14px 0;text-align:center">Need at least one setup with 5+ trades and tagged confluences. Tag your trades to populate this analysis.</div>';
+      } else {
+        checklistHtml = setupNames.map(function(sname){
+          var setupTrades = setupGroups[sname];
+          // Collect all confluences seen across these trades
+          var allConfs = {};
+          setupTrades.forEach(function(x){
+            (x.confluences||[]).concat(x.ltfConfirmations||[]).forEach(function(cf){
+              allConfs[cf] = true;
+            });
+          });
+          var confList = Object.keys(allConfs);
+          if(confList.length === 0) return ''; // no confluences tagged
+
+          // For each confluence, compute WR present vs absent
+          var rows = confList.map(function(cf){
+            var present = setupTrades.filter(function(x){
+              var all = (x.confluences||[]).concat(x.ltfConfirmations||[]);
+              return all.indexOf(cf) >= 0;
+            });
+            var absent = setupTrades.filter(function(x){
+              var all = (x.confluences||[]).concat(x.ltfConfirmations||[]);
+              return all.indexOf(cf) < 0;
+            });
+            if(present.length < 2 || absent.length < 2) return null; // need both sides
+            var wrPresent = present.filter(function(x){return tqConvertTradePnl(x) > 0;}).length / present.length * 100;
+            var wrAbsent  = absent.filter(function(x){return tqConvertTradePnl(x) > 0;}).length / absent.length * 100;
+            var delta = wrPresent - wrAbsent;
+            var pnlPresent = present.reduce(function(a,x){return a + tqConvertTradePnl(x);}, 0);
+            var pnlAbsent  = absent.reduce(function(a,x){return a + tqConvertTradePnl(x);}, 0);
+            return {
+              cf: cf,
+              wrPresent: wrPresent, wrAbsent: wrAbsent, delta: delta,
+              pnlPresent: pnlPresent, pnlAbsent: pnlAbsent,
+              countPresent: present.length, countAbsent: absent.length
+            };
+          }).filter(function(r){return r !== null;}).sort(function(a,b){
+            return Math.abs(b.delta) - Math.abs(a.delta);
+          });
+
+          if(rows.length === 0){
+            return ''; // no confluences with both-side data — skip the setup
+          }
+
+          var rowsHtml = rows.map(function(r){
+            var deltaColor = r.delta >= 15 ? 'var(--green)' : r.delta <= -15 ? 'var(--red)' : 'var(--text3)';
+            var deltaSign = r.delta >= 0 ? '+' : '';
+            var deltaStr = deltaSign + r.delta.toFixed(0) + 'pp';
+            var arrowIcon = r.delta >= 5 ? '↑' : r.delta <= -5 ? '↓' : '·';
+            var safeCf = String(r.cf).replace(/</g,'&lt;');
+            return '<div style="display:grid;grid-template-columns:1.6fr 90px 90px 80px;gap:10px;padding:8px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;align-items:center;font-size:11px">'+
+                     '<div style="font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+safeCf+'</div>'+
+                     '<div style="text-align:right"><span style="font-weight:700;color:'+(r.wrPresent>=60?'var(--green)':r.wrPresent>=45?'var(--accent3)':'var(--red)')+'">'+r.wrPresent.toFixed(0)+'%</span> <span style="color:var(--text3);font-size:9px">present ('+r.countPresent+')</span></div>'+
+                     '<div style="text-align:right"><span style="font-weight:600;color:var(--text2)">'+r.wrAbsent.toFixed(0)+'%</span> <span style="color:var(--text3);font-size:9px">absent ('+r.countAbsent+')</span></div>'+
+                     '<div style="text-align:right;font-weight:700;color:'+deltaColor+'">'+arrowIcon+' '+deltaStr+'</div>'+
+                   '</div>';
+          }).join('');
+
+          var safeName = String(sname).replace(/</g,'&lt;');
+          var setupWR = setupTrades.filter(function(x){return tqConvertTradePnl(x) > 0;}).length / setupTrades.length * 100;
+          return '<div style="margin-bottom:18px">'+
+                   '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)">'+
+                     '<div style="font-size:12px;font-weight:700;color:var(--text)">'+safeName+'</div>'+
+                     '<div style="font-size:10px;color:var(--text3)">'+setupTrades.length+' trades · '+setupWR.toFixed(0)+'% baseline WR</div>'+
+                   '</div>'+
+                   '<div style="display:grid;grid-template-columns:1.6fr 90px 90px 80px;gap:10px;padding:4px 12px;font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;font-weight:700">'+
+                     '<div>Confluence</div>'+
+                     '<div style="text-align:right">WR Present</div>'+
+                     '<div style="text-align:right">WR Absent</div>'+
+                     '<div style="text-align:right">Δ</div>'+
+                   '</div>'+
+                   '<div style="display:flex;flex-direction:column;gap:4px;margin-top:4px">'+rowsHtml+'</div>'+
+                 '</div>';
+        }).filter(function(s){return !!s;}).join('');
+
+        if(!checklistHtml){
+          checklistHtml = '<div style="color:var(--text3);font-size:11px;padding:14px 0;text-align:center">No setups have enough confluence variation yet (need 2+ trades with each criterion present and 2+ without).</div>';
+        }
+      }
+      if(el('rpt-setup-checklist')) el('rpt-setup-checklist').innerHTML = checklistHtml;
+    } catch(checklistErr){
+      console.error('Per-setup checklist render error:', checklistErr);
+      if(el('rpt-setup-checklist')) el('rpt-setup-checklist').innerHTML = '<div style="color:var(--red);font-size:11px">Error rendering checklist analysis. Check console.</div>';
+    }
+    // ── END PER-SETUP CHECKLIST ──
 
     // BY RISK: R-Multiple histogram
     var rVals=t.map(function(x){
@@ -16272,6 +17251,636 @@ window.dispatchEvent(new Event('supabase-ready'));
 
       mfmEl.innerHTML=h;
     })();
+
+    // ══════════════════════════════════════════
+    // ── MFE CAPTURE PER TRADE (Edgewonk visual, May 2026) ──
+    // ══════════════════════════════════════════
+    (function(){
+      var summaryEl = el('rpt-mfe-capture-summary');
+      var canvas = document.getElementById('rpt-ch-mfe-capture');
+      if(!summaryEl || !canvas) return;
+
+      // Reuse calcMfeMae logic — duplicate locally to avoid scope coupling
+      function _captureCalc(x){
+        var entry=parseFloat(x.entry)||0;
+        var exit=parseFloat(x.exit)||0;
+        var sl=parseFloat(x.sl)||0;
+        var tp=parseFloat(x.tp)||0;
+        var hi=parseFloat(x.highestPrice||x.mfe)||0;
+        var lo=parseFloat(x.lowestPrice||x.mae)||0;
+        if(!entry||!exit) return null;
+        var dir=x.direction||'buy';
+        var isWin=(dir==='buy')?(exit>entry):(exit<entry);
+        // Skip estimated data — capture rate is meaningless without real MFE
+        if(!hi && !lo) return null;
+        var mfe;
+        if(dir==='buy'){
+          mfe=hi>0?Math.max(0,hi-entry):0;
+        } else {
+          mfe=lo>0?Math.max(0,entry-lo):0;
+        }
+        if(mfe <= 0) return null;
+        var actual = (dir==='buy') ? (exit-entry) : (entry-exit);
+        // Capture = actual move / max favorable move, clamped 0..100
+        var capture = (actual/mfe) * 100;
+        if(!isFinite(capture)) return null;
+        capture = Math.max(0, Math.min(100, capture));
+        return {trade: x, capture: capture, isWin: isWin, mfePips: mfe, actualPips: actual};
+      }
+
+      var captures = [];
+      t.forEach(function(x){
+        var r = _captureCalc(x);
+        if(r && r.isWin) captures.push(r); // only winning trades — capture % only meaningful when you closed in profit
+      });
+
+      if(captures.length < 3){
+        summaryEl.innerHTML = '<div style="grid-column:1/-1;color:var(--text3);font-size:11px;padding:16px 0;text-align:center">Need 3+ winning trades with manual Highest/Lowest prices filled in. Add MFE/MAE prices to the Add Trade modal under "Price extremes".</div>';
+        if(canvas._chart){ try{canvas._chart.destroy();}catch(e){} canvas._chart = null; }
+        return;
+      }
+
+      // Aggregate
+      var avgCapture = captures.reduce(function(a,c){return a+c.capture;},0) / captures.length;
+      var medianCapture = (function(){
+        var sorted = captures.map(function(c){return c.capture;}).sort(function(a,b){return a-b;});
+        var mid = Math.floor(sorted.length/2);
+        return sorted.length % 2 ? sorted[mid] : (sorted[mid-1]+sorted[mid])/2;
+      })();
+      var topCapture = captures.filter(function(c){return c.capture >= 80;}).length;
+      var bottomCapture = captures.filter(function(c){return c.capture < 30;}).length;
+      var leftOnTablePct = 100 - avgCapture;
+
+      // Color logic
+      function captureColor(pct){
+        if(pct >= 75) return '#2ecc8a';
+        if(pct >= 50) return '#f5b840';
+        return '#e05c7a';
+      }
+
+      // Summary cards
+      var summaryHtml = '';
+      summaryHtml += '<div style="text-align:center;padding:12px;background:var(--bg);border-radius:8px"><div style="font-size:9px;color:var(--text3);margin-bottom:4px">AVG CAPTURE</div><div style="font-size:20px;font-weight:200;color:'+captureColor(avgCapture)+'">'+avgCapture.toFixed(0)+'%</div><div style="font-size:9px;color:var(--text3);margin-top:2px">of available profit</div></div>';
+      summaryHtml += '<div style="text-align:center;padding:12px;background:var(--bg);border-radius:8px"><div style="font-size:9px;color:var(--text3);margin-bottom:4px">MEDIAN</div><div style="font-size:20px;font-weight:200;color:'+captureColor(medianCapture)+'">'+medianCapture.toFixed(0)+'%</div><div style="font-size:9px;color:var(--text3);margin-top:2px">typical trade</div></div>';
+      summaryHtml += '<div style="text-align:center;padding:12px;background:var(--bg);border-radius:8px"><div style="font-size:9px;color:var(--text3);margin-bottom:4px">CLEAN EXITS</div><div style="font-size:20px;font-weight:200;color:#2ecc8a">'+topCapture+'</div><div style="font-size:9px;color:var(--text3);margin-top:2px">≥80% capture</div></div>';
+      summaryHtml += '<div style="text-align:center;padding:12px;background:var(--bg);border-radius:8px"><div style="font-size:9px;color:var(--text3);margin-bottom:4px">EARLY EXITS</div><div style="font-size:20px;font-weight:200;color:#e05c7a">'+bottomCapture+'</div><div style="font-size:9px;color:var(--text3);margin-top:2px">&lt;30% capture</div></div>';
+      summaryEl.innerHTML = summaryHtml;
+
+      // Scatter chart: x=trade index (chronological), y=capture %
+      // Build dataset with point colors based on capture
+      var chronological = captures.slice().sort(function(a,b){
+        return new Date(a.trade.date||0) - new Date(b.trade.date||0);
+      });
+      var pointData = chronological.map(function(c, i){
+        return {x: i+1, y: c.capture, _trade: c.trade, _mfe: c.mfePips, _actual: c.actualPips};
+      });
+      var pointColors = chronological.map(function(c){return captureColor(c.capture);});
+      var pointBorders = chronological.map(function(c){return captureColor(c.capture);});
+
+      if(canvas._chart){ try{canvas._chart.destroy();}catch(e){} }
+      canvas._chart = new Chart(canvas, {
+        type:'scatter',
+        data:{
+          datasets:[{
+            label:'Capture %',
+            data: pointData,
+            backgroundColor: pointColors,
+            borderColor: pointBorders,
+            pointRadius: 5,
+            pointHoverRadius: 8,
+            pointBorderWidth: 1
+          },{
+            label:'Average',
+            type:'line',
+            data: pointData.map(function(p){return {x:p.x, y:avgCapture};}),
+            borderColor:'rgba(124,90,240,.4)',
+            borderWidth:1.5,
+            borderDash:[4,4],
+            pointRadius:0,
+            fill:false,
+            showLine:true
+          }]
+        },
+        options:{
+          responsive:true,
+          maintainAspectRatio:false,
+          plugins:{
+            legend:{display:false},
+            tooltip:{
+              enabled:true,
+              callbacks:{
+                title: function(items){
+                  if(!items.length || !items[0].raw || !items[0].raw._trade) return '';
+                  var tr = items[0].raw._trade;
+                  return (tr.pair || tr.symbol || 'trade') + ' · ' + (tr.date||'');
+                },
+                label: function(ctx){
+                  if(ctx.datasetIndex !== 0) return null;
+                  var p = ctx.raw;
+                  return [
+                    'Capture: ' + p.y.toFixed(0) + '%',
+                    'MFE: ' + p._mfe.toFixed(5) + ' · Actual: ' + p._actual.toFixed(5)
+                  ];
+                }
+              }
+            }
+          },
+          scales:{
+            x:{
+              title:{display:true, text:'Trade #', color:'#888', font:{size:10}},
+              grid:{color:'rgba(124,90,240,.04)'},
+              ticks:{font:{size:9}, color:'#888'}
+            },
+            y:{
+              min:0, max:100,
+              title:{display:true, text:'% of MFE captured', color:'#888', font:{size:10}},
+              grid:{color:'rgba(124,90,240,.04)'},
+              ticks:{font:{size:9}, color:'#888', callback:function(v){return v+'%';}}
+            }
+          }
+        }
+      });
+    })();
+    // ══ END MFE CAPTURE ══
+
+    // ══════════════════════════════════════════
+    // ── TILTMETER / EXECUTION QUALITY (May 2026 — Edgewonk-style) ──
+    // ══════════════════════════════════════════
+    (function(){
+      var summaryEl = el('rpt-tiltmeter-summary');
+      var compareEl = el('rpt-tiltmeter-comparison');
+      var emptyEl = el('rpt-tiltmeter-empty');
+      var canvas = document.getElementById('rpt-ch-tiltmeter');
+      if(!summaryEl || !compareEl || !canvas) return;
+
+      function _hasAnyAxis(eq){
+        return eq && (eq.entry==='yes'||eq.entry==='no'||eq.mgmt==='yes'||eq.mgmt==='no'||eq.exit==='yes'||eq.exit==='no');
+      }
+      function _isFullyRated(eq){
+        return eq && (eq.entry==='yes'||eq.entry==='no') && (eq.mgmt==='yes'||eq.mgmt==='no') && (eq.exit==='yes'||eq.exit==='no');
+      }
+      function _allFollowed(eq){
+        return eq && eq.entry==='yes' && eq.mgmt==='yes' && eq.exit==='yes';
+      }
+      function _anyBroken(eq){
+        return eq && (eq.entry==='no' || eq.mgmt==='no' || eq.exit==='no');
+      }
+
+      var ratedTrades = t.filter(function(x){ return _hasAnyAxis(x.execQuality); });
+
+      if(ratedTrades.length < 5){
+        if(summaryEl) summaryEl.innerHTML = '';
+        if(compareEl) compareEl.innerHTML = '';
+        if(emptyEl) emptyEl.style.display = '';
+        if(canvas._chart){ try{canvas._chart.destroy();}catch(e){} canvas._chart = null; }
+        canvas.style.display = 'none';
+        return;
+      }
+      if(emptyEl) emptyEl.style.display = 'none';
+      canvas.style.display = '';
+
+      // Per-axis adherence %
+      function _axisAdherence(axis){
+        var rated = ratedTrades.filter(function(x){
+          var v = x.execQuality && x.execQuality[axis];
+          return v === 'yes' || v === 'no';
+        });
+        if(rated.length === 0) return null;
+        var followed = rated.filter(function(x){return x.execQuality[axis]==='yes';}).length;
+        return {pct: followed/rated.length*100, n: rated.length};
+      }
+      var entryAdh = _axisAdherence('entry');
+      var mgmtAdh = _axisAdherence('mgmt');
+      var exitAdh = _axisAdherence('exit');
+
+      function adherenceColor(p){
+        if(p === null) return 'var(--text3)';
+        if(p >= 70 && p <= 90) return '#2ecc8a';   // sweet spot
+        if(p > 90) return '#f5b840';                // suspiciously high
+        if(p >= 50) return '#f5b840';               // borderline
+        return '#e05c7a';                            // breaking rules
+      }
+      function adherenceLabel(p){
+        if(p === null) return 'not rated';
+        if(p >= 70 && p <= 90) return 'disciplined';
+        if(p > 90) return 'rules too loose?';
+        if(p >= 50) return 'room to improve';
+        return 'breaking rules often';
+      }
+
+      function axisCard(label, data){
+        if(!data) return '<div style="text-align:center;padding:14px;background:var(--bg);border-radius:8px"><div style="font-size:9px;color:var(--text3);margin-bottom:4px">'+label+'</div><div style="font-size:18px;font-weight:200;color:var(--text3)">—</div><div style="font-size:9px;color:var(--text3);margin-top:2px">no ratings</div></div>';
+        var col = adherenceColor(data.pct);
+        return '<div style="text-align:center;padding:14px;background:var(--bg);border-radius:8px"><div style="font-size:9px;color:var(--text3);margin-bottom:4px">'+label+'</div><div style="font-size:24px;font-weight:200;color:'+col+'">'+data.pct.toFixed(0)+'%</div><div style="font-size:9px;color:var(--text3);margin-top:2px">'+data.n+' rated · '+adherenceLabel(data.pct)+'</div></div>';
+      }
+      summaryEl.innerHTML = axisCard('ENTRY ADHERENCE', entryAdh) + axisCard('MANAGEMENT ADHERENCE', mgmtAdh) + axisCard('EXIT ADHERENCE', exitAdh);
+
+      // Comparison: trades where ALL rules followed vs ANY rule broken (only fully-rated)
+      var fullyRated = ratedTrades.filter(_isFullyRated);
+      var followedSet = fullyRated.filter(_allFollowed);
+      var brokenSet = fullyRated.filter(_anyBroken);
+
+      function setStats(arr){
+        if(arr.length === 0) return null;
+        var wins = arr.filter(function(x){return tqConvertTradePnl(x) > 0;}).length;
+        var pnl = arr.reduce(function(a,x){return a + tqConvertTradePnl(x);}, 0);
+        var avgPnl = pnl / arr.length;
+        return {n: arr.length, wr: wins/arr.length*100, pnl: pnl, avgPnl: avgPnl};
+      }
+      var fStats = setStats(followedSet);
+      var bStats = setStats(brokenSet);
+
+      function compCard(title, color, stats, baseline){
+        if(!stats) return '<div style="padding:16px;background:var(--bg);border-radius:8px;border:1px solid var(--border)"><div style="font-size:11px;font-weight:700;color:'+color+';margin-bottom:8px">'+title+'</div><div style="font-size:11px;color:var(--text3)">No fully-rated trades in this bucket yet.</div></div>';
+        var pnlStr = (stats.pnl>=0?'+':'-')+'$'+Math.abs(stats.pnl).toFixed(0);
+        var avgStr = (stats.avgPnl>=0?'+':'-')+'$'+Math.abs(stats.avgPnl).toFixed(2);
+        var deltaHtml = '';
+        if(baseline){
+          var dWr = stats.wr - baseline.wr;
+          var dAvg = stats.avgPnl - baseline.avgPnl;
+          var dWrSign = dWr>=0?'+':'';
+          var dAvgSign = dAvg>=0?'+':'';
+          deltaHtml = '<div style="font-size:10px;color:var(--text3);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">vs other group: <span style="color:'+(dWr>=0?'var(--green)':'var(--red)')+'">'+dWrSign+dWr.toFixed(0)+'pp WR</span> · <span style="color:'+(dAvg>=0?'var(--green)':'var(--red)')+'">'+dAvgSign+'$'+Math.abs(dAvg).toFixed(2)+' avg</span></div>';
+        }
+        return '<div style="padding:14px 16px;background:var(--bg);border-radius:8px;border:1px solid var(--border);border-left:3px solid '+color+'">'+
+                 '<div style="font-size:10px;font-weight:700;color:'+color+';letter-spacing:.4px;margin-bottom:8px">'+title.toUpperCase()+'</div>'+
+                 '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px">'+
+                   '<div><div style="color:var(--text3);font-size:9px">TRADES</div><div style="color:var(--text);font-weight:600;font-size:14px">'+stats.n+'</div></div>'+
+                   '<div><div style="color:var(--text3);font-size:9px">WIN RATE</div><div style="color:var(--text);font-weight:600;font-size:14px">'+stats.wr.toFixed(0)+'%</div></div>'+
+                   '<div><div style="color:var(--text3);font-size:9px">TOTAL P&L</div><div style="color:'+(stats.pnl>=0?'var(--green)':'var(--red)')+';font-weight:600;font-size:14px">'+pnlStr+'</div></div>'+
+                   '<div><div style="color:var(--text3);font-size:9px">AVG P&L</div><div style="color:'+(stats.avgPnl>=0?'var(--green)':'var(--red)')+';font-weight:600;font-size:14px">'+avgStr+'</div></div>'+
+                 '</div>'+
+                 deltaHtml+
+               '</div>';
+      }
+      compareEl.innerHTML = compCard('All Rules Followed', '#2ecc8a', fStats, bStats) + compCard('Any Rule Broken', '#e05c7a', bStats, fStats);
+
+      // Rolling adherence chart: x = trade index (chronological), y = rolling 10-trade adherence %
+      var chrono = ratedTrades.slice().sort(function(a,b){
+        return new Date(a.date||0) - new Date(b.date||0);
+      });
+      // For each trade compute its own "score": % of axes followed (only counts rated axes)
+      var scores = chrono.map(function(x){
+        var eq = x.execQuality;
+        var rated = 0, followed = 0;
+        ['entry','mgmt','exit'].forEach(function(ax){
+          if(eq[ax]==='yes'){rated++;followed++;}
+          else if(eq[ax]==='no'){rated++;}
+        });
+        return rated > 0 ? (followed/rated*100) : null;
+      });
+      // Rolling avg with window 10 (or smaller for early trades)
+      var rolling = [];
+      var window = 10;
+      scores.forEach(function(s, i){
+        var lo = Math.max(0, i-window+1);
+        var slice = scores.slice(lo, i+1).filter(function(v){return v !== null;});
+        if(slice.length === 0){ rolling.push(null); return; }
+        var avg = slice.reduce(function(a,v){return a+v;},0) / slice.length;
+        rolling.push(avg);
+      });
+      var labels = chrono.map(function(_, i){return i+1;});
+
+      if(canvas._chart){ try{canvas._chart.destroy();}catch(e){} }
+      canvas._chart = new Chart(canvas, {
+        type:'line',
+        data:{
+          labels: labels,
+          datasets:[{
+            label:'Rolling adherence (10-trade window)',
+            data: rolling,
+            borderColor:'#7c5af0',
+            borderWidth: 2,
+            pointRadius: 0,
+            fill: true,
+            tension: 0.35,
+            backgroundColor: function(ctx){
+              if(!ctx.chart.ctx) return 'rgba(124,90,240,.08)';
+              var g = ctx.chart.ctx.createLinearGradient(0,0,0,200);
+              g.addColorStop(0,'rgba(124,90,240,.18)');
+              g.addColorStop(1,'rgba(124,90,240,0)');
+              return g;
+            }
+          },{
+            label:'Sweet spot (70-85%)',
+            type:'line',
+            data: rolling.map(function(){return 70;}),
+            borderColor: 'rgba(46,204,138,.4)',
+            borderWidth: 1,
+            borderDash: [3,3],
+            pointRadius: 0,
+            fill: false
+          },{
+            type:'line',
+            data: rolling.map(function(){return 85;}),
+            borderColor: 'rgba(46,204,138,.4)',
+            borderWidth: 1,
+            borderDash: [3,3],
+            pointRadius: 0,
+            fill: false
+          }]
+        },
+        options:{
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins:{
+            legend:{display:false},
+            tooltip:{
+              callbacks:{
+                title: function(items){return 'Trade #'+items[0].label;},
+                label: function(ctx){
+                  if(ctx.datasetIndex !== 0) return null;
+                  return 'Adherence: '+(ctx.raw === null ? '—' : ctx.raw.toFixed(0)+'%');
+                }
+              }
+            }
+          },
+          scales:{
+            x:{
+              title:{display:true, text:'Trade # (chronological)', color:'#888', font:{size:10}},
+              grid:{color:'rgba(124,90,240,.04)'},
+              ticks:{font:{size:9}, color:'#888', maxTicksLimit:10}
+            },
+            y:{
+              min:0, max:100,
+              title:{display:true, text:'Rule adherence %', color:'#888', font:{size:10}},
+              grid:{color:'rgba(124,90,240,.04)'},
+              ticks:{font:{size:9}, color:'#888', callback:function(v){return v+'%';}}
+            }
+          }
+        }
+      });
+    })();
+    // ══ END TILTMETER ══
+
+    // ══════════════════════════════════════════
+    // ── TRADE MANAGEMENT vs POTENTIAL (May 2026 — Edgewonk flagship) ──
+    // ══════════════════════════════════════════
+    (function(){
+      var summaryEl = el('rpt-mgmt-summary');
+      var leaksEl = el('rpt-mgmt-leaks');
+      var emptyEl = el('rpt-mgmt-empty');
+      var explainerEl = el('rpt-pot-explainer');
+      var canvas = document.getElementById('rpt-ch-management');
+      if(!canvas || !summaryEl) return;
+
+      // Read mode from window state (set by rptSetPotMode toggle)
+      var mode = window._rptPotMode || 'tp';
+      if(explainerEl){
+        explainerEl.textContent = mode === 'tp'
+          ? 'Set-and-forget: P&L if every trade had been left alone to either hit TP or SL — no early exits, no stop moves. Requires Entry + SL + TP set.'
+          : 'Peak Available: P&L if you exited every trade at the most favorable price reached (MFE). The theoretical maximum. Requires Highest/Lowest prices filled in.';
+      }
+
+      // Multiplier helper (same logic as MFE block)
+      function _mult(x){
+        var lots = parseFloat(x.lots)||0;
+        var pair = (x.pair||x.symbol||'').toUpperCase();
+        var m = lots>0 ? lots*100000 : 1;
+        if(pair.indexOf('JPY')>=0) m = lots>0 ? lots*1000 : 1;
+        if(pair.indexOf('XAU')>=0) m = lots>0 ? lots*100 : 1;
+        if(pair.indexOf('NAS')>=0||pair.indexOf('US30')>=0) m = lots>0 ? lots : 1;
+        return m;
+      }
+
+      // Compute potential P&L for one trade based on mode
+      // Returns {actual, potential, hasData} — hasData=false means skip
+      function _potCalc(x){
+        var entry = parseFloat(x.entry)||0;
+        var exit  = parseFloat(x.exit)||0;
+        var sl    = parseFloat(x.sl)||0;
+        var tp    = parseFloat(x.tp)||0;
+        var hi    = parseFloat(x.highestPrice||x.mfe)||0;
+        var lo    = parseFloat(x.lowestPrice||x.mae)||0;
+        var dir   = x.direction||'buy';
+        var actualPnl = tqConvertTradePnl(x); // converted to display ccy
+        if(!entry || !exit) return {actual: actualPnl, potential: actualPnl, hasData: false};
+
+        if(mode === 'tp'){
+          // Set-and-forget: hit TP or SL based on price extremes
+          if(!sl || !tp) return {actual: actualPnl, potential: actualPnl, hasData: false};
+          var hitTP, hitSL;
+          if(dir === 'buy'){
+            hitTP = hi > 0 ? (hi >= tp) : (exit >= tp); // fallback: use exit if hi missing
+            hitSL = lo > 0 ? (lo <= sl) : (exit <= sl);
+          } else {
+            hitTP = lo > 0 ? (lo <= tp) : (exit <= tp);
+            hitSL = hi > 0 ? (hi >= sl) : (exit >= sl);
+          }
+          var potPriceMove;
+          if(hitTP && !hitSL){
+            potPriceMove = (dir === 'buy') ? (tp - entry) : (entry - tp);
+          } else if(hitSL && !hitTP){
+            potPriceMove = (dir === 'buy') ? (sl - entry) : (entry - sl); // negative
+          } else if(hitTP && hitSL){
+            // Ambiguous — both sides touched. Edgewonk-style: assume worst case (SL hit first).
+            // This is conservative but realistic.
+            potPriceMove = (dir === 'buy') ? (sl - entry) : (entry - sl);
+          } else {
+            // Neither hit — trade closed before either. Use actual exit as fallback.
+            potPriceMove = (dir === 'buy') ? (exit - entry) : (entry - exit);
+          }
+          var commAbs = Math.abs(parseFloat(x.commission)||0);
+          var grossPotential = potPriceMove * _mult(x);
+          // Convert to display ccy with same logic as actual
+          var ratio = (actualPnl !== 0 && (parseFloat(x.pnl)||0) !== 0)
+            ? (actualPnl / (parseFloat(x.pnl)||1))
+            : 1;
+          var potential = (grossPotential - commAbs) * ratio;
+          return {actual: actualPnl, potential: potential, hasData: true};
+        } else {
+          // MFE mode: peak available
+          if(!hi && !lo) return {actual: actualPnl, potential: actualPnl, hasData: false};
+          var peakMove;
+          if(dir === 'buy'){
+            peakMove = hi > 0 ? (hi - entry) : 0;
+          } else {
+            peakMove = lo > 0 ? (entry - lo) : 0;
+          }
+          if(peakMove < 0) peakMove = 0; // never negative for MFE — peak is by definition favorable
+          var commAbs2 = Math.abs(parseFloat(x.commission)||0);
+          var grossPeak = peakMove * _mult(x);
+          var ratio2 = (actualPnl !== 0 && (parseFloat(x.pnl)||0) !== 0)
+            ? (actualPnl / (parseFloat(x.pnl)||1))
+            : 1;
+          var potential2 = (grossPeak - commAbs2) * ratio2;
+          // For MFE mode, potential should be >= 0 (peak available, never below 0)
+          if(potential2 < 0) potential2 = 0;
+          return {actual: actualPnl, potential: potential2, hasData: true};
+        }
+      }
+
+      // Build chronological pairs
+      var sorted = t.slice().sort(function(a,b){
+        return (a.date||'').localeCompare(b.date||'');
+      });
+      var withData = [];
+      sorted.forEach(function(x){
+        var r = _potCalc(x);
+        if(r.hasData) withData.push({trade:x, actual:r.actual, potential:r.potential});
+      });
+
+      if(withData.length < 5){
+        if(emptyEl){
+          emptyEl.style.display = 'block';
+          emptyEl.textContent = mode === 'tp'
+            ? 'Need at least 5 trades with Entry + SL + TP filled in to compute set-and-forget P&L.'
+            : 'Need at least 5 trades with Highest/Lowest prices filled in (in Add Trade modal under Price Extremes) to compute peak P&L.';
+        }
+        if(summaryEl) summaryEl.innerHTML = '';
+        if(leaksEl) leaksEl.innerHTML = '';
+        if(canvas._chart){ try{canvas._chart.destroy();}catch(e){} canvas._chart = null; }
+        canvas.style.display = 'none';
+        return;
+      }
+      if(emptyEl) emptyEl.style.display = 'none';
+      canvas.style.display = '';
+
+      // Build cumulative curves
+      var cumActual = [], cumPotential = [], labels = [], runActual = 0, runPotential = 0;
+      withData.forEach(function(d, i){
+        runActual += d.actual;
+        runPotential += d.potential;
+        cumActual.push(runActual);
+        cumPotential.push(runPotential);
+        labels.push(d.trade.date ? d.trade.date.slice(5) : 'T'+(i+1));
+      });
+
+      var totalActual = runActual;
+      var totalPotential = runPotential;
+      var gap = totalPotential - totalActual;
+      var capturePct = totalPotential !== 0 ? (totalActual / totalPotential * 100) : 0;
+      // For losing periods this can go weird — clamp display
+      var capDisplay = !isFinite(capturePct) ? 0 : capturePct;
+
+      // Per-trade leaks (trades where potential >> actual = managed too early)
+      var leaks = withData.map(function(d, i){
+        return {trade: d.trade, idx: i, actual: d.actual, potential: d.potential, leak: d.potential - d.actual};
+      }).filter(function(l){
+        return l.leak > 0 && l.actual >= 0; // only count leaks on winners (paper-handed)
+      }).sort(function(a,b){
+        return b.leak - a.leak;
+      }).slice(0, 5);
+
+      var totalLeak = leaks.reduce(function(a,l){return a+l.leak;}, 0);
+
+      // ── Summary cards ──
+      function summaryCard(label, value, color, sub){
+        return '<div style="text-align:center;padding:14px;background:var(--bg);border-radius:8px"><div style="font-size:9px;color:var(--text3);margin-bottom:4px">'+label+'</div><div style="font-size:20px;font-weight:200;color:'+(color||'var(--text)')+'">'+value+'</div><div style="font-size:9px;color:var(--text3);margin-top:2px">'+(sub||'')+'</div></div>';
+      }
+      var actualStr = (totalActual>=0?'+':'-')+'$'+Math.abs(totalActual).toFixed(0);
+      var potentialStr = (totalPotential>=0?'+':'-')+'$'+Math.abs(totalPotential).toFixed(0);
+      var gapStr = (gap>=0?'+':'-')+'$'+Math.abs(gap).toFixed(0);
+      summaryEl.innerHTML =
+        summaryCard('YOUR ACTUAL', actualStr, totalActual>=0?'#2ecc8a':'#e05c7a', withData.length+' trades') +
+        summaryCard(mode==='tp'?'SET-AND-FORGET':'PEAK AVAILABLE', potentialStr, '#7c5af0', mode==='tp'?'if held to TP/SL':'if exited at peak') +
+        summaryCard('GAP', gapStr, gap>0?'#e05c7a':gap<0?'#2ecc8a':'var(--text2)', gap>0?'left on table':gap<0?'beat the model':'matched') +
+        summaryCard('CAPTURE', capDisplay.toFixed(0)+'%', capDisplay>=80?'#2ecc8a':capDisplay>=50?'#f5b840':'#e05c7a', 'of available');
+
+      // ── Chart: actual + potential overlaid ──
+      if(canvas._chart){ try{canvas._chart.destroy();}catch(e){} }
+      canvas._chart = new Chart(canvas, {
+        type:'line',
+        data:{
+          labels: labels,
+          datasets:[
+            {
+              label:'Potential ('+(mode==='tp'?'set-and-forget':'peak')+')',
+              data: cumPotential,
+              borderColor:'rgba(124,90,240,.6)',
+              borderWidth: 2,
+              borderDash: [6,4],
+              pointRadius: 0,
+              tension: 0.3,
+              fill: false
+            },
+            {
+              label:'Your actual',
+              data: cumActual,
+              borderColor:'#2ecc8a',
+              borderWidth: 2.4,
+              pointRadius: 0,
+              tension: 0.3,
+              fill: '+1', // fill to the next dataset (potential) → shows gap as shaded area
+              backgroundColor: 'rgba(224,92,122,.06)'
+            }
+          ]
+        },
+        options:{
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins:{
+            legend:{
+              display: true,
+              position: 'top',
+              align: 'end',
+              labels:{
+                font:{size:10, family:'Inter, sans-serif'},
+                color: '#888',
+                boxWidth: 14,
+                padding: 12,
+                usePointStyle: true
+              }
+            },
+            tooltip:{
+              callbacks:{
+                title: function(items){
+                  var i = items[0].dataIndex;
+                  var d = withData[i];
+                  return (d && d.trade ? (d.trade.pair||'trade') + ' · ' + (d.trade.date||'') : 'Trade #'+(i+1));
+                },
+                label: function(ctx){
+                  var v = ctx.parsed.y;
+                  var prefix = v >= 0 ? '+$' : '-$';
+                  return ctx.dataset.label + ': ' + prefix + Math.abs(v).toFixed(0);
+                }
+              }
+            }
+          },
+          scales:{
+            x:{
+              grid:{color:'rgba(124,90,240,.04)'},
+              ticks:{font:{size:9}, color:'#888', maxTicksLimit:8}
+            },
+            y:{
+              grid:{color:'rgba(124,90,240,.04)'},
+              ticks:{
+                font:{size:9}, color:'#888',
+                callback: function(v){ return (v>=0?'+$':'-$')+Math.abs(v).toFixed(0); }
+              }
+            }
+          }
+        }
+      });
+
+      // ── Top leaks list ──
+      if(leaksEl){
+        if(leaks.length === 0 || gap <= 0){
+          leaksEl.innerHTML = mode==='tp'
+            ? '<div style="padding:10px 14px;background:rgba(46,204,138,.04);border:1px solid rgba(46,204,138,.1);border-radius:8px;font-size:11px;color:var(--text2)"><b style="color:var(--green)">✓ Clean management.</b> Your active management is matching or beating the set-and-forget baseline. You\'re reading the market well.</div>'
+            : '<div style="padding:10px 14px;background:rgba(46,204,138,.04);border:1px solid rgba(46,204,138,.1);border-radius:8px;font-size:11px;color:var(--text2)"><b style="color:var(--green)">✓ Strong execution.</b> You\'re capturing most of the available move on each trade.</div>';
+        } else {
+          var leaksHtml = leaks.map(function(l){
+            var pair = (l.trade.pair || l.trade.symbol || '').slice(0,8);
+            var date = l.trade.date || '';
+            var aStr = (l.actual>=0?'+':'-')+'$'+Math.abs(l.actual).toFixed(0);
+            var pStr = (l.potential>=0?'+':'-')+'$'+Math.abs(l.potential).toFixed(0);
+            var leakStr = '$'+l.leak.toFixed(0);
+            return '<div style="display:grid;grid-template-columns:90px 80px 90px 90px 1fr;gap:10px;padding:8px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;align-items:center;font-size:11px">'+
+                     '<div style="font-weight:600;color:var(--text)">'+pair+'</div>'+
+                     '<div style="color:var(--text3);font-size:10px">'+date+'</div>'+
+                     '<div style="text-align:right"><span style="color:var(--text3);font-size:9px">took </span><span style="color:'+(l.actual>=0?'var(--green)':'var(--red)')+';font-weight:600">'+aStr+'</span></div>'+
+                     '<div style="text-align:right"><span style="color:var(--text3);font-size:9px">had </span><span style="color:var(--accent3);font-weight:600">'+pStr+'</span></div>'+
+                     '<div style="text-align:right;font-weight:700;color:var(--red)">left '+leakStr+'</div>'+
+                   '</div>';
+          }).join('');
+          leaksEl.innerHTML = '<div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.5px;margin-bottom:8px">TOP MANAGEMENT LEAKS '+
+            '<span style="color:var(--red);margin-left:8px">$'+totalLeak.toFixed(0)+' total left on table</span></div>'+
+            '<div style="display:flex;flex-direction:column;gap:4px">'+leaksHtml+'</div>';
+        }
+      }
+    })();
+    // ══ END TRADE MANAGEMENT vs POTENTIAL ══
 
     // ══════════════════════════════════════════
     // ── HOUR × DAY HEATMAP ──
@@ -17728,6 +19337,10 @@ window.dispatchEvent(new Event('supabase-ready'));
       if(d.psychTags&&d.psychTags.length>0){ setTimeout(function(){ document.querySelectorAll('.jr-psych-tag').forEach(function(t){ if(d.psychTags.indexOf(t.textContent.trim())>=0) t.classList.add('on'); }); },50); }
       // Load custom tags
       setTimeout(function(){ jrRenderCustomTags(d.customTags||[]); },60);
+      // Load tag categories with active selections
+      setTimeout(function(){ if(typeof jrRenderTagCats === 'function') jrRenderTagCats(d.tagCats||{}); },60);
+      // Restore execution quality (Tiltmeter)
+      setTimeout(function(){ if(typeof jrRestoreExecQ === 'function') jrRestoreExecQ(d.execQuality||{}); },60);
       if(d.setupId) sel.value = d.setupId; else if(d.setup){ for(var i=0;i<sel.options.length;i++){if(sel.options[i].dataset.name===d.setup){sel.selectedIndex=i;break;}} }
       jrSetupChanged();
       // Restore confluence toggles
@@ -17827,6 +19440,8 @@ window.dispatchEvent(new Event('supabase-ready'));
     document.getElementById('jr-modal').classList.add('open');
     // Render custom tags
     if(!jrEditId) jrRenderCustomTags([]);
+    // Render tag categories
+    if(!jrEditId && typeof jrRenderTagCats === 'function') jrRenderTagCats({});
   }
   window.openJrModal = openJrModal;
 
@@ -17869,6 +19484,134 @@ window.dispatchEvent(new Event('supabase-ready'));
   }
   window.jrDeleteCustomTag=jrDeleteCustomTag;
 
+  // ═══ TAG CATEGORIES (May 2026) — render hierarchical tag pills in modal ═══
+  function jrRenderTagCats(activeMap){
+    var wrap = document.getElementById('jr-tagcats-content');
+    if(!wrap) return;
+    var cats = (typeof tcLoad === 'function') ? tcLoad() : [];
+    if(!cats.length){
+      wrap.innerHTML = '<div style="font-size:10px;color:var(--text3);padding:6px 0">No tag categories. Add some in Settings → Tag Categories.</div>';
+      return;
+    }
+    var active = activeMap || {};
+    wrap.innerHTML = cats.map(function(c){
+      var pills = (c.options||[]).map(function(o){
+        var isOn = active[c.id] && active[c.id].indexOf(o) >= 0;
+        var safeOpt = String(o).replace(/"/g,'&quot;');
+        var color = c.color||'#7c5af0';
+        var styleOn = isOn
+          ? 'background:'+color+'1f;border:1px solid '+color+'60;color:'+color+';font-weight:700'
+          : 'background:transparent;border:1px solid var(--border);color:var(--text2);font-weight:600';
+        return '<button type="button" class="jr-tagcat-pill" data-cat="'+c.id+'" data-opt="'+safeOpt+'" '+
+                 'onclick="jrToggleTagCatPill(this)" '+
+                 'style="padding:5px 10px;border-radius:14px;cursor:pointer;font-size:10px;letter-spacing:.2px;'+styleOn+'" '+
+                 'data-color="'+color+'">'+
+                 String(o).replace(/</g,'&lt;')+
+               '</button>';
+      }).join('');
+      return '<div data-cat-row="'+c.id+'">'+
+               '<div style="font-size:9px;font-weight:700;color:var(--text3);letter-spacing:.5px;margin-bottom:4px">'+String(c.name||'').toUpperCase().replace(/</g,'&lt;')+'</div>'+
+               '<div style="display:flex;flex-wrap:wrap;gap:5px">'+pills+'</div>'+
+             '</div>';
+    }).join('');
+  }
+  window.jrRenderTagCats = jrRenderTagCats;
+
+  // Toggle a single pill (multi-select per category — e.g. Mood: Calm + Focused)
+  window.jrToggleTagCatPill = function(btn){
+    if(!btn) return;
+    var color = btn.getAttribute('data-color') || '#7c5af0';
+    var on = btn.classList.toggle('tc-on');
+    if(on){
+      btn.style.background = color + '1f';
+      btn.style.borderColor = color + '60';
+      btn.style.color = color;
+      btn.style.fontWeight = '700';
+    } else {
+      btn.style.background = 'transparent';
+      btn.style.borderColor = 'var(--border)';
+      btn.style.color = 'var(--text2)';
+      btn.style.fontWeight = '600';
+    }
+  };
+
+  // Collect selected tag cats from modal: returns {catId:[opts]}
+  window.jrCollectTagCats = function(){
+    var wrap = document.getElementById('jr-tagcats-content');
+    if(!wrap) return {};
+    var out = {};
+    Array.prototype.forEach.call(wrap.querySelectorAll('.jr-tagcat-pill.tc-on'), function(btn){
+      var cat = btn.getAttribute('data-cat');
+      var opt = btn.getAttribute('data-opt');
+      if(!cat || !opt) return;
+      if(!out[cat]) out[cat] = [];
+      out[cat].push(opt);
+    });
+    return out;
+  };
+  // ═══ END TAG CATEGORIES ═══
+
+  // ═══ EXECUTION QUALITY / TILTMETER (May 2026) ═══
+  // Three boolean axes per trade: entry rules, management, exit rules.
+  // Stored as t.execQuality = {entry:'yes'|'no'|null, mgmt:..., exit:...}
+  // Per-axis radio behavior — clicking yes toggles off no on same axis.
+  window.jrSetExecQ = function(btn){
+    if(!btn) return;
+    var axis = btn.getAttribute('data-axis');
+    var val  = btn.getAttribute('data-val');
+    if(!axis || !val) return;
+    var wrap = document.getElementById('jr-execq-wrap');
+    if(!wrap) return;
+    // Find both buttons on this axis
+    var siblings = wrap.querySelectorAll('.jr-execq-pill[data-axis="'+axis+'"]');
+    var alreadyOn = btn.classList.contains('execq-on');
+    // Reset both on this axis
+    Array.prototype.forEach.call(siblings, function(b){
+      b.classList.remove('execq-on');
+      b.style.background = 'var(--card)';
+      b.style.borderColor = 'var(--border)';
+      b.style.color = 'var(--text2)';
+    });
+    // Toggle: if was already on, leave all off (axis = null/skipped)
+    if(!alreadyOn){
+      btn.classList.add('execq-on');
+      if(val === 'yes'){
+        btn.style.background = 'rgba(46,204,138,.10)';
+        btn.style.borderColor = 'rgba(46,204,138,.4)';
+        btn.style.color = 'var(--green)';
+      } else {
+        btn.style.background = 'rgba(224,92,122,.08)';
+        btn.style.borderColor = 'rgba(224,92,122,.4)';
+        btn.style.color = 'var(--red)';
+      }
+    }
+  };
+
+  window.jrCollectExecQ = function(){
+    var wrap = document.getElementById('jr-execq-wrap');
+    if(!wrap) return {entry:null, mgmt:null, exit:null};
+    var out = {entry:null, mgmt:null, exit:null};
+    Array.prototype.forEach.call(wrap.querySelectorAll('.jr-execq-pill.execq-on'), function(b){
+      var ax = b.getAttribute('data-axis');
+      var v  = b.getAttribute('data-val');
+      if(out.hasOwnProperty(ax)) out[ax] = v;
+    });
+    return out;
+  };
+
+  // Restore execQuality state when editing a trade
+  window.jrRestoreExecQ = function(execQ){
+    var wrap = document.getElementById('jr-execq-wrap');
+    if(!wrap || !execQ) return;
+    ['entry','mgmt','exit'].forEach(function(axis){
+      var v = execQ[axis];
+      if(v !== 'yes' && v !== 'no') return;
+      var btn = wrap.querySelector('.jr-execq-pill[data-axis="'+axis+'"][data-val="'+v+'"]');
+      if(btn) jrSetExecQ(btn);
+    });
+  };
+  // ═══ END EXECUTION QUALITY ═══
+
   function closeJrModal(){
     document.getElementById('jr-modal').classList.remove('open');
     jrEditId = null;
@@ -17885,6 +19628,21 @@ window.dispatchEvent(new Event('supabase-ready'));
     document.querySelectorAll('#jr-modal .jr-conf-pill.on, #jr-modal .jr-ctx-pill.on').forEach(function(el){el.classList.remove('on');});
     document.querySelectorAll('#jr-modal .jr-grade.on').forEach(function(el){el.classList.remove('on');});
     document.querySelectorAll('#jr-modal .jr-psych-tag.on').forEach(function(el){el.classList.remove('on');});
+    // Reset tag category pills (May 2026)
+    document.querySelectorAll('#jr-modal .jr-tagcat-pill.tc-on').forEach(function(el){
+      el.classList.remove('tc-on');
+      el.style.background = 'transparent';
+      el.style.borderColor = 'var(--border)';
+      el.style.color = 'var(--text2)';
+      el.style.fontWeight = '600';
+    });
+    // Reset execution quality pills (May 2026)
+    document.querySelectorAll('#jr-modal .jr-execq-pill.execq-on').forEach(function(el){
+      el.classList.remove('execq-on');
+      el.style.background = 'var(--card)';
+      el.style.borderColor = 'var(--border)';
+      el.style.color = 'var(--text2)';
+    });
     // Reset direction to buy
     jrSetDir('buy');
     // Reset dynamic sections
@@ -19060,6 +20818,135 @@ window.dispatchEvent(new Event('supabase-ready'));
   function tqAlert(msg, opts){ return tqToast(msg, opts); }
   window.tqAlert = tqAlert;
 
+  // ══════════════════════════════════════════════════════════════
+  // ██  TELEMETRY (May 2026) — error tracking + event tracking
+  // ══════════════════════════════════════════════════════════════
+  // Pushes errors to Supabase tq_errors table and events to tq_events.
+  // Tables must exist in Supabase (admin can create with provided SQL).
+  // If they don't exist or RLS blocks, telemetry fails silently — never
+  // breaks user flow.
+  (function(){
+    var TELEMETRY_QUEUE_KEY = 'rf_telemetry_queue';
+    var MAX_QUEUE_SIZE = 50;
+    // Per-tab session id (random short string)
+    var sessionId = 'sess_' + Math.random().toString(36).slice(2,10) + '_' + Date.now().toString(36);
+    var lastErrorSig = ''; // dedupe: don't spam same error twice
+    var lastErrorTs = 0;
+
+    function _flushQueue(){
+      if(!window._tqSupa) return;
+      var queue;
+      try{ queue = JSON.parse(rfxGet(TELEMETRY_QUEUE_KEY)||'[]'); }catch(e){ queue = []; }
+      if(!queue.length) return;
+      var rows = queue.slice(0, 20); // batch up to 20
+      var remaining = queue.slice(20);
+      // Split by table
+      var errors = rows.filter(function(r){return r.kind==='error';}).map(function(r){return r.row;});
+      var events = rows.filter(function(r){return r.kind==='event';}).map(function(r){return r.row;});
+      var promises = [];
+      if(errors.length){
+        promises.push(window._tqSupa.from('tq_errors').insert(errors).then(function(res){
+          if(res.error){
+            // Table might not exist yet — keep silent in production but log once
+            if(!window._tqTelemetryWarned){
+              console.info('Telemetry: tq_errors not writable (likely missing table or RLS). Errors will not be tracked. Setup SQL in admin panel.');
+              window._tqTelemetryWarned = true;
+            }
+          }
+        }).catch(function(){}));
+      }
+      if(events.length){
+        promises.push(window._tqSupa.from('tq_events').insert(events).then(function(res){
+          if(res.error){
+            // silently ignore
+          }
+        }).catch(function(){}));
+      }
+      Promise.all(promises).then(function(){
+        // Save remaining queue (drop submitted rows whether or not server accepted)
+        try{ rfxSet(TELEMETRY_QUEUE_KEY, JSON.stringify(remaining)); }catch(e){}
+      });
+    }
+
+    function _enqueue(kind, row){
+      try{
+        var queue = JSON.parse(rfxGet(TELEMETRY_QUEUE_KEY)||'[]');
+        queue.push({kind:kind, row:row});
+        if(queue.length > MAX_QUEUE_SIZE) queue = queue.slice(-MAX_QUEUE_SIZE);
+        rfxSet(TELEMETRY_QUEUE_KEY, JSON.stringify(queue));
+      }catch(e){}
+      // Try to flush soon — debounced
+      if(window._tqTelemetryFlushTimer) clearTimeout(window._tqTelemetryFlushTimer);
+      window._tqTelemetryFlushTimer = setTimeout(_flushQueue, 800);
+    }
+
+    // ── Public API ──
+    window.tqTrackError = function(err, ctx){
+      try{
+        var msg = (err && (err.message || err.reason && err.reason.message)) || String(err) || 'unknown';
+        var stack = (err && err.stack) || (err && err.reason && err.reason.stack) || '';
+        // Dedupe: skip if same message within 5 seconds
+        var sig = msg.slice(0, 200);
+        var now = Date.now();
+        if(sig === lastErrorSig && (now - lastErrorTs) < 5000) return;
+        lastErrorSig = sig;
+        lastErrorTs = now;
+        var row = {
+          session_id: sessionId,
+          user_id: (window._tqUser && window._tqUser.id) || null,
+          email: (window._tqUser && window._tqUser.email) || null,
+          message: msg.slice(0, 500),
+          stack: String(stack).slice(0, 4000),
+          url: location.pathname + location.search,
+          page: (document.querySelector('.page.active')||{}).id || '',
+          user_agent: navigator.userAgent.slice(0, 300),
+          context: ctx || null,
+          created_at: new Date().toISOString()
+        };
+        _enqueue('error', row);
+      }catch(e){ /* swallow — telemetry must never break the app */ }
+    };
+
+    window.tqTrackEvent = function(name, props){
+      try{
+        var row = {
+          session_id: sessionId,
+          user_id: (window._tqUser && window._tqUser.id) || null,
+          name: String(name).slice(0, 100),
+          props: props || null,
+          page: (document.querySelector('.page.active')||{}).id || '',
+          url: location.pathname + location.search,
+          created_at: new Date().toISOString()
+        };
+        _enqueue('event', row);
+      }catch(e){}
+    };
+
+    // ── Global error handlers ──
+    window.addEventListener('error', function(e){
+      window.tqTrackError(e.error || e.message || 'window.onerror', {
+        filename: e.filename || '',
+        lineno: e.lineno || 0,
+        colno: e.colno || 0
+      });
+    });
+    window.addEventListener('unhandledrejection', function(e){
+      window.tqTrackError(e.reason || 'unhandledrejection', {kind:'promise'});
+    });
+
+    // Flush queue once Supabase is ready (poll for it)
+    var supaPoll = setInterval(function(){
+      if(window._tqSupa){
+        clearInterval(supaPoll);
+        _flushQueue();
+        // Periodic flush every 30s
+        setInterval(_flushQueue, 30000);
+      }
+    }, 1000);
+    setTimeout(function(){ clearInterval(supaPoll); }, 60000); // give up after 60s
+  })();
+  // ══ END TELEMETRY ══
+
   // Promise-based confirm — replaces browser confirm() with a styled modal
   function tqConfirm(msg, opts){
     opts = opts || {};
@@ -19701,6 +21588,8 @@ window.dispatchEvent(new Event('supabase-ready'));
       planFollowed: jrDraft.planFollowed || '',
       psychTags: Array.from(document.querySelectorAll('.jr-psych-tag.on')).map(function(t){return t.textContent.trim();}),
       customTags: Array.from(document.querySelectorAll('#jr-custom-tags-row .jr-psych-tag.on')).map(function(t){return t.textContent.trim();}),
+      tagCats: (typeof jrCollectTagCats === 'function') ? jrCollectTagCats() : {},
+      execQuality: (typeof jrCollectExecQ === 'function') ? jrCollectExecQ() : {entry:null,mgmt:null,exit:null},
       psychNote: (document.getElementById('jr-psych-note')||{}).value || '',
       // Prices
       entry: jrNum('jr-entry'),
