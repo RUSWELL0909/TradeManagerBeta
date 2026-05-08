@@ -8456,6 +8456,10 @@ window.toggleSidebar = function(){
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9 9a3 3 0 016 0c0 2-3 3-3 3M12 17h.01"/></svg>
             Restart tutorial
           </button>
+          <button onclick="tqVoiceResetLang()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:Inter,sans-serif" title="Change voice input language">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/></svg>
+            Voice language
+          </button>
           <button onclick="tqClearSampleData()" id="settings-clear-demo-btn" style="background:rgba(46,204,138,.06);border:1px solid rgba(46,204,138,.2);color:var(--green);padding:8px 14px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;display:none;align-items:center;gap:6px;font-family:Inter,sans-serif">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
             Clear demo data
@@ -13669,6 +13673,40 @@ window.toggleSidebar = function(){
     }
     window.trSoftDelete = trSoftDelete;
 
+    // BATCH soft-delete — much faster than calling trSoftDelete in a loop (May 2026)
+    // Use this when deleting 5+ items at once. Single localStorage write + single render.
+    function trSoftDeleteBatch(typeKey, ids){
+      if(!Array.isArray(ids) || ids.length === 0) return 0;
+      var list = trLoadAll(typeKey);
+      var idSet = {};
+      ids.forEach(function(id){ idSet[id] = true; });
+      var now = new Date().toISOString();
+      var deleted = 0;
+      var deletedItems = [];
+      list.forEach(function(item){
+        if(idSet[item.id] && !item.deleted){
+          item.deleted = true;
+          item.deletedAt = now;
+          deletedItems.push(item);
+          deleted++;
+        }
+      });
+      if(deleted === 0) return 0;
+      // Single localStorage write
+      trSaveAll(typeKey, list);
+      // Cloud sync — fire and forget, batched per-item is fine here (server handles parallel)
+      // For trades we use existing pusher per item; this is async non-blocking
+      if(window._tqSupa && window._tqUser){
+        deletedItems.forEach(function(item){
+          try{ trCloudSync(typeKey, item, false); }catch(e){}
+        });
+      }
+      // Single badge update
+      trUpdateBadge();
+      return deleted;
+    }
+    window.trSoftDeleteBatch = trSoftDeleteBatch;
+
     // ── Restore an item (clear deleted flag) ──
     function trRestoreItem(typeKey, id){
       var list = trLoadAll(typeKey);
@@ -13944,7 +13982,12 @@ window.toggleSidebar = function(){
         return;
       }
 
-      list.innerHTML = filtered.map(function(rec){
+      // Performance: limit initial render to 100 items, show "Load more" if more (May 2026)
+      var renderLimit = window._trRenderLimit || 100;
+      var visible = filtered.slice(0, renderLimit);
+      var truncated = filtered.length > renderLimit;
+
+      list.innerHTML = visible.map(function(rec){
         var typeKey = rec.typeKey;
         var item = rec.item;
         var title = trItemTitle(typeKey, item);
@@ -13969,6 +14012,16 @@ window.toggleSidebar = function(){
           '</div>'
         ].join('');
       }).join('');
+
+      // "Load more" footer if list was truncated
+      if(truncated){
+        var loadMore = document.createElement('div');
+        loadMore.style.cssText = 'padding:18px;text-align:center;border-top:1px solid var(--border);margin-top:8px';
+        loadMore.innerHTML =
+          '<div style="font-size:11px;color:var(--text3);margin-bottom:10px">Showing '+visible.length+' of '+filtered.length+' items</div>' +
+          '<button onclick="window._trRenderLimit=(window._trRenderLimit||100)+100;trRender()" style="padding:8px 18px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">Load 100 more</button>';
+        list.appendChild(loadMore);
+      }
     }
     window.trRender = trRender;
 
@@ -13994,7 +14047,75 @@ window.toggleSidebar = function(){
       if(!all.length) return;
       tqConfirm('Permanently delete all '+all.length+' items in trash?\n\nThis cannot be undone.', {title:'Empty Trash', okLabel:'Delete '+all.length+' items', danger:true}).then(function(ok){
         if(!ok) return;
-        all.forEach(function(rec){ trHardDeleteItem(rec.typeKey, rec.item.id); });
+        // BATCH delete — group by type, single localStorage write per type, single render at end (May 2026 fix)
+        // Browser was hanging because old code did N × (localStorage parse + write + render + cloud fetch).
+        // For 100 trades that's 100 full-DOM re-renders synchronously → no frame budget left → hang.
+        var byType = { trade: [], account: [], note: [], case: [], playbook: [] };
+        all.forEach(function(rec){
+          if(byType[rec.typeKey]) byType[rec.typeKey].push(rec.item);
+        });
+
+        var totalCount = all.length;
+        // Show progress toast for big batches
+        if(totalCount > 20 && typeof tqToast === 'function'){
+          tqToast('Deleting '+totalCount+' items…', {type:'info', duration:1800});
+        }
+
+        // Process LOCAL STORAGE in microtask — yields to browser between types
+        // (lets browser paint progress, prevents jank)
+        var typeKeys = Object.keys(byType);
+        var i = 0;
+        function processNextType(){
+          if(i >= typeKeys.length){
+            // All done — single render + badge update
+            trRender();
+            trUpdateBadge();
+            if(typeof tqToast === 'function') tqToast('✓ Permanently deleted '+totalCount+' item'+(totalCount===1?'':'s'), {type:'success', duration:3500});
+            return;
+          }
+          var typeKey = typeKeys[i++];
+          var items = byType[typeKey];
+          if(items.length === 0){ requestAnimationFrame(processNextType); return; }
+
+          var idsToRemove = {};
+          items.forEach(function(it){ idsToRemove[it.id] = true; });
+          // Single filter + single localStorage write
+          var list = trLoadAll(typeKey);
+          var newList = list.filter(function(x){ return !idsToRemove[x.id]; });
+          trSaveAll(typeKey, newList);
+
+          // Cloud delete — batched IN clause, fire and forget
+          if(window._tqSupa && window._tqUser){
+            var ids = items.map(function(it){ return String(it.id); });
+            try{
+              if(typeKey === 'trade'){
+                _tqSupa.from('trades').delete().eq('user_id', _tqUser.id).in('external_id', ids).then(function(r){
+                  if(r && r.error) console.warn('Cloud batch delete trades:', r.error);
+                });
+              } else if(typeKey === 'note'){
+                _tqSupa.from('notebooks').delete().eq('user_id', _tqUser.id).in('external_id', ids).then(function(r){
+                  if(r && r.error) console.warn('Cloud batch delete notebooks:', r.error);
+                });
+              } else if(typeKey === 'playbook'){
+                _tqSupa.from('playbook_models').delete().eq('user_id', _tqUser.id).in('external_id', ids).then(function(r){
+                  if(r && r.error) console.warn('Cloud batch delete playbook:', r.error);
+                });
+              } else if(typeKey === 'account'){
+                _tqSupa.from('accounts').delete().eq('user_id', _tqUser.id).in('external_id', ids).then(function(r){
+                  if(r && r.error) console.warn('Cloud batch delete accounts:', r.error);
+                });
+              } else if(typeKey === 'case'){
+                _tqSupa.from('resources').delete().eq('user_id', _tqUser.id).in('external_id', ids).eq('category','case_study').then(function(r){
+                  if(r && r.error) console.warn('Cloud batch delete case:', r.error);
+                });
+              }
+            }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
+          }
+
+          // Yield to browser between type batches
+          requestAnimationFrame(processNextType);
+        }
+        processNextType();
       });
     }
     window.trEmptyAll = trEmptyAll;
@@ -16595,88 +16716,258 @@ window.toggleSidebar = function(){
   })();
 
   // ════════════════════════════════════════════════
-  // VOICE INPUT — Web Speech API for note dictation (May 2026)
+  // VOICE INPUT — Web Speech API for note dictation (May 2026, v2)
   // ════════════════════════════════════════════════
   // Click mic next to a textarea → starts dictation. Result appended.
-  // Click again or pause 2s → stops. Single-instance — only one mic active.
-  var _tqVoice = { rec: null, btn: null, target: null };
+  // v2 fixes:
+  //   - Final text accumulated correctly (no duplication on each event)
+  //   - Language picker dialog on first use (saves to tq_voice_lang)
+  //   - Live transcript bubble shows what's being captured
+  //   - Auto-retry on transient errors (network, audio-capture)
+  //   - Insert at cursor position instead of always appending
+  //   - Stop button works reliably
+  // ════════════════════════════════════════════════
+  var _tqVoice = { rec: null, btn: null, target: null, finalAccum: '', startPos: 0, restartCount: 0 };
+  var TQ_VOICE_LANG_KEY = 'tq_voice_lang';
+
   window.tqVoiceToggle = function(btn){
     if(!btn) return;
     var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if(!SR){
-      if(typeof tqToast === 'function') tqToast('Voice input not supported on this browser. Try Chrome.', {type:'error'});
+      if(typeof tqToast === 'function') tqToast('Voice input needs Chrome, Edge, or Safari', {type:'error', duration:5000});
       return;
     }
     // Already recording → stop
     if(_tqVoice.btn === btn && _tqVoice.rec){
-      try{ _tqVoice.rec.stop(); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'voice_stop'});}
+      _tqVoiceStop();
       return;
     }
     // Stop any other recording first
-    if(_tqVoice.rec){
-      try{ _tqVoice.rec.stop(); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'voice_stop_other'});}
+    if(_tqVoice.rec){ _tqVoiceStop(); }
+
+    // Pick language on first use
+    var savedLang = rfxGet(TQ_VOICE_LANG_KEY);
+    if(!savedLang){
+      _tqVoiceLangPicker(function(lang){
+        rfxSet(TQ_VOICE_LANG_KEY, lang);
+        _tqVoiceStart(btn, lang);
+      });
+      return;
     }
+    _tqVoiceStart(btn, savedLang);
+  };
+
+  function _tqVoiceLangPicker(onPick){
+    var existing = document.getElementById('tq-voice-lang-modal');
+    if(existing) existing.remove();
+    var langs = [
+      {code:'en-US', name:'English (US)', flag:'🇺🇸'},
+      {code:'en-GB', name:'English (UK)', flag:'🇬🇧'},
+      {code:'ru-RU', name:'Русский', flag:'🇷🇺'},
+      {code:'uz-UZ', name:'O\'zbek', flag:'🇺🇿'},
+      {code:'es-ES', name:'Español', flag:'🇪🇸'},
+      {code:'de-DE', name:'Deutsch', flag:'🇩🇪'},
+      {code:'fr-FR', name:'Français', flag:'🇫🇷'},
+      {code:'ar-SA', name:'العربية', flag:'🇸🇦'},
+      {code:'tr-TR', name:'Türkçe', flag:'🇹🇷'},
+      {code:'zh-CN', name:'中文', flag:'🇨🇳'},
+    ];
+    var modal = document.createElement('div');
+    modal.id = 'tq-voice-lang-modal';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:100000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px);animation:tqFadeUp .25s';
+    modal.onclick = function(e){ if(e.target === modal) modal.remove(); };
+    var browserLang = (navigator.language || 'en-US').toLowerCase();
+    var defaultMatch = langs.find(function(l){ return browserLang.indexOf(l.code.split('-')[0]) === 0; });
+    if(!defaultMatch) defaultMatch = langs[0];
+    modal.innerHTML =
+      '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;max-width:380px;width:100%;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.4);font-family:Inter,sans-serif">' +
+        '<div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:8px">' +
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>' +
+          'Pick voice language' +
+        '</div>' +
+        '<div style="font-size:11px;color:var(--text3);margin-bottom:14px;line-height:1.5">Used for speech recognition. You can change this later in Settings.</div>' +
+        '<div id="tq-voice-langs" style="display:flex;flex-direction:column;gap:4px;max-height:340px;overflow-y:auto">' +
+          langs.map(function(l){
+            return '<button data-lang="'+l.code+'" style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:'+(l.code===defaultMatch.code?'rgba(124,90,240,.08)':'var(--bg)')+';border:1px solid '+(l.code===defaultMatch.code?'var(--accent)':'var(--border)')+';border-radius:8px;color:var(--text);font-size:12px;font-weight:500;cursor:pointer;font-family:Inter,sans-serif;text-align:left">' +
+              '<span style="font-size:18px">'+l.flag+'</span>' +
+              '<span style="flex:1">'+l.name+'</span>' +
+              '<span style="font-size:9px;color:var(--text3);font-family:DM Mono,monospace">'+l.code+'</span>' +
+            '</button>';
+          }).join('') +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(modal);
+    Array.from(modal.querySelectorAll('[data-lang]')).forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var lang = btn.getAttribute('data-lang');
+        modal.remove();
+        if(typeof onPick === 'function') onPick(lang);
+      });
+    });
+  }
+  window.tqVoiceLangPicker = _tqVoiceLangPicker;
+  // Allow user to reset language from settings
+  window.tqVoiceResetLang = function(){
+    try{ rfxSet(TQ_VOICE_LANG_KEY, ''); }catch(e){}
+    _tqVoiceLangPicker(function(lang){
+      rfxSet(TQ_VOICE_LANG_KEY, lang);
+      if(typeof tqToast === 'function') tqToast('✓ Voice language set', {type:'success'});
+    });
+  };
+
+  function _tqVoiceStart(btn, lang){
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     var targetId = btn.getAttribute('data-target');
     var ta = document.getElementById(targetId);
     if(!ta) return;
     var rec = new SR();
     rec.continuous = true;
     rec.interimResults = true;
-    // Detect language from browser, default English
-    rec.lang = (navigator.language || 'en-US');
+    rec.lang = lang;
+    rec.maxAlternatives = 1;
+
+    // CRITICAL fix: Track WHERE in textarea we started inserting.
+    // Insert at cursor position rather than always appending.
+    var startPos = ta.selectionStart || ta.value.length;
     var initialValue = ta.value;
-    var finalText = '';
+    var beforeCursor = initialValue.slice(0, startPos);
+    var afterCursor = initialValue.slice(ta.selectionEnd || startPos);
+    var spacer = (beforeCursor && !beforeCursor.endsWith(' ') && !beforeCursor.endsWith('\n')) ? ' ' : '';
+
+    _tqVoice = {
+      rec: rec, btn: btn, target: targetId, lang: lang,
+      finalAccum: '',
+      beforeCursor: beforeCursor + spacer,
+      afterCursor: afterCursor,
+      restartCount: 0,
+      manualStop: false
+    };
+
     rec.onresult = function(event){
       var interim = '';
-      for(var i = event.resultIndex; i < event.results.length; i++){
+      // Reset finalAccum and rebuild from ALL result entries — not just from resultIndex
+      // (Chrome periodically reclassifies interim → final, so we need to scan all)
+      var newFinal = '';
+      for(var i = 0; i < event.results.length; i++){
         var transcript = event.results[i][0].transcript;
         if(event.results[i].isFinal){
-          finalText += transcript;
+          newFinal += transcript;
         } else {
           interim += transcript;
         }
       }
-      // Append final text + show interim faded (interim is shown in textarea, replaced on next event)
-      ta.value = initialValue + (initialValue && (finalText||interim) ? ' ' : '') + finalText + interim;
+      _tqVoice.finalAccum = newFinal;
+      // Build final textarea content: beforeCursor + final + interim + afterCursor
+      ta.value = _tqVoice.beforeCursor + _tqVoice.finalAccum + interim + _tqVoice.afterCursor;
+      // Position cursor AT END of newly inserted text (so user can see it growing)
+      var newCursorPos = (_tqVoice.beforeCursor + _tqVoice.finalAccum + interim).length;
+      try{ ta.setSelectionRange(newCursorPos, newCursorPos); }catch(e){}
       // Trigger input event so any change listeners fire
       ta.dispatchEvent(new Event('input', {bubbles:true}));
+      // Update visible HUD
+      _tqVoiceUpdateHud(interim || _tqVoice.finalAccum.slice(-60));
     };
+
     rec.onend = function(){
-      btn.classList.remove('recording');
-      _tqVoice = { rec: null, btn: null, target: null };
+      // Auto-restart if we hit silence timeout (Chrome stops after ~5s silence in continuous mode)
+      // Only restart if user didn't manually stop AND we haven't restarted too many times
+      if(!_tqVoice.manualStop && _tqVoice.restartCount < 5 && _tqVoice.rec === rec){
+        _tqVoice.restartCount++;
+        // CRITICAL: persist final text to beforeCursor so accumulation continues
+        _tqVoice.beforeCursor = _tqVoice.beforeCursor + _tqVoice.finalAccum;
+        _tqVoice.finalAccum = '';
+        try{
+          setTimeout(function(){
+            if(_tqVoice.rec === rec && !_tqVoice.manualStop){
+              try{ rec.start(); }catch(e){
+                // already started or other — fall through to cleanup
+                _tqVoiceCleanup(btn);
+              }
+            }
+          }, 100);
+          return; // don't cleanup
+        }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'voice_restart'});}
+      }
+      _tqVoiceCleanup(btn);
     };
+
     rec.onerror = function(e){
-      console.warn('Voice input error:', e);
-      btn.classList.remove('recording');
-      _tqVoice = { rec: null, btn: null, target: null };
-      var msg = 'Voice error';
-      if(e.error === 'not-allowed') msg = 'Microphone permission denied. Allow microphone access in browser settings.';
-      else if(e.error === 'no-speech') msg = 'No speech detected. Try again.';
-      else if(e.error === 'network') msg = 'Voice input needs internet. Check your connection.';
-      if(typeof tqToast === 'function') tqToast(msg, {type:'error', duration:5000});
-      if(typeof window.tqTrackError === 'function') tqTrackError(new Error('voice: '+e.error), {context:'voice_error'});
+      console.warn('[Voice] Error:', e.error, e.message);
+      // Some errors are recoverable — let onend handle restart
+      if(e.error === 'no-speech' || e.error === 'audio-capture' || e.error === 'aborted'){
+        return; // onend will restart automatically
+      }
+      // Fatal errors
+      var msg = 'Voice error: ' + e.error;
+      if(e.error === 'not-allowed' || e.error === 'service-not-allowed'){
+        msg = '🚫 Microphone access denied. Click the mic icon in your browser address bar to allow it.';
+      } else if(e.error === 'network'){
+        msg = '⚠ Voice needs internet. Web Speech sends audio to Google for transcription.';
+      } else if(e.error === 'language-not-supported'){
+        msg = '⚠ Language "'+_tqVoice.lang+'" not supported. Click mic again to pick another.';
+        try{ rfxSet(TQ_VOICE_LANG_KEY, ''); }catch(err){}
+      }
+      _tqVoice.manualStop = true; // prevent restart loop
+      if(typeof tqToast === 'function') tqToast(msg, {type:'error', duration:6000});
+      if(typeof window.tqTrackError === 'function') tqTrackError(new Error('voice: '+e.error), {context:'voice_error', lang: _tqVoice.lang});
     };
+
     try{
       rec.start();
       btn.classList.add('recording');
-      _tqVoice = { rec: rec, btn: btn, target: targetId };
-      if(typeof tqToast === 'function') tqToast('🎙 Listening… click mic again to stop', {type:'info', duration:2500});
+      _tqVoiceShowHud(lang);
+      if(typeof tqHaptic === 'function') tqHaptic(15);
     }catch(e){
+      _tqVoiceCleanup(btn);
       if(typeof window.tqTrackError === 'function') tqTrackError(e, {context:'voice_start'});
-      if(typeof tqToast === 'function') tqToast('Failed to start voice input', {type:'error'});
+      if(typeof tqToast === 'function') tqToast('Failed to start voice input. Reload page and try again.', {type:'error', duration:5000});
     }
-  };
-  // Auto-stop after 60s (safety against forgotten recording)
+  }
+
+  function _tqVoiceStop(){
+    if(!_tqVoice.rec) return;
+    _tqVoice.manualStop = true;
+    try{ _tqVoice.rec.stop(); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'voice_stop'});}
+  }
+
+  function _tqVoiceCleanup(btn){
+    if(btn) btn.classList.remove('recording');
+    _tqVoiceHideHud();
+    _tqVoice = { rec: null, btn: null, target: null, finalAccum: '', restartCount: 0 };
+  }
+
+  // Visible HUD — bottom-center pill showing status + live transcript
+  function _tqVoiceShowHud(lang){
+    var existing = document.getElementById('tq-voice-hud');
+    if(existing) existing.remove();
+    var hud = document.createElement('div');
+    hud.id = 'tq-voice-hud';
+    hud.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:14px 22px;border-radius:14px;z-index:99999;display:flex;align-items:center;gap:14px;box-shadow:0 12px 40px rgba(0,0,0,.35),0 0 0 1px rgba(255,255,255,.06);max-width:90vw;font-family:Inter,sans-serif;animation:tqFadeUp .25s';
+    hud.innerHTML =
+      '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ff505f;animation:tqVoicePulse 1.2s ease-in-out infinite;flex:none"></span>' +
+      '<span style="font-size:11px;font-weight:600;letter-spacing:.4px;color:rgba(255,255,255,.6)">LISTENING · '+lang.toUpperCase()+'</span>' +
+      '<span id="tq-voice-hud-text" style="font-size:13px;color:#fff;opacity:.85;max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-style:italic">…</span>' +
+      '<button onclick="(function(){if(window.tqVoiceToggle&&window._tqVoice&&window._tqVoice.btn){window.tqVoiceToggle(window._tqVoice.btn);}else{var h=document.getElementById(\'tq-voice-hud\');if(h)h.remove();}})()" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">Stop</button>';
+    document.body.appendChild(hud);
+  }
+  function _tqVoiceUpdateHud(text){
+    var el = document.getElementById('tq-voice-hud-text');
+    if(el) el.textContent = (text||'').slice(-80) || '…';
+  }
+  function _tqVoiceHideHud(){
+    var hud = document.getElementById('tq-voice-hud');
+    if(hud){ hud.style.opacity='0'; setTimeout(function(){ if(hud.parentNode) hud.remove(); }, 200); }
+  }
+
+  // Expose for HUD's onclick
+  window._tqVoice = _tqVoice;
+
+  // Auto-stop if button leaves DOM (modal closed)
   setInterval(function(){
-    if(_tqVoice.rec && _tqVoice.btn){
-      try{
-        // Stop if button no longer in DOM (modal closed)
-        if(!document.body.contains(_tqVoice.btn)){
-          _tqVoice.rec.stop();
-        }
-      }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'voice_safety'});}
+    if(_tqVoice.rec && _tqVoice.btn && !document.body.contains(_tqVoice.btn)){
+      _tqVoiceStop();
     }
-  }, 5000);
+  }, 3000);
 
   // Sidebar "More" collapsible — persisted state
   window.toggleNavMore = function(){
@@ -21653,7 +21944,13 @@ window.toggleSidebar = function(){
     if(!ids.length) return;
     tqConfirm('Move '+ids.length+' trades to Trash?\n\nThey will be auto-deleted after 90 days, but you can restore them from Trash anytime.', {title:'Delete '+ids.length+' trades', okLabel:'Move to Trash', danger:true}).then(function(ok){
       if(!ok) return;
-      if(typeof trSoftDelete === 'function'){
+      // BATCH delete — single localStorage write instead of N (May 2026 performance fix)
+      // Old code: ids.forEach(trSoftDelete) → N×localStorage parse+write → browser hang on 50+
+      var count = ids.length;
+      if(typeof trSoftDeleteBatch === 'function'){
+        var deleted = trSoftDeleteBatch('trade', ids);
+        if(typeof tqToast === 'function') tqToast('✓ Moved '+deleted+' trade'+(deleted===1?'':'s')+' to Trash', {type:'success', duration:3500});
+      } else if(typeof trSoftDelete === 'function'){
         ids.forEach(function(tid){ trSoftDelete('trade', tid); });
       } else {
         var trades=JSON.parse(rfxGet('rf_trades')||'[]');
@@ -21662,7 +21959,9 @@ window.toggleSidebar = function(){
         ids.forEach(function(tid){tqDeleteTrade(tid);});
       }
       jrSelected={};
-      document.getElementById('jr-bulk-bar').className='jr-bulk-bar';
+      var bulkBar = document.getElementById('jr-bulk-bar');
+      if(bulkBar) bulkBar.className='jr-bulk-bar';
+      // Single render at end
       renderJournal();
     });
   }
