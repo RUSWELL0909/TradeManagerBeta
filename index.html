@@ -122,6 +122,339 @@
   --topbar-bg:rgba(13,10,26,.95);
 }
 
+/* ════════════════════════════════════════════════════════════ */
+/* OBSIDIAN THEME — May 2026                                    */
+/* Pure black background + lifted cards (#1f1f1f) + soft border */
+/* Inspired by Linear / Vercel / Notion dark mode               */
+/* No purple tint — clean white-on-black hierarchy              */
+/* ════════════════════════════════════════════════════════════ */
+[data-theme="obsidian"] {
+  color-scheme: dark;
+  /* Surfaces — almost true black bg, lifted neutral cards */
+  --bg:#0a0a0a;              /* page — almost black */
+  --bg2:#141414;             /* sidebar — slightly lifted */
+  --bg3:#1f1f1f;             /* elevated panels */
+  --card:#1f1f1f;            /* cards — visibly above bg */
+  --border:#2e2e2e;           /* visible separator */
+
+  /* Accent — keep brand violet for actives, muted for hover */
+  --accent:#7c5af0; --accent2:#9b7ef8; --accent3:#a78bfa;
+
+  /* Semantic — bright vivid greens/reds against true black */
+  --green:#22c55e; --red:#ef4444; --yellow:#eab308;
+
+  /* Text — neutral gray hierarchy, no warmth */
+  --text:#fafafa;            /* primary white */
+  --text2:#a1a1aa;           /* secondary readable gray */
+  --text3:#737373;           /* tertiary muted */
+
+  --sidebar-logo:#fafafa;
+  --chart-bg:rgba(255,255,255,.02);
+  --body-bg-grad1:transparent; --body-bg-grad2:transparent;
+  --circle-track:rgba(255,255,255,.06);
+  --sparkline:rgba(124,90,240,.18);
+  --tooltip-bg:#1f1f1f;
+  --tooltip-border:#3a3a3a;
+  --nav-active-bg:rgba(124,90,240,.12);
+  --nav-active-border:#7c5af0;
+  --section-label:rgba(255,255,255,.35);
+  --topbar-bg:rgba(10,10,10,.92);
+}
+
+/* Obsidian — body */
+[data-theme="obsidian"] body {
+  background: #0a0a0a;
+  background-image: none;
+}
+
+/* Obsidian — sidebar */
+[data-theme="obsidian"] .sidebar {
+  background: #0d0d0d !important;
+  border-right: 0.5px solid #1f1f1f !important;
+}
+[data-theme="obsidian"] .sidebar::after { display: none; }
+[data-theme="obsidian"] .nav-item {
+  color: #a1a1aa !important;
+}
+[data-theme="obsidian"] .nav-item:hover {
+  background: rgba(255,255,255,.04) !important;
+  color: #fafafa !important;
+}
+[data-theme="obsidian"] .nav-item.active {
+  background: rgba(124,90,240,.10) !important;
+  color: #fafafa !important;
+  border-left: 2px solid var(--accent) !important;
+}
+[data-theme="obsidian"] .nav-item.active svg { color: var(--accent) !important; }
+[data-theme="obsidian"] .nav-item svg { color: #737373 !important; }
+[data-theme="obsidian"] .nav-item:hover svg { color: #fafafa !important; }
+[data-theme="obsidian"] .nav-section-label { color: #525252 !important; }
+[data-theme="obsidian"] .logo-text { color: #fafafa !important; }
+[data-theme="obsidian"] .logo-sub { color: #737373 !important; }
+
+/* Obsidian — topbar */
+[data-theme="obsidian"] .topbar-wrap {
+  background: rgba(10,10,10,.92) !important;
+  border-bottom: 0.5px solid #1f1f1f !important;
+  backdrop-filter: blur(20px) saturate(1.2);
+}
+
+/* Obsidian — cards (KEY FIX — visibly lifted) */
+[data-theme="obsidian"] .card,
+[data-theme="obsidian"] .dash-card,
+[data-theme="obsidian"] .rpt-card,
+[data-theme="obsidian"] .stat-card,
+[data-theme="obsidian"] .tq-card {
+  background: #1f1f1f !important;
+  border: 0.5px solid #2e2e2e !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,.02) inset !important;
+}
+[data-theme="obsidian"] .card:hover,
+[data-theme="obsidian"] .dash-card:hover,
+[data-theme="obsidian"] .rpt-card:hover {
+  background: #242424 !important;
+  border-color: #3a3a3a !important;
+}
+[data-theme="obsidian"] .tq-kpi-tile {
+  background: #1f1f1f !important;
+  border: 0.5px solid #2e2e2e !important;
+}
+[data-theme="obsidian"] .tq-kpi-label,
+[data-theme="obsidian"] .kpi-label,
+[data-theme="obsidian"] .dash-kpi-label,
+[data-theme="obsidian"] .rpt-kpi-label {
+  color: #a1a1aa !important;
+}
+
+/* Obsidian — modals */
+[data-theme="obsidian"] .jr-modal-box,
+[data-theme="obsidian"] .modal-box,
+[data-theme="obsidian"] .modal {
+  background: #141414 !important;
+  border: 0.5px solid #2e2e2e !important;
+  box-shadow: 0 24px 60px rgba(0,0,0,.6), 0 8px 24px rgba(0,0,0,.4) !important;
+}
+[data-theme="obsidian"] .modal-overlay {
+  background: rgba(0,0,0,.7) !important;
+}
+[data-theme="obsidian"] .jr-modal-head,
+[data-theme="obsidian"] .modal-header {
+  background: #141414 !important;
+  border-bottom: 0.5px solid #2e2e2e !important;
+  color: #fafafa !important;
+}
+[data-theme="obsidian"] .jr-modal-foot,
+[data-theme="obsidian"] .modal-footer {
+  background: #0d0d0d !important;
+  border-top: 0.5px solid #2e2e2e !important;
+}
+
+/* Obsidian — section titles */
+[data-theme="obsidian"] .jr-group-title,
+[data-theme="obsidian"] .jr-section-title,
+[data-theme="obsidian"] .jr-modal-body h2,
+[data-theme="obsidian"] .jr-modal-body h3 {
+  color: #fafafa !important;
+  background: none !important;
+  -webkit-text-fill-color: #fafafa !important;
+}
+
+/* Obsidian — labels */
+[data-theme="obsidian"] .jr-label,
+[data-theme="obsidian"] .form-label {
+  color: #a1a1aa !important;
+}
+
+/* Obsidian — inputs */
+[data-theme="obsidian"] .jr-input,
+[data-theme="obsidian"] .jr-select,
+[data-theme="obsidian"] textarea.jr-input,
+[data-theme="obsidian"] select,
+[data-theme="obsidian"] input[type="text"],
+[data-theme="obsidian"] input[type="number"],
+[data-theme="obsidian"] input[type="email"],
+[data-theme="obsidian"] input[type="password"],
+[data-theme="obsidian"] input[type="date"],
+[data-theme="obsidian"] textarea,
+[data-theme="obsidian"] .form-input,
+[data-theme="obsidian"] .form-select,
+[data-theme="obsidian"] .form-textarea {
+  background: #1f1f1f !important;
+  border: 0.5px solid #2e2e2e !important;
+  color: #fafafa !important;
+}
+[data-theme="obsidian"] .jr-input::placeholder,
+[data-theme="obsidian"] textarea.jr-input::placeholder,
+[data-theme="obsidian"] input::placeholder,
+[data-theme="obsidian"] textarea::placeholder {
+  color: #525252 !important;
+}
+[data-theme="obsidian"] .jr-input:focus,
+[data-theme="obsidian"] .jr-select:focus,
+[data-theme="obsidian"] textarea.jr-input:focus,
+[data-theme="obsidian"] input:focus,
+[data-theme="obsidian"] textarea:focus,
+[data-theme="obsidian"] select:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px rgba(124,90,240,.15) !important;
+  outline: none !important;
+}
+
+/* Obsidian — pills (default) */
+[data-theme="obsidian"] .jr-conf-pill,
+[data-theme="obsidian"] .jr-ctx-pill,
+[data-theme="obsidian"] .jr-psych-tag,
+[data-theme="obsidian"] .jr-tagcat-pill,
+[data-theme="obsidian"] .pb-pill {
+  background: #1f1f1f !important;
+  border: 0.5px solid #2e2e2e !important;
+  color: #a1a1aa !important;
+  font-weight: 500 !important;
+}
+[data-theme="obsidian"] .jr-conf-pill:hover,
+[data-theme="obsidian"] .jr-ctx-pill:hover,
+[data-theme="obsidian"] .jr-psych-tag:hover,
+[data-theme="obsidian"] .jr-tagcat-pill:hover,
+[data-theme="obsidian"] .pb-pill:hover {
+  background: #2a2a2a !important;
+  border-color: #3a3a3a !important;
+  color: #fafafa !important;
+}
+
+/* Obsidian — pill ACTIVE — bright purple, unmistakable */
+[data-theme="obsidian"] .jr-conf-pill.on,
+[data-theme="obsidian"] .jr-ctx-pill.on,
+[data-theme="obsidian"] .jr-psych-tag.on,
+[data-theme="obsidian"] .jr-tagcat-pill.on,
+[data-theme="obsidian"] .pb-pill.selected,
+[data-theme="obsidian"] .pb-pill.on {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  box-shadow: 0 0 0 0.5px rgba(124,90,240,.4), 0 4px 14px rgba(124,90,240,.25) !important;
+}
+
+/* Obsidian — Long/Bullish/TP green active */
+[data-theme="obsidian"] #jr-dir-buy.on,
+[data-theme="obsidian"] #jr-bias-bull.on,
+[data-theme="obsidian"] #jr-htf-bull.on,
+[data-theme="obsidian"] #jr-st-tp.on {
+  background: #16a34a !important;
+  border-color: #16a34a !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(22,163,74,.25) !important;
+}
+/* Obsidian — Short/Bearish/SL red active */
+[data-theme="obsidian"] #jr-dir-sell.on,
+[data-theme="obsidian"] #jr-bias-bear.on,
+[data-theme="obsidian"] #jr-htf-bear.on,
+[data-theme="obsidian"] #jr-st-sl.on {
+  background: #dc2626 !important;
+  border-color: #dc2626 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(220,38,38,.25) !important;
+}
+/* Obsidian — BE neutral */
+[data-theme="obsidian"] #jr-st-be.on {
+  background: #525252 !important;
+  border-color: #525252 !important;
+  color: #ffffff !important;
+}
+
+/* Obsidian — buttons */
+[data-theme="obsidian"] .btn-primary,
+[data-theme="obsidian"] .tq-btn-primary,
+[data-theme="obsidian"] .jr-modal-foot button.primary,
+[data-theme="obsidian"] .modal-footer button.primary {
+  background: #fafafa !important;
+  color: #0a0a0a !important;
+  border: none !important;
+  font-weight: 600 !important;
+}
+[data-theme="obsidian"] .btn-primary:hover,
+[data-theme="obsidian"] .tq-btn-primary:hover {
+  background: #ffffff !important;
+  color: #0a0a0a !important;
+}
+[data-theme="obsidian"] .btn-ghost,
+[data-theme="obsidian"] .tq-btn-ghost,
+[data-theme="obsidian"] .btn-secondary {
+  background: #1f1f1f !important;
+  color: #a1a1aa !important;
+  border: 0.5px solid #2e2e2e !important;
+}
+[data-theme="obsidian"] .btn-ghost:hover,
+[data-theme="obsidian"] .tq-btn-ghost:hover {
+  background: #2a2a2a !important;
+  color: #fafafa !important;
+  border-color: #3a3a3a !important;
+}
+
+/* Obsidian — table rows */
+[data-theme="obsidian"] table {
+  background: transparent !important;
+}
+[data-theme="obsidian"] table tr {
+  border-bottom: 0.5px solid #1f1f1f !important;
+}
+[data-theme="obsidian"] table tr:hover {
+  background: rgba(255,255,255,.02) !important;
+}
+[data-theme="obsidian"] table th {
+  color: #737373 !important;
+  background: transparent !important;
+  border-bottom: 0.5px solid #2e2e2e !important;
+}
+
+/* Obsidian — info icon */
+[data-theme="obsidian"] .info-icon {
+  background: rgba(255,255,255,.04) !important;
+  border: 0.5px solid #2e2e2e !important;
+  color: #737373 !important;
+}
+[data-theme="obsidian"] .info-icon:hover {
+  background: rgba(124,90,240,.12) !important;
+  border-color: var(--accent) !important;
+  color: var(--accent3) !important;
+}
+
+/* Obsidian — modal close × */
+[data-theme="obsidian"] .modal-close,
+[data-theme="obsidian"] .pb-builder-close {
+  color: #737373 !important;
+  background: transparent !important;
+}
+[data-theme="obsidian"] .modal-close:hover,
+[data-theme="obsidian"] .pb-builder-close:hover {
+  color: #fafafa !important;
+  background: rgba(255,255,255,.06) !important;
+}
+
+/* Obsidian — scrollbar */
+[data-theme="obsidian"] *::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,.08) !important;
+}
+[data-theme="obsidian"] *::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,.16) !important;
+}
+
+/* Obsidian — selection */
+[data-theme="obsidian"] ::selection {
+  background: rgba(124,90,240,.3) !important;
+  color: #fff !important;
+}
+
+/* Obsidian — focus ring (keeps purple subtle) */
+[data-theme="obsidian"] *:focus-visible {
+  box-shadow: 0 0 0 3px rgba(124,90,240,.18) !important;
+}
+
+/* Obsidian — green/red text vivid */
+[data-theme="obsidian"] .green, [data-theme="obsidian"] .tq-green { color: #22c55e !important; }
+[data-theme="obsidian"] .red, [data-theme="obsidian"] .tq-red { color: #ef4444 !important; }
+/* ══ END OBSIDIAN THEME ══ */
+
 /* ── LIGHT THEME: TradeZella-inspired — cool slate, violet accent only on active ── */
 [data-theme="light"] {
   /* Surfaces: cool slate, no warmth */
@@ -8374,6 +8707,7 @@ window.toggleSidebar = function(){
         <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.5px;margin-bottom:10px">THEME</div>
         <div style="display:flex;gap:8px">
           <button onclick="setTheme('dark');document.querySelectorAll('.settings-theme-btn').forEach(function(b){b.classList.remove('active')});this.classList.add('active')" class="settings-theme-btn" id="set-theme-dark" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card);cursor:pointer;font-size:12px;color:var(--text);font-weight:600">🌙 Dark</button>
+          <button onclick="setTheme('obsidian');document.querySelectorAll('.settings-theme-btn').forEach(function(b){b.classList.remove('active')});this.classList.add('active')" class="settings-theme-btn" id="set-theme-obsidian" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card);cursor:pointer;font-size:12px;color:var(--text);font-weight:600">⚫ Obsidian</button>
           <button onclick="setTheme('light');document.querySelectorAll('.settings-theme-btn').forEach(function(b){b.classList.remove('active')});this.classList.add('active')" class="settings-theme-btn" id="set-theme-light" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card);cursor:pointer;font-size:12px;color:var(--text);font-weight:600">☀️ Light</button>
         </div>
       </div>
@@ -11051,16 +11385,16 @@ window.toggleSidebar = function(){
   function setTheme(theme){
     // Migrate legacy themes: light-a/b/c all collapse to 'light'
     if(!theme || theme === 'light-a' || theme === 'light-b' || theme === 'light-c') {
-      if(theme !== 'dark') theme = 'light';
+      if(theme !== 'dark' && theme !== 'obsidian') theme = 'light';
     }
-    if(theme !== 'dark' && theme !== 'light') theme = 'dark';
+    if(theme !== 'dark' && theme !== 'light' && theme !== 'obsidian') theme = 'dark';
 
     document.documentElement.setAttribute('data-theme', theme);
     try{ rfxSet('rf_theme', theme); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
 
     // Update the label in the switcher button
     var label = document.getElementById('theme-label');
-    if(label) label.textContent = theme === 'dark' ? 'Dark' : 'Light';
+    if(label) label.textContent = theme === 'dark' ? 'Dark' : (theme === 'obsidian' ? 'Obsidian' : 'Light');
 
     // Update active state on theme options
     var opts = document.querySelectorAll('.theme-opt');
