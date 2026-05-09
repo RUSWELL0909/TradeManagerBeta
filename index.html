@@ -31370,7 +31370,7 @@ window.toggleSidebar = function(){
     try{ renderDashCharts(trades, byDay, accBal); }catch(e){ console.error('Dashboard charts error:', e); }
     try{ renderDashCalendar(byDay, tradesByDay); }catch(e){ console.error('Dashboard calendar error:', e); }
     // Extra widgets (May 2026 — only render if not hidden, avoid wasted CPU)
-    try{ if(typeof renderDashExtras === 'function') renderDashExtras(trades); }catch(e){ console.error('Dash extras error:', e); }
+    try{ if(typeof window.renderDashExtras === 'function') window.renderDashExtras(trades); }catch(e){ console.error('Dash extras error:', e); }
 
     // Avg Daily sparkline
     (function() {
@@ -33386,6 +33386,8 @@ window.toggleSidebar = function(){
       }
     }
   }
+  // Expose to window so updateDashboard can call it via window.renderDashExtras (May 2026 fix)
+  window.renderDashExtras = renderDashExtras;
 
   function renderDashCharts(trades, byDay, accBal) {
     var Chart = window.Chart;
