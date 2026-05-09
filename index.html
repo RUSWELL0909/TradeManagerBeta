@@ -4226,22 +4226,70 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
 /* ──────────────────────────────────────────────────── */
 /* DASHBOARD EDIT MODE — drag/hide KPI tiles (May 2026)  */
 /* ──────────────────────────────────────────────────── */
-.kpi-tile { transition: transform .15s, box-shadow .15s, opacity .15s; position: relative; }
-.kpi-tile.editing { cursor: grab; outline: 1.5px dashed rgba(124,90,240,.35); outline-offset: -1px; }
-.kpi-tile.editing:hover { outline-color: rgba(124,90,240,.7); transform: translateY(-1px); }
-.kpi-tile.editing:active { cursor: grabbing; }
-.kpi-tile.dragging { opacity: 0.4; }
-.kpi-tile.drop-target { outline: 2px solid var(--accent); outline-offset: -2px; }
-.kpi-tile-edit-actions { display: none; position: absolute; top: 6px; right: 6px; gap: 2px; z-index: 5; }
-.kpi-tile.editing .kpi-tile-edit-actions { display: flex; }
-.kpi-tile-edit-btn { width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; background: var(--bg2); border: 1px solid var(--border); border-radius: 5px; color: var(--text3); cursor: pointer; padding: 0; transition: all .15s; }
-.kpi-tile-edit-btn:hover { background: rgba(124,90,240,.1); color: var(--accent); border-color: rgba(124,90,240,.3); }
-.kpi-tile-edit-btn.x:hover { background: rgba(255,80,95,.1); color: #ff505f; border-color: rgba(255,80,95,.3); }
-.dash-hidden-pill { display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px 5px 12px; background: var(--card); border: 1px solid var(--border); border-radius: 14px; font-size: 11px; color: var(--text2); cursor: pointer; transition: all .15s; }
-.dash-hidden-pill:hover { background: rgba(124,90,240,.08); border-color: var(--accent); color: var(--accent); }
-.dash-hidden-pill svg { width: 11px; height: 11px; opacity: .7; }
-/* When tile is hidden via CSS class (cleanup approach) */
-.kpi-tile[data-tile-hidden="1"] { display: none !important; }
+/* Variant B — Semantic Accent KPI tiles (May 2026 redesign) */
+.dash-section-label{font-family:'Inter',sans-serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);margin-bottom:14px;opacity:.65}
+.kpi-row-vb{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.kpi-tile{background:linear-gradient(180deg,var(--bg3) 0%,var(--card) 100%);border:0.5px solid var(--border);border-radius:12px;padding:16px 18px;position:relative;overflow:hidden;cursor:default;transition:all .2s;min-height:108px;display:flex;flex-direction:column}
+.kpi-tile::before{content:'';position:absolute;top:0;left:18px;right:18px;height:1.5px;background:rgba(255,255,255,.06);border-radius:0 0 2px 2px;transition:background .2s}
+.kpi-tile.accent-green::before{background:rgba(46,204,138,.45)}
+.kpi-tile.accent-red::before{background:rgba(255,80,95,.45)}
+.kpi-tile.accent-purple::before{background:rgba(124,90,240,.45)}
+.kpi-tile.accent-amber::before{background:rgba(240,180,41,.45)}
+.kpi-tile:hover{border-color:var(--border-strong, rgba(124,90,240,.25));transform:translateY(-1px)}
+.kpi-tile:hover.accent-green::before{background:rgba(46,204,138,.85)}
+.kpi-tile:hover.accent-red::before{background:rgba(255,80,95,.85)}
+.kpi-tile:hover.accent-purple::before{background:rgba(124,90,240,.85)}
+.kpi-tile:hover.accent-amber::before{background:rgba(240,180,41,.85)}
+.kpi-tile-label{font-family:'Inter',sans-serif;font-size:10px;letter-spacing:.4px;color:var(--text3);margin-bottom:10px;font-weight:500;display:flex;justify-content:space-between;align-items:center}
+.kpi-tile-info{width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.05);display:inline-flex;align-items:center;justify-content:center;font-size:9px;color:var(--text3);font-style:italic;font-family:'Playfair Display',serif;cursor:help;transition:all .15s}
+.kpi-tile-info:hover{background:rgba(124,90,240,.15);color:var(--accent3)}
+.kpi-tile-value{font-family:'Playfair Display',serif;font-weight:500;font-size:30px;line-height:1;letter-spacing:-.5px;color:var(--text)}
+.kpi-tile-value.green{color:#1de9b6}
+.kpi-tile-value.red{color:#ef4444}
+.kpi-tile-value.purple{color:var(--accent3)}
+.kpi-tile-value-suffix{font-size:16px;color:var(--text3);font-weight:400}
+.kpi-tile-mini{display:flex;gap:2px;margin:10px 0 6px;height:5px;align-items:center}
+.kpi-tile-mini div{flex:1;background:rgba(255,255,255,.06);border-radius:1px;height:3px;transition:all .15s}
+.kpi-tile-mini div.on{height:5px}
+.kpi-tile-mini div.win{background:#1de9b6}
+.kpi-tile-mini div.loss{background:#ef4444}
+.kpi-tile-foot{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);margin-top:auto;letter-spacing:.3px;opacity:.7}
+
+/* Edit mode visual */
+.kpi-tile.editing{cursor:grab;outline:1.5px dashed rgba(124,90,240,.35);outline-offset:-1px}
+.kpi-tile.editing:hover{outline-color:rgba(124,90,240,.7);transform:translateY(-1px)}
+.kpi-tile.editing:active{cursor:grabbing}
+.kpi-tile.dragging{opacity:.4}
+.kpi-tile.drop-target{outline:2px solid var(--accent);outline-offset:-2px}
+.kpi-tile-edit-actions{display:none;position:absolute;top:6px;right:6px;gap:3px;z-index:5}
+.kpi-tile.editing .kpi-tile-edit-actions{display:flex}
+.kpi-tile-edit-btn{width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;background:var(--bg2);border:1px solid var(--border);border-radius:5px;color:var(--text3);cursor:pointer;padding:0;transition:all .15s}
+.kpi-tile-edit-btn:hover{background:rgba(124,90,240,.12);color:var(--accent3);border-color:rgba(124,90,240,.3)}
+.kpi-tile-edit-btn.x:hover{background:rgba(255,80,95,.1);color:#ff505f;border-color:rgba(255,80,95,.3)}
+.kpi-tile-edit-btn.swap:hover{background:rgba(46,204,138,.1);color:#1de9b6;border-color:rgba(46,204,138,.3)}
+
+/* Empty slot in edit mode */
+.kpi-slot-empty{background:rgba(255,255,255,.02);border:1.5px dashed var(--border);border-radius:12px;padding:16px;min-height:108px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;color:var(--text3);font-family:'Inter',sans-serif;font-size:11px}
+.kpi-slot-empty:hover{background:rgba(124,90,240,.05);border-color:var(--accent);color:var(--accent3)}
+
+/* Hidden / available metrics tray */
+.dash-hidden-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 12px 6px 14px;background:var(--card);border:0.5px solid var(--border);border-radius:14px;font-size:11px;color:var(--text2);cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif}
+.dash-hidden-pill:hover{background:rgba(124,90,240,.08);border-color:var(--accent);color:var(--accent)}
+.dash-hidden-pill svg{width:11px;height:11px;opacity:.7}
+
+/* Swap modal */
+.dash-swap-modal{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:99999;display:flex;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(8px);animation:fadeIn .2s}
+.dash-swap-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;width:100%;max-width:560px;max-height:80vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.5);font-family:Inter,sans-serif}
+.dash-swap-head{padding:18px 22px 14px;border-bottom:1px solid var(--border)}
+.dash-swap-head h3{font-size:15px;font-weight:600;color:var(--text);margin:0;font-family:'Playfair Display',serif}
+.dash-swap-head p{font-size:11px;color:var(--text3);margin:4px 0 0;letter-spacing:.3px}
+.dash-swap-list{overflow-y:auto;padding:10px;display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.dash-swap-item{padding:10px 12px;background:var(--card);border:1px solid transparent;border-radius:8px;cursor:pointer;transition:all .12s;font-family:Inter,sans-serif}
+.dash-swap-item:hover{background:rgba(124,90,240,.08);border-color:rgba(124,90,240,.3)}
+.dash-swap-item.active{background:rgba(124,90,240,.12);border-color:var(--accent)}
+.dash-swap-item-name{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px}
+.dash-swap-item-desc{font-size:10px;color:var(--text3);line-height:1.4}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
 .tq-kpi-value{font-size:20px;font-weight:200;color:var(--text)}
 .tq-kpi-label{font-size:9px;color:var(--text3);margin-bottom:4px;font-family:'Inter',sans-serif;letter-spacing:.3px}
 /* Buttons (premium consistency) */
@@ -5162,173 +5210,45 @@ window.toggleSidebar = function(){
       <div id="dash-ai-list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;position:relative"></div>
     </div>
 
-    <!-- KPI STRIP — Row 1 (5 tiles) -->
-    <div id="kpi-row-1-wrap" style="margin-bottom:10px">
-      <div class="dash-edit-toolbar" id="dash-edit-toolbar" style="display:none;align-items:center;justify-content:space-between;padding:8px 14px;margin-bottom:10px;background:rgba(124,90,240,.06);border:1px solid rgba(124,90,240,.18);border-radius:10px;font-family:Inter,sans-serif">
-        <span style="font-size:11px;font-weight:600;color:var(--accent);letter-spacing:.5px">EDIT MODE — drag tiles to reorder, × to hide</span>
-        <button onclick="dashEditDone()" style="background:var(--accent);border:none;color:#fff;padding:6px 14px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">Done</button>
-      </div>
-    <div class="kpi-row" id="kpi-row-1" style="margin-bottom:0">
-      <!-- Net P&L -->
-      <div class="dash-card kpi-tile" data-tile-id="pnl" style="padding:14px 18px;position:relative;overflow:hidden;margin:0">
-        <div id="kpi-pnl-dot" style="position:absolute;top:10px;right:12px;width:5px;height:5px;border-radius:50%;background:var(--red)"></div>
-        <div style="font-size:11px;font-weight:500;color:var(--text3);letter-spacing:.3px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
-          Net P&L
-          <div style="width:20px;height:20px;border-radius:6px;background:rgba(224,92,122,.08);display:flex;align-items:center;justify-content:center">
-            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="var(--red)" stroke-width="1.5"><path d="M2 14 L6 6 L10 9 L14 2"/></svg>
-          </div>
-        </div>
-        <div id="kpi-pnl-val" style="font-size:32px;font-weight:200;font-family:'Inter',sans-serif;letter-spacing:-1px;line-height:1;margin-bottom:6px;color:var(--text)">$0</div>
-        <div style="display:flex;align-items:center;gap:6px;font-size:10px;font-family:'Inter',sans-serif;color:var(--text3)">
-          <span id="kpi-pnl-trades">0 trades</span>
-          <span id="kpi-pnl-delta" style="display:inline-flex;align-items:center;gap:2px;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:600;color:var(--red);background:rgba(224,92,122,.06)"></span>
-        </div>
-      </div>
+    <!-- ════════════════════════════════════════════════════════ -->
+    <!-- KPI TILES — Variant B (Semantic Accent · May 2026)        -->
+    <!-- 2 rows × 5 tiles. Tiles are slots — content driven by JS. -->
+    <!-- Drag-reorder, hide, replace any tile with any metric.     -->
+    <!-- ════════════════════════════════════════════════════════ -->
 
-      <!-- Trade Win % -->
-      <div class="dash-card kpi-tile" data-tile-id="wr" style="padding:14px 18px;position:relative;overflow:hidden;margin:0">
-        <div id="kpi-wr-dot" style="position:absolute;top:10px;right:12px;width:5px;height:5px;border-radius:50%;background:var(--red)"></div>
-        <div style="font-size:11px;font-weight:500;color:var(--text3);letter-spacing:.3px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
-          Trade Win %
-          <div style="width:20px;height:20px;border-radius:6px;background:rgba(124,90,240,.03);display:flex;align-items:center;justify-content:center">
-            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="var(--accent)" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 4 L8 8 L11 10"/></svg>
-          </div>
-        </div>
-        <div id="kpi-wr-val" style="font-size:32px;font-weight:200;font-family:'Inter',sans-serif;letter-spacing:-1px;line-height:1;margin-bottom:6px;color:var(--text)">—</div>
-        <div style="display:flex;align-items:center;gap:6px;font-size:10px;font-family:'Inter',sans-serif;color:var(--text3)">
-          <span id="kpi-wr-detail">0W · 0BE · 0L</span>
-          <span id="kpi-wr-delta" style="display:inline-flex;align-items:center;gap:2px;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:600;color:var(--red);background:rgba(224,92,122,.06)"></span>
-        </div>
-      </div>
-
-      <!-- Profit Factor -->
-      <div class="dash-card kpi-tile" data-tile-id="pf" style="padding:14px 18px;position:relative;overflow:hidden;margin:0">
-        <div id="kpi-pf-dot" style="position:absolute;top:10px;right:12px;width:5px;height:5px;border-radius:50%;background:var(--red)"></div>
-        <div style="font-size:11px;font-weight:500;color:var(--text3);letter-spacing:.3px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
-          Profit Factor
-          <div style="width:20px;height:20px;border-radius:6px;background:rgba(124,90,240,.03);display:flex;align-items:center;justify-content:center">
-            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="var(--accent)" stroke-width="1.5"><line x1="8" y1="2" x2="8" y2="14"/><path d="M3 6 L1 10 Q1 12 5 12 Q9 12 9 10 L7 6"/></svg>
-          </div>
-        </div>
-        <div id="kpi-pf-val" style="font-size:32px;font-weight:200;font-family:'Inter',sans-serif;letter-spacing:-1px;line-height:1;margin-bottom:6px;color:var(--text)">—</div>
-        <div style="display:flex;align-items:center;gap:6px;font-size:10px;font-family:'Inter',sans-serif;color:var(--text3)">
-          <span id="kpi-pf-detail">$0 / $0</span>
-          <span id="kpi-pf-delta" style="display:inline-flex;align-items:center;gap:2px;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:600;color:var(--red);background:rgba(224,92,122,.06)"></span>
-        </div>
-      </div>
-
-      <!-- Avg R:R -->
-      <div class="dash-card kpi-tile" data-tile-id="rr" style="padding:14px 18px;position:relative;overflow:hidden;margin:0">
-        <div id="kpi-rr-dot" style="position:absolute;top:10px;right:12px;width:5px;height:5px;border-radius:50%;background:var(--green)"></div>
-        <div style="font-size:11px;font-weight:500;color:var(--text3);letter-spacing:.3px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
-          Avg R:R
-          <div style="width:20px;height:20px;border-radius:6px;background:rgba(46,204,138,.06);display:flex;align-items:center;justify-content:center">
-            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="var(--green)" stroke-width="1.5"><path d="M4 12 L4 4 M2 6 L4 4 L6 6"/><path d="M12 4 L12 12 M10 10 L12 12 L14 10"/></svg>
-          </div>
-        </div>
-        <div id="kpi-rr-val" style="font-size:32px;font-weight:200;font-family:'Inter',sans-serif;letter-spacing:-1px;line-height:1;margin-bottom:6px;color:var(--green)">—</div>
-        <div style="display:flex;align-items:center;gap:6px;font-size:10px;font-family:'Inter',sans-serif;color:var(--text3)">
-          <span id="kpi-rr-detail"></span>
-          <span id="kpi-rr-delta" style="display:inline-flex;align-items:center;gap:2px;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:600;color:var(--green);background:rgba(46,204,138,.06)"></span>
-        </div>
-      </div>
-
-      <!-- Account Balance -->
-      <div class="dash-card kpi-tile" data-tile-id="bal" style="padding:14px 18px;position:relative;overflow:hidden;margin:0">
-        <div id="kpi-bal-dot" style="position:absolute;top:10px;right:12px;width:5px;height:5px;border-radius:50%;background:var(--green)"></div>
-        <div style="font-size:11px;font-weight:500;color:var(--text3);letter-spacing:.3px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
-          Account Balance
-          <div style="width:20px;height:20px;border-radius:6px;background:rgba(46,204,138,.06);display:flex;align-items:center;justify-content:center">
-            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="var(--green)" stroke-width="1.5"><rect x="2" y="4" width="12" height="8" rx="2"/><path d="M2 7 L14 7"/></svg>
-          </div>
-        </div>
-        <div id="kpi-bal-val" style="font-size:32px;font-weight:200;font-family:'Inter',sans-serif;letter-spacing:-1px;line-height:1;margin-bottom:6px;color:var(--text)">$0</div>
-        <div style="display:flex;align-items:center;gap:6px;font-size:10px;font-family:'Inter',sans-serif;color:var(--text3)">
-          <span id="kpi-bal-detail"></span>
-          <span id="kpi-bal-delta" style="display:inline-flex;align-items:center;gap:2px;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:600;color:var(--green);background:rgba(46,204,138,.06)">safe zone</span>
-        </div>
-      </div>
-    </div>
+    <!-- Edit toolbar (shown only in edit mode) -->
+    <div id="dash-edit-toolbar" style="display:none;align-items:center;justify-content:space-between;padding:10px 16px;margin-bottom:12px;background:rgba(124,90,240,.06);border:1px solid rgba(124,90,240,.18);border-radius:10px;font-family:Inter,sans-serif">
+      <span style="font-size:11px;font-weight:600;color:var(--accent);letter-spacing:.5px">⌘ EDIT MODE — drag to reorder · click 🔄 to swap metric · × to hide</span>
+      <button onclick="dashEditDone()" style="background:var(--accent);border:none;color:#fff;padding:6px 14px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">Done</button>
     </div>
 
-    <!-- KPI STRIP — Row 2 (5 more tiles, added May 2026) -->
-    <div class="kpi-row" id="kpi-row-2" style="margin-bottom:16px">
-      <!-- Day Win % -->
-      <div class="dash-card kpi-tile" data-tile-id="dwr" style="padding:14px 18px;position:relative;overflow:hidden;margin:0">
-        <div style="font-size:11px;font-weight:500;color:var(--text3);letter-spacing:.3px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
-          Day Win %
-          <div style="width:20px;height:20px;border-radius:6px;background:rgba(124,90,240,.03);display:flex;align-items:center;justify-content:center">
-            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="var(--accent)" stroke-width="1.5"><rect x="2" y="3" width="12" height="11" rx="1"/><line x1="2" y1="6" x2="14" y2="6"/></svg>
-          </div>
-        </div>
-        <div id="kpi-dwr-val" style="font-size:32px;font-weight:200;font-family:'Inter',sans-serif;letter-spacing:-1px;line-height:1;margin-bottom:6px;color:var(--text)">—</div>
-        <div style="display:flex;align-items:center;gap:6px;font-size:10px;font-family:'Inter',sans-serif;color:var(--text3)">
-          <span id="kpi-dwr-detail">0 days</span>
-        </div>
-      </div>
-
-      <!-- Max Drawdown -->
-      <div class="dash-card kpi-tile" data-tile-id="mdd" style="padding:14px 18px;position:relative;overflow:hidden;margin:0">
-        <div style="font-size:11px;font-weight:500;color:var(--text3);letter-spacing:.3px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
-          Max Drawdown
-          <div style="width:20px;height:20px;border-radius:6px;background:rgba(224,92,122,.06);display:flex;align-items:center;justify-content:center">
-            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="var(--red)" stroke-width="1.5"><path d="M2 4 L6 4 L8 12 L10 8 L14 8"/></svg>
-          </div>
-        </div>
-        <div id="kpi-mdd-val" style="font-size:32px;font-weight:200;font-family:'Inter',sans-serif;letter-spacing:-1px;line-height:1;margin-bottom:6px;color:var(--text)">—</div>
-        <div style="display:flex;align-items:center;gap:6px;font-size:10px;font-family:'Inter',sans-serif;color:var(--text3)">
-          <span id="kpi-mdd-detail">peak-to-trough</span>
-        </div>
-      </div>
-
-      <!-- Current Streak -->
-      <div class="dash-card kpi-tile" data-tile-id="streak" style="padding:14px 18px;position:relative;overflow:hidden;margin:0">
-        <div style="font-size:11px;font-weight:500;color:var(--text3);letter-spacing:.3px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
-          Streak
-          <div style="width:20px;height:20px;border-radius:6px;background:rgba(240,180,41,.06);display:flex;align-items:center;justify-content:center">
-            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="#f0b429" stroke-width="1.5"><path d="M8 14 C5 14 4 11 5 9 C5.5 7.5 7 7 7 5 C9 6 10 8 10 9 C11 9 12 8 12 8 C12 12 11 14 8 14 Z"/></svg>
-          </div>
-        </div>
-        <div id="kpi-streak-val" style="font-size:32px;font-weight:200;font-family:'Inter',sans-serif;letter-spacing:-1px;line-height:1;margin-bottom:6px;color:var(--text)">—</div>
-        <div style="display:flex;align-items:center;gap:6px;font-size:10px;font-family:'Inter',sans-serif;color:var(--text3)">
-          <span id="kpi-streak-detail">consecutive</span>
-        </div>
-      </div>
-
-      <!-- Best Day -->
-      <div class="dash-card kpi-tile" data-tile-id="best" style="padding:14px 18px;position:relative;overflow:hidden;margin:0">
-        <div style="font-size:11px;font-weight:500;color:var(--text3);letter-spacing:.3px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
-          Best Day
-          <div style="width:20px;height:20px;border-radius:6px;background:rgba(46,204,138,.06);display:flex;align-items:center;justify-content:center">
-            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="var(--green)" stroke-width="1.5"><path d="M8 1 L10 6 L15 6 L11 9 L13 14 L8 11 L3 14 L5 9 L1 6 L6 6 Z"/></svg>
-          </div>
-        </div>
-        <div id="kpi-best-val" style="font-size:32px;font-weight:200;font-family:'Inter',sans-serif;letter-spacing:-1px;line-height:1;margin-bottom:6px;color:var(--green)">—</div>
-        <div style="display:flex;align-items:center;gap:6px;font-size:10px;font-family:'Inter',sans-serif;color:var(--text3)">
-          <span id="kpi-best-detail">no trades yet</span>
-        </div>
-      </div>
-
-      <!-- Total Trades -->
-      <div class="dash-card kpi-tile" data-tile-id="total" style="padding:14px 18px;position:relative;overflow:hidden;margin:0">
-        <div style="font-size:11px;font-weight:500;color:var(--text3);letter-spacing:.3px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
-          Total Trades
-          <div style="width:20px;height:20px;border-radius:6px;background:rgba(124,90,240,.03);display:flex;align-items:center;justify-content:center">
-            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="var(--accent)" stroke-width="1.5"><rect x="2" y="2" width="4" height="4"/><rect x="10" y="2" width="4" height="4"/><rect x="2" y="10" width="4" height="4"/><rect x="10" y="10" width="4" height="4"/></svg>
-          </div>
-        </div>
-        <div id="kpi-total-val" style="font-size:32px;font-weight:200;font-family:'Inter',sans-serif;letter-spacing:-1px;line-height:1;margin-bottom:6px;color:var(--text)">0</div>
-        <div style="display:flex;align-items:center;gap:6px;font-size:10px;font-family:'Inter',sans-serif;color:var(--text3)">
-          <span id="kpi-total-detail">all-time</span>
-        </div>
-      </div>
+    <!-- Performance section -->
+    <div class="dash-section-label">— Performance</div>
+    <div class="kpi-row-vb" id="kpi-row-1" style="margin-bottom:14px">
+      <!-- Generated by JS — 5 slots -->
+      <div class="kpi-slot" data-slot="0"></div>
+      <div class="kpi-slot" data-slot="1"></div>
+      <div class="kpi-slot" data-slot="2"></div>
+      <div class="kpi-slot" data-slot="3"></div>
+      <div class="kpi-slot" data-slot="4"></div>
     </div>
 
-    <!-- HIDDEN TILES TRAY (shown only when in edit mode + tiles hidden) -->
+    <!-- Risk & Discipline section -->
+    <div class="dash-section-label">— Risk &amp; Discipline</div>
+    <div class="kpi-row-vb" id="kpi-row-2" style="margin-bottom:18px">
+      <div class="kpi-slot" data-slot="5"></div>
+      <div class="kpi-slot" data-slot="6"></div>
+      <div class="kpi-slot" data-slot="7"></div>
+      <div class="kpi-slot" data-slot="8"></div>
+      <div class="kpi-slot" data-slot="9"></div>
+    </div>
+
+    <!-- Hidden tiles tray (shown only in edit mode) -->
     <div id="dash-hidden-tray" style="display:none;margin-bottom:16px;padding:12px 16px;background:var(--bg2);border:1px dashed var(--border);border-radius:10px;font-family:Inter,sans-serif">
-      <div style="font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.5px;margin-bottom:8px">HIDDEN TILES — click to restore</div>
+      <div style="font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.5px;margin-bottom:8px">AVAILABLE METRICS — click to add</div>
       <div id="dash-hidden-pills" style="display:flex;flex-wrap:wrap;gap:6px"></div>
     </div>
+
 
     <!-- TILT DETECTOR BANNER -->
     <div id="dash-tilt-banner" style="display:none;margin-bottom:14px;border-radius:12px;border:1px solid rgba(224,92,122,.15);background:rgba(224,92,122,.02);overflow:hidden">
@@ -30951,6 +30871,8 @@ window.toggleSidebar = function(){
     // Load real trades from localStorage — exclude deleted (Trash items)
     var raw = (typeof getActiveTrades === 'function') ? getActiveTrades() : JSON.parse(rfxGet('rf_trades')||'[]').filter(function(t){return !t.deleted;});
     raw.forEach(autoDetectSession);
+    // Re-render Variant B KPI tiles whenever dashboard refreshes (account/currency/filter changes)
+    if(typeof window.dashRenderTiles === 'function') try{ window.dashRenderTiles(); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'dash_render_tiles'});}
     // Sync currency picker with saved preference
     var __ccyPick = document.getElementById('dash-currency-picker');
     if(__ccyPick && typeof tqGetDisplayCurrency === 'function'){
@@ -31790,157 +31712,455 @@ window.toggleSidebar = function(){
   var _dashGroupOpen = {}; // track which collapsible groups are open
 
   // ════════════════════════════════════════════════════════════
-  // DASHBOARD EDIT MODE — drag-reorder + hide/restore KPI tiles
+  // DASHBOARD KPI TILES — Variant B redesign (May 2026)
   // ════════════════════════════════════════════════════════════
-  // Persistence: localStorage 'tq_dash_layout' = { order:[id...], hidden:[id...] }
-  // Order is global across both KPI rows; layout function distributes 5/5.
-  var DASH_LAYOUT_KEY = 'tq_dash_layout';
-  var DASH_DEFAULT_ORDER = ['pnl','wr','pf','rr','bal','dwr','mdd','streak','best','total'];
-  var DASH_TILE_LABELS = {
-    pnl:'Net P&L', wr:'Trade Win %', pf:'Profit Factor', rr:'Avg R:R', bal:'Account Balance',
-    dwr:'Day Win %', mdd:'Max Drawdown', streak:'Streak', best:'Best Day', total:'Total Trades'
+  // Architecture:
+  //   - 10 SLOTS (2 rows × 5 cols) — fixed positions in DOM
+  //   - LAYOUT (saved to tq_dash_layout) = array of metric IDs assigned to slots
+  //   - METRICS REGISTRY = library of all available metrics + render functions
+  //   - On dashUpdate, each slot reads metric ID from layout and renders accordingly
+  //
+  // User can:
+  //   - Drag-swap any tile with any other tile (positions in layout swap)
+  //   - Replace any tile with any metric from registry (slot's metric ID changes)
+  //   - Hide any tile (slot becomes empty in layout, replaceable from "available" tray)
+
+  var DASH_LAYOUT_KEY = 'tq_dash_layout_v2';
+
+  // ──────────────────────────────────────────────
+  // METRIC REGISTRY — single source of truth.
+  // Each metric: id, name, desc, accent (semantic color), render(trades, ccy) → {value, foot, mini, valueColor}
+  // ──────────────────────────────────────────────
+  var DASH_METRICS = {
+    pnl: {
+      name: 'Net P&L', desc: 'Sum of all realized P&L',
+      accent: 'green',
+      render: function(t, ccy, sym){
+        var pnl = 0;
+        t.forEach(function(x){ pnl += (typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0); });
+        return {
+          value: (pnl>=0?'+':'-')+sym+Math.abs(Math.round(pnl)).toLocaleString(),
+          valueColor: pnl>=0?'green':'red',
+          foot: t.length+' trade'+(t.length===1?'':'s')
+        };
+      }
+    },
+    wr: {
+      name: 'Trade Win %', desc: 'Percentage of profitable trades',
+      accent: 'green',
+      render: function(t, ccy, sym){
+        var w=0,l=0,b=0;
+        t.forEach(function(x){
+          var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0);
+          if(Math.abs(p)<.01)b++;else if(p>0)w++;else l++;
+        });
+        var pct=t.length?(w/t.length*100):0;
+        // Mini-bar: 10 cells representing W/L ratio
+        var ratio = (w+l)>0 ? Math.round(w/(w+l)*10) : 0;
+        var mini = '';
+        for(var i=0;i<10;i++) mini += '<div class="on '+(i<ratio?'win':'loss')+'"></div>';
+        return {
+          value: pct.toFixed(1)+'%',
+          foot: w+'W · '+b+'BE · '+l+'L',
+          mini: mini
+        };
+      }
+    },
+    pf: {
+      name: 'Profit Factor', desc: 'Gross win ÷ gross loss',
+      accent: 'green',
+      render: function(t, ccy, sym){
+        var gw=0,gl=0;
+        t.forEach(function(x){
+          var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0);
+          if(p>0)gw+=p;else if(p<0)gl+=Math.abs(p);
+        });
+        var pf=gl>0?gw/gl:(gw>0?Infinity:0);
+        return {
+          value: pf===Infinity?'∞':pf.toFixed(2),
+          valueColor: pf>=2?'green':(pf>=1?'':'red'),
+          foot: '+'+sym+Math.round(gw).toLocaleString()+' / -'+sym+Math.round(gl).toLocaleString()
+        };
+      }
+    },
+    rr: {
+      name: 'Avg R:R', desc: 'Average reward-to-risk ratio',
+      accent: 'purple',
+      render: function(t, ccy, sym){
+        var rs=t.map(function(x){return parseFloat(x.rMultiple);}).filter(function(r){return !isNaN(r);});
+        if(rs.length===0) return {value:'—', foot:'no R data'};
+        var avg=rs.reduce(function(a,b){return a+b;},0)/rs.length;
+        return { value: avg.toFixed(2), foot: rs.length+' R recorded' };
+      }
+    },
+    bal: {
+      name: 'Account Balance', desc: 'Starting balance + cumulative P&L',
+      accent: 'green',
+      render: function(t, ccy, sym){
+        var pnl = 0;
+        t.forEach(function(x){ pnl += (typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0); });
+        var accs = [];
+        try{ accs = JSON.parse(rfxGet('rf_accounts')||'[]').filter(function(a){return a&&!a.deleted;}); }catch(e){}
+        var startBal=0; accs.forEach(function(a){ startBal+=parseFloat(a.startingBalance||a.balance)||0; });
+        var bal = startBal+pnl;
+        return {
+          value: sym+Math.round(bal).toLocaleString(),
+          foot: 'Start '+sym+Math.round(startBal).toLocaleString()
+        };
+      }
+    },
+    dwr: {
+      name: 'Day Win %', desc: 'Percentage of profitable trading days',
+      accent: 'green',
+      render: function(t, ccy, sym){
+        var dayPnl={};
+        t.forEach(function(x){
+          if(!x.date) return;
+          var d=String(x.date).slice(0,10);
+          var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0);
+          dayPnl[d]=(dayPnl[d]||0)+p;
+        });
+        var days=Object.keys(dayPnl);var w=0,l=0,b=0;
+        days.forEach(function(d){var v=dayPnl[d];if(Math.abs(v)<.01)b++;else if(v>0)w++;else l++;});
+        var pct=days.length?(w/days.length*100):0;
+        var ratio = (w+l)>0 ? Math.round(w/(w+l)*10) : 0;
+        var mini='';
+        for(var i=0;i<10;i++) mini+='<div class="on '+(i<ratio?'win':'loss')+'"></div>';
+        return { value: days.length===0?'—':pct.toFixed(0)+'%', foot: w+'W · '+b+'BE · '+l+'L', mini: mini };
+      }
+    },
+    mdd: {
+      name: 'Max Drawdown', desc: 'Largest peak-to-trough drop',
+      accent: 'red',
+      render: function(t, ccy, sym){
+        var sorted=t.slice().sort(function(a,b){return new Date(a.date||0)-new Date(b.date||0);});
+        var cum=0,peak=0,maxDD=0,maxPct=0;
+        sorted.forEach(function(x){
+          var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0);
+          cum+=p; if(cum>peak)peak=cum;
+          var dd=peak-cum; if(dd>maxDD){maxDD=dd; maxPct=peak>0?(dd/peak*100):0;}
+        });
+        return {
+          value: sorted.length===0?'—':'-'+sym+Math.round(maxDD).toLocaleString(),
+          valueColor: maxDD>0?'red':'',
+          foot: sorted.length===0?'no trades':maxPct.toFixed(1)+'% of peak'
+        };
+      }
+    },
+    streak: {
+      name: 'Streak', desc: 'Current consecutive wins or losses',
+      accent: 'amber',
+      render: function(t, ccy, sym){
+        var sorted=t.slice().sort(function(a,b){return new Date(b.date||0)-new Date(a.date||0);});
+        var streak=0,type=null;
+        for(var i=0;i<sorted.length;i++){
+          var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(sorted[i]):(parseFloat(sorted[i].pnl)||0);
+          if(Math.abs(p)<.01) continue;
+          var ty=p>0?'W':'L';
+          if(type===null){type=ty;streak=1;}
+          else if(ty===type)streak++;
+          else break;
+        }
+        return {
+          value: sorted.length===0?'—':(streak===0?'0':streak+type),
+          valueColor: type==='W'?'green':(type==='L'?'red':''),
+          foot: streak===0?'no streak':(type==='W'?'consecutive wins':'consecutive losses')
+        };
+      }
+    },
+    best: {
+      name: 'Best Day', desc: 'Single highest-profit trading day',
+      accent: 'green',
+      render: function(t, ccy, sym){
+        var dayPnl={};
+        t.forEach(function(x){
+          if(!x.date) return;
+          var d=String(x.date).slice(0,10);
+          var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0);
+          dayPnl[d]=(dayPnl[d]||0)+p;
+        });
+        var bestDay=null,best=-Infinity;
+        Object.keys(dayPnl).forEach(function(d){if(dayPnl[d]>best){best=dayPnl[d];bestDay=d;}});
+        if(!bestDay||best<=0) return {value:'—', foot:'no winning days'};
+        var dt=new Date(bestDay);
+        var lbl=dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+        var dc=t.filter(function(x){return String(x.date).slice(0,10)===bestDay;}).length;
+        return {
+          value: '+'+sym+Math.round(best).toLocaleString(),
+          valueColor: 'green',
+          foot: lbl+' · '+dc+' trade'+(dc===1?'':'s')
+        };
+      }
+    },
+    worst: {
+      name: 'Worst Day', desc: 'Single lowest-profit trading day',
+      accent: 'red',
+      render: function(t, ccy, sym){
+        var dayPnl={};
+        t.forEach(function(x){
+          if(!x.date) return;
+          var d=String(x.date).slice(0,10);
+          var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0);
+          dayPnl[d]=(dayPnl[d]||0)+p;
+        });
+        var worstDay=null,worst=Infinity;
+        Object.keys(dayPnl).forEach(function(d){if(dayPnl[d]<worst){worst=dayPnl[d];worstDay=d;}});
+        if(!worstDay||worst>=0) return {value:'—', foot:'no losing days'};
+        var dt=new Date(worstDay);
+        var lbl=dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+        var dc=t.filter(function(x){return String(x.date).slice(0,10)===worstDay;}).length;
+        return {
+          value: '-'+sym+Math.abs(Math.round(worst)).toLocaleString(),
+          valueColor: 'red',
+          foot: lbl+' · '+dc+' trade'+(dc===1?'':'s')
+        };
+      }
+    },
+    avgWin: {
+      name: 'Avg Win', desc: 'Mean of winning trades',
+      accent: 'green',
+      render: function(t, ccy, sym){
+        var wins=t.map(function(x){return (typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0);}).filter(function(p){return p>0;});
+        if(!wins.length) return {value:'—', foot:'no winning trades'};
+        var avg=wins.reduce(function(a,b){return a+b;},0)/wins.length;
+        return { value: '+'+sym+Math.round(avg).toLocaleString(), valueColor:'green', foot: wins.length+' wins' };
+      }
+    },
+    avgLoss: {
+      name: 'Avg Loss', desc: 'Mean of losing trades',
+      accent: 'red',
+      render: function(t, ccy, sym){
+        var ls=t.map(function(x){return (typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0);}).filter(function(p){return p<0;});
+        if(!ls.length) return {value:'—', foot:'no losing trades'};
+        var avg=ls.reduce(function(a,b){return a+b;},0)/ls.length;
+        return { value: '-'+sym+Math.abs(Math.round(avg)).toLocaleString(), valueColor:'red', foot: ls.length+' losses' };
+      }
+    },
+    avgWL: {
+      name: 'Avg Win/Loss', desc: 'Avg win ÷ avg loss',
+      accent: 'green',
+      render: function(t, ccy, sym){
+        var wins=[],ls=[];
+        t.forEach(function(x){
+          var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0);
+          if(p>0)wins.push(p); else if(p<0)ls.push(Math.abs(p));
+        });
+        if(!wins.length||!ls.length) return {value:'—', foot:'need W and L'};
+        var aw=wins.reduce(function(a,b){return a+b;},0)/wins.length;
+        var al=ls.reduce(function(a,b){return a+b;},0)/ls.length;
+        var ratio=aw/al;
+        return { value: ratio.toFixed(2)+'×', foot: '+'+sym+Math.round(aw)+' / -'+sym+Math.round(al), valueColor: ratio>=2?'green':'' };
+      }
+    },
+    totalTrades: {
+      name: 'Total Trades', desc: 'Count of all trades',
+      accent: 'purple',
+      render: function(t, ccy, sym){
+        var dates=t.map(function(x){return String(x.date||'').slice(0,10);}).filter(Boolean).sort();
+        var span=dates.length>1?Math.round((new Date(dates[dates.length-1])-new Date(dates[0]))/86400000):0;
+        return { value: t.length.toLocaleString(), foot: span>0?'over '+span+' day'+(span===1?'':'s'):'all-time' };
+      }
+    },
+    expectancy: {
+      name: 'Expectancy', desc: 'Avg P&L per trade (mathematical edge)',
+      accent: 'purple',
+      render: function(t, ccy, sym){
+        if(!t.length) return {value:'—', foot:'no trades'};
+        var sum=0; t.forEach(function(x){ sum+=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0); });
+        var exp=sum/t.length;
+        return { value: (exp>=0?'+':'-')+sym+Math.abs(exp).toFixed(2), valueColor: exp>=0?'green':'red', foot: 'per trade' };
+      }
+    },
+    avgDaily: {
+      name: 'Avg Daily P&L', desc: 'Mean P&L per trading day',
+      accent: 'green',
+      render: function(t, ccy, sym){
+        var dayPnl={};
+        t.forEach(function(x){if(!x.date)return;var d=String(x.date).slice(0,10);var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0);dayPnl[d]=(dayPnl[d]||0)+p;});
+        var days=Object.keys(dayPnl);
+        if(!days.length) return {value:'—', foot:'no days'};
+        var sum=0; days.forEach(function(d){sum+=dayPnl[d];});
+        var avg=sum/days.length;
+        return { value: (avg>=0?'+':'-')+sym+Math.abs(Math.round(avg)), valueColor: avg>=0?'green':'red', foot: days.length+' day'+(days.length===1?'':'s') };
+      }
+    },
+    largestWin: {
+      name: 'Largest Win', desc: 'Single largest profitable trade',
+      accent: 'green',
+      render: function(t, ccy, sym){
+        var max=-Infinity, best=null;
+        t.forEach(function(x){
+          var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0);
+          if(p>max){max=p; best=x;}
+        });
+        if(max<=0||!best) return {value:'—', foot:'no winning trades'};
+        return { value: '+'+sym+Math.round(max).toLocaleString(), valueColor:'green', foot: (best.pair||'unknown') };
+      }
+    },
+    largestLoss: {
+      name: 'Largest Loss', desc: 'Single largest losing trade',
+      accent: 'red',
+      render: function(t, ccy, sym){
+        var min=Infinity, worst=null;
+        t.forEach(function(x){
+          var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0);
+          if(p<min){min=p; worst=x;}
+        });
+        if(min>=0||!worst) return {value:'—', foot:'no losing trades'};
+        return { value: '-'+sym+Math.abs(Math.round(min)).toLocaleString(), valueColor:'red', foot: (worst.pair||'unknown') };
+      }
+    },
+    longestWinStreak: {
+      name: 'Best Streak', desc: 'Longest consecutive wins',
+      accent: 'green',
+      render: function(t, ccy, sym){
+        var sorted=t.slice().sort(function(a,b){return new Date(a.date||0)-new Date(b.date||0);});
+        var max=0,cur=0;
+        sorted.forEach(function(x){
+          var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0);
+          if(p>0){cur++;if(cur>max)max=cur;} else if(p<0){cur=0;}
+        });
+        return { value: max+'W', valueColor: max>=5?'green':'', foot: 'all-time best' };
+      }
+    },
+    longestLossStreak: {
+      name: 'Worst Streak', desc: 'Longest consecutive losses',
+      accent: 'red',
+      render: function(t, ccy, sym){
+        var sorted=t.slice().sort(function(a,b){return new Date(a.date||0)-new Date(b.date||0);});
+        var max=0,cur=0;
+        sorted.forEach(function(x){
+          var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0);
+          if(p<0){cur++;if(cur>max)max=cur;} else if(p>0){cur=0;}
+        });
+        return { value: max+'L', valueColor: max>=3?'red':'', foot: 'all-time worst' };
+      }
+    }
   };
+
+  // Default 10 metrics for fresh layouts
+  var DASH_DEFAULT_LAYOUT = ['pnl','wr','pf','avgWL','rr','mdd','streak','best','dwr','totalTrades'];
 
   function dashGetLayout(){
     try{
       var raw = rfxGet(DASH_LAYOUT_KEY);
-      if(!raw) return { order: DASH_DEFAULT_ORDER.slice(), hidden: [] };
+      if(!raw) return DASH_DEFAULT_LAYOUT.slice();
       var p = JSON.parse(raw);
-      if(!p || !Array.isArray(p.order)) return { order: DASH_DEFAULT_ORDER.slice(), hidden: [] };
-      // Ensure all default IDs present (handle new tiles added later)
-      var seen = {};
-      p.order.forEach(function(id){ seen[id] = true; });
-      DASH_DEFAULT_ORDER.forEach(function(id){
-        if(!seen[id]) p.order.push(id);
-      });
-      // Filter out unknown IDs (old localStorage from before)
-      p.order = p.order.filter(function(id){ return DASH_DEFAULT_ORDER.indexOf(id) >= 0; });
-      if(!Array.isArray(p.hidden)) p.hidden = [];
-      return p;
-    }catch(e){ return { order: DASH_DEFAULT_ORDER.slice(), hidden: [] }; }
+      if(!Array.isArray(p)) return DASH_DEFAULT_LAYOUT.slice();
+      // Pad to 10 slots, validate IDs
+      while(p.length < 10) p.push(null);
+      return p.slice(0, 10).map(function(id){ return (id && DASH_METRICS[id]) ? id : null; });
+    }catch(e){ return DASH_DEFAULT_LAYOUT.slice(); }
   }
   function dashSaveLayout(layout){
     try{ rfxSet(DASH_LAYOUT_KEY, JSON.stringify(layout)); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'dash_layout_save'});}
   }
+  window.dashGetLayout = dashGetLayout;
+  window.dashSaveLayout = dashSaveLayout;
 
-  // Apply current layout to DOM — reorders tiles into 2 rows of 5, hides hidden ones
-  window.dashApplyLayout = function(){
+  // Render single tile into a slot element
+  function _dashRenderTile(slotEl, metricId, trades, ccy, sym){
+    if(!slotEl) return;
+    if(!metricId || !DASH_METRICS[metricId]){
+      // Empty slot
+      if(_dashEditing){
+        slotEl.innerHTML = '<div class="kpi-slot-empty" data-add-slot="'+slotEl.getAttribute('data-slot')+'">+ Add metric</div>';
+        var addBtn = slotEl.querySelector('[data-add-slot]');
+        if(addBtn) addBtn.addEventListener('click', function(){ dashOpenSwapModal(parseInt(slotEl.getAttribute('data-slot'),10)); });
+      } else {
+        slotEl.innerHTML = '';
+      }
+      return;
+    }
+    var m = DASH_METRICS[metricId];
+    var data = m.render(trades, ccy, sym) || {};
+    var valueColor = data.valueColor || '';
+    var miniHtml = data.mini ? '<div class="kpi-tile-mini">'+data.mini+'</div>' : '';
+    var editActions = _dashEditing ? (
+      '<div class="kpi-tile-edit-actions">' +
+      '  <button class="kpi-tile-edit-btn" data-drag-handle="1" title="Drag to reorder"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="6" r="1.2"/><circle cx="15" cy="6" r="1.2"/><circle cx="9" cy="12" r="1.2"/><circle cx="15" cy="12" r="1.2"/><circle cx="9" cy="18" r="1.2"/><circle cx="15" cy="18" r="1.2"/></svg></button>' +
+      '  <button class="kpi-tile-edit-btn swap" data-swap-tile="1" title="Replace with another metric"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 01-4 4H3"/></svg></button>' +
+      '  <button class="kpi-tile-edit-btn x" data-hide-tile="1" title="Hide"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>' +
+      '</div>'
+    ) : '';
+    slotEl.innerHTML =
+      '<div class="kpi-tile accent-'+m.accent+(_dashEditing?' editing':'')+'" data-tile-metric="'+metricId+'" data-tile-slot="'+slotEl.getAttribute('data-slot')+'"'+(_dashEditing?' draggable="true"':'')+'>' +
+        editActions +
+        '<div class="kpi-tile-label">'+m.name+'<span class="kpi-tile-info" title="'+m.desc.replace(/"/g,'&quot;')+'">i</span></div>' +
+        '<div class="kpi-tile-value'+(valueColor?' '+valueColor:'')+'">'+data.value+'</div>' +
+        miniHtml +
+        '<div class="kpi-tile-foot">'+(data.foot||'')+'</div>' +
+      '</div>';
+  }
+
+  // Re-render all dashboard tiles from layout (called by updateDashboard, renderJournal, etc)
+  window.dashRenderTiles = function(){
     var layout = dashGetLayout();
-    var hiddenSet = {};
-    layout.hidden.forEach(function(id){ hiddenSet[id] = true; });
-    var row1 = document.getElementById('kpi-row-1');
-    var row2 = document.getElementById('kpi-row-2');
-    if(!row1 || !row2) return;
-    // Collect all tiles from both rows (in DOM order)
-    var allTiles = {};
-    [row1, row2].forEach(function(row){
-      Array.from(row.querySelectorAll('.kpi-tile')).forEach(function(t){
-        var id = t.getAttribute('data-tile-id');
-        if(id) allTiles[id] = t;
-      });
-    });
-    // Filter visible IDs in order
-    var visibleIds = layout.order.filter(function(id){ return !hiddenSet[id] && allTiles[id]; });
-    // Distribute: first 5 to row 1, next 5 to row 2
-    var row1Ids = visibleIds.slice(0, 5);
-    var row2Ids = visibleIds.slice(5, 10);
-    // Re-append in order
-    row1Ids.forEach(function(id){
-      var el = allTiles[id];
-      el.removeAttribute('data-tile-hidden');
-      row1.appendChild(el);
-    });
-    row2Ids.forEach(function(id){
-      var el = allTiles[id];
-      el.removeAttribute('data-tile-hidden');
-      row2.appendChild(el);
-    });
-    // Hide tiles not in visible list
-    Object.keys(allTiles).forEach(function(id){
-      if(hiddenSet[id]) allTiles[id].setAttribute('data-tile-hidden', '1');
-    });
-    // Hide row 2 entirely if empty (visual cleanup)
-    row2.style.display = row2Ids.length === 0 ? 'none' : '';
+    var trades = [];
+    try{
+      var raw = (typeof getActiveTrades==='function')?getActiveTrades():JSON.parse(rfxGet('rf_trades')||'[]').filter(function(t){return !t.deleted;});
+      // Apply account filter if dashboard has one
+      var accFilter = document.getElementById('dash-account-filter');
+      var accId = accFilter ? accFilter.value : 'all';
+      trades = (accId==='all') ? raw : raw.filter(function(t){return t.account===accId;});
+    }catch(e){ trades = []; }
+    var ccy = (typeof tqGetDisplayCurrency==='function') ? tqGetDisplayCurrency() : 'USD';
+    var sym = {USD:'$',EUR:'€',GBP:'£',JPY:'¥',CHF:'CHF ',CAD:'C$',AUD:'A$',NZD:'NZ$'}[ccy] || '$';
+    for(var i = 0; i < 10; i++){
+      var slotEl = document.querySelector('[data-slot="'+i+'"]');
+      _dashRenderTile(slotEl, layout[i], trades, ccy, sym);
+    }
+    if(_dashEditing) _dashWireDrag();
+    _dashRenderHiddenTray();
   };
 
   var _dashEditing = false;
-  var _dashDragId = null;
+  var _dashDragSlot = null;
 
   window.dashEditToggle = function(){
     _dashEditing = !_dashEditing;
-    document.querySelectorAll('.kpi-tile').forEach(function(t){
-      if(_dashEditing) t.classList.add('editing');
-      else t.classList.remove('editing');
-    });
-    // Toolbar visibility
     var toolbar = document.getElementById('dash-edit-toolbar');
     if(toolbar) toolbar.style.display = _dashEditing ? 'flex' : 'none';
-    // Toggle button label
     var lbl = document.getElementById('dash-edit-layout-label');
     if(lbl) lbl.textContent = _dashEditing ? 'Done' : 'Edit layout';
     var btn = document.getElementById('dash-edit-layout-btn');
     if(btn){
-      if(_dashEditing){
-        btn.style.background = 'var(--accent)';
-        btn.style.color = '#fff';
-        btn.style.borderColor = 'var(--accent)';
-      } else {
-        btn.style.background = '';
-        btn.style.color = '';
-        btn.style.borderColor = '';
-      }
+      btn.style.background = _dashEditing ? 'var(--accent)' : '';
+      btn.style.color = _dashEditing ? '#fff' : '';
+      btn.style.borderColor = _dashEditing ? 'var(--accent)' : '';
     }
-    // Inject edit action buttons in tiles
-    document.querySelectorAll('.kpi-tile').forEach(function(t){
-      var existing = t.querySelector('.kpi-tile-edit-actions');
-      if(_dashEditing){
-        if(!existing){
-          var actions = document.createElement('div');
-          actions.className = 'kpi-tile-edit-actions';
-          var id = t.getAttribute('data-tile-id');
-          actions.innerHTML =
-            '<button class="kpi-tile-edit-btn" title="Drag to reorder"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="6" r="1.2"/><circle cx="15" cy="6" r="1.2"/><circle cx="9" cy="12" r="1.2"/><circle cx="15" cy="12" r="1.2"/><circle cx="9" cy="18" r="1.2"/><circle cx="15" cy="18" r="1.2"/></svg></button>' +
-            '<button class="kpi-tile-edit-btn x" data-hide-tile="'+id+'" title="Hide"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
-          t.appendChild(actions);
-        }
-        t.setAttribute('draggable', 'true');
-      } else {
-        if(existing) existing.remove();
-        t.removeAttribute('draggable');
-      }
-    });
-    // Wire drag handlers
-    if(_dashEditing) _dashWireDrag();
-    // Render hidden tray
-    _dashRenderHiddenTray();
+    window.dashRenderTiles();
   };
-  window.dashEditDone = function(){
-    if(_dashEditing) window.dashEditToggle();
-  };
+  window.dashEditDone = function(){ if(_dashEditing) window.dashEditToggle(); };
 
   function _dashWireDrag(){
-    document.querySelectorAll('.kpi-tile').forEach(function(tile){
+    document.querySelectorAll('[data-tile-metric]').forEach(function(tile){
       tile.addEventListener('dragstart', _dashOnDragStart);
       tile.addEventListener('dragend', _dashOnDragEnd);
       tile.addEventListener('dragover', _dashOnDragOver);
       tile.addEventListener('dragleave', _dashOnDragLeave);
       tile.addEventListener('drop', _dashOnDrop);
     });
-    // Hide button click
     document.querySelectorAll('[data-hide-tile]').forEach(function(b){
       b.addEventListener('click', function(e){
         e.stopPropagation();
-        var id = b.getAttribute('data-hide-tile');
+        var tile = b.closest('[data-tile-metric]');
+        if(!tile) return;
+        var slot = parseInt(tile.getAttribute('data-tile-slot'),10);
         var layout = dashGetLayout();
-        if(layout.hidden.indexOf(id) < 0) layout.hidden.push(id);
+        layout[slot] = null;
         dashSaveLayout(layout);
-        window.dashApplyLayout();
-        _dashRenderHiddenTray();
-        // Re-toggle to refresh edit-mode buttons on remaining tiles
-        if(_dashEditing){
-          document.querySelectorAll('.kpi-tile').forEach(function(t){ t.classList.add('editing'); });
-        }
+        window.dashRenderTiles();
         if(typeof tqHaptic === 'function') tqHaptic(10);
+      });
+    });
+    document.querySelectorAll('[data-swap-tile]').forEach(function(b){
+      b.addEventListener('click', function(e){
+        e.stopPropagation();
+        var tile = b.closest('[data-tile-metric]');
+        if(!tile) return;
+        var slot = parseInt(tile.getAttribute('data-tile-slot'),10);
+        dashOpenSwapModal(slot);
       });
     });
   }
@@ -31948,46 +32168,36 @@ window.toggleSidebar = function(){
   function _dashOnDragStart(e){
     var tile = e.currentTarget;
     if(!tile.classList.contains('editing')) { e.preventDefault(); return; }
-    _dashDragId = tile.getAttribute('data-tile-id');
+    _dashDragSlot = parseInt(tile.getAttribute('data-tile-slot'),10);
     tile.classList.add('dragging');
     e.dataTransfer.effectAllowed = 'move';
-    try{ e.dataTransfer.setData('text/plain', _dashDragId); }catch(_){}
   }
   function _dashOnDragEnd(e){
     e.currentTarget.classList.remove('dragging');
-    document.querySelectorAll('.drop-target').forEach(function(t){ t.classList.remove('drop-target'); });
-    _dashDragId = null;
+    document.querySelectorAll('.drop-target').forEach(function(t){t.classList.remove('drop-target');});
+    _dashDragSlot = null;
   }
   function _dashOnDragOver(e){
-    if(!_dashDragId) return;
+    if(_dashDragSlot===null) return;
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
     var tile = e.currentTarget;
-    if(tile.getAttribute('data-tile-id') !== _dashDragId){
-      tile.classList.add('drop-target');
-    }
+    var slot = parseInt(tile.getAttribute('data-tile-slot'),10);
+    if(slot !== _dashDragSlot) tile.classList.add('drop-target');
   }
-  function _dashOnDragLeave(e){
-    e.currentTarget.classList.remove('drop-target');
-  }
+  function _dashOnDragLeave(e){ e.currentTarget.classList.remove('drop-target'); }
   function _dashOnDrop(e){
     e.preventDefault();
     var tile = e.currentTarget;
     tile.classList.remove('drop-target');
-    var targetId = tile.getAttribute('data-tile-id');
-    if(!_dashDragId || _dashDragId === targetId) return;
+    var targetSlot = parseInt(tile.getAttribute('data-tile-slot'),10);
+    if(_dashDragSlot===null || targetSlot===_dashDragSlot) return;
     var layout = dashGetLayout();
-    var aIdx = layout.order.indexOf(_dashDragId);
-    var bIdx = layout.order.indexOf(targetId);
-    if(aIdx < 0 || bIdx < 0) return;
-    // Move: remove from aIdx, insert at bIdx position (so dragged tile lands where target was)
-    var moved = layout.order.splice(aIdx, 1)[0];
-    layout.order.splice(bIdx, 0, moved);
+    var tmp = layout[_dashDragSlot];
+    layout[_dashDragSlot] = layout[targetSlot];
+    layout[targetSlot] = tmp;
     dashSaveLayout(layout);
-    window.dashApplyLayout();
-    // Re-apply editing class (DOM was reordered)
-    document.querySelectorAll('.kpi-tile').forEach(function(t){ t.classList.add('editing'); });
-    _dashWireDrag();
+    window.dashRenderTiles();
     if(typeof tqHaptic === 'function') tqHaptic(15);
   }
 
@@ -31996,42 +32206,84 @@ window.toggleSidebar = function(){
     var pills = document.getElementById('dash-hidden-pills');
     if(!tray || !pills) return;
     var layout = dashGetLayout();
-    if(!_dashEditing || layout.hidden.length === 0){
+    var used = {};
+    layout.forEach(function(id){ if(id) used[id]=true; });
+    var available = Object.keys(DASH_METRICS).filter(function(id){ return !used[id]; });
+    if(!_dashEditing || available.length === 0){
       tray.style.display = 'none';
       return;
     }
     tray.style.display = 'block';
-    pills.innerHTML = layout.hidden.map(function(id){
-      return '<span class="dash-hidden-pill" data-restore-tile="'+id+'">+ '+ (DASH_TILE_LABELS[id] || id) +'</span>';
+    pills.innerHTML = available.map(function(id){
+      var m = DASH_METRICS[id];
+      return '<span class="dash-hidden-pill" data-add-metric="'+id+'">+ '+m.name+'</span>';
     }).join('');
-    pills.querySelectorAll('[data-restore-tile]').forEach(function(p){
+    pills.querySelectorAll('[data-add-metric]').forEach(function(p){
       p.addEventListener('click', function(){
-        var id = p.getAttribute('data-restore-tile');
+        var id = p.getAttribute('data-add-metric');
         var lay = dashGetLayout();
-        lay.hidden = lay.hidden.filter(function(x){ return x !== id; });
-        dashSaveLayout(lay);
-        window.dashApplyLayout();
-        _dashRenderHiddenTray();
-        // Re-mark all visible tiles as editing
-        document.querySelectorAll('.kpi-tile').forEach(function(t){ t.classList.add('editing'); });
-        // Re-add edit actions
-        var t = document.querySelector('[data-tile-id="'+id+'"]');
-        if(t && !t.querySelector('.kpi-tile-edit-actions')){
-          var actions = document.createElement('div');
-          actions.className = 'kpi-tile-edit-actions';
-          actions.innerHTML =
-            '<button class="kpi-tile-edit-btn" title="Drag"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="6" r="1.2"/><circle cx="15" cy="6" r="1.2"/><circle cx="9" cy="12" r="1.2"/><circle cx="15" cy="12" r="1.2"/><circle cx="9" cy="18" r="1.2"/><circle cx="15" cy="18" r="1.2"/></svg></button>' +
-            '<button class="kpi-tile-edit-btn x" data-hide-tile="'+id+'" title="Hide"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
-          t.appendChild(actions);
-          t.setAttribute('draggable', 'true');
+        // Find first empty slot
+        var emptyIdx = lay.indexOf(null);
+        if(emptyIdx < 0){
+          if(typeof tqToast==='function') tqToast('All 10 slots filled. Hide a tile first to add a new metric.', {type:'info', duration:3500});
+          return;
         }
-        _dashWireDrag();
+        lay[emptyIdx] = id;
+        dashSaveLayout(lay);
+        window.dashRenderTiles();
+        if(typeof tqHaptic === 'function') tqHaptic(10);
       });
     });
   }
 
-  // Apply layout on initial page load
-  setTimeout(function(){ if(typeof window.dashApplyLayout === 'function') window.dashApplyLayout(); }, 100);
+  // Swap modal — replace specific slot with another metric
+  window.dashOpenSwapModal = function(slot){
+    var existing = document.getElementById('dash-swap-modal');
+    if(existing) existing.remove();
+    var layout = dashGetLayout();
+    var currentId = layout[slot];
+    var modal = document.createElement('div');
+    modal.id = 'dash-swap-modal';
+    modal.className = 'dash-swap-modal';
+    modal.onclick = function(e){ if(e.target===modal) modal.remove(); };
+    var items = Object.keys(DASH_METRICS).map(function(id){
+      var m = DASH_METRICS[id];
+      return '<div class="dash-swap-item'+(id===currentId?' active':'')+'" data-pick="'+id+'">' +
+        '<div class="dash-swap-item-name">'+m.name+'</div>' +
+        '<div class="dash-swap-item-desc">'+m.desc+'</div>' +
+      '</div>';
+    }).join('');
+    modal.innerHTML =
+      '<div class="dash-swap-box">' +
+        '<div class="dash-swap-head">' +
+          '<h3>Pick a metric for slot '+(slot+1)+'</h3>' +
+          '<p>Click any metric to replace this tile</p>' +
+        '</div>' +
+        '<div class="dash-swap-list">'+items+'</div>' +
+      '</div>';
+    document.body.appendChild(modal);
+    modal.querySelectorAll('[data-pick]').forEach(function(it){
+      it.addEventListener('click', function(){
+        var id = it.getAttribute('data-pick');
+        var lay = dashGetLayout();
+        // If metric already used elsewhere, swap positions
+        var existingSlot = lay.indexOf(id);
+        if(existingSlot >= 0 && existingSlot !== slot){
+          lay[existingSlot] = lay[slot];
+        }
+        lay[slot] = id;
+        dashSaveLayout(lay);
+        modal.remove();
+        window.dashRenderTiles();
+        if(typeof tqHaptic === 'function') tqHaptic(15);
+      });
+    });
+  };
+
+  // Apply layout on initial page load — wait for DOM + fonts, render tiles
+  setTimeout(function(){
+    if(typeof window.dashRenderTiles === 'function') window.dashRenderTiles();
+  }, 100);
 
   function dashCustomizeOpen(){
     var list = document.getElementById('dash-customize-list');
