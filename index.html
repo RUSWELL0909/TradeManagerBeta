@@ -100,7 +100,7 @@
 <meta name="twitter:title" content="TradeQuill — Your edge, written.">
 <meta name="twitter:description" content="Premium trading journal. Tiltmeter, MFE Capture, AI Coach.">
 <title>TradeQuill</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* ── DARK (default) ─────────────────────────── */
 :root, [data-theme="dark"] {
@@ -1889,6 +1889,32 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
 .stat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px 24px;position:relative;overflow:hidden;transition:box-shadow .25s,border-color .25s,transform .2s}.stat-card:hover{box-shadow:0 8px 32px rgba(124,90,240,.18);border-color:rgba(124,90,240,.35);transform:translateY(-2px)}
 [data-widget-hidden="true"]{display:none !important}
+
+/* Widget hover actions (Hide ⊝ + Replace ⇄) — May 2026 */
+[data-widget]{position:relative}
+.widget-actions{position:absolute;top:8px;right:8px;display:flex;gap:3px;opacity:0;transition:opacity .15s;z-index:10;pointer-events:none}
+[data-widget]:hover > .widget-actions{opacity:1;pointer-events:auto}
+.widget-action-btn{width:24px;height:24px;border:0.5px solid var(--border);border-radius:6px;background:var(--bg2);display:inline-flex;align-items:center;justify-content:center;color:var(--text3);cursor:pointer;transition:all .15s;padding:0}
+.widget-action-btn:hover{background:rgba(124,90,240,.1);color:var(--accent3);border-color:rgba(124,90,240,.35)}
+.widget-action-btn.minus:hover{background:rgba(255,80,95,.08);color:#ef4444;border-color:rgba(239,68,68,.35)}
+.widget-action-btn svg{display:block}
+
+/* Widget gallery modal */
+.widget-gallery-modal{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:99999;display:flex;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(8px);animation:fadeIn .2s}
+.widget-gallery-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;width:100%;max-width:760px;max-height:80vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.5);font-family:Inter,sans-serif}
+.widget-gallery-head{padding:18px 22px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.widget-gallery-head h3{font-size:15px;font-weight:600;color:var(--text);margin:0}
+.widget-gallery-close{background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:18px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px;transition:all .15s}
+.widget-gallery-close:hover{background:var(--card);color:var(--text)}
+.widget-gallery-list{overflow-y:auto;padding:14px;display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.widget-gallery-item{padding:14px 16px;background:var(--card);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s;font-family:Inter,sans-serif;display:flex;flex-direction:column;gap:6px;min-height:88px}
+.widget-gallery-item:hover{background:rgba(124,90,240,.06);border-color:rgba(124,90,240,.4);transform:translateY(-1px)}
+.widget-gallery-item.added{opacity:.4}
+.widget-gallery-item.added::after{content:'In dashboard';font-size:9px;color:var(--accent3);align-self:flex-start;padding:2px 7px;background:rgba(124,90,240,.1);border-radius:10px;margin-top:auto}
+.widget-gallery-item-name{font-size:13px;font-weight:600;color:var(--text)}
+.widget-gallery-item-desc{font-size:11px;color:var(--text3);line-height:1.5}
+.widget-gallery-item-icon{font-size:18px;margin-bottom:2px}
+.widget-gallery-empty{grid-column:1/-1;text-align:center;padding:40px;color:var(--text3);font-size:13px}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes newsPulse{0%,100%{opacity:1}50%{opacity:.4}}
 @keyframes newsLivePulse{0%,100%{box-shadow:0 0 0 0 rgba(224,92,122,.4)}50%{box-shadow:0 0 0 4px rgba(224,92,122,0)}}
@@ -2208,7 +2234,7 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
     transition: all .15s; display: flex; align-items: center; justify-content: center;
   }
   .dash-cal-nav:hover { border-color: var(--accent); color: var(--accent3); }
-  .dash-cal-hdr { text-align: center; font-size: 10px; color: var(--text2); font-weight: 500; font-family: 'Inter', sans-serif; padding: 4px 0 6px; letter-spacing: .3px; }
+  .dash-cal-hdr { text-align: center; font-size: 9px; color: var(--text3); font-weight: 400; font-family: 'Inter', sans-serif; padding: 4px 0 6px; letter-spacing: 1.5px; text-transform: uppercase; opacity: 0.65; }
   .dash-cal-cell {
     min-height: 72px; border-radius: 6px; padding: 6px 8px;
     cursor: pointer; position: relative;
@@ -2216,6 +2242,7 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
     border: 1.5px solid rgba(124,90,240,.18);
     display: flex; flex-direction: column; justify-content: space-between;
     background: var(--bg2);
+    font-feature-settings: "tnum" 1;
   }
   .dash-cal-cell:hover { filter: brightness(1.08); border-color: rgba(124,90,240,.35); box-shadow: 0 0 12px rgba(124,90,240,.04); }
   .dash-cal-cell.win:hover  { border-color: rgba(46,204,138,.5); box-shadow: 0 0 12px rgba(46,204,138,.12); }
@@ -2226,20 +2253,23 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
   .dash-cal-cell.loss { background: rgba(224,92,122,.12); border-color: rgba(224,92,122,.3); }
   .dash-cal-cell.be   { background: rgba(75,123,229,.12); border-color: rgba(75,123,229,.3); }
   .dash-cal-cell-num {
-    font-size: 11px; font-weight: 500; color: var(--text3);
+    font-size: 10px; font-weight: 300; color: var(--text3);
     font-family: 'Inter', sans-serif; text-align: right; line-height: 1;
     align-self: flex-start; width: 100%;
+    font-variant-numeric: tabular-nums;
   }
   .dash-cal-cell-pnl {
-    font-size: 20px; font-weight: 600; font-family: 'Inter', sans-serif;
-    line-height: 1.1; text-align: right; letter-spacing: -0.3px;
+    font-size: 17px; font-weight: 400; font-family: 'Inter', sans-serif;
+    line-height: 1.1; text-align: right; letter-spacing: -0.4px;
+    font-variant-numeric: tabular-nums;
   }
   .dash-cal-cell-pnl.win  { color: #2ecc8a; }
   .dash-cal-cell-pnl.loss { color: #e05c7a; }
   .dash-cal-cell-pnl.be   { color: rgba(111,163,247,.8); }
   .dash-cal-cell-trades {
-    font-size: 10px; font-weight: 400; color: var(--text3);
+    font-size: 9px; font-weight: 300; color: var(--text3);
     font-family: 'Inter', sans-serif; text-align: right; margin-top: 2px;
+    font-variant-numeric: tabular-nums;
   }
   .dash-cal-empty {
     min-height: 72px; border-radius: 6px; background: var(--bg2);
@@ -2991,32 +3021,32 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .dv-side-hero{background:var(--card);border-color:var(--border)}
 .dv-side-hero.neg{background:var(--card);border-color:var(--border)}
 .dv-month-nav{display:flex;align-items:center;gap:14px;margin-bottom:16px}
-.dv-month-title{font-size:18px;font-weight:600;font-family:Inter,sans-serif;min-width:180px;text-align:center}
+.dv-month-title{font-size:16px;font-weight:400;font-family:Inter,sans-serif;letter-spacing:-.3px;min-width:180px;text-align:center}
 .dv-arrow{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
 .dv-arrow:hover{border-color:var(--accent);color:var(--accent3)}
 .dv-cal-grid{display:grid;gap:5px}
-.dv-cal-head{font-size:10px;color:var(--text3);font-family:Inter,sans-serif;font-weight:600;text-align:center;padding:0 0 10px;letter-spacing:1px}
-.dv-day{border-radius:10px;padding:10px 8px;cursor:pointer;transition:all .2s;text-align:center;border:1.5px solid rgba(124,90,240,.15);min-height:82px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start}
+.dv-cal-head{font-size:9px;color:var(--text3);font-family:Inter,sans-serif;font-weight:400;text-align:center;padding:0 0 10px;letter-spacing:1.5px;text-transform:uppercase;opacity:.65}
+.dv-day{border-radius:10px;padding:10px 8px;cursor:pointer;transition:all .2s;text-align:center;border:1.5px solid rgba(124,90,240,.15);min-height:82px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;font-feature-settings:"tnum" 1}
 .dv-day:hover{background:rgba(124,90,240,.04);border-color:rgba(124,90,240,.25)}
 .dv-day.empty{opacity:0;pointer-events:none}
 .dv-day.today{border-color:rgba(124,90,240,.35);box-shadow:0 0 14px rgba(124,90,240,.08)}
 .dv-day.selected{background:rgba(124,90,240,.08);border-color:var(--accent)}
 .dv-day.win{background:rgba(46,204,138,.1);border-color:rgba(46,204,138,.3)}
 .dv-day.loss{background:rgba(224,92,122,.08);border-color:rgba(224,92,122,.3)}
-.dv-day-num{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:4px}
-.dv-day.today .dv-day-num{color:var(--accent3);font-weight:600}
-.dv-day-pnl{font-size:14px;font-family:Inter,sans-serif;font-weight:600;letter-spacing:-.5px}
-.dv-day-count{font-size:9px;color:var(--text3);font-family:Inter,sans-serif;font-weight:400;margin-top:3px}
+.dv-day-num{font-size:11px;font-weight:300;color:var(--text3);margin-bottom:4px;font-variant-numeric:tabular-nums}
+.dv-day.today .dv-day-num{color:var(--accent3);font-weight:400}
+.dv-day-pnl{font-size:16px;font-family:Inter,sans-serif;font-weight:400;letter-spacing:-.4px;font-variant-numeric:tabular-nums}
+.dv-day-count{font-size:9px;color:var(--text3);font-family:Inter,sans-serif;font-weight:300;margin-top:3px;font-variant-numeric:tabular-nums}
 .dv-day-bar{width:80%;height:3px;border-radius:2px;margin-top:auto;opacity:.5}
-.dv-week-row{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;padding:8px 14px;font-size:12px;font-family:Inter,sans-serif;font-weight:600;color:var(--text3);border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:4px 0;background:rgba(124,90,240,.015);border-radius:6px}
-.dv-week-row .dv-wk-label{font-size:10px;letter-spacing:.5px;opacity:.6}
-.dv-week-row .dv-wk-stats{display:flex;gap:12px;align-items:center;font-size:11px}
-.dv-week-row .dv-wk-pnl{font-size:13px;font-weight:600;min-width:70px;text-align:right}
+.dv-week-row{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;padding:8px 14px;font-size:11px;font-family:Inter,sans-serif;font-weight:400;color:var(--text3);border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:4px 0;background:rgba(124,90,240,.015);border-radius:6px}
+.dv-week-row .dv-wk-label{font-size:9px;letter-spacing:1px;opacity:.6;text-transform:uppercase}
+.dv-week-row .dv-wk-stats{display:flex;gap:12px;align-items:center;font-size:11px;font-variant-numeric:tabular-nums}
+.dv-week-row .dv-wk-pnl{font-size:13px;font-weight:400;min-width:70px;text-align:right;font-variant-numeric:tabular-nums;letter-spacing:-.3px}
 .dv-tabs{display:flex;gap:3px;padding:3px;background:var(--bg2);border-radius:10px;border:1px solid var(--border);margin-bottom:16px;width:fit-content}
-.dv-tab{padding:8px 18px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--text3);font-family:Inter,sans-serif;transition:all .2s}
+.dv-tab{padding:8px 18px;border-radius:8px;font-size:11px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--text3);font-family:Inter,sans-serif;transition:all .2s}
 .dv-tab.active{background:var(--accent);color:white;box-shadow:0 2px 10px rgba(124,90,240,.25)}
 .dv-tc{display:none}.dv-tc.active{display:block}
-.dv-toggle{padding:5px 12px;border-radius:7px;font-size:10px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text3);font-family:Inter,sans-serif;transition:all .15s}
+.dv-toggle{padding:5px 12px;border-radius:7px;font-size:10px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text3);font-family:Inter,sans-serif;transition:all .15s}
 .dv-toggle:hover{border-color:rgba(124,90,240,.1)}
 .dv-toggle.on{background:rgba(124,90,240,.1);border-color:var(--accent);color:var(--accent3)}
 /* V1 Heatmap */
@@ -5404,6 +5434,66 @@ window.toggleSidebar = function(){
             <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px"><span class="dash-label" style="font-size:9px">Drawdown</span><span id="dash-max-dd" style="font-size:13px;font-weight:400;color:var(--red);font-family:Inter,sans-serif">0.00%</span></div>
             <canvas id="dash-drawdown-chart" height="85"></canvas>
           </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════════════════ -->
+        <!-- EXTRA WIDGETS — hidden by default, added via gallery     -->
+        <!-- May 2026                                                 -->
+        <!-- ════════════════════════════════════════════════════════ -->
+        <div class="dash-extras-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px">
+
+          <!-- Pair distribution donut -->
+          <div class="card" data-widget="pair-distribution" data-widget-hidden="true" style="padding:14px 16px;min-height:180px">
+            <div style="font-size:10px;color:var(--text3);letter-spacing:.4px;font-weight:500;margin-bottom:14px">Pair distribution</div>
+            <div id="dash-w-pair-content" style="display:flex;align-items:center;gap:16px"></div>
+          </div>
+
+          <!-- Win rate by setup -->
+          <div class="card" data-widget="win-by-setup" data-widget-hidden="true" style="padding:14px 16px;min-height:180px">
+            <div style="font-size:10px;color:var(--text3);letter-spacing:.4px;font-weight:500;margin-bottom:14px">Win rate by setup</div>
+            <div id="dash-w-setup-content" style="font-size:11px"></div>
+          </div>
+
+          <!-- Performance by session -->
+          <div class="card" data-widget="session-perf" data-widget-hidden="true" style="padding:14px 16px;min-height:180px">
+            <div style="font-size:10px;color:var(--text3);letter-spacing:.4px;font-weight:500;margin-bottom:14px">Performance by session</div>
+            <div id="dash-w-session-content" style="font-size:11px"></div>
+          </div>
+
+          <!-- Hour-of-day heatmap -->
+          <div class="card" data-widget="hour-heatmap" data-widget-hidden="true" style="padding:14px 16px;min-height:180px">
+            <div style="font-size:10px;color:var(--text3);letter-spacing:.4px;font-weight:500;margin-bottom:6px">Hour-of-day</div>
+            <div id="dash-w-hour-summary" style="font-size:10px;color:var(--text3);font-family:DM Mono,monospace;margin-bottom:8px"></div>
+            <div id="dash-w-hour-grid" style="display:grid;grid-template-columns:repeat(24,1fr);gap:2px"></div>
+            <div style="display:flex;justify-content:space-between;font-size:8px;color:var(--text3);margin-top:4px;font-family:DM Mono,monospace;opacity:.6">
+              <span>00</span><span>06</span><span>12</span><span>18</span><span>23</span>
+            </div>
+          </div>
+
+          <!-- Day of week -->
+          <div class="card" data-widget="dow-bars" data-widget-hidden="true" style="padding:14px 16px;min-height:180px">
+            <div style="font-size:10px;color:var(--text3);letter-spacing:.4px;font-weight:500;margin-bottom:14px">Day of week performance</div>
+            <div id="dash-w-dow-content" style="font-size:11px"></div>
+          </div>
+
+          <!-- Top costly mistakes -->
+          <div class="card" data-widget="top-mistakes" data-widget-hidden="true" style="padding:14px 16px;min-height:180px">
+            <div style="font-size:10px;color:var(--text3);letter-spacing:.4px;font-weight:500;margin-bottom:14px">Top costly mistakes</div>
+            <div id="dash-w-mistakes-content" style="font-size:11px"></div>
+          </div>
+
+          <!-- Win/Loss split donut -->
+          <div class="card" data-widget="wl-donut" data-widget-hidden="true" style="padding:14px 16px;min-height:180px">
+            <div style="font-size:10px;color:var(--text3);letter-spacing:.4px;font-weight:500;margin-bottom:14px">Win/Loss split</div>
+            <div id="dash-w-wl-content" style="display:flex;align-items:center;gap:16px"></div>
+          </div>
+
+          <!-- Avg duration W vs L -->
+          <div class="card" data-widget="duration-bars" data-widget-hidden="true" style="padding:14px 16px;min-height:180px">
+            <div style="font-size:10px;color:var(--text3);letter-spacing:.4px;font-weight:500;margin-bottom:14px">Avg duration · win vs loss</div>
+            <div id="dash-w-duration-content" style="display:flex;flex-direction:column;gap:14px;font-size:11px"></div>
+          </div>
+
         </div>
 
         <!-- Hidden IDs -->
@@ -31256,18 +31346,22 @@ window.toggleSidebar = function(){
     var recentEl = document.getElementById('dash-recent-trades');
     if (recentEl) {
       var recent = trades.slice(0, 8);
+      var ccy = (typeof tqGetDisplayCurrency==='function') ? tqGetDisplayCurrency() : 'USD';
+      var sym = {USD:'$',EUR:'€',GBP:'£',JPY:'¥',CHF:'CHF ',CAD:'C$',AUD:'A$',NZD:'NZ$'}[ccy] || '$';
       recentEl.innerHTML = recent.map(function(t) {
-        var isWin = t.pnl > 0;
-        var isBe = Math.abs(t.pnl) < 0.01;
+        // Use currency-converted P&L for accuracy across multi-currency accounts (May 2026 fix)
+        var pn = (typeof tqConvertTradePnl==='function') ? tqConvertTradePnl(t) : (parseFloat(t.pnl)||0);
+        var isWin = pn > 0;
+        var isBe = Math.abs(pn) < 0.01;
         var tag = isBe ? '<span style="font-size:10px;padding:1px 6px;background:rgba(255,255,255,.08);color:var(--text3);border-radius:4px;font-family:Inter,sans-serif">BE</span>'
                 : isWin ? '<span style="font-size:10px;padding:1px 6px;background:rgba(46,204,138,.15);color:var(--green);border-radius:4px;font-family:Inter,sans-serif">WIN</span>'
                 : '<span style="font-size:10px;padding:1px 6px;background:rgba(224,92,122,.15);color:var(--red);border-radius:4px;font-family:Inter,sans-serif">LOSS</span>';
         var pnlColor = isBe ? 'var(--text3)' : isWin ? 'var(--green)' : 'var(--red)';
-        var pnlStr = isBe ? '$0' : (isWin ? '+$' : '-$') + Math.abs(t.pnl).toFixed(0);
-        return '<div style="display:grid;grid-template-columns:90px 1fr 80px;padding:8px;border-radius:6px;font-size:13px;border-bottom:1px solid var(--border)">'
+        var pnlStr = isBe ? sym+'0' : (isWin ? '+'+sym : '-'+sym) + Math.abs(pn).toFixed(0);
+        return '<div style="display:grid;grid-template-columns:90px 1fr 80px;padding:8px;border-radius:6px;font-size:13px;border-bottom:1px solid var(--border);font-variant-numeric:tabular-nums">'
           + '<span style="font-family:Inter,sans-serif;color:var(--text3);font-size:11px">' + (t.date||'').replace(/-/g,'/') + '</span>'
-          + '<span style="font-weight:600;color:var(--accent3)">' + (t.pair||t.symbol||'—') + ' ' + tag + '</span>'
-          + '<span style="text-align:right;color:' + pnlColor + ';font-family:Inter,sans-serif;font-weight:600">' + pnlStr + '</span>'
+          + '<span style="font-weight:500;color:var(--accent3)">' + (t.pair||t.symbol||'—') + ' ' + tag + '</span>'
+          + '<span style="text-align:right;color:' + pnlColor + ';font-family:Inter,sans-serif;font-weight:500">' + pnlStr + '</span>'
           + '</div>';
       }).join('');
     }
@@ -31275,6 +31369,8 @@ window.toggleSidebar = function(){
     // Charts
     try{ renderDashCharts(trades, byDay, accBal); }catch(e){ console.error('Dashboard charts error:', e); }
     try{ renderDashCalendar(byDay, tradesByDay); }catch(e){ console.error('Dashboard calendar error:', e); }
+    // Extra widgets (May 2026 — only render if not hidden, avoid wasted CPU)
+    try{ if(typeof renderDashExtras === 'function') renderDashExtras(trades); }catch(e){ console.error('Dash extras error:', e); }
 
     // Avg Daily sparkline
     (function() {
@@ -31543,8 +31639,8 @@ window.toggleSidebar = function(){
       label:'Top Section',
       collapsible:false,
       widgets:[
-        {id:'motivational-quote', label:'Motivational Quote', desc:'Daily inspiration banner at top', def:true},
-        {id:'tq-score', label:'TradeQuill Score', desc:'Composite performance radar (0-100)', def:true}
+        {id:'motivational-quote', label:'Motivational Quote', desc:'Daily inspiration banner at top', def:true, icon:'💬'},
+        {id:'tq-score', label:'TradeQuill Score', desc:'Composite performance radar (0-100)', def:true, icon:'⭐'}
       ]
     },
     {
@@ -31552,11 +31648,10 @@ window.toggleSidebar = function(){
       label:'Advanced Metrics',
       collapsible:true,
       widgets:[
-        {id:'advanced-metrics', label:'Show entire row', desc:'Master toggle for the whole row', def:true},
-        {id:'recovery-factor', label:'Recovery Factor', desc:'Net profit ÷ Max drawdown', def:true},
-        {id:'consistency', label:'Consistency Score', desc:'Daily return stability (0-100)', def:true},
-        {id:'max-dd', label:'Max Drawdown', desc:'Largest peak-to-trough decline', def:true},
-        {id:'current-streak', label:'Current Streak', desc:'Active win/loss streak + records', def:true}
+        {id:'advanced-metrics', label:'Show entire row', desc:'Master toggle for the whole row', def:true, icon:'📊'},
+        {id:'recovery-factor', label:'Recovery Factor', desc:'Net profit ÷ Max drawdown', def:true, icon:'🔄'},
+        {id:'consistency', label:'Consistency Score', desc:'Daily return stability (0-100)', def:true, icon:'📈'},
+        {id:'goals', label:'Goals', desc:'Weekly/monthly goal tracker', def:true, icon:'🎯'}
       ]
     },
     {
@@ -31564,8 +31659,8 @@ window.toggleSidebar = function(){
       label:'Data Views',
       collapsible:false,
       widgets:[
-        {id:'recent-trades', label:'Recent Trades', desc:'Last 8 trades quick view', def:true},
-        {id:'pnl-calendar', label:'P&L Calendar', desc:'Monthly calendar heatmap', def:true}
+        {id:'recent-trades', label:'Recent Trades', desc:'Last 8 trades quick view', def:true, icon:'📋'},
+        {id:'pnl-calendar', label:'P&L Calendar', desc:'Monthly calendar heatmap', def:true, icon:'📅'}
       ]
     },
     {
@@ -31573,10 +31668,25 @@ window.toggleSidebar = function(){
       label:'Charts',
       collapsible:true,
       widgets:[
-        {id:'chart-cumpnl', label:'Cumulative P&L Chart', desc:'Daily net cumulative equity curve', def:true},
-        {id:'chart-dailypnl', label:'Daily P&L Bar Chart', desc:'Net P&L per trading day', def:true},
-        {id:'chart-balance', label:'Account Balance Chart', desc:'Balance over time with deposits', def:true},
-        {id:'chart-drawdown', label:'Drawdown Chart', desc:'Running drawdown % visualization', def:true}
+        {id:'chart-cumpnl', label:'Cumulative P&L', desc:'Daily net cumulative equity curve', def:true, icon:'📉'},
+        {id:'chart-dailypnl', label:'Daily P&L', desc:'Net P&L per trading day', def:true, icon:'📊'},
+        {id:'chart-balance', label:'Account Balance', desc:'Balance over time with deposits', def:true, icon:'💰'},
+        {id:'chart-drawdown', label:'Drawdown', desc:'Running drawdown % visualization', def:true, icon:'📉'}
+      ]
+    },
+    {
+      id:'extra',
+      label:'Extra Widgets — not on by default',
+      collapsible:true,
+      widgets:[
+        {id:'pair-distribution', label:'Pair distribution', desc:'Trade volume per pair (donut)', def:false, icon:'🥧'},
+        {id:'win-by-setup', label:'Win rate by setup', desc:'Performance per playbook setup', def:false, icon:'🎯'},
+        {id:'session-perf', label:'Performance by session', desc:'Asia / London / NY breakdown', def:false, icon:'🌐'},
+        {id:'hour-heatmap', label:'Hour-of-day heatmap', desc:'Best & worst hours to trade', def:false, icon:'🕐'},
+        {id:'dow-bars', label:'Day of week', desc:'Performance Mon → Fri', def:false, icon:'📆'},
+        {id:'top-mistakes', label:'Top costly mistakes', desc:'Psych tags ranked by loss', def:false, icon:'⚠️'},
+        {id:'wl-donut', label:'Win/Loss split', desc:'Visual W/L count + net', def:false, icon:'⚖️'},
+        {id:'duration-bars', label:'Avg duration W vs L', desc:'How long held wins vs losses', def:false, icon:'⏱️'}
       ]
     }
   ];
@@ -31596,8 +31706,110 @@ window.toggleSidebar = function(){
         el.setAttribute('data-widget-hidden', shown ? 'false' : 'true');
       });
     });
+    // Inject hover action buttons (May 2026)
+    if(typeof window.dashInjectWidgetActions === 'function') window.dashInjectWidgetActions();
   }
   window.dashApplyCustomization = dashApplyCustomization;
+
+  // ════════════════════════════════════════════════════════════
+  // WIDGET HOVER ACTIONS — Hide ⊝ + Replace ⇄ (May 2026)
+  // ════════════════════════════════════════════════════════════
+  // Excluded widgets (no hover actions): KPI tiles (handled by their own edit mode),
+  // and "advanced-metrics" master row (it's a wrapper).
+  var WIDGET_EXCLUDE_HOVER = ['advanced-metrics'];
+
+  window.dashInjectWidgetActions = function(){
+    document.querySelectorAll('[data-widget]').forEach(function(el){
+      var widgetId = el.getAttribute('data-widget');
+      if(WIDGET_EXCLUDE_HOVER.indexOf(widgetId) >= 0) return;
+      // Skip KPI tile slots — they have their own edit system
+      if(el.classList.contains('kpi-tile')) return;
+      // Skip if hidden
+      if(el.getAttribute('data-widget-hidden') === 'true') return;
+      // Skip if actions already injected
+      if(el.querySelector(':scope > .widget-actions')) return;
+      var actions = document.createElement('div');
+      actions.className = 'widget-actions';
+      actions.innerHTML =
+        '<button class="widget-action-btn" onclick="event.stopPropagation();dashOpenWidgetGallery(\''+widgetId+'\')" title="Replace this widget"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 01-4 4H3"/></svg></button>' +
+        '<button class="widget-action-btn minus" onclick="event.stopPropagation();dashHideWidget(\''+widgetId+'\')" title="Hide widget"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>';
+      el.appendChild(actions);
+    });
+  };
+
+  window.dashHideWidget = function(widgetId){
+    var prefs = dashGetPrefs();
+    prefs[widgetId] = false;
+    dashSavePrefs(prefs);
+    dashApplyCustomization();
+    if(typeof tqToast === 'function'){
+      tqToast('Widget hidden — reopen via "Customize" button', {type:'info', duration:3000});
+    }
+    if(typeof tqHaptic === 'function') tqHaptic(10);
+  };
+
+  // Replace flow — open gallery filtered to "extra" widgets + currently hidden ones
+  window.dashOpenWidgetGallery = function(replacingId){
+    var existing = document.getElementById('widget-gallery-modal');
+    if(existing) existing.remove();
+    var prefs = dashGetPrefs();
+    var modal = document.createElement('div');
+    modal.id = 'widget-gallery-modal';
+    modal.className = 'widget-gallery-modal';
+    modal.onclick = function(e){ if(e.target===modal) modal.remove(); };
+
+    // Available items: extra widgets + non-default widgets that are currently hidden
+    var available = DASH_WIDGETS.filter(function(w){
+      if(w.id === replacingId) return false; // can't replace with self
+      if(WIDGET_EXCLUDE_HOVER.indexOf(w.id) >= 0) return false;
+      var shown = prefs.hasOwnProperty(w.id) ? prefs[w.id] : w.def;
+      // Show: items that are currently NOT shown (so adding makes sense)
+      return !shown;
+    });
+
+    var items = available.length === 0 ?
+      '<div class="widget-gallery-empty">No more widgets to add — all are currently visible</div>' :
+      available.map(function(w){
+        return '<div class="widget-gallery-item" data-pick="'+w.id+'">' +
+          '<div class="widget-gallery-item-icon">'+(w.icon||'📊')+'</div>' +
+          '<div class="widget-gallery-item-name">'+w.label+'</div>' +
+          '<div class="widget-gallery-item-desc">'+w.desc+'</div>' +
+        '</div>';
+      }).join('');
+
+    modal.innerHTML =
+      '<div class="widget-gallery-box">' +
+        '<div class="widget-gallery-head">' +
+          '<div><h3>Pick a widget to '+(replacingId?'swap with':'add')+'</h3>' +
+          '<p style="font-size:11px;color:var(--text3);margin:4px 0 0">'+(replacingId?'Currently showing: <strong>'+replacingId+'</strong>':'Available widgets to add')+'</p></div>' +
+          '<button class="widget-gallery-close" onclick="document.getElementById(\'widget-gallery-modal\').remove()">×</button>' +
+        '</div>' +
+        '<div class="widget-gallery-list">'+items+'</div>' +
+      '</div>';
+    document.body.appendChild(modal);
+    modal.querySelectorAll('[data-pick]').forEach(function(it){
+      it.addEventListener('click', function(){
+        var pickId = it.getAttribute('data-pick');
+        var p = dashGetPrefs();
+        p[pickId] = true;
+        if(replacingId) p[replacingId] = false;
+        dashSavePrefs(p);
+        modal.remove();
+        dashApplyCustomization();
+        if(typeof updateDashboard === 'function') try{ updateDashboard(); }catch(e){}
+        if(typeof tqHaptic === 'function') tqHaptic(15);
+        if(typeof tqToast === 'function'){
+          var pickedLabel = (DASH_WIDGETS.find(function(w){return w.id===pickId;})||{}).label || pickId;
+          tqToast('✓ Added '+pickedLabel, {type:'info', duration:2500});
+        }
+      });
+    });
+  };
+
+  // "+ Add widget" button helper — opens gallery without replacement
+  window.dashAddWidget = function(){
+    window.dashOpenWidgetGallery(null);
+  };
 
   var _dashGroupOpen = {}; // track which collapsible groups are open
 
@@ -32342,8 +32554,18 @@ window.toggleSidebar = function(){
     });
     var page = document.getElementById('page-dashboard');
     if(page){
-      page.classList.remove('dash-view-dollar','dash-view-percent','dash-view-privacy');
+      page.classList.remove('dash-view-dollar','dash-view-rmultiple','dash-view-percent','dash-view-privacy');
       page.classList.add('dash-view-'+view);
+    }
+    // Re-render KPI tiles (they handle the mode internally via metric registry)
+    if(typeof window.dashRenderTiles === 'function') try{ window.dashRenderTiles(); }catch(e){}
+    // Toast feedback
+    if(typeof tqToast === 'function'){
+      var msg = view==='dollar' ? '$ — Dollar mode'
+              : view==='rmultiple' ? 'R — R-Multiple mode (where available)'
+              : view==='percent' ? '% — Percentage of starting balance'
+              : '👁 — Privacy mode (values hidden)';
+      tqToast(msg, {type:'info', duration:2000});
     }
   }
   window.dashSetView = dashSetView;
@@ -32877,6 +33099,292 @@ window.toggleSidebar = function(){
     setTimeout(dashApplyCustomization, 100);
   } else {
     document.addEventListener('DOMContentLoaded', function(){setTimeout(dashApplyCustomization, 100);});
+  }
+
+  // ════════════════════════════════════════════════════════════
+  // EXTRA WIDGETS — May 2026
+  // Renders only if widget is currently visible (not hidden by user prefs)
+  // ════════════════════════════════════════════════════════════
+  function _isWidgetVisible(id){
+    var el = document.querySelector('[data-widget="'+id+'"]');
+    return el && el.getAttribute('data-widget-hidden') !== 'true';
+  }
+  function _ccyInfo(){
+    var ccy = (typeof tqGetDisplayCurrency==='function') ? tqGetDisplayCurrency() : 'USD';
+    var sym = {USD:'$',EUR:'€',GBP:'£',JPY:'¥',CHF:'CHF ',CAD:'C$',AUD:'A$',NZD:'NZ$'}[ccy] || '$';
+    return {ccy:ccy, sym:sym};
+  }
+  function _pnlOf(t){
+    return (typeof tqConvertTradePnl==='function') ? tqConvertTradePnl(t) : (parseFloat(t.pnl)||0);
+  }
+
+  function renderDashExtras(trades){
+    if(!trades || !trades.length) return;
+    var ci = _ccyInfo();
+
+    // ─── Pair distribution donut ───
+    if(_isWidgetVisible('pair-distribution')){
+      var el = document.getElementById('dash-w-pair-content');
+      if(el){
+        var pairCount = {};
+        trades.forEach(function(t){
+          var p = t.pair || t.symbol || 'Other';
+          pairCount[p] = (pairCount[p]||0) + 1;
+        });
+        var pairs = Object.keys(pairCount).map(function(p){return {p:p,c:pairCount[p]};}).sort(function(a,b){return b.c-a.c;});
+        var total = trades.length;
+        var topPairs = pairs.slice(0,4);
+        var othersCount = pairs.slice(4).reduce(function(a,p){return a+p.c;},0);
+        if(othersCount>0) topPairs.push({p:'Other',c:othersCount});
+        var colors = ['rgba(124,90,240,.7)','rgba(29,233,182,.7)','rgba(240,180,41,.7)','rgba(239,68,68,.7)','rgba(130,130,130,.7)'];
+        var offset = 0;
+        var arcs = topPairs.map(function(pp,i){
+          var pct = pp.c/total*100;
+          var len = pct;
+          var arc = '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="'+colors[i]+'" stroke-width="6" stroke-dasharray="'+len.toFixed(1)+' 100" stroke-dashoffset="-'+offset.toFixed(1)+'" transform="rotate(-90 18 18)"/>';
+          offset += len;
+          return arc;
+        }).join('');
+        var legend = topPairs.map(function(pp,i){
+          var pct = (pp.c/total*100).toFixed(0);
+          return '<div style="display:flex;align-items:center;gap:6px;margin:3px 0;font-size:10px;font-variant-numeric:tabular-nums"><span style="width:7px;height:7px;border-radius:50%;background:'+colors[i]+'"></span>'+pp.p+' · '+pct+'%</div>';
+        }).join('');
+        el.innerHTML = '<svg width="80" height="80" viewBox="0 0 36 36" style="flex-shrink:0">'+arcs+'</svg><div style="font-size:10px;color:var(--text3)">'+legend+'</div>';
+      }
+    }
+
+    // ─── Win rate by setup ───
+    if(_isWidgetVisible('win-by-setup')){
+      var el = document.getElementById('dash-w-setup-content');
+      if(el){
+        var setupStats = {};
+        trades.forEach(function(t){
+          var s = t.setup || t.playbookSetup || 'Other';
+          if(!setupStats[s]) setupStats[s] = {w:0,l:0};
+          var p = _pnlOf(t);
+          if(p>0) setupStats[s].w++;
+          else if(p<0) setupStats[s].l++;
+        });
+        var setups = Object.keys(setupStats).map(function(s){
+          var st = setupStats[s];
+          var total = st.w+st.l;
+          return {s:s, wr: total>0?st.w/total*100:0, total:total};
+        }).filter(function(x){return x.total>=2;}).sort(function(a,b){return b.wr-a.wr;}).slice(0,5);
+        if(setups.length === 0){
+          el.innerHTML = '<div style="color:var(--text3);font-size:11px;padding:10px 0">Tag your trades with setups to see this</div>';
+        } else {
+          el.innerHTML = setups.map(function(s){
+            var color = s.wr>=55 ? '#1de9b6' : (s.wr>=45 ? 'rgba(29,233,182,.6)' : '#ef4444');
+            var label = s.s.length>14 ? s.s.slice(0,14)+'…' : s.s;
+            return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-variant-numeric:tabular-nums">' +
+              '<span style="width:90px;color:var(--text3);font-size:10px">'+label+'</span>' +
+              '<div style="flex:1;height:5px;background:rgba(255,255,255,.04);border-radius:2px;overflow:hidden"><div style="width:'+s.wr.toFixed(0)+'%;height:100%;background:'+color+'"></div></div>' +
+              '<span style="width:42px;text-align:right;font-size:10px;color:var(--text);font-family:DM Mono,monospace">'+s.wr.toFixed(0)+'%</span>' +
+            '</div>';
+          }).join('');
+        }
+      }
+    }
+
+    // ─── Performance by session ───
+    if(_isWidgetVisible('session-perf')){
+      var el = document.getElementById('dash-w-session-content');
+      if(el){
+        var sessionStats = {};
+        trades.forEach(function(t){
+          var s = t.session || 'Other';
+          if(!sessionStats[s]) sessionStats[s] = 0;
+          sessionStats[s] += _pnlOf(t);
+        });
+        var sessions = Object.keys(sessionStats).map(function(s){return {s:s, p:sessionStats[s]};}).sort(function(a,b){return b.p-a.p;});
+        if(sessions.length === 0){
+          el.innerHTML = '<div style="color:var(--text3);font-size:11px;padding:10px 0">No session data tagged yet</div>';
+        } else {
+          var max = Math.max.apply(Math, sessions.map(function(s){return Math.abs(s.p);}));
+          el.innerHTML = sessions.map(function(s){
+            var color = s.p>=0 ? '#1de9b6' : '#ef4444';
+            var width = max>0 ? Math.abs(s.p)/max*100 : 0;
+            var sign = s.p>=0?'+':'-';
+            return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-variant-numeric:tabular-nums">' +
+              '<span style="width:60px;color:var(--text3);font-size:10px">'+s.s+'</span>' +
+              '<div style="flex:1;height:5px;background:rgba(255,255,255,.04);border-radius:2px;overflow:hidden"><div style="width:'+width.toFixed(0)+'%;height:100%;background:'+color+';opacity:'+(width>50?'1':'.7')+'"></div></div>' +
+              '<span style="width:62px;text-align:right;font-size:10px;color:'+(s.p>=0?'#1de9b6':'#ef4444')+';font-family:DM Mono,monospace">'+sign+ci.sym+Math.abs(Math.round(s.p)).toLocaleString()+'</span>' +
+            '</div>';
+          }).join('');
+        }
+      }
+    }
+
+    // ─── Hour-of-day heatmap ───
+    if(_isWidgetVisible('hour-heatmap')){
+      var grid = document.getElementById('dash-w-hour-grid');
+      var summary = document.getElementById('dash-w-hour-summary');
+      if(grid){
+        var hourPnl = new Array(24).fill(0);
+        var hourCount = new Array(24).fill(0);
+        trades.forEach(function(t){
+          var h = -1;
+          // Try entry time, fallback to date hour
+          if(t.entryTime){ var m=String(t.entryTime).match(/^(\d{1,2})/); if(m) h=parseInt(m[1],10); }
+          if(h<0 || h>23) return;
+          hourPnl[h] += _pnlOf(t);
+          hourCount[h]++;
+        });
+        var maxAbs = Math.max(1, Math.max.apply(Math, hourPnl.map(Math.abs)));
+        grid.innerHTML = hourPnl.map(function(p, h){
+          var intensity = Math.abs(p)/maxAbs;
+          var bg = 'rgba(255,255,255,.04)';
+          if(hourCount[h]>0){
+            if(p>0) bg = 'rgba(29,233,182,'+(0.15+intensity*0.6).toFixed(2)+')';
+            else if(p<0) bg = 'rgba(239,68,68,'+(0.15+intensity*0.6).toFixed(2)+')';
+          }
+          var sign = p>=0?'+':'';
+          var title = String(h).padStart(2,'0')+':00 · '+sign+ci.sym+Math.round(p)+' · '+hourCount[h]+' tr';
+          return '<div title="'+title+'" style="aspect-ratio:1;border-radius:2px;background:'+bg+'"></div>';
+        }).join('');
+        if(summary){
+          var bestH = hourPnl.indexOf(Math.max.apply(Math, hourPnl));
+          var worstH = hourPnl.indexOf(Math.min.apply(Math, hourPnl));
+          var bestStr = hourCount[bestH]>0 ? String(bestH).padStart(2,'0')+':00 ('+(hourPnl[bestH]>=0?'+':'')+ci.sym+Math.round(hourPnl[bestH])+')' : '—';
+          var worstStr = hourCount[worstH]>0 && hourPnl[worstH]<0 ? String(worstH).padStart(2,'0')+':00 ('+ci.sym+Math.round(hourPnl[worstH])+')' : '—';
+          summary.textContent = 'Best: '+bestStr+'  ·  Worst: '+worstStr;
+        }
+      }
+    }
+
+    // ─── Day of week ───
+    if(_isWidgetVisible('dow-bars')){
+      var el = document.getElementById('dash-w-dow-content');
+      if(el){
+        var dows = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        var dowPnl = new Array(7).fill(0);
+        trades.forEach(function(t){
+          if(!t.date) return;
+          var d = new Date(t.date);
+          if(isNaN(d.getTime())) return;
+          dowPnl[d.getDay()] += _pnlOf(t);
+        });
+        // Show Mon-Fri (1-5) primarily
+        var trading = [1,2,3,4,5].map(function(i){return {d:dows[i], p:dowPnl[i]};});
+        var maxAbs = Math.max(1, Math.max.apply(Math, trading.map(function(x){return Math.abs(x.p);})));
+        el.innerHTML = trading.map(function(x){
+          var color = x.p>=0 ? '#1de9b6' : '#ef4444';
+          var width = Math.abs(x.p)/maxAbs*100;
+          var sign = x.p>=0?'+':'-';
+          return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-variant-numeric:tabular-nums">' +
+            '<span style="width:42px;color:var(--text3);font-size:10px">'+x.d+'</span>' +
+            '<div style="flex:1;height:5px;background:rgba(255,255,255,.04);border-radius:2px;overflow:hidden"><div style="width:'+width.toFixed(0)+'%;height:100%;background:'+color+';opacity:'+(width>50?'1':'.75')+'"></div></div>' +
+            '<span style="width:62px;text-align:right;font-size:10px;color:'+(x.p>=0?'#1de9b6':'#ef4444')+';font-family:DM Mono,monospace">'+sign+ci.sym+Math.abs(Math.round(x.p)).toLocaleString()+'</span>' +
+          '</div>';
+        }).join('');
+      }
+    }
+
+    // ─── Top costly mistakes ───
+    if(_isWidgetVisible('top-mistakes')){
+      var el = document.getElementById('dash-w-mistakes-content');
+      if(el){
+        var tagPnl = {};
+        trades.forEach(function(t){
+          var p = _pnlOf(t);
+          if(p>=0) return; // only count negative trades
+          var tags = t.psychTags || t.mistakes || [];
+          if(!Array.isArray(tags)) return;
+          tags.forEach(function(tag){
+            tagPnl[tag] = (tagPnl[tag]||0) + p;
+          });
+        });
+        var mistakes = Object.keys(tagPnl).map(function(t){return {t:t, p:tagPnl[t]};}).sort(function(a,b){return a.p-b.p;}).slice(0,5);
+        if(mistakes.length === 0){
+          el.innerHTML = '<div style="color:var(--text3);font-size:11px;padding:10px 0">Tag your losing trades with mistakes to see this</div>';
+        } else {
+          var max = Math.abs(mistakes[0].p);
+          el.innerHTML = mistakes.map(function(m){
+            var width = Math.abs(m.p)/max*100;
+            var label = m.t.length>14 ? m.t.slice(0,14)+'…' : m.t;
+            return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-variant-numeric:tabular-nums">' +
+              '<span style="width:90px;color:var(--text3);font-size:10px">'+label+'</span>' +
+              '<div style="flex:1;height:5px;background:rgba(255,255,255,.04);border-radius:2px;overflow:hidden"><div style="width:'+width.toFixed(0)+'%;height:100%;background:#ef4444;opacity:'+(width>70?'1':'.7')+'"></div></div>' +
+              '<span style="width:62px;text-align:right;font-size:10px;color:#ef4444;font-family:DM Mono,monospace">-'+ci.sym+Math.abs(Math.round(m.p)).toLocaleString()+'</span>' +
+            '</div>';
+          }).join('');
+        }
+      }
+    }
+
+    // ─── Win/Loss split donut ───
+    if(_isWidgetVisible('wl-donut')){
+      var el = document.getElementById('dash-w-wl-content');
+      if(el){
+        var wins=0, losses=0, bes=0, net=0;
+        trades.forEach(function(t){
+          var p = _pnlOf(t);
+          net += p;
+          if(Math.abs(p)<0.01) bes++;
+          else if(p>0) wins++;
+          else losses++;
+        });
+        var total = wins+losses;
+        var winPct = total>0 ? wins/total*100 : 0;
+        var sign = net>=0?'+':'-';
+        el.innerHTML =
+          '<svg width="80" height="80" viewBox="0 0 36 36" style="flex-shrink:0">' +
+            '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="rgba(239,68,68,.35)" stroke-width="6"/>' +
+            '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="#1de9b6" stroke-width="6" stroke-dasharray="'+winPct.toFixed(1)+' 100" transform="rotate(-90 18 18)"/>' +
+            '<text x="18" y="20" text-anchor="middle" font-size="7" fill="#ededed" font-family="Inter" font-weight="500" font-variant-numeric="tabular-nums">'+winPct.toFixed(0)+'%</text>' +
+          '</svg>' +
+          '<div style="font-size:10px;color:var(--text3);font-variant-numeric:tabular-nums">' +
+            '<div style="display:flex;align-items:center;gap:6px;margin:3px 0"><span style="width:7px;height:7px;border-radius:50%;background:#1de9b6"></span>Wins · '+wins+'</div>' +
+            '<div style="display:flex;align-items:center;gap:6px;margin:3px 0"><span style="width:7px;height:7px;border-radius:50%;background:#ef4444"></span>Losses · '+losses+'</div>' +
+            (bes>0 ? '<div style="display:flex;align-items:center;gap:6px;margin:3px 0"><span style="width:7px;height:7px;border-radius:50%;background:rgba(130,130,130,.7)"></span>BE · '+bes+'</div>' : '') +
+            '<div style="margin-top:8px;color:'+(net>=0?'#1de9b6':'#ef4444')+';font-family:DM Mono,monospace">'+sign+ci.sym+Math.abs(Math.round(net)).toLocaleString()+' net</div>' +
+          '</div>';
+      }
+    }
+
+    // ─── Avg duration W vs L ───
+    if(_isWidgetVisible('duration-bars')){
+      var el = document.getElementById('dash-w-duration-content');
+      if(el){
+        var winDur = [], lossDur = [];
+        trades.forEach(function(t){
+          if(!t.duration && !t.holdMinutes) return;
+          var min = parseFloat(t.duration || t.holdMinutes);
+          if(isNaN(min) || min<=0) return;
+          var p = _pnlOf(t);
+          if(p>0) winDur.push(min);
+          else if(p<0) lossDur.push(min);
+        });
+        if(winDur.length===0 && lossDur.length===0){
+          el.innerHTML = '<div style="color:var(--text3);font-size:11px;padding:10px 0;align-self:center">Log entry/exit times to see this</div>';
+        } else {
+          function avg(a){return a.length?a.reduce(function(x,y){return x+y;},0)/a.length:0;}
+          function fmt(min){
+            if(min<60) return Math.round(min)+'m';
+            var h=Math.floor(min/60), m=Math.round(min%60);
+            return h+'h'+(m>0?' '+m+'m':'');
+          }
+          var aw = avg(winDur), al = avg(lossDur);
+          var maxv = Math.max(aw, al, 1);
+          el.innerHTML =
+            '<div>' +
+              '<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">' +
+                '<span style="color:#1de9b6">Wins held</span>' +
+                '<span style="font-family:DM Mono,monospace;color:var(--text);font-variant-numeric:tabular-nums">'+(winDur.length?fmt(aw):'—')+'</span>' +
+              '</div>' +
+              '<div style="height:6px;background:rgba(255,255,255,.04);border-radius:2px;overflow:hidden"><div style="width:'+(aw/maxv*100).toFixed(0)+'%;height:100%;background:#1de9b6"></div></div>' +
+            '</div>' +
+            '<div>' +
+              '<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">' +
+                '<span style="color:#ef4444">Losses cut</span>' +
+                '<span style="font-family:DM Mono,monospace;color:var(--text);font-variant-numeric:tabular-nums">'+(lossDur.length?fmt(al):'—')+'</span>' +
+              '</div>' +
+              '<div style="height:6px;background:rgba(255,255,255,.04);border-radius:2px;overflow:hidden"><div style="width:'+(al/maxv*100).toFixed(0)+'%;height:100%;background:#ef4444"></div></div>' +
+            '</div>' +
+            (aw>0&&al>0 ? '<div style="font-size:10px;color:var(--text3);font-family:DM Mono,monospace;margin-top:4px">Ratio: '+(aw/al).toFixed(1)+':1 '+(aw>=al?'· healthy ✓':'· cut winners early')+'</div>' : '');
+        }
+      }
+    }
   }
 
   function renderDashCharts(trades, byDay, accBal) {
