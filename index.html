@@ -5214,20 +5214,37 @@ window.toggleSidebar = function(){
       </div>
     </div>
 
-    <!-- AI INSIGHTS WIDGET (top 3 AI observations) -->
-    <div id="dash-ai-insights" style="margin-bottom:16px;background:linear-gradient(135deg,rgba(124,90,240,.06),rgba(124,90,240,.02));border:1px solid rgba(124,90,240,.15);border-radius:14px;padding:16px 20px;position:relative;overflow:hidden">
-      <div style="position:absolute;top:-20%;right:-5%;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(124,90,240,.06),transparent 70%);pointer-events:none"></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;position:relative">
-        <div class="tq-row">
-          <span style="font-size:18px">✨</span>
-          <div>
-            <div style="font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.3px">AI INSIGHTS</div>
-            <div style="font-size:10px;color:var(--text3);margin-top:1px" id="dash-ai-subtitle">Auto-updated with your latest data</div>
-          </div>
+    <!-- AI HUB — combined Insights + Coach in one collapsible row, closed by default -->
+    <div id="dash-ai-hub" style="margin-bottom:16px;border:1px solid rgba(124,90,240,.12);border-radius:12px;background:linear-gradient(135deg,rgba(124,90,240,.04),rgba(124,90,240,.01));overflow:hidden;font-family:Inter,sans-serif">
+      <!-- Compact header row -->
+      <div onclick="dashAIHubToggle()" id="dash-ai-hub-header" style="display:flex;align-items:center;gap:14px;padding:11px 18px;cursor:pointer;user-select:none;transition:background .15s">
+        <span style="font-size:15px;line-height:1">✨</span>
+        <span style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.5px">AI HUB</span>
+        <div style="display:flex;align-items:center;gap:14px;flex:1;font-size:10px;color:var(--text3)">
+          <span id="dash-ai-hub-summary-insights" style="display:flex;align-items:center;gap:5px">
+            <span style="width:5px;height:5px;border-radius:50%;background:var(--accent);opacity:.6"></span>
+            <span id="dash-ai-hub-insights-count">— insights</span>
+          </span>
+          <span id="dash-ai-hub-summary-coach" style="display:flex;align-items:center;gap:5px">
+            <span style="width:5px;height:5px;border-radius:50%;background:var(--accent3);opacity:.6"></span>
+            <span id="dash-coach-count">— coach tips</span>
+          </span>
         </div>
-        <button onclick="dashAIRefresh()" id="dash-ai-refresh-btn" style="background:rgba(124,90,240,.08);border:1px solid rgba(124,90,240,.2);color:var(--accent);padding:4px 10px;border-radius:6px;font-size:10px;cursor:pointer;font-weight:600;font-family:Inter,sans-serif" title="Re-analyze">⟳ Refresh</button>
+        <button onclick="event.stopPropagation();dashAIRefresh();" id="dash-ai-refresh-btn" style="background:rgba(124,90,240,.08);border:1px solid rgba(124,90,240,.18);color:var(--accent);padding:3px 9px;border-radius:5px;font-size:10px;cursor:pointer;font-weight:600;font-family:Inter,sans-serif" title="Re-analyze">⟳</button>
+        <svg class="ai-hub-chev" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="color:var(--text3);opacity:.6;transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
-      <div id="dash-ai-list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;position:relative"></div>
+      <!-- Body (closed by default) -->
+      <div id="dash-ai-hub-body" style="display:none;padding:0 18px 14px;border-top:1px solid rgba(124,90,240,.08)">
+        <!-- AI Insights tab content -->
+        <div style="font-size:9px;font-weight:700;color:var(--text3);letter-spacing:1.2px;margin:14px 0 8px">— INSIGHTS</div>
+        <div id="dash-ai-list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px"></div>
+        <!-- Trade Coach content (only renders when there are coach insights) -->
+        <div id="dash-ai-coach-section" style="display:none">
+          <div style="font-size:9px;font-weight:700;color:var(--text3);letter-spacing:1.2px;margin:14px 0 8px">— TRADE COACH</div>
+          <div id="dash-coach-insights" style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--text2);line-height:1.6"></div>
+        </div>
+        <div id="dash-ai-subtitle" style="display:none"></div>
+      </div>
     </div>
 
     <!-- ════════════════════════════════════════════════════════ -->
@@ -5299,17 +5316,8 @@ window.toggleSidebar = function(){
     </div>
     <style>@keyframes tiltPulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(224,92,122,.4)}50%{opacity:.7;box-shadow:0 0 0 6px rgba(224,92,122,0)}}</style>
 
-    <!-- AI TRADE COACH -->
-    <div id="dash-ai-coach" style="display:none;margin-bottom:14px;border-radius:12px;border:1px solid rgba(124,90,240,.1);background:rgba(124,90,240,.02);overflow:hidden">
-      <div onclick="var b=this.nextElementSibling;var isOpen=b.style.display!=='none';b.style.display=isOpen?'none':'flex';this.querySelector('.coach-chev').style.transform=isOpen?'rotate(0deg)':'rotate(180deg)';" style="display:flex;align-items:center;gap:8px;padding:12px 18px;cursor:pointer;user-select:none">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><path d="M12 2a4 4 0 014 4v1a2 2 0 012 2v1a2 2 0 01-2 2H8a2 2 0 01-2-2V9a2 2 0 012-2V6a4 4 0 014-4z"/><path d="M6 12v2a6 6 0 0012 0v-2"/><path d="M12 18v4"/></svg>
-        <span style="font-size:11px;font-weight:700;color:var(--accent3);letter-spacing:.5px">AI TRADE COACH</span>
-        <span id="dash-coach-count" style="font-size:10px;color:var(--text3);font-weight:500"></span>
-        <div style="flex:1"></div>
-        <svg class="coach-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--accent3);opacity:.6;transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg>
-      </div>
-      <div id="dash-coach-insights" style="display:none;padding:0 18px 14px;flex-direction:column;gap:8px;font-size:12px;color:var(--text2);line-height:1.6"></div>
-    </div>
+    <!-- AI TRADE COACH — moved into AI HUB above -->
+    <div id="dash-ai-coach" style="display:none"></div>
 
     <!-- DASHBOARD OVERVIEW (charts + secondary metrics) -->
     <div id="dash-row-0" style="margin-top:0">
@@ -27453,6 +27461,24 @@ window.toggleSidebar = function(){
     // Update subtitle
     var sub = document.getElementById('dash-ai-subtitle');
     if(sub) sub.textContent = 'Updated · '+new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+    // Update AI Hub header summary count
+    var insCountEl = document.getElementById('dash-ai-hub-insights-count');
+    if(insCountEl){
+      var n = Math.min(insights.length, 3);
+      insCountEl.textContent = n === 0 ? 'no insights' : (n + ' insight' + (n===1?'':'s'));
+    }
+  };
+
+  // AI Hub — single collapsible container for both Insights + Coach (May 2026)
+  window.dashAIHubToggle = function(){
+    var body = document.getElementById('dash-ai-hub-body');
+    var chev = document.querySelector('.ai-hub-chev');
+    if(!body) return;
+    var open = body.style.display !== 'none';
+    body.style.display = open ? 'none' : 'block';
+    if(chev) chev.style.transform = open ? 'rotate(0deg)' : 'rotate(180deg)';
+    // Lazily render content on first open
+    if(!open && typeof window.dashAIRender === 'function') window.dashAIRender();
   };
 
   window.dashAIRefresh = function(){
@@ -31335,7 +31361,14 @@ window.toggleSidebar = function(){
     (function(){
       var coachEl=document.getElementById('dash-ai-coach');
       var insEl=document.getElementById('dash-coach-insights');
-      if(!coachEl||!insEl||trades.length<10){if(coachEl)coachEl.style.display='none';return;}
+      var coachSecEarly=document.getElementById('dash-ai-coach-section');
+      if(!insEl||trades.length<10){
+        if(coachEl)coachEl.style.display='none';
+        if(coachSecEarly) coachSecEarly.style.display='none';
+        var cntEl0=document.getElementById('dash-coach-count');
+        if(cntEl0) cntEl0.textContent = trades.length<10 ? 'log 10+ trades' : 'no coach tips';
+        return;
+      }
       var insights=[];
       // Analyze patterns
       var wr3=wins.length/trades.length*100;
@@ -31364,11 +31397,20 @@ window.toggleSidebar = function(){
       var avgTradesPerDay=dayCount>0?trades.length/dayCount:0;
       if(avgTradesPerDay>5) insights.push({icon:'⚡',text:'Avg '+avgTradesPerDay.toFixed(1)+' trades/day. Quality > quantity. Consider limiting to 2-3 setups/day.'});
       if(insights.length>0){
-        coachEl.style.display='';
+        // Show section inside AI Hub (May 2026 — coach moved into hub)
+        var coachSec=document.getElementById('dash-ai-coach-section');
+        if(coachSec) coachSec.style.display='';
+        if(coachEl) coachEl.style.display='none'; // legacy element kept for compat
         insEl.innerHTML=insights.slice(0,4).map(function(ins){return '<div style="display:flex;gap:8px;align-items:flex-start"><span style="font-size:14px;flex-shrink:0">'+ins.icon+'</span><span>'+ins.text+'</span></div>';}).join('');
         var cntEl=document.getElementById('dash-coach-count');
-        if(cntEl) cntEl.textContent='('+Math.min(insights.length,4)+' insight'+(Math.min(insights.length,4)!==1?'s':'')+')';
-      } else {coachEl.style.display='none';}
+        if(cntEl) cntEl.textContent=Math.min(insights.length,4)+' coach tip'+(Math.min(insights.length,4)!==1?'s':'');
+      } else {
+        var coachSec2=document.getElementById('dash-ai-coach-section');
+        if(coachSec2) coachSec2.style.display='none';
+        if(coachEl) coachEl.style.display='none';
+        var cntEl2=document.getElementById('dash-coach-count');
+        if(cntEl2) cntEl2.textContent='no coach tips';
+      }
     })();
 
     // ═══ NEW ADVANCED METRICS ═══
