@@ -36,10 +36,32 @@
     lk.href = url;
     document.head.appendChild(lk);
   }catch(e){ console.warn('PWA manifest registration failed', e); }
-  // Real Service Worker — caches shell for offline use.
-  // Lives in sw.js at site root. Browser security forbids blob: URL SWs from
-  // intercepting fetch, so the file must be served from same origin.
+  // Real Service Worker — DISABLED (May 2026)
+  // SW was causing cache issues that broke incognito / mentor-link loads.
+  // Kept the SW file (now a kill-switch) so existing users get unregistered
+  // when they next visit, but no new registrations happen.
   try{
+    if('serviceWorker' in navigator){
+      // Eagerly unregister any leftover SW from prior versions on load
+      window.addEventListener('load', function(){
+        navigator.serviceWorker.getRegistrations().then(function(regs){
+          if(regs.length === 0){
+            console.log('TradeQuill: no SW present (good)');
+            return;
+          }
+          // If kill-switch is already running, let it finish.
+          // If it's an older broken SW, it gets replaced when sw.js is fetched fresh.
+          regs.forEach(function(r){
+            r.update().catch(function(){});
+          });
+          console.log('TradeQuill: kicked', regs.length, 'SW registration(s) for refresh');
+        }).catch(function(e){ console.warn('TradeQuill: SW check failed', e); });
+      });
+    }
+  }catch(e){ console.warn('TradeQuill: SW init failed', e); }
+
+  // OLD CODE BELOW — DISABLED. Kept for reference, never executes.
+  if(false){
     if('serviceWorker' in navigator){
       window.addEventListener('load', function(){
         navigator.serviceWorker.register('./sw.js').then(function(reg){
@@ -79,7 +101,7 @@
         });
       });
     }
-  }catch(e){ console.warn('SW setup error', e); }
+  } // end if(false) — old SW code disabled
 })();
 </script>
 <!-- Content Security Policy — restricts where the app can connect, blocking exfiltration via XSS.
