@@ -1880,8 +1880,8 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .main{margin-left:220px;flex:1;padding:24px 16px;min-height:100vh;width:calc(100vw - 220px);max-width:calc(100vw - 220px);overflow-x:hidden;box-sizing:border-box}
 .page{display:none;width:100%;max-width:2000px;margin:0 auto;overflow-x:hidden;padding:32px 36px}.page.active{display:block}
 .page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:32px}
-.page-title{font-size:28px;font-weight:600;letter-spacing:-0.5px;font-family:Inter,sans-serif}
-.page-sub{font-size:13px;color:var(--text3);font-family:Inter,sans-serif;margin-top:6px}
+.page-title{font-size:32px;font-weight:600;letter-spacing:-0.5px;font-family:Inter,sans-serif}
+.page-sub{font-size:14px;color:var(--text3);font-family:Inter,sans-serif;margin-top:6px}
 .btn{padding:10px 20px;border-radius:10px;border:none;cursor:pointer;font-family:Inter,sans-serif;font-weight:600;font-size:13px;transition:all .2s}
 .btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:var(--accent2);transform:translateY(-1px)}
 .btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}.btn-ghost:hover{border-color:var(--accent);color:var(--accent3)}
@@ -1990,13 +1990,13 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .form-select option{background:var(--bg2)}
 .form-textarea{resize:vertical;min-height:80px}
 .trade-list{display:flex;flex-direction:column;gap:12px;margin-top:24px}
-.trade-item{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 20px;display:grid;grid-template-columns:auto 1fr 1fr 1fr auto;align-items:center;gap:18px;transition:border .2s}
+.trade-item{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 22px;display:grid;grid-template-columns:auto 1fr 1fr 1fr auto;align-items:center;gap:18px;transition:border .2s}
 .trade-item:hover{border-color:rgba(124,90,240,.15);box-shadow:0 2px 12px rgba(0,0,0,.1)}
-.trade-pair{font-weight:600;font-size:15px;color:var(--accent3);min-width:80px}
+.trade-pair{font-weight:600;font-size:16px;color:var(--accent3);min-width:80px}
 .trade-meta{display:flex;flex-direction:column;gap:3px}
-.trade-meta-label{font-size:11px;font-family:Inter,sans-serif;color:var(--text3)}
-.trade-meta-val{font-size:14px;font-weight:600;color:var(--text2)}
-.pnl-badge{padding:6px 12px;border-radius:8px;font-weight:600;font-size:14px;font-family:Inter,sans-serif}
+.trade-meta-label{font-size:11px;font-family:Inter,sans-serif;color:var(--text3);text-transform:uppercase;letter-spacing:.4px}
+.trade-meta-val{font-size:14px;font-weight:500;color:var(--text2)}
+.pnl-badge{padding:7px 14px;border-radius:8px;font-weight:500;font-size:14px;font-family:Inter,sans-serif;font-variant-numeric:tabular-nums}
 .pnl-badge.win{background:rgba(46,204,138,.1);color:var(--green);border:1px solid rgba(46,204,138,.2)}
 .pnl-badge.loss{background:rgba(224,92,122,.1);color:var(--red);border:1px solid rgba(224,92,122,.2)}
 .account-badge{padding:4px 10px;border-radius:6px;font-size:11px;font-family:Inter,sans-serif;font-weight:500;text-transform:uppercase;letter-spacing:.5px}
@@ -9124,7 +9124,9 @@ window.toggleSidebar = function(){
     var user = window._tqUser;
     var promises = [];
     if(supa && user){
-      ['trades','accounts','case_studies','playbook','notebook','cockpit','ai_conversations','tq_share_tokens'].forEach(function(table){
+      // Note: case_studies are now stored in resources with category='case_study' (May 2026)
+      // Removed obsolete 'case_studies' table that caused RLS 403 errors
+      ['trades','accounts','resources','playbook','notebook','cockpit','ai_conversations','tq_share_tokens'].forEach(function(table){
         promises.push(supa.from(table).delete().eq('user_id', user.id).then(function(){}, function(e){console.warn('Delete from '+table+' failed:', e);}));
       });
     }
@@ -9691,26 +9693,42 @@ window.toggleSidebar = function(){
     }catch(e){ return null; }
   }
 
-  // Fetch fresh rates from exchangerate.host. Returns Promise<rates>.
-  // Always pivots from USD as base — converts everything client-side.
+  // Fetch fresh rates with two-provider fallback. Returns Promise<rates>.
+  // Primary: api.frankfurter.app (ECB rates, no API key, reliable CORS)
+  // Fallback: api.exchangerate.host
   var _tqFxInflight = null;
   function _tqFxFetch(){
     if(_tqFxInflight) return _tqFxInflight;
-    _tqFxInflight = fetch('https://api.exchangerate.host/latest?base=USD&symbols=EUR,GBP,JPY,CHF,CAD,AUD,NZD,SGD,HKD,SEK')
-      .then(function(r){ if(!r.ok) throw new Error('fx fetch '+r.status); return r.json(); })
+    // Try Frankfurter first (more reliable, no API key, ECB-backed)
+    _tqFxInflight = fetch('https://api.frankfurter.app/latest?from=USD&to=EUR,GBP,JPY,CHF,CAD,AUD,NZD,SGD,HKD,SEK')
+      .then(function(r){ if(!r.ok) throw new Error('frankfurter '+r.status); return r.json(); })
       .then(function(j){
-        if(!j || !j.rates) throw new Error('fx response missing rates');
+        if(!j || !j.rates) throw new Error('frankfurter response missing rates');
         var rates = {USD: 1};
         Object.keys(j.rates).forEach(function(k){ rates[k] = j.rates[k]; });
-        var payload = {fetchedAt: Date.now(), rates: rates};
+        var payload = {fetchedAt: Date.now(), rates: rates, source:'frankfurter'};
         rfxSet(TQ_FX_CACHE_KEY, JSON.stringify(payload));
         _tqFxInflight = null;
         return rates;
       })
+      .catch(function(err1){
+        console.warn('TradeQuill: Frankfurter failed, trying exchangerate.host', err1);
+        // Fallback: exchangerate.host
+        return fetch('https://api.exchangerate.host/latest?base=USD&symbols=EUR,GBP,JPY,CHF,CAD,AUD,NZD,SGD,HKD,SEK')
+          .then(function(r){ if(!r.ok) throw new Error('exchangerate.host '+r.status); return r.json(); })
+          .then(function(j){
+            if(!j || !j.rates) throw new Error('exchangerate.host response missing rates');
+            var rates = {USD: 1};
+            Object.keys(j.rates).forEach(function(k){ rates[k] = j.rates[k]; });
+            var payload = {fetchedAt: Date.now(), rates: rates, source:'exchangerate.host'};
+            rfxSet(TQ_FX_CACHE_KEY, JSON.stringify(payload));
+            _tqFxInflight = null;
+            return rates;
+          });
+      })
       .catch(function(err){
         _tqFxInflight = null;
-        console.warn('TradeQuill: FX fetch failed, using identity rates', err);
-        // Fallback: identity (no conversion). Better than blocking the UI.
+        console.warn('TradeQuill: All FX providers failed, using identity rates', err);
         var fallback = {USD:1, EUR:1, GBP:1, JPY:1, CHF:1, CAD:1, AUD:1, NZD:1, SGD:1, HKD:1, SEK:1};
         return fallback;
       });
@@ -11546,11 +11564,29 @@ window.toggleSidebar = function(){
 
 
   // Push all local trades to cloud (first-time sync)
-  function tqPushAllLocal(){
+  // Rate-limit + concurrency guard for tqPushAllLocal — prevents infinite push loops (May 2026 fix)
+  var _tqLastFullPush = 0;
+  var _tqFullPushInProgress = false;
+  function tqPushAllLocal(force){
     if(!_tqSupa || !_tqUser) return;
+    // Concurrency guard — never run two full pushes simultaneously
+    if(_tqFullPushInProgress){
+      console.warn('tqPushAllLocal: already in progress, skipping');
+      return;
+    }
+    // Rate limiter — minimum 30s between full pushes (unless force=true for explicit user action)
+    var now = Date.now();
+    var elapsed = now - _tqLastFullPush;
+    if(!force && elapsed < 30000){
+      console.warn('tqPushAllLocal: rate-limited, last push '+Math.round(elapsed/1000)+'s ago. Use force=true to override.');
+      return;
+    }
+    _tqLastFullPush = now;
+    _tqFullPushInProgress = true;
     var localTradesRaw = JSON.parse(rfxGet('rf_trades')||'[]');
     if(localTradesRaw.length === 0){
       tqSetSyncStatus('ok','No trades to sync');
+      _tqFullPushInProgress = false;
       return;
     }
     // Filter out deleted + tombstoned trades — never push permanently-gone data (May 2026 fix)
@@ -11562,6 +11598,7 @@ window.toggleSidebar = function(){
     });
     if(localTrades.length === 0){
       tqSetSyncStatus('ok','No active trades to sync');
+      _tqFullPushInProgress = false;
       return;
     }
     var skipped = localTradesRaw.length - localTrades.length;
@@ -11577,6 +11614,7 @@ window.toggleSidebar = function(){
       if(idx >= chunks.length){
         tqSetSyncStatus('ok', totalUploaded+' trades uploaded'+(skipped?' ('+skipped+' deleted skipped)':''));
         console.log('TradeQuill: Uploaded', totalUploaded, 'trades to cloud across', chunks.length, 'batches'+(skipped?' (skipped '+skipped+' deleted/tombstoned)':''));
+        _tqFullPushInProgress = false;
         return;
       }
       var chunk = chunks[idx];
@@ -13861,49 +13899,68 @@ window.toggleSidebar = function(){
       tqConfirm(msg, {title:title, okLabel:'Move to Trash', danger:true}).then(function(ok){
         if(!ok) return;
 
-        // Cascade soft-delete
-        var cascadeId = 'cascade_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
-        var cascadeAt = new Date().toISOString();
+        try{
+          // Cascade soft-delete
+          var cascadeId = 'cascade_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
+          var cascadeAt = new Date().toISOString();
 
-        if(attachedCount > 0){
-          var pending = [];
-          trades.forEach(function(t){
-            if(t.account === id && !t.deleted){
-              t.deleted = true;
-              t.deletedAt = cascadeAt;
-              t._cascadeFromAccount = id;
-              t._cascadeId = cascadeId;
-              pending.push(t);
-            }
-          });
-          rfxSet('rf_trades', JSON.stringify(trades));
-          if(window.tqPushTradesBatch && pending.length) try{ tqPushTradesBatch(pending); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
-        }
-
-        // Soft-delete the account
-        var idx = accs.findIndex(function(x){return x.id===id;});
-        if(idx >= 0){
-          accs[idx].deleted = true;
-          accs[idx].deletedAt = cascadeAt;
-          if(attachedCount > 0) accs[idx]._cascadeId = cascadeId;
-          accSave(accs);
-          if(window._tqSupa && window._tqUser){
-            try{
-              _tqSupa.from('accounts').delete().eq('user_id', _tqUser.id).eq('external_id', id).then(function(r){
-                if(r && r.error) console.error('Account cloud delete failed for', id, ':', r.error, '— will retry on next pull');
-                else console.log('TradeQuill: Cloud-deleted account', id);
-              });
-            }catch(e){ console.error('Account cloud delete threw:', e); }
+          if(attachedCount > 0){
+            var pending = [];
+            trades.forEach(function(t){
+              if(t.account === id && !t.deleted){
+                t.deleted = true;
+                t.deletedAt = cascadeAt;
+                t._cascadeFromAccount = id;
+                t._cascadeId = cascadeId;
+                pending.push(t);
+              }
+            });
+            rfxSet('rf_trades', JSON.stringify(trades));
+            if(window.tqPushTradesBatch && pending.length) try{ tqPushTradesBatch(pending); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'delete_account_push'});}
           }
-        }
 
-        // Refresh
-        renderAccountsPage();
-        _accSyncDropdowns();
-        if(typeof trUpdateBadge === 'function') try{ trUpdateBadge(); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
-        if(typeof updateDashboard === 'function') try{ updateDashboard(); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
-        if(typeof renderJournal === 'function') try{ renderJournal(); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
-        if(typeof updateReports === 'function') try{ updateReports(); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
+          // Soft-delete the account
+          var idx = accs.findIndex(function(x){return x.id===id;});
+          if(idx >= 0){
+            accs[idx].deleted = true;
+            accs[idx].deletedAt = cascadeAt;
+            if(attachedCount > 0) accs[idx]._cascadeId = cascadeId;
+            accSave(accs);
+            if(window._tqSupa && window._tqUser){
+              try{
+                _tqSupa.from('accounts').delete().eq('user_id', _tqUser.id).eq('external_id', id).then(function(r){
+                  if(r && r.error) console.error('Account cloud delete failed for', id, ':', r.error, '— will retry on next pull');
+                  else console.log('TradeQuill: Cloud-deleted account', id);
+                });
+              }catch(e){ console.error('Account cloud delete threw:', e); }
+            }
+          } else {
+            console.warn('deleteAccount: account index not found after confirm', id);
+            if(typeof tqToast === 'function') tqToast('Account not found in store. Refresh?', {type:'error', duration:5000});
+            return;
+          }
+
+          // Refresh UI
+          try{ renderAccountsPage(); }catch(e){console.error('renderAccountsPage error:',e);}
+          try{ _accSyncDropdowns(); }catch(e){console.error('_accSyncDropdowns error:',e);}
+          if(typeof trUpdateBadge === 'function') try{ trUpdateBadge(); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
+          if(typeof updateDashboard === 'function') try{ updateDashboard(); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
+          if(typeof renderJournal === 'function') try{ renderJournal(); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
+          if(typeof updateReports === 'function') try{ updateReports(); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
+
+          // Success toast (was missing — May 2026 fix)
+          if(typeof tqToast === 'function'){
+            var toastMsg = attachedCount > 0
+              ? '✓ Moved "'+(a.name||'unnamed')+'" + '+attachedCount+' trade'+(attachedCount===1?'':'s')+' to Trash'
+              : '✓ Moved "'+(a.name||'unnamed')+'" to Trash';
+            tqToast(toastMsg, {type:'success', duration:3500});
+          }
+          if(typeof tqHaptic === 'function') tqHaptic(15);
+        }catch(e){
+          console.error('deleteAccount fatal error:', e);
+          if(typeof tqToast === 'function') tqToast('⚠ Delete failed: '+(e.message||'unknown error'), {type:'error', duration:5000});
+          if(typeof window.tqTrackError === 'function') tqTrackError(e, {context:'deleteAccount'});
+        }
       });
     }
     window.deleteAccount = deleteAccount;
@@ -17244,10 +17301,18 @@ window.toggleSidebar = function(){
     var statusEl = $('pip-rate-status');
     if (statusEl) statusEl.textContent = 'Fetching live rates...';
     try {
-      // Use exchangerate.host (CORS-safe, in CSP allowlist). Returns USD-base rates,
-      // we compute pair rates client-side. freeforexapi.com was blocked by CORS.
-      var res = await fetch('https://api.exchangerate.host/latest?base=USD&symbols=EUR,GBP,JPY,CHF,CAD,AUD,NZD');
-      var data = await res.json();
+      // Try Frankfurter first (more reliable, ECB-backed, CORS-friendly)
+      // Fallback to exchangerate.host. freeforexapi.com was blocked by CORS.
+      var res, data;
+      try {
+        res = await fetch('https://api.frankfurter.app/latest?from=USD&to=EUR,GBP,JPY,CHF,CAD,AUD,NZD');
+        if (!res.ok) throw new Error('frankfurter '+res.status);
+        data = await res.json();
+      } catch (err1) {
+        console.warn('Frankfurter failed, falling back to exchangerate.host:', err1);
+        res = await fetch('https://api.exchangerate.host/latest?base=USD&symbols=EUR,GBP,JPY,CHF,CAD,AUD,NZD');
+        data = await res.json();
+      }
       if (data && data.rates) {
         var r = data.rates;
         // USD/X pairs (1 USD = X.X foreign)
@@ -21800,9 +21865,11 @@ window.toggleSidebar = function(){
       }).join('');
     } else {
       // Fallback: common trading setups when no Playbook entries exist
+      // BUG FIX (May 2026): default options had value="" — caused all setups to be saved as empty.
+      // Now use the name as value so trade.setup is properly captured for win-by-setup widget.
       var defaults=['London Reversal','NY Continuation','SMT Continuation','Asia Sweep','Market Mechanics','News Fade','London 50% Asia Continuation','SMT London Continuation','SMT New York Continuation','USD News Strategy'];
       sel.innerHTML = '<option value="">No Setup (impulse trade)</option>' + defaults.map(function(n){
-        return '<option value="" data-name="'+n+'">'+n+'</option>';
+        return '<option value="'+n+'" data-name="'+n+'">'+n+'</option>';
       }).join('');
     }
     // Fill fields if editing
