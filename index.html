@@ -9964,6 +9964,11 @@ window.toggleSidebar = function(){
     if(typeof supabase !== 'undefined' && supabase.createClient){
       _tqSupa = supabase.createClient(TQ_SUPA_URL, TQ_SUPA_KEY);
       console.log('TradeQuill: Supabase client ready');
+      // Mentor mode: hide auth screen — mentor doesn't need an account (May 2026)
+      if(window._tqMentorContext){
+        tqHideAuth();
+        console.log('TradeQuill: Mentor mode active, skipping auth screen');
+      }
       // Check existing session
       _tqSupa.auth.getSession().then(function(res){
         if(res.data && res.data.session){
