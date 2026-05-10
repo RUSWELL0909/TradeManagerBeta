@@ -5359,14 +5359,14 @@ window.toggleSidebar = function(){
                 <!-- Advanced metrics row (Recovery / Consistency / Goals) — Var B handles Max DD + Streaks -->
         <div class="dash-advanced-grid" data-widget="advanced-metrics" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:0">
           <!-- Recovery Factor — Variant A: big number + sparkline + status pill -->
-          <div class="card" data-widget="recovery-factor" style="padding:18px 20px;display:flex;flex-direction:column;min-height:160px;position:relative;overflow:hidden">
+          <div class="card" data-widget="recovery-factor" style="padding:18px 20px;display:flex;flex-direction:column;min-height:200px;position:relative;overflow:hidden">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
-              <span style="font-size:10px;color:var(--text3);letter-spacing:.5px;font-weight:500">Recovery Factor</span>
+              <span style="font-size:11px;color:var(--text3);letter-spacing:.5px;font-weight:500">Recovery Factor</span>
               <span class="info-icon" data-tip="Net profit ÷ Max Drawdown. Higher = better recovery from losses. 2.0+ is strong.">i</span>
             </div>
-            <div style="font-size:9px;color:var(--text3);font-family:DM Mono,monospace;margin-bottom:14px">Net profit ÷ max drawdown</div>
-            <div id="dash-recovery" style="font-size:36px;font-weight:400;letter-spacing:-.6px;line-height:1;color:var(--green);font-variant-numeric:tabular-nums;margin-bottom:4px">&#8212;</div>
-            <svg id="dash-recovery-spark" style="height:30px;margin:12px 0 8px;width:100%" viewBox="0 0 100 30" preserveAspectRatio="none">
+            <div style="font-size:10px;color:var(--text3);font-family:DM Mono,monospace;margin-bottom:14px">Net profit ÷ max drawdown</div>
+            <div id="dash-recovery" style="font-size:42px;font-weight:400;letter-spacing:-.7px;line-height:1;color:var(--green);font-variant-numeric:tabular-nums;margin-bottom:4px">&#8212;</div>
+            <svg id="dash-recovery-spark" style="height:36px;margin:14px 0 10px;width:100%" viewBox="0 0 100 30" preserveAspectRatio="none">
               <defs>
                 <linearGradient id="recSparkGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stop-color="rgba(29,233,182,.3)"/>
@@ -5377,21 +5377,20 @@ window.toggleSidebar = function(){
               <path id="dash-recovery-spark-line" fill="none" stroke="var(--green)" stroke-width="1.5" d=""/>
             </svg>
             <div>
-              <span id="dash-recovery-tag" style="display:inline-flex;align-items:center;gap:6px;padding:3px 10px;background:rgba(29,233,182,.08);border:0.5px solid rgba(29,233,182,.25);border-radius:100px;font-size:10px;color:var(--green)">● Loading…</span>
+              <span id="dash-recovery-tag" style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;background:rgba(29,233,182,.08);border:0.5px solid rgba(29,233,182,.25);border-radius:100px;font-size:11px;color:var(--green);font-weight:500">● Loading…</span>
             </div>
-            <!-- Hidden bar/fill kept for compat with existing JS -->
             <div id="dash-recovery-bar" style="display:none"><div id="dash-recovery-fill" style="height:100%;width:0%"></div></div>
           </div>
           <!-- Consistency Score — Variant A: ring + tag + meta -->
-          <div class="card" data-widget="consistency" style="padding:18px 20px;display:flex;flex-direction:column;min-height:160px">
+          <div class="card" data-widget="consistency" style="padding:18px 20px;display:flex;flex-direction:column;min-height:200px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
-              <span style="font-size:10px;color:var(--text3);letter-spacing:.5px;font-weight:500">Consistency</span>
+              <span style="font-size:11px;color:var(--text3);letter-spacing:.5px;font-weight:500">Consistency</span>
               <span class="info-icon" data-tip="Stability of daily returns. 100 = perfectly steady, 0 = highly volatile.">i</span>
             </div>
-            <div style="font-size:9px;color:var(--text3);font-family:DM Mono,monospace;margin-bottom:14px">Daily return stability score</div>
+            <div style="font-size:10px;color:var(--text3);font-family:DM Mono,monospace;margin-bottom:14px">Daily return stability score</div>
             <div style="display:flex;align-items:center;gap:18px;flex:1">
               <div style="position:relative;flex-shrink:0">
-                <svg width="80" height="80" viewBox="0 0 36 36">
+                <svg width="100" height="100" viewBox="0 0 36 36">
                   <defs>
                     <linearGradient id="consRingGrad" x1="0" y1="0" x2="1" y2="0">
                       <stop offset="0%" stop-color="#ef4444"/>
@@ -5403,24 +5402,24 @@ window.toggleSidebar = function(){
                   <circle id="dash-consistency-ring" cx="18" cy="18" r="15.9" fill="none" stroke="url(#consRingGrad)" stroke-width="3" stroke-dasharray="0 100" stroke-linecap="round" transform="rotate(-90 18 18)"/>
                 </svg>
                 <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
-                  <div id="dash-consistency" style="font-size:22px;font-weight:400;color:var(--text);line-height:1;font-variant-numeric:tabular-nums">&#8212;</div>
-                  <div style="font-size:8px;color:var(--text3);letter-spacing:1px;margin-top:1px">/ 100</div>
+                  <div id="dash-consistency" style="font-size:28px;font-weight:400;color:var(--text);line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.5px">&#8212;</div>
+                  <div style="font-size:9px;color:var(--text3);letter-spacing:1px;margin-top:2px">/ 100</div>
                 </div>
               </div>
-              <div style="flex:1;font-size:11px;color:var(--text2);line-height:1.5">
-                <div id="dash-consistency-label" style="display:inline-block;padding:2px 8px;background:rgba(29,233,182,.08);border-radius:4px;color:var(--green);font-size:10px;font-weight:500;margin-bottom:6px">—</div>
-                <div id="dash-consistency-desc" style="font-size:11px;color:var(--text2);line-height:1.5;opacity:.85"></div>
+              <div style="flex:1;font-size:12px;color:var(--text2);line-height:1.5">
+                <div id="dash-consistency-label" style="display:inline-block;padding:3px 10px;background:rgba(29,233,182,.08);border-radius:5px;color:var(--green);font-size:11px;font-weight:500;margin-bottom:8px">—</div>
+                <div id="dash-consistency-desc" style="font-size:12px;color:var(--text2);line-height:1.5;opacity:.85"></div>
               </div>
             </div>
           </div>
           <!-- GOALS — Variant A: empty state with icon + button OR list -->
-          <div class="card" data-widget="goals" style="padding:18px 20px;display:flex;flex-direction:column;min-height:160px">
+          <div class="card" data-widget="goals" style="padding:18px 20px;display:flex;flex-direction:column;min-height:200px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
-              <span style="font-size:10px;color:var(--text3);letter-spacing:.5px;font-weight:500">Goals</span>
-              <button onclick="tqOpenGoals()" style="background:transparent;border:0.5px solid var(--border);color:var(--text3);cursor:pointer;font-size:13px;width:22px;height:22px;border-radius:5px;padding:0;display:inline-flex;align-items:center;justify-content:center" title="Manage goals">+</button>
+              <span style="font-size:11px;color:var(--text3);letter-spacing:.5px;font-weight:500">Goals</span>
+              <button onclick="tqOpenGoals()" style="background:transparent;border:0.5px solid var(--border);color:var(--text3);cursor:pointer;font-size:14px;width:24px;height:24px;border-radius:5px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-weight:400" title="Manage goals">+</button>
             </div>
-            <div style="font-size:9px;color:var(--text3);font-family:DM Mono,monospace;margin-bottom:14px">Track weekly &amp; monthly targets</div>
-            <div id="dash-goals-list" style="display:flex;flex-direction:column;gap:8px;font-family:Inter,sans-serif;flex:1;justify-content:center"></div>
+            <div style="font-size:10px;color:var(--text3);font-family:DM Mono,monospace;margin-bottom:14px">Track weekly &amp; monthly targets</div>
+            <div id="dash-goals-list" style="display:flex;flex-direction:column;gap:14px;font-family:Inter,sans-serif;flex:1;justify-content:center"></div>
           </div>
         </div>
 
@@ -5480,19 +5479,19 @@ window.toggleSidebar = function(){
 
           <!-- Pair distribution donut -->
           <div class="card" data-widget="pair-distribution" data-widget-hidden="true" style="padding:14px 16px;min-height:180px">
-            <div style="font-size:10px;color:var(--text3);letter-spacing:.4px;font-weight:500;margin-bottom:14px">Pair distribution</div>
+            <div style="font-size:11px;color:var(--text3);letter-spacing:.5px;font-weight:500;margin-bottom:6px">Pair distribution</div>
             <div id="dash-w-pair-content" style="display:flex;align-items:center;gap:16px"></div>
           </div>
 
           <!-- Win rate by setup -->
           <div class="card" data-widget="win-by-setup" data-widget-hidden="true" style="padding:14px 16px;min-height:180px">
-            <div style="font-size:10px;color:var(--text3);letter-spacing:.4px;font-weight:500;margin-bottom:14px">Win rate by setup</div>
+            <div style="font-size:11px;color:var(--text3);letter-spacing:.5px;font-weight:500;margin-bottom:6px">Win rate by setup</div>
             <div id="dash-w-setup-content" style="font-size:11px"></div>
           </div>
 
           <!-- Performance by session -->
           <div class="card" data-widget="session-perf" data-widget-hidden="true" style="padding:14px 16px;min-height:180px">
-            <div style="font-size:10px;color:var(--text3);letter-spacing:.4px;font-weight:500;margin-bottom:14px">Performance by session</div>
+            <div style="font-size:11px;color:var(--text3);letter-spacing:.5px;font-weight:500;margin-bottom:6px">Performance by session</div>
             <div id="dash-w-session-content" style="font-size:11px"></div>
           </div>
 
@@ -5508,25 +5507,25 @@ window.toggleSidebar = function(){
 
           <!-- Day of week -->
           <div class="card" data-widget="dow-bars" data-widget-hidden="true" style="padding:14px 16px;min-height:180px">
-            <div style="font-size:10px;color:var(--text3);letter-spacing:.4px;font-weight:500;margin-bottom:14px">Day of week performance</div>
+            <div style="font-size:11px;color:var(--text3);letter-spacing:.5px;font-weight:500;margin-bottom:6px">Day of week performance</div>
             <div id="dash-w-dow-content" style="font-size:11px"></div>
           </div>
 
           <!-- Top costly mistakes -->
           <div class="card" data-widget="top-mistakes" data-widget-hidden="true" style="padding:14px 16px;min-height:180px">
-            <div style="font-size:10px;color:var(--text3);letter-spacing:.4px;font-weight:500;margin-bottom:14px">Top costly mistakes</div>
+            <div style="font-size:11px;color:var(--text3);letter-spacing:.5px;font-weight:500;margin-bottom:6px">Top costly mistakes</div>
             <div id="dash-w-mistakes-content" style="font-size:11px"></div>
           </div>
 
           <!-- Win/Loss split donut -->
           <div class="card" data-widget="wl-donut" data-widget-hidden="true" style="padding:14px 16px;min-height:180px">
-            <div style="font-size:10px;color:var(--text3);letter-spacing:.4px;font-weight:500;margin-bottom:14px">Win/Loss split</div>
+            <div style="font-size:11px;color:var(--text3);letter-spacing:.5px;font-weight:500;margin-bottom:6px">Win/Loss split</div>
             <div id="dash-w-wl-content" style="display:flex;align-items:center;gap:16px"></div>
           </div>
 
           <!-- Avg duration W vs L -->
           <div class="card" data-widget="duration-bars" data-widget-hidden="true" style="padding:14px 16px;min-height:180px">
-            <div style="font-size:10px;color:var(--text3);letter-spacing:.4px;font-weight:500;margin-bottom:14px">Avg duration · win vs loss</div>
+            <div style="font-size:11px;color:var(--text3);letter-spacing:.5px;font-weight:500;margin-bottom:6px">Avg duration · win vs loss</div>
             <div id="dash-w-duration-content" style="display:flex;flex-direction:column;gap:14px;font-size:11px"></div>
           </div>
 
@@ -24689,19 +24688,30 @@ window.toggleSidebar = function(){
     if(!listEl) return;
     var goals = tqGoalsLoad();
     if(goals.length === 0){
-      listEl.innerHTML = '<button onclick="tqOpenGoals()" style="padding:8px;background:rgba(124,90,240,.06);border:1px dashed rgba(124,90,240,.3);color:var(--text2);border-radius:6px;font-size:11px;cursor:pointer;width:100%">+ Set your first goal</button>';
+      listEl.innerHTML =
+        '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px 8px;text-align:center">' +
+          '<div style="font-size:12px;color:var(--text2);margin-bottom:4px">No goals set</div>' +
+          '<div style="font-size:11px;color:var(--text3);opacity:.7;margin-bottom:14px">Track P&amp;L, win rate, or trade count</div>' +
+          '<button onclick="tqOpenGoals()" style="padding:6px 14px;background:transparent;border:0.5px solid var(--border);color:var(--text2);border-radius:6px;font-size:11px;cursor:pointer;font-family:Inter,sans-serif;font-weight:500">+ Set first goal</button>' +
+        '</div>';
       return;
     }
     listEl.innerHTML = goals.slice(0,3).map(function(g){
       var p = tqGoalProgress(g);
-      var col = p.pct >= 100 ? 'var(--green)' : p.pct >= 75 ? '#f0b429' : 'var(--accent)';
+      // Unified colors: green (done), green-soft (close), neutral (in progress)
+      var col = p.pct >= 100 ? '#1de9b6' : p.pct >= 75 ? '#1de9b6' : 'var(--text2)';
+      var barGrad = p.pct >= 100 ? 'linear-gradient(90deg,#1de9b6,rgba(29,233,182,.6))'
+                  : p.pct >= 50 ? 'linear-gradient(90deg,rgba(29,233,182,.7),rgba(29,233,182,.3))'
+                  : 'rgba(255,255,255,.15)';
       var icon = ({pnl:'💰', win_rate:'🎯', trades:'📊', profit_factor:'⚡'})[g.type] || '🎯';
-      return '<div style="font-size:11px">' +
-               '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">' +
-                 '<span style="color:var(--text2);font-size:10px"><span style="margin-right:4px">'+icon+'</span>'+(g.name||g.type).replace(/</g,'&lt;')+'</span>' +
-                 '<span style="color:'+col+';font-weight:600;font-size:10px;font-family:DM Mono,monospace">'+p.label+'</span>' +
+      // Strip color from p.label — neutral text only
+      var labelClean = String(p.label).replace(/<[^>]*>/g,'').trim();
+      return '<div style="margin-bottom:2px">' +
+               '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;font-size:11px">' +
+                 '<span style="color:var(--text2)"><span style="margin-right:6px">'+icon+'</span>'+(g.name||g.type).replace(/</g,'&lt;')+'</span>' +
+                 '<span style="color:'+col+';font-weight:500;font-size:10px;font-family:DM Mono,monospace;font-variant-numeric:tabular-nums">'+labelClean+'</span>' +
                '</div>' +
-               '<div style="background:var(--bg3);border-radius:3px;height:5px;overflow:hidden"><div style="background:'+col+';height:100%;width:'+p.pct+'%;transition:width .4s"></div></div>' +
+               '<div style="background:rgba(255,255,255,.04);border-radius:3px;height:5px;overflow:hidden"><div style="background:'+barGrad+';height:100%;width:'+p.pct+'%;transition:width .4s;border-radius:3px"></div></div>' +
              '</div>';
     }).join('');
   }
@@ -31944,19 +31954,64 @@ window.toggleSidebar = function(){
 
   var DASH_LAYOUT_KEY = 'tq_dash_layout_v4';
 
+  // ════════════════════════════════════════════════════════════
+  // VIEW MODE HELPERS — May 2026
+  // mode: 'dollar' | 'rmultiple' | 'percent' | 'privacy'
+  // ════════════════════════════════════════════════════════════
+  function _dashStartingBalance(){
+    try{
+      var accs = JSON.parse(rfxGet('rf_accounts')||'[]').filter(function(a){return a&&!a.deleted;});
+      var sb=0; accs.forEach(function(a){ sb+=parseFloat(a.startingBalance||a.balance)||0; });
+      return sb || 10000;
+    }catch(e){ return 10000; }
+  }
+  function _dashAvgRiskPerTrade(trades){
+    try{
+      var sb = _dashStartingBalance();
+      var risks = trades.map(function(t){return parseFloat(t.riskPct)||0;}).filter(function(r){return r>0;});
+      if(risks.length>0){
+        var avgPct = risks.reduce(function(a,b){return a+b;},0)/risks.length;
+        return sb * avgPct/100;
+      }
+      var losses = trades.map(function(t){
+        var p = (typeof tqConvertTradePnl==='function')?tqConvertTradePnl(t):(parseFloat(t.pnl)||0);
+        return p<0 ? Math.abs(p) : null;
+      }).filter(function(p){return p!==null;});
+      return losses.length>0 ? losses.reduce(function(a,b){return a+b;},0)/losses.length : 100;
+    }catch(e){ return 100; }
+  }
+  // Format $ amount based on view mode
+  function _fmtAmt(amt, mode, sym, opts){
+    opts = opts || {};
+    if(mode === 'privacy') return '••••';
+    if(mode === 'percent'){
+      var sb = opts.startBal || _dashStartingBalance();
+      if(sb<=0) return '—';
+      var pct = amt/sb*100;
+      return (pct>=0?'+':'')+pct.toFixed(2)+'%';
+    }
+    if(mode === 'rmultiple'){
+      var risk = opts.riskPerTrade || _dashAvgRiskPerTrade(opts.trades||[]);
+      if(risk<=0) return '—';
+      var r = amt/risk;
+      return (r>=0?'+':'')+r.toFixed(2)+'R';
+    }
+    return (amt>=0?'+':'-')+sym+Math.abs(Math.round(amt)).toLocaleString();
+  }
+
   // ──────────────────────────────────────────────
   // METRIC REGISTRY — single source of truth.
-  // Each metric: id, name, desc, accent (semantic color), render(trades, ccy) → {value, foot, mini, valueColor}
+  // Each metric: id, name, desc, accent (semantic color), render(trades, ccy, sym, mode) → {value, foot, mini, valueColor}
   // ──────────────────────────────────────────────
   var DASH_METRICS = {
     pnl: {
       name: 'Net P&L', desc: 'Sum of all realized P&L',
       accent: 'green',
-      render: function(t, ccy, sym){
+      render: function(t, ccy, sym, mode){
         var pnl = 0;
         t.forEach(function(x){ pnl += (typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0); });
         return {
-          value: (pnl>=0?'+':'-')+sym+Math.abs(Math.round(pnl)).toLocaleString(),
+          value: _fmtAmt(pnl, mode||'dollar', sym, {trades:t}),
           valueColor: pnl>=0?'green':'red',
           foot: t.length+' trade'+(t.length===1?'':'s')
         };
@@ -31965,7 +32020,7 @@ window.toggleSidebar = function(){
     wr: {
       name: 'Trade Win %', desc: 'Percentage of profitable trades',
       accent: 'green',
-      render: function(t, ccy, sym){
+      render: function(t, ccy, sym, mode){
         var w=0,l=0,b=0;
         t.forEach(function(x){
           var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0);
@@ -31986,7 +32041,7 @@ window.toggleSidebar = function(){
     pf: {
       name: 'Profit Factor', desc: 'Gross win ÷ gross loss',
       accent: 'green',
-      render: function(t, ccy, sym){
+      render: function(t, ccy, sym, mode){
         var gw=0,gl=0;
         t.forEach(function(x){
           var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0);
@@ -31994,16 +32049,16 @@ window.toggleSidebar = function(){
         });
         var pf=gl>0?gw/gl:(gw>0?Infinity:0);
         return {
-          value: pf===Infinity?'∞':pf.toFixed(2),
+          value: mode==='privacy'?'••':(pf===Infinity?'∞':pf.toFixed(2)),
           valueColor: pf>=2?'green':(pf>=1?'':'red'),
-          foot: '+'+sym+Math.round(gw).toLocaleString()+' / -'+sym+Math.round(gl).toLocaleString()
+          foot: mode==='privacy'?'••••':'+'+sym+Math.round(gw).toLocaleString()+' / -'+sym+Math.round(gl).toLocaleString()
         };
       }
     },
     rr: {
       name: 'Avg R:R', desc: 'Average reward-to-risk ratio',
       accent: 'purple',
-      render: function(t, ccy, sym){
+      render: function(t, ccy, sym, mode){
         var rs=t.map(function(x){return parseFloat(x.rMultiple);}).filter(function(r){return !isNaN(r);});
         if(rs.length===0) return {value:'—', foot:'no R data'};
         var avg=rs.reduce(function(a,b){return a+b;},0)/rs.length;
@@ -32013,23 +32068,28 @@ window.toggleSidebar = function(){
     bal: {
       name: 'Account Balance', desc: 'Starting balance + cumulative P&L',
       accent: 'green',
-      render: function(t, ccy, sym){
+      render: function(t, ccy, sym, mode){
         var pnl = 0;
         t.forEach(function(x){ pnl += (typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0); });
         var accs = [];
         try{ accs = JSON.parse(rfxGet('rf_accounts')||'[]').filter(function(a){return a&&!a.deleted;}); }catch(e){}
         var startBal=0; accs.forEach(function(a){ startBal+=parseFloat(a.startingBalance||a.balance)||0; });
         var bal = startBal+pnl;
+        var val;
+        if(mode==='privacy') val = '••••';
+        else if(mode==='percent') val = startBal>0 ? ((bal/startBal-1)*100>=0?'+':'')+((bal/startBal-1)*100).toFixed(2)+'%' : '—';
+        else if(mode==='rmultiple') val = _fmtAmt(pnl, 'rmultiple', sym, {trades:t}); // R since start
+        else val = sym+Math.round(bal).toLocaleString();
         return {
-          value: sym+Math.round(bal).toLocaleString(),
-          foot: 'Start '+sym+Math.round(startBal).toLocaleString()
+          value: val,
+          foot: 'Start '+(mode==='privacy'?'••••':sym+Math.round(startBal).toLocaleString())
         };
       }
     },
     dwr: {
       name: 'Day Win %', desc: 'Percentage of profitable trading days',
       accent: 'green',
-      render: function(t, ccy, sym){
+      render: function(t, ccy, sym, mode){
         var dayPnl={};
         t.forEach(function(x){
           if(!x.date) return;
@@ -32049,7 +32109,7 @@ window.toggleSidebar = function(){
     mdd: {
       name: 'Max Drawdown', desc: 'Largest peak-to-trough drop',
       accent: 'red',
-      render: function(t, ccy, sym){
+      render: function(t, ccy, sym, mode){
         var sorted=t.slice().sort(function(a,b){return new Date(a.date||0)-new Date(b.date||0);});
         var cum=0,peak=0,maxDD=0,maxPct=0;
         sorted.forEach(function(x){
@@ -32057,17 +32117,23 @@ window.toggleSidebar = function(){
           cum+=p; if(cum>peak)peak=cum;
           var dd=peak-cum; if(dd>maxDD){maxDD=dd; maxPct=peak>0?(dd/peak*100):0;}
         });
+        if(sorted.length===0) return {value:'—', foot:'no trades'};
+        var val;
+        if(mode==='privacy') val='••••';
+        else if(mode==='percent') val = '-'+maxPct.toFixed(2)+'%';
+        else if(mode==='rmultiple') val = _fmtAmt(-maxDD, 'rmultiple', sym, {trades:t});
+        else val = '-'+sym+Math.round(maxDD).toLocaleString();
         return {
-          value: sorted.length===0?'—':'-'+sym+Math.round(maxDD).toLocaleString(),
+          value: val,
           valueColor: maxDD>0?'red':'',
-          foot: sorted.length===0?'no trades':maxPct.toFixed(1)+'% of peak'
+          foot: maxPct.toFixed(1)+'% of peak'
         };
       }
     },
     streak: {
       name: 'Streak', desc: 'Current consecutive wins or losses',
       accent: 'amber',
-      render: function(t, ccy, sym){
+      render: function(t, ccy, sym, mode){
         var sorted=t.slice().sort(function(a,b){return new Date(b.date||0)-new Date(a.date||0);});
         var streak=0,type=null;
         for(var i=0;i<sorted.length;i++){
@@ -32088,7 +32154,7 @@ window.toggleSidebar = function(){
     best: {
       name: 'Best Day', desc: 'Single highest-profit trading day',
       accent: 'green',
-      render: function(t, ccy, sym){
+      render: function(t, ccy, sym, mode){
         var dayPnl={};
         t.forEach(function(x){
           if(!x.date) return;
@@ -32103,7 +32169,7 @@ window.toggleSidebar = function(){
         var lbl=dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});
         var dc=t.filter(function(x){return String(x.date).slice(0,10)===bestDay;}).length;
         return {
-          value: '+'+sym+Math.round(best).toLocaleString(),
+          value: _fmtAmt(best, mode||'dollar', sym, {trades:t}),
           valueColor: 'green',
           foot: lbl+' · '+dc+' trade'+(dc===1?'':'s')
         };
@@ -32112,7 +32178,7 @@ window.toggleSidebar = function(){
     worst: {
       name: 'Worst Day', desc: 'Single lowest-profit trading day',
       accent: 'red',
-      render: function(t, ccy, sym){
+      render: function(t, ccy, sym, mode){
         var dayPnl={};
         t.forEach(function(x){
           if(!x.date) return;
@@ -32127,7 +32193,7 @@ window.toggleSidebar = function(){
         var lbl=dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});
         var dc=t.filter(function(x){return String(x.date).slice(0,10)===worstDay;}).length;
         return {
-          value: '-'+sym+Math.abs(Math.round(worst)).toLocaleString(),
+          value: _fmtAmt(worst, mode||'dollar', sym, {trades:t}),
           valueColor: 'red',
           foot: lbl+' · '+dc+' trade'+(dc===1?'':'s')
         };
@@ -32136,27 +32202,27 @@ window.toggleSidebar = function(){
     avgWin: {
       name: 'Avg Win', desc: 'Mean of winning trades',
       accent: 'green',
-      render: function(t, ccy, sym){
+      render: function(t, ccy, sym, mode){
         var wins=t.map(function(x){return (typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0);}).filter(function(p){return p>0;});
         if(!wins.length) return {value:'—', foot:'no winning trades'};
         var avg=wins.reduce(function(a,b){return a+b;},0)/wins.length;
-        return { value: '+'+sym+Math.round(avg).toLocaleString(), valueColor:'green', foot: wins.length+' wins' };
+        return { value: _fmtAmt(avg, mode||'dollar', sym, {trades:t}), valueColor:'green', foot: wins.length+' wins' };
       }
     },
     avgLoss: {
       name: 'Avg Loss', desc: 'Mean of losing trades',
       accent: 'red',
-      render: function(t, ccy, sym){
+      render: function(t, ccy, sym, mode){
         var ls=t.map(function(x){return (typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0);}).filter(function(p){return p<0;});
         if(!ls.length) return {value:'—', foot:'no losing trades'};
         var avg=ls.reduce(function(a,b){return a+b;},0)/ls.length;
-        return { value: '-'+sym+Math.abs(Math.round(avg)).toLocaleString(), valueColor:'red', foot: ls.length+' losses' };
+        return { value: _fmtAmt(-avg, mode||'dollar', sym, {trades:t}), valueColor:'red', foot: ls.length+' losses' };
       }
     },
     avgWL: {
       name: 'Avg Win/Loss', desc: 'Avg win ÷ avg loss',
       accent: 'green',
-      render: function(t, ccy, sym){
+      render: function(t, ccy, sym, mode){
         var wins=[],ls=[];
         t.forEach(function(x){
           var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0);
@@ -32166,13 +32232,13 @@ window.toggleSidebar = function(){
         var aw=wins.reduce(function(a,b){return a+b;},0)/wins.length;
         var al=ls.reduce(function(a,b){return a+b;},0)/ls.length;
         var ratio=aw/al;
-        return { value: ratio.toFixed(2)+'×', foot: '+'+sym+Math.round(aw)+' / -'+sym+Math.round(al), valueColor: ratio>=2?'green':'' };
+        return { value: mode==='privacy'?'••':(ratio.toFixed(2)+'×'), foot: mode==='privacy'?'••••':'+'+sym+Math.round(aw)+' / -'+sym+Math.round(al), valueColor: ratio>=2?'green':'' };
       }
     },
     totalTrades: {
       name: 'Total Trades', desc: 'Count of all trades',
       accent: 'purple',
-      render: function(t, ccy, sym){
+      render: function(t, ccy, sym, mode){
         var dates=t.map(function(x){return String(x.date||'').slice(0,10);}).filter(Boolean).sort();
         var span=dates.length>1?Math.round((new Date(dates[dates.length-1])-new Date(dates[0]))/86400000):0;
         return { value: t.length.toLocaleString(), foot: span>0?'over '+span+' day'+(span===1?'':'s'):'all-time' };
@@ -32181,56 +32247,61 @@ window.toggleSidebar = function(){
     expectancy: {
       name: 'Expectancy', desc: 'Avg P&L per trade (mathematical edge)',
       accent: 'purple',
-      render: function(t, ccy, sym){
+      render: function(t, ccy, sym, mode){
         if(!t.length) return {value:'—', foot:'no trades'};
         var sum=0; t.forEach(function(x){ sum+=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0); });
         var exp=sum/t.length;
-        return { value: (exp>=0?'+':'-')+sym+Math.abs(exp).toFixed(2), valueColor: exp>=0?'green':'red', foot: 'per trade' };
+        var val;
+        if(mode==='privacy') val='••••';
+        else if(mode==='percent') { var sb=_dashStartingBalance(); val = sb>0 ? (exp/sb*100>=0?'+':'')+(exp/sb*100).toFixed(3)+'%' : '—'; }
+        else if(mode==='rmultiple') { var risk=_dashAvgRiskPerTrade(t); val = risk>0 ? (exp/risk>=0?'+':'')+(exp/risk).toFixed(2)+'R' : '—'; }
+        else val = (exp>=0?'+':'-')+sym+Math.abs(exp).toFixed(2);
+        return { value: val, valueColor: exp>=0?'green':'red', foot: 'per trade' };
       }
     },
     avgDaily: {
       name: 'Avg Daily P&L', desc: 'Mean P&L per trading day',
       accent: 'green',
-      render: function(t, ccy, sym){
+      render: function(t, ccy, sym, mode){
         var dayPnl={};
         t.forEach(function(x){if(!x.date)return;var d=String(x.date).slice(0,10);var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0);dayPnl[d]=(dayPnl[d]||0)+p;});
         var days=Object.keys(dayPnl);
         if(!days.length) return {value:'—', foot:'no days'};
         var sum=0; days.forEach(function(d){sum+=dayPnl[d];});
         var avg=sum/days.length;
-        return { value: (avg>=0?'+':'-')+sym+Math.abs(Math.round(avg)), valueColor: avg>=0?'green':'red', foot: days.length+' day'+(days.length===1?'':'s') };
+        return { value: _fmtAmt(avg, mode||'dollar', sym, {trades:t}), valueColor: avg>=0?'green':'red', foot: days.length+' day'+(days.length===1?'':'s') };
       }
     },
     largestWin: {
       name: 'Largest Win', desc: 'Single largest profitable trade',
       accent: 'green',
-      render: function(t, ccy, sym){
+      render: function(t, ccy, sym, mode){
         var max=-Infinity, best=null;
         t.forEach(function(x){
           var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0);
           if(p>max){max=p; best=x;}
         });
         if(max<=0||!best) return {value:'—', foot:'no winning trades'};
-        return { value: '+'+sym+Math.round(max).toLocaleString(), valueColor:'green', foot: (best.pair||'unknown') };
+        return { value: _fmtAmt(max, mode||'dollar', sym, {trades:t}), valueColor:'green', foot: (best.pair||'unknown') };
       }
     },
     largestLoss: {
       name: 'Largest Loss', desc: 'Single largest losing trade',
       accent: 'red',
-      render: function(t, ccy, sym){
+      render: function(t, ccy, sym, mode){
         var min=Infinity, worst=null;
         t.forEach(function(x){
           var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0);
           if(p<min){min=p; worst=x;}
         });
         if(min>=0||!worst) return {value:'—', foot:'no losing trades'};
-        return { value: '-'+sym+Math.abs(Math.round(min)).toLocaleString(), valueColor:'red', foot: (worst.pair||'unknown') };
+        return { value: _fmtAmt(min, mode||'dollar', sym, {trades:t}), valueColor:'red', foot: (worst.pair||'unknown') };
       }
     },
     longestWinStreak: {
       name: 'Best Streak', desc: 'Longest consecutive wins',
       accent: 'green',
-      render: function(t, ccy, sym){
+      render: function(t, ccy, sym, mode){
         var sorted=t.slice().sort(function(a,b){return new Date(a.date||0)-new Date(b.date||0);});
         var max=0,cur=0;
         sorted.forEach(function(x){
@@ -32243,7 +32314,7 @@ window.toggleSidebar = function(){
     longestLossStreak: {
       name: 'Worst Streak', desc: 'Longest consecutive losses',
       accent: 'red',
-      render: function(t, ccy, sym){
+      render: function(t, ccy, sym, mode){
         var sorted=t.slice().sort(function(a,b){return new Date(a.date||0)-new Date(b.date||0);});
         var max=0,cur=0;
         sorted.forEach(function(x){
@@ -32276,7 +32347,7 @@ window.toggleSidebar = function(){
   window.dashSaveLayout = dashSaveLayout;
 
   // Render single tile into a slot element
-  function _dashRenderTile(slotEl, metricId, trades, ccy, sym){
+  function _dashRenderTile(slotEl, metricId, trades, ccy, sym, mode){
     if(!slotEl) return;
     if(!metricId || !DASH_METRICS[metricId]){
       // Empty slot
@@ -32290,7 +32361,7 @@ window.toggleSidebar = function(){
       return;
     }
     var m = DASH_METRICS[metricId];
-    var data = m.render(trades, ccy, sym) || {};
+    var data = m.render(trades, ccy, sym, mode) || {};
     var valueColor = data.valueColor || '';
     var miniHtml = data.mini ? '<div class="kpi-tile-mini">'+data.mini+'</div>' : '';
     var editActions = _dashEditing ? (
@@ -32323,9 +32394,11 @@ window.toggleSidebar = function(){
     }catch(e){ trades = []; }
     var ccy = (typeof tqGetDisplayCurrency==='function') ? tqGetDisplayCurrency() : 'USD';
     var sym = {USD:'$',EUR:'€',GBP:'£',JPY:'¥',CHF:'CHF ',CAD:'C$',AUD:'A$',NZD:'NZ$'}[ccy] || '$';
+    // Get current display mode ($ / R / % / privacy) from saved pref
+    var mode = rfxGet('rf_dash_view') || 'dollar';
     for(var i = 0; i < 12; i++){
       var slotEl = document.querySelector('[data-slot="'+i+'"]');
-      _dashRenderTile(slotEl, layout[i], trades, ccy, sym);
+      _dashRenderTile(slotEl, layout[i], trades, ccy, sym, mode);
     }
     if(_dashEditing) _dashWireDrag();
     _dashRenderHiddenTray();
@@ -33232,6 +33305,14 @@ window.toggleSidebar = function(){
   function _pnlOf(t){
     return (typeof tqConvertTradePnl==='function') ? tqConvertTradePnl(t) : (parseFloat(t.pnl)||0);
   }
+  // Empty state with built-in "Hide this widget" link (May 2026)
+  function _emptyState(widgetId, title, sub){
+    return '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px 8px;text-align:center;height:100%">' +
+      '<div style="font-size:11px;color:var(--text2);margin-bottom:4px">'+title+'</div>' +
+      '<div style="font-size:10px;color:var(--text3);opacity:.7;margin-bottom:14px">'+sub+'</div>' +
+      '<button onclick="dashHideWidget(\''+widgetId+'\')" style="background:transparent;border:0.5px solid var(--border);color:var(--text3);padding:5px 12px;border-radius:6px;font-size:10px;cursor:pointer;font-family:Inter,sans-serif;font-weight:500;transition:all .15s" onmouseover="this.style.color=\'#ef4444\';this.style.borderColor=\'rgba(239,68,68,.3)\'" onmouseout="this.style.color=\'var(--text3)\';this.style.borderColor=\'var(--border)\'">Hide widget</button>' +
+    '</div>';
+  }
 
   function renderDashExtras(trades){
     if(!trades || !trades.length) return;
@@ -33294,7 +33375,7 @@ window.toggleSidebar = function(){
           return {s:s, wr: total>0?st.w/total*100:0, total:total};
         }).filter(function(x){return x.total>=3;}).sort(function(a,b){return b.wr-a.wr;}).slice(0,5);
         if(setups.length === 0){
-          el.innerHTML = '<div style="color:var(--text3);font-size:11px;padding:14px 0;text-align:center">Tag your trades with setups<br><span style="font-size:10px;opacity:.7">(min 3 trades per setup)</span></div>';
+          el.innerHTML = _emptyState('win-by-setup', 'Tag setups in your trades', 'Min 3 per setup');
         } else {
           el.innerHTML = '<div style="font-size:9px;color:var(--text3);font-family:DM Mono,monospace;margin-bottom:10px">Min 3 trades to qualify</div>' +
             setups.map(function(s){
@@ -33326,7 +33407,7 @@ window.toggleSidebar = function(){
         });
         var sessions = Object.keys(sessionStats).map(function(s){return {s:s, p:sessionStats[s]};}).sort(function(a,b){return b.p-a.p;});
         if(sessions.length === 0){
-          el.innerHTML = '<div style="color:var(--text3);font-size:11px;padding:14px 0;text-align:center">No session data tagged yet</div>';
+          el.innerHTML = _emptyState('session-perf', 'No session tags yet', 'Add session field to trades');
         } else {
           var totalAbs = sessions.reduce(function(a,s){return a+Math.abs(s.p);}, 0) || 1;
           var segs = sessions.map(function(s,i){
@@ -33458,7 +33539,7 @@ window.toggleSidebar = function(){
         });
         var mistakes = Object.keys(tagPnl).map(function(t){return {t:t, p:tagPnl[t]};}).sort(function(a,b){return a.p-b.p;}).slice(0,5);
         if(mistakes.length === 0){
-          el.innerHTML = '<div style="color:var(--text3);font-size:11px;padding:14px 0;text-align:center">Tag losing trades with mistakes<br><span style="font-size:10px;opacity:.7">to see what costs you most</span></div>';
+          el.innerHTML = _emptyState('top-mistakes', 'Tag losing trades with mistakes', 'See what costs you most');
         } else {
           var max = Math.abs(mistakes[0].p);
           el.innerHTML = '<div style="font-size:9px;color:var(--text3);font-family:DM Mono,monospace;margin-bottom:10px">Total cost across mistakes</div>' +
@@ -33540,7 +33621,7 @@ window.toggleSidebar = function(){
           else if(p<0) lossDur.push(min);
         });
         if(winDur.length===0 && lossDur.length===0){
-          el.innerHTML = '<div style="color:var(--text3);font-size:11px;padding:14px 0;text-align:center;align-self:center">Log entry/exit times<br><span style="font-size:10px;opacity:.7">to see how long you hold</span></div>';
+          el.innerHTML = _emptyState('duration-bars', 'Log entry/exit times', 'See how long you hold');
         } else {
           function avg(a){return a.length?a.reduce(function(x,y){return x+y;},0)/a.length:0;}
           function fmt(min){
