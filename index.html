@@ -33122,10 +33122,15 @@ window.toggleSidebar = function(){
     if(!trades || !trades.length) return;
     var ci = _ccyInfo();
 
-    // ─── Pair distribution donut ───
+    // Color palette for distributions (matches preview)
+    var DIST_COLORS = ['#a78bfa','#1de9b6','#fbbf24','#fb7185','#94a3b8','#60a5fa','#f472b6'];
+
+    // ─── Pair distribution — segmented bar + clean list ───
     if(_isWidgetVisible('pair-distribution')){
       var el = document.getElementById('dash-w-pair-content');
       if(el){
+        // Convert to vertical layout — replace inline flex with column
+        el.parentElement.style.padding = '14px 16px';
         var pairCount = {};
         trades.forEach(function(t){
           var p = t.pair || t.symbol || 'Other';
@@ -33136,24 +33141,27 @@ window.toggleSidebar = function(){
         var topPairs = pairs.slice(0,4);
         var othersCount = pairs.slice(4).reduce(function(a,p){return a+p.c;},0);
         if(othersCount>0) topPairs.push({p:'Other',c:othersCount});
-        var colors = ['rgba(124,90,240,.7)','rgba(29,233,182,.7)','rgba(240,180,41,.7)','rgba(239,68,68,.7)','rgba(130,130,130,.7)'];
-        var offset = 0;
-        var arcs = topPairs.map(function(pp,i){
-          var pct = pp.c/total*100;
-          var len = pct;
-          var arc = '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="'+colors[i]+'" stroke-width="6" stroke-dasharray="'+len.toFixed(1)+' 100" stroke-dashoffset="-'+offset.toFixed(1)+'" transform="rotate(-90 18 18)"/>';
-          offset += len;
-          return arc;
+        var segs = topPairs.map(function(pp,i){
+          var pct = (pp.c/total*100).toFixed(2);
+          return '<div style="background:'+DIST_COLORS[i%DIST_COLORS.length]+';width:'+pct+'%"></div>';
         }).join('');
         var legend = topPairs.map(function(pp,i){
           var pct = (pp.c/total*100).toFixed(0);
-          return '<div style="display:flex;align-items:center;gap:6px;margin:3px 0;font-size:10px;font-variant-numeric:tabular-nums"><span style="width:7px;height:7px;border-radius:50%;background:'+colors[i]+'"></span>'+pp.p+' · '+pct+'%</div>';
+          return '<div style="display:flex;align-items:center;gap:10px;font-size:11px;padding:4px 0;border-bottom:0.5px dotted var(--border)">' +
+            '<span style="width:8px;height:8px;border-radius:50%;background:'+DIST_COLORS[i%DIST_COLORS.length]+';flex-shrink:0"></span>' +
+            '<span style="flex:1;color:var(--text2)">'+pp.p+'</span>' +
+            '<span style="color:var(--text3);font-family:DM Mono,monospace;font-size:10px;min-width:38px;text-align:right">'+pct+'%</span>' +
+            '<span style="font-family:DM Mono,monospace;font-variant-numeric:tabular-nums;min-width:60px;text-align:right;color:var(--text2)">'+pp.c+' tr</span>' +
+          '</div>';
         }).join('');
-        el.innerHTML = '<svg width="80" height="80" viewBox="0 0 36 36" style="flex-shrink:0">'+arcs+'</svg><div style="font-size:10px;color:var(--text3)">'+legend+'</div>';
+        el.innerHTML =
+          '<div style="font-size:9px;color:var(--text3);font-family:DM Mono,monospace;margin-bottom:10px">'+pairs.length+' pairs · '+total+' trades total</div>' +
+          '<div style="display:flex;height:8px;border-radius:4px;overflow:hidden;margin-bottom:14px;background:rgba(255,255,255,.03);gap:1px">'+segs+'</div>' +
+          '<div style="display:flex;flex-direction:column">'+legend+'</div>';
       }
     }
 
-    // ─── Win rate by setup ───
+    // ─── Win rate by setup — gradient bars + trade count ───
     if(_isWidgetVisible('win-by-setup')){
       var el = document.getElementById('dash-w-setup-content');
       if(el){
@@ -33169,24 +33177,29 @@ window.toggleSidebar = function(){
           var st = setupStats[s];
           var total = st.w+st.l;
           return {s:s, wr: total>0?st.w/total*100:0, total:total};
-        }).filter(function(x){return x.total>=2;}).sort(function(a,b){return b.wr-a.wr;}).slice(0,5);
+        }).filter(function(x){return x.total>=3;}).sort(function(a,b){return b.wr-a.wr;}).slice(0,5);
         if(setups.length === 0){
-          el.innerHTML = '<div style="color:var(--text3);font-size:11px;padding:10px 0">Tag your trades with setups to see this</div>';
+          el.innerHTML = '<div style="color:var(--text3);font-size:11px;padding:14px 0;text-align:center">Tag your trades with setups<br><span style="font-size:10px;opacity:.7">(min 3 trades per setup)</span></div>';
         } else {
-          el.innerHTML = setups.map(function(s){
-            var color = s.wr>=55 ? '#1de9b6' : (s.wr>=45 ? 'rgba(29,233,182,.6)' : '#ef4444');
-            var label = s.s.length>14 ? s.s.slice(0,14)+'…' : s.s;
-            return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-variant-numeric:tabular-nums">' +
-              '<span style="width:90px;color:var(--text3);font-size:10px">'+label+'</span>' +
-              '<div style="flex:1;height:5px;background:rgba(255,255,255,.04);border-radius:2px;overflow:hidden"><div style="width:'+s.wr.toFixed(0)+'%;height:100%;background:'+color+'"></div></div>' +
-              '<span style="width:42px;text-align:right;font-size:10px;color:var(--text);font-family:DM Mono,monospace">'+s.wr.toFixed(0)+'%</span>' +
-            '</div>';
-          }).join('');
+          el.innerHTML = '<div style="font-size:9px;color:var(--text3);font-family:DM Mono,monospace;margin-bottom:10px">Min 3 trades to qualify</div>' +
+            setups.map(function(s){
+              var color = s.wr>=60 ? '#1de9b6' : (s.wr>=50 ? 'rgba(29,233,182,.6)' : '#ef4444');
+              var grad = s.wr>=60 ? 'linear-gradient(90deg,#1de9b6,rgba(29,233,182,.5))'
+                       : s.wr>=50 ? 'linear-gradient(90deg,rgba(29,233,182,.7),rgba(29,233,182,.3))'
+                       : '#ef4444';
+              var label = s.s.length>14 ? s.s.slice(0,14)+'…' : s.s;
+              return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:0.5px dotted var(--border);font-variant-numeric:tabular-nums">' +
+                '<span style="width:90px;color:var(--text2);font-size:10px">'+label+'</span>' +
+                '<div style="flex:1;height:6px;background:rgba(255,255,255,.03);border-radius:3px;overflow:hidden"><div style="width:'+s.wr.toFixed(0)+'%;height:100%;background:'+grad+';border-radius:3px"></div></div>' +
+                '<span style="width:42px;text-align:right;font-size:10px;color:'+color+';font-family:DM Mono,monospace">'+s.wr.toFixed(0)+'%</span>' +
+                '<span style="width:34px;text-align:right;font-size:9px;color:var(--text3);font-family:DM Mono,monospace">'+s.total+' tr</span>' +
+              '</div>';
+            }).join('');
         }
       }
     }
 
-    // ─── Performance by session ───
+    // ─── Performance by session — segmented bar + dotted list ───
     if(_isWidgetVisible('session-perf')){
       var el = document.getElementById('dash-w-session-content');
       if(el){
@@ -33198,24 +33211,34 @@ window.toggleSidebar = function(){
         });
         var sessions = Object.keys(sessionStats).map(function(s){return {s:s, p:sessionStats[s]};}).sort(function(a,b){return b.p-a.p;});
         if(sessions.length === 0){
-          el.innerHTML = '<div style="color:var(--text3);font-size:11px;padding:10px 0">No session data tagged yet</div>';
+          el.innerHTML = '<div style="color:var(--text3);font-size:11px;padding:14px 0;text-align:center">No session data tagged yet</div>';
         } else {
-          var max = Math.max.apply(Math, sessions.map(function(s){return Math.abs(s.p);}));
-          el.innerHTML = sessions.map(function(s){
-            var color = s.p>=0 ? '#1de9b6' : '#ef4444';
-            var width = max>0 ? Math.abs(s.p)/max*100 : 0;
+          var totalAbs = sessions.reduce(function(a,s){return a+Math.abs(s.p);}, 0) || 1;
+          var segs = sessions.map(function(s,i){
+            var pct = (Math.abs(s.p)/totalAbs*100).toFixed(2);
+            var color = s.p>=0 ? 'rgba(29,233,182,'+(0.95-i*0.18).toFixed(2)+')' : 'rgba(239,68,68,'+(0.95-i*0.18).toFixed(2)+')';
+            return '<div style="background:'+color+';width:'+pct+'%"></div>';
+          }).join('');
+          var rows = sessions.map(function(s,i){
+            var color = s.p>=0 ? 'rgba(29,233,182,'+(0.95-i*0.18).toFixed(2)+')' : 'rgba(239,68,68,'+(0.95-i*0.18).toFixed(2)+')';
+            var pct = (Math.abs(s.p)/totalAbs*100).toFixed(0);
             var sign = s.p>=0?'+':'-';
-            return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-variant-numeric:tabular-nums">' +
-              '<span style="width:60px;color:var(--text3);font-size:10px">'+s.s+'</span>' +
-              '<div style="flex:1;height:5px;background:rgba(255,255,255,.04);border-radius:2px;overflow:hidden"><div style="width:'+width.toFixed(0)+'%;height:100%;background:'+color+';opacity:'+(width>50?'1':'.7')+'"></div></div>' +
-              '<span style="width:62px;text-align:right;font-size:10px;color:'+(s.p>=0?'#1de9b6':'#ef4444')+';font-family:DM Mono,monospace">'+sign+ci.sym+Math.abs(Math.round(s.p)).toLocaleString()+'</span>' +
+            return '<div style="display:flex;align-items:center;gap:10px;font-size:11px;padding:4px 0;border-bottom:0.5px dotted var(--border)">' +
+              '<span style="width:8px;height:8px;border-radius:50%;background:'+color+';flex-shrink:0"></span>' +
+              '<span style="flex:1;color:var(--text2)">'+s.s+'</span>' +
+              '<span style="color:var(--text3);font-family:DM Mono,monospace;font-size:10px;min-width:38px;text-align:right">'+pct+'%</span>' +
+              '<span style="font-family:DM Mono,monospace;font-variant-numeric:tabular-nums;min-width:70px;text-align:right;color:'+(s.p>=0?'#1de9b6':'#ef4444')+'">'+sign+ci.sym+Math.abs(Math.round(s.p)).toLocaleString()+'</span>' +
             '</div>';
           }).join('');
+          el.innerHTML =
+            '<div style="font-size:9px;color:var(--text3);font-family:DM Mono,monospace;margin-bottom:10px">'+sessions.length+' sessions tagged</div>' +
+            '<div style="display:flex;height:8px;border-radius:4px;overflow:hidden;margin-bottom:14px;background:rgba(255,255,255,.03);gap:1px">'+segs+'</div>' +
+            '<div style="display:flex;flex-direction:column">'+rows+'</div>';
         }
       }
     }
 
-    // ─── Hour-of-day heatmap ───
+    // ─── Hour-of-day heatmap with best/worst stats ───
     if(_isWidgetVisible('hour-heatmap')){
       var grid = document.getElementById('dash-w-hour-grid');
       var summary = document.getElementById('dash-w-hour-summary');
@@ -33224,35 +33247,44 @@ window.toggleSidebar = function(){
         var hourCount = new Array(24).fill(0);
         trades.forEach(function(t){
           var h = -1;
-          // Try entry time, fallback to date hour
           if(t.entryTime){ var m=String(t.entryTime).match(/^(\d{1,2})/); if(m) h=parseInt(m[1],10); }
           if(h<0 || h>23) return;
           hourPnl[h] += _pnlOf(t);
           hourCount[h]++;
         });
         var maxAbs = Math.max(1, Math.max.apply(Math, hourPnl.map(Math.abs)));
+        var bestH = hourPnl.indexOf(Math.max.apply(Math, hourPnl));
         grid.innerHTML = hourPnl.map(function(p, h){
           var intensity = Math.abs(p)/maxAbs;
-          var bg = 'rgba(255,255,255,.04)';
+          var bg = 'rgba(255,255,255,.03)';
+          var glow = '';
           if(hourCount[h]>0){
-            if(p>0) bg = 'rgba(29,233,182,'+(0.15+intensity*0.6).toFixed(2)+')';
-            else if(p<0) bg = 'rgba(239,68,68,'+(0.15+intensity*0.6).toFixed(2)+')';
+            if(p>0){
+              if(intensity>0.85) { bg = 'rgba(29,233,182,.95)'; glow = 'box-shadow:0 0 8px rgba(29,233,182,.4);'; }
+              else if(intensity>0.5) bg = 'rgba(29,233,182,'+(0.4+intensity*0.4).toFixed(2)+')';
+              else bg = 'rgba(29,233,182,'+(0.15+intensity*0.4).toFixed(2)+')';
+            } else if(p<0) {
+              bg = 'rgba(239,68,68,'+(0.2+intensity*0.6).toFixed(2)+')';
+            }
           }
           var sign = p>=0?'+':'';
           var title = String(h).padStart(2,'0')+':00 · '+sign+ci.sym+Math.round(p)+' · '+hourCount[h]+' tr';
-          return '<div title="'+title+'" style="aspect-ratio:1;border-radius:2px;background:'+bg+'"></div>';
+          return '<div title="'+title+'" style="aspect-ratio:1;border-radius:2px;background:'+bg+';'+glow+'"></div>';
         }).join('');
         if(summary){
-          var bestH = hourPnl.indexOf(Math.max.apply(Math, hourPnl));
           var worstH = hourPnl.indexOf(Math.min.apply(Math, hourPnl));
-          var bestStr = hourCount[bestH]>0 ? String(bestH).padStart(2,'0')+':00 ('+(hourPnl[bestH]>=0?'+':'')+ci.sym+Math.round(hourPnl[bestH])+')' : '—';
-          var worstStr = hourCount[worstH]>0 && hourPnl[worstH]<0 ? String(worstH).padStart(2,'0')+':00 ('+ci.sym+Math.round(hourPnl[worstH])+')' : '—';
-          summary.textContent = 'Best: '+bestStr+'  ·  Worst: '+worstStr;
+          var bestStr = hourCount[bestH]>0 && hourPnl[bestH]>0 ? String(bestH).padStart(2,'0')+':00 · '+(hourPnl[bestH]>=0?'+':'')+ci.sym+Math.round(hourPnl[bestH]) : '—';
+          var worstStr = hourCount[worstH]>0 && hourPnl[worstH]<0 ? String(worstH).padStart(2,'0')+':00 · '+ci.sym+Math.round(hourPnl[worstH]) : '—';
+          summary.innerHTML =
+            '<div style="display:flex;gap:14px;margin-top:14px;padding-top:12px;border-top:0.5px solid var(--border);font-size:10px">' +
+              '<div style="flex:1"><div style="color:var(--text3);font-size:9px;letter-spacing:.4px;margin-bottom:3px">BEST HOUR</div><div style="color:#1de9b6;font-family:DM Mono,monospace;font-variant-numeric:tabular-nums">'+bestStr+'</div></div>' +
+              '<div style="flex:1"><div style="color:var(--text3);font-size:9px;letter-spacing:.4px;margin-bottom:3px">WORST HOUR</div><div style="color:#ef4444;font-family:DM Mono,monospace;font-variant-numeric:tabular-nums">'+worstStr+'</div></div>' +
+            '</div>';
         }
       }
     }
 
-    // ─── Day of week ───
+    // ─── Day of week — VERTICAL bars ───
     if(_isWidgetVisible('dow-bars')){
       var el = document.getElementById('dash-w-dow-content');
       if(el){
@@ -33264,19 +33296,34 @@ window.toggleSidebar = function(){
           if(isNaN(d.getTime())) return;
           dowPnl[d.getDay()] += _pnlOf(t);
         });
-        // Show Mon-Fri (1-5) primarily
         var trading = [1,2,3,4,5].map(function(i){return {d:dows[i], p:dowPnl[i]};});
         var maxAbs = Math.max(1, Math.max.apply(Math, trading.map(function(x){return Math.abs(x.p);})));
-        el.innerHTML = trading.map(function(x){
-          var color = x.p>=0 ? '#1de9b6' : '#ef4444';
-          var width = Math.abs(x.p)/maxAbs*100;
-          var sign = x.p>=0?'+':'-';
-          return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-variant-numeric:tabular-nums">' +
-            '<span style="width:42px;color:var(--text3);font-size:10px">'+x.d+'</span>' +
-            '<div style="flex:1;height:5px;background:rgba(255,255,255,.04);border-radius:2px;overflow:hidden"><div style="width:'+width.toFixed(0)+'%;height:100%;background:'+color+';opacity:'+(width>50?'1':'.75')+'"></div></div>' +
-            '<span style="width:62px;text-align:right;font-size:10px;color:'+(x.p>=0?'#1de9b6':'#ef4444')+';font-family:DM Mono,monospace">'+sign+ci.sym+Math.abs(Math.round(x.p)).toLocaleString()+'</span>' +
+        var bestDay = trading.slice().sort(function(a,b){return b.p-a.p;})[0];
+        var worstDay = trading.slice().sort(function(a,b){return a.p-b.p;})[0];
+        el.innerHTML =
+          '<div style="font-size:9px;color:var(--text3);font-family:DM Mono,monospace;margin-bottom:14px">' +
+            'Best: <span style="color:#1de9b6">'+bestDay.d+' ('+(bestDay.p>=0?'+':'-')+ci.sym+Math.abs(Math.round(bestDay.p))+')</span>' +
+            (worstDay.p<0 ? ' · Worst: <span style="color:#ef4444">'+worstDay.d+' ('+ci.sym+Math.round(worstDay.p)+')</span>' : '') +
+          '</div>' +
+          '<div style="display:flex;align-items:flex-end;height:120px;gap:10px;padding:0 4px">' +
+            trading.map(function(x){
+              var height = Math.abs(x.p)/maxAbs*100;
+              if(height < 2) height = 2;
+              var sign = x.p>=0?'+':'-';
+              var color = x.p>0 ? '#1de9b6' : (x.p<0 ? '#ef4444' : 'rgba(255,255,255,.1)');
+              var grad = x.p>0 ? 'linear-gradient(180deg,#1de9b6,rgba(29,233,182,.5))'
+                       : x.p<0 ? 'linear-gradient(180deg,#ef4444,rgba(239,68,68,.5))'
+                       : 'rgba(255,255,255,.1)';
+              var valColor = x.p>0?'#1de9b6':(x.p<0?'#ef4444':'var(--text3)');
+              return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%">' +
+                '<div style="font-size:9px;color:'+valColor+';font-family:DM Mono,monospace;font-variant-numeric:tabular-nums;white-space:nowrap">'+(x.p===0?ci.sym+'0':sign+ci.sym+Math.abs(Math.round(x.p)))+'</div>' +
+                '<div style="flex:1;width:80%;background:rgba(255,255,255,.03);border-radius:4px;display:flex;align-items:flex-end;overflow:hidden">' +
+                  '<div style="width:100%;height:'+height+'%;background:'+grad+';border-radius:4px 4px 0 0"></div>' +
+                '</div>' +
+                '<div style="font-size:9px;color:var(--text3)">'+x.d+'</div>' +
+              '</div>';
+            }).join('') +
           '</div>';
-        }).join('');
       }
     }
 
@@ -33287,7 +33334,7 @@ window.toggleSidebar = function(){
         var tagPnl = {};
         trades.forEach(function(t){
           var p = _pnlOf(t);
-          if(p>=0) return; // only count negative trades
+          if(p>=0) return;
           var tags = t.psychTags || t.mistakes || [];
           if(!Array.isArray(tags)) return;
           tags.forEach(function(tag){
@@ -33296,23 +33343,24 @@ window.toggleSidebar = function(){
         });
         var mistakes = Object.keys(tagPnl).map(function(t){return {t:t, p:tagPnl[t]};}).sort(function(a,b){return a.p-b.p;}).slice(0,5);
         if(mistakes.length === 0){
-          el.innerHTML = '<div style="color:var(--text3);font-size:11px;padding:10px 0">Tag your losing trades with mistakes to see this</div>';
+          el.innerHTML = '<div style="color:var(--text3);font-size:11px;padding:14px 0;text-align:center">Tag losing trades with mistakes<br><span style="font-size:10px;opacity:.7">to see what costs you most</span></div>';
         } else {
           var max = Math.abs(mistakes[0].p);
-          el.innerHTML = mistakes.map(function(m){
-            var width = Math.abs(m.p)/max*100;
-            var label = m.t.length>14 ? m.t.slice(0,14)+'…' : m.t;
-            return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-variant-numeric:tabular-nums">' +
-              '<span style="width:90px;color:var(--text3);font-size:10px">'+label+'</span>' +
-              '<div style="flex:1;height:5px;background:rgba(255,255,255,.04);border-radius:2px;overflow:hidden"><div style="width:'+width.toFixed(0)+'%;height:100%;background:#ef4444;opacity:'+(width>70?'1':'.7')+'"></div></div>' +
-              '<span style="width:62px;text-align:right;font-size:10px;color:#ef4444;font-family:DM Mono,monospace">-'+ci.sym+Math.abs(Math.round(m.p)).toLocaleString()+'</span>' +
-            '</div>';
-          }).join('');
+          el.innerHTML = '<div style="font-size:9px;color:var(--text3);font-family:DM Mono,monospace;margin-bottom:10px">Total cost across mistakes</div>' +
+            mistakes.map(function(m){
+              var width = Math.abs(m.p)/max*100;
+              var label = m.t.length>14 ? m.t.slice(0,14)+'…' : m.t;
+              return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:0.5px dotted var(--border);font-variant-numeric:tabular-nums">' +
+                '<span style="width:90px;color:var(--text2);font-size:10px">'+label+'</span>' +
+                '<div style="flex:1;height:6px;background:rgba(255,255,255,.03);border-radius:3px;overflow:hidden"><div style="width:'+width.toFixed(0)+'%;height:100%;background:linear-gradient(90deg,#ef4444,rgba(239,68,68,.5));border-radius:3px"></div></div>' +
+                '<span style="width:70px;text-align:right;font-size:10px;color:#ef4444;font-family:DM Mono,monospace">-'+ci.sym+Math.abs(Math.round(m.p)).toLocaleString()+'</span>' +
+              '</div>';
+            }).join('');
         }
       }
     }
 
-    // ─── Win/Loss split donut ───
+    // ─── Win/Loss split — 3-color donut with BE + center label ───
     if(_isWidgetVisible('wl-donut')){
       var el = document.getElementById('dash-w-wl-content');
       if(el){
@@ -33324,20 +33372,41 @@ window.toggleSidebar = function(){
           else if(p>0) wins++;
           else losses++;
         });
-        var total = wins+losses;
-        var winPct = total>0 ? wins/total*100 : 0;
+        var total = trades.length;
+        var winPctOfAll = total>0 ? wins/total*100 : 0;
+        var bePctOfAll = total>0 ? bes/total*100 : 0;
+        var lossPctOfAll = total>0 ? losses/total*100 : 0;
+        // Win rate (industry standard) excludes BE from denominator
+        var wrDecisive = (wins+losses)>0 ? (wins/(wins+losses)*100) : 0;
         var sign = net>=0?'+':'-';
+        // Days span
+        var dates = trades.map(function(t){return String(t.date||'').slice(0,10);}).filter(Boolean).sort();
+        var span = dates.length>1 ? Math.round((new Date(dates[dates.length-1])-new Date(dates[0]))/86400000) : 0;
+        el.style.padding = '0';
         el.innerHTML =
-          '<svg width="80" height="80" viewBox="0 0 36 36" style="flex-shrink:0">' +
-            '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="rgba(239,68,68,.35)" stroke-width="6"/>' +
-            '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="#1de9b6" stroke-width="6" stroke-dasharray="'+winPct.toFixed(1)+' 100" transform="rotate(-90 18 18)"/>' +
-            '<text x="18" y="20" text-anchor="middle" font-size="7" fill="#ededed" font-family="Inter" font-weight="500" font-variant-numeric="tabular-nums">'+winPct.toFixed(0)+'%</text>' +
-          '</svg>' +
-          '<div style="font-size:10px;color:var(--text3);font-variant-numeric:tabular-nums">' +
-            '<div style="display:flex;align-items:center;gap:6px;margin:3px 0"><span style="width:7px;height:7px;border-radius:50%;background:#1de9b6"></span>Wins · '+wins+'</div>' +
-            '<div style="display:flex;align-items:center;gap:6px;margin:3px 0"><span style="width:7px;height:7px;border-radius:50%;background:#ef4444"></span>Losses · '+losses+'</div>' +
-            (bes>0 ? '<div style="display:flex;align-items:center;gap:6px;margin:3px 0"><span style="width:7px;height:7px;border-radius:50%;background:rgba(130,130,130,.7)"></span>BE · '+bes+'</div>' : '') +
-            '<div style="margin-top:8px;color:'+(net>=0?'#1de9b6':'#ef4444')+';font-family:DM Mono,monospace">'+sign+ci.sym+Math.abs(Math.round(net)).toLocaleString()+' net</div>' +
+          '<div style="font-size:9px;color:var(--text3);font-family:DM Mono,monospace;margin-bottom:14px">'+total+' trades'+(span>0?' · '+span+' days span':'')+'</div>' +
+          '<div style="display:flex;align-items:center;gap:18px">' +
+            '<div style="position:relative;flex-shrink:0">' +
+              '<svg width="100" height="100" viewBox="0 0 36 36">' +
+                '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="rgba(255,255,255,.06)" stroke-width="3.5"/>' +
+                '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="#1de9b6" stroke-width="3.5" stroke-dasharray="'+winPctOfAll.toFixed(2)+' 100" stroke-dashoffset="0" transform="rotate(-90 18 18)" stroke-linecap="round"/>' +
+                (bes>0 ? '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="#94a3b8" stroke-width="3.5" stroke-dasharray="'+bePctOfAll.toFixed(2)+' 100" stroke-dashoffset="-'+winPctOfAll.toFixed(2)+'" transform="rotate(-90 18 18)" stroke-linecap="round"/>' : '') +
+                '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="#ef4444" stroke-width="3.5" stroke-dasharray="'+lossPctOfAll.toFixed(2)+' 100" stroke-dashoffset="-'+(winPctOfAll+bePctOfAll).toFixed(2)+'" transform="rotate(-90 18 18)" stroke-linecap="round"/>' +
+              '</svg>' +
+              '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">' +
+                '<div style="font-size:22px;font-weight:500;color:var(--text);line-height:1;font-variant-numeric:tabular-nums">'+wrDecisive.toFixed(0)+'%</div>' +
+                '<div style="font-size:8px;color:var(--text3);letter-spacing:1px;margin-top:2px">WIN RATE</div>' +
+              '</div>' +
+            '</div>' +
+            '<div style="flex:1;display:flex;flex-direction:column;gap:4px">' +
+              '<div style="display:flex;align-items:center;justify-content:space-between;font-size:11px;padding:5px 0;border-bottom:0.5px dotted var(--border)"><span style="display:flex;align-items:center;gap:8px;color:var(--text2)"><span style="width:8px;height:8px;border-radius:50%;background:#1de9b6"></span>Wins</span><span style="font-family:DM Mono,monospace;font-variant-numeric:tabular-nums;color:var(--text)">'+wins+'</span></div>' +
+              (bes>0 ? '<div style="display:flex;align-items:center;justify-content:space-between;font-size:11px;padding:5px 0;border-bottom:0.5px dotted var(--border)"><span style="display:flex;align-items:center;gap:8px;color:var(--text2)"><span style="width:8px;height:8px;border-radius:50%;background:#94a3b8"></span>Breakeven</span><span style="font-family:DM Mono,monospace;font-variant-numeric:tabular-nums;color:var(--text)">'+bes+'</span></div>' : '') +
+              '<div style="display:flex;align-items:center;justify-content:space-between;font-size:11px;padding:5px 0"><span style="display:flex;align-items:center;gap:8px;color:var(--text2)"><span style="width:8px;height:8px;border-radius:50%;background:#ef4444"></span>Losses</span><span style="font-family:DM Mono,monospace;font-variant-numeric:tabular-nums;color:var(--text)">'+losses+'</span></div>' +
+              '<div style="margin-top:8px;padding-top:12px;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:baseline">' +
+                '<span style="font-size:10px;color:var(--text3);letter-spacing:.5px">NET</span>' +
+                '<span style="font-size:18px;font-weight:500;color:'+(net>=0?'#1de9b6':'#ef4444')+';font-family:Inter,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.4px">'+sign+ci.sym+Math.abs(Math.round(net)).toLocaleString()+'</span>' +
+              '</div>' +
+            '</div>' +
           '</div>';
       }
     }
@@ -33356,7 +33425,7 @@ window.toggleSidebar = function(){
           else if(p<0) lossDur.push(min);
         });
         if(winDur.length===0 && lossDur.length===0){
-          el.innerHTML = '<div style="color:var(--text3);font-size:11px;padding:10px 0;align-self:center">Log entry/exit times to see this</div>';
+          el.innerHTML = '<div style="color:var(--text3);font-size:11px;padding:14px 0;text-align:center;align-self:center">Log entry/exit times<br><span style="font-size:10px;opacity:.7">to see how long you hold</span></div>';
         } else {
           function avg(a){return a.length?a.reduce(function(x,y){return x+y;},0)/a.length:0;}
           function fmt(min){
