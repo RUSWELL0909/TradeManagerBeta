@@ -3803,9 +3803,10 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .jr-empty .jr-restore-btn:hover{opacity:.85}
 .jr-empty .jr-restore-hint{margin-top:8px;font-size:11px;color:var(--text3)}
 /* ══════════════════════════════════════════════════════
-   SCALE UP: 25% zoom on all pages EXCEPT Dashboard
+   App-level zoom REMOVED (May 2026) — was conflicting with browser zoom.
+   Now uses native sizes. Fonts already sized appropriately.
    ══════════════════════════════════════════════════════ */
-.page{zoom:1.25}
+/* .page{zoom:1.25} -- removed */
 /* ── Welcome Screen Premium ── */
 .ws-card{position:relative;cursor:pointer;animation:welcomeCardIn .5s ease-out both;border-radius:14px;transform-style:preserve-3d;transition:transform .2s,box-shadow .3s}
 .ws-card:nth-child(1){animation-delay:.2s}.ws-card:nth-child(2){animation-delay:.35s}.ws-card:nth-child(3){animation-delay:.5s}
@@ -3824,15 +3825,12 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 @keyframes wsGradientShift{0%,100%{background-position:0% center}50%{background-position:200% center}}
 @keyframes welcomeFadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 @keyframes welcomeCardIn{from{opacity:0;transform:translateY(24px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
-.jr-modal{zoom:1.25}
-.modal-overlay{zoom:1.25}
-.pb-overlay{zoom:1.25}
+/* Modal zooms also removed — May 2026 */
+/* .jr-modal{zoom:1.25} */
+/* .modal-overlay{zoom:1.25} */
+/* .pb-overlay{zoom:1.25} */
 /* ── Mobile: kill zoom, fix all grids ── */
 @media(max-width:1024px){
-  .page{zoom:1!important}
-  .jr-modal{zoom:1!important}
-  .modal-overlay{zoom:1!important}
-  .pb-overlay{zoom:1!important}
   .stats-row{grid-template-columns:repeat(2,1fr)!important}
   .trade-item{grid-template-columns:auto 1fr auto!important;gap:8px!important}
   .cs-filters{grid-template-columns:1fr 1fr!important}
