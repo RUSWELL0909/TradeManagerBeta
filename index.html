@@ -1890,6 +1890,16 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .stat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px 24px;position:relative;overflow:hidden;transition:box-shadow .25s,border-color .25s,transform .2s}.stat-card:hover{box-shadow:0 8px 32px rgba(124,90,240,.18);border-color:rgba(124,90,240,.35);transform:translateY(-2px)}
 [data-widget-hidden="true"]{display:none !important}
 
+/* Dashboard section drag-reorder (May 2026) */
+.dash-section{position:relative;transition:opacity .2s, transform .2s}
+.dash-section.section-drag-source{opacity:.4}
+.dash-section.section-drop-target::before{content:'';position:absolute;top:-6px;left:0;right:0;height:3px;background:var(--accent);border-radius:2px;box-shadow:0 0 12px rgba(124,90,240,.6);z-index:10}
+.section-drag-handle{position:absolute;top:8px;left:-30px;width:24px;height:32px;display:none;align-items:center;justify-content:center;cursor:grab;color:var(--text3);background:var(--bg2);border:0.5px solid var(--border);border-radius:6px;z-index:20;transition:all .15s}
+.section-drag-handle:hover{color:var(--accent3);border-color:rgba(124,90,240,.4);background:rgba(124,90,240,.05)}
+.section-drag-handle:active{cursor:grabbing}
+body.dash-edit-mode .section-drag-handle{display:flex}
+body.dash-edit-mode .dash-section{outline:1px dashed rgba(124,90,240,.15);outline-offset:6px;border-radius:14px}
+
 /* Widget hover actions (Hide ⊝ + Replace ⇄) — May 2026 */
 [data-widget]{position:relative}
 .widget-actions{position:absolute;top:8px;right:8px;display:flex;gap:3px;opacity:0;transition:opacity .15s;z-index:10;pointer-events:none}
@@ -2012,7 +2022,7 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .cs-body{padding:14px}
 .cs-pair{font-weight:600;font-size:15px;color:var(--accent3);margin-bottom:6px}
 .cs-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
-.cs-tag{padding:2px 8px;border-radius:4px;font-size:10px;font-family:Inter,sans-serif;background:var(--bg3);color:var(--text3);border:1px solid var(--border)}
+.cs-tag{padding:2px 8px;border-radius:4px;font-size:12px;font-family:Inter,sans-serif;background:var(--bg3);color:var(--text3);border:1px solid var(--border)}
 .cs-date{font-size:11px;font-family:Inter,sans-serif;color:var(--text3)}
 .modal-overlay{position:fixed;inset:0;background:rgba(10,8,20,.85);display:flex;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .2s}
 .modal-overlay.show{opacity:1;pointer-events:all}
@@ -2030,32 +2040,32 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .upload-area input{display:none}
 /* TRADE MANAGER */
 .tm-accounts{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
-.tm-account-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;cursor:pointer;transition:all .2s;text-align:center}
+.tm-account-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;cursor:pointer;transition:all .2s;text-align:center}
 .tm-account-card:hover{border-color:rgba(124,90,240,.1)}
 .tm-account-card.selected{border-color:var(--accent);background:rgba(124,90,240,.08);box-shadow:0 0 16px rgba(124,90,240,.1)}
-.tm-account-name{font-size:9px;font-family:Inter,sans-serif;color:var(--text3);font-weight:600;letter-spacing:.5px;margin-bottom:6px}
-.tm-account-input{background:transparent;border:none;border-bottom:1px dashed var(--border);color:var(--text);font-family:Inter,sans-serif;font-size:20px;font-weight:400;text-align:center;width:100%;padding:2px 0;letter-spacing:-1px}
+.tm-account-name{font-size:11px;font-family:Inter,sans-serif;color:var(--text3);font-weight:500;letter-spacing:.5px;margin-bottom:8px;text-transform:uppercase}
+.tm-account-input{background:transparent;border:none;border-bottom:1px dashed var(--border);color:var(--text);font-family:Inter,sans-serif;font-size:24px;font-weight:400;text-align:center;width:100%;padding:2px 0;letter-spacing:-1px;font-variant-numeric:tabular-nums}
 .tm-account-input:focus{outline:none;border-bottom-color:var(--accent)}
 .tm-calculator{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-bottom:20px}
-.tm-panel{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;transition:all .2s;position:relative;overflow:hidden}
+.tm-panel{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;transition:all .2s;position:relative;overflow:hidden}
 .tm-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(124,90,240,.05),transparent)}
 .tm-panel:hover{border-color:rgba(124,90,240,.05)}
-.tm-panel-title{font-size:11px;font-family:Inter,sans-serif;color:var(--accent3);font-weight:600;letter-spacing:1px;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.tm-panel-title{font-size:13px;font-family:Inter,sans-serif;color:var(--accent3);font-weight:500;letter-spacing:.8px;margin-bottom:18px;display:flex;align-items:center;gap:8px;text-transform:uppercase}
 .tm-panel-title::before{content:'';width:3px;height:14px;border-radius:2px;background:var(--accent)}
-.tm-result-box{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:16px;margin-top:14px}
-.tm-result-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(124,90,240,.02);font-size:12px}
+.tm-result-box{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:18px;margin-top:14px}
+.tm-result-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(124,90,240,.02);font-size:13px}
 .tm-result-row:last-child{border-bottom:none}
-.tm-result-label{color:var(--text3);font-family:Inter,sans-serif;font-size:10px;font-weight:500;letter-spacing:.3px}
-.tm-result-val{font-weight:500;color:var(--text);font-family:Inter,sans-serif;font-size:14px}
-.tm-result-val.big{font-size:28px;color:var(--accent3);letter-spacing:-1px;font-weight:400}
+.tm-result-label{color:var(--text3);font-family:Inter,sans-serif;font-size:12px;font-weight:500;letter-spacing:.3px}
+.tm-result-val{font-weight:500;color:var(--text);font-family:Inter,sans-serif;font-size:15px;font-variant-numeric:tabular-nums}
+.tm-result-val.big{font-size:32px;color:var(--accent3);letter-spacing:-1px;font-weight:400}
 .tm-result-val.green{color:var(--green)}.tm-result-val.red{color:var(--red)}.tm-result-val.yellow{color:var(--yellow)}
-.risk-slider{-webkit-appearance:none;width:100%;height:4px;border-radius:2px;background:var(--border);outline:none;margin:8px 0}
-.risk-slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent);cursor:pointer;box-shadow:0 0 8px rgba(124,90,240,.15)}
-.risk-display{font-size:28px;font-weight:400;color:var(--accent3);text-align:center;font-family:Inter,sans-serif;margin:8px 0;letter-spacing:-1px}
-.pip-badge{padding:6px 14px;border-radius:8px;font-size:11px;font-family:Inter,sans-serif;font-weight:500;background:rgba(124,90,240,.02);color:var(--text3);border:1px solid var(--border);cursor:pointer;transition:all .15s;display:inline-block;margin:3px}
+.risk-slider{-webkit-appearance:none;width:100%;height:4px;border-radius:2px;background:var(--border);outline:none;margin:10px 0}
+.risk-slider::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--accent);cursor:pointer;box-shadow:0 0 8px rgba(124,90,240,.15)}
+.risk-display{font-size:32px;font-weight:400;color:var(--accent3);text-align:center;font-family:Inter,sans-serif;margin:10px 0;letter-spacing:-1px;font-variant-numeric:tabular-nums}
+.pip-badge{padding:7px 14px;border-radius:8px;font-size:12px;font-family:Inter,sans-serif;font-weight:500;background:rgba(124,90,240,.02);color:var(--text3);border:1px solid var(--border);cursor:pointer;transition:all .15s;display:inline-block;margin:3px}
 .pip-badge:hover{background:rgba(124,90,240,.04);color:var(--accent3);border-color:rgba(124,90,240,.1);transform:translateY(-1px)}
 .pip-badge.active{background:rgba(124,90,240,.1);color:var(--accent3);border-color:var(--accent);box-shadow:0 0 10px rgba(124,90,240,.15)}
-.tm-warning{background:rgba(224,92,122,.06);border:1px solid rgba(224,92,122,.12);border-radius:10px;padding:10px 14px;font-size:11px;color:var(--red);margin-top:10px;display:none;font-family:Inter,sans-serif}
+.tm-warning{background:rgba(224,92,122,.06);border:1px solid rgba(224,92,122,.12);border-radius:10px;padding:11px 14px;font-size:12px;color:var(--red);margin-top:10px;display:none;font-family:Inter,sans-serif}
 .tm-warning.show{display:block}
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-track{background:transparent}
@@ -2742,12 +2752,12 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .rpt-hero-sub{font-size:11px;font-family:Inter,sans-serif;margin-top:8px;color:var(--text3)}
 .rpt-hero-badge{position:absolute;top:16px;right:20px;padding:4px 12px;border-radius:6px;font-size:9px;font-family:Inter,sans-serif;font-weight:600}
 .rpt-compact-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
-.rpt-compact{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;position:relative;overflow:hidden;transition:all .2s}
+.rpt-compact{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 20px;position:relative;overflow:hidden;transition:all .2s}
 .rpt-compact:hover{border-color:rgba(124,90,240,.1);transform:translateY(-1px)}
-.rpt-compact .c-label{font-size:9px;color:var(--text3);margin-bottom:6px;display:flex;align-items:center;gap:4px}
-.rpt-compact .c-val{font-size:22px;font-weight:400;letter-spacing:-1px}
-.rpt-compact .c-sub{font-size:9px;font-family:Inter,sans-serif;color:var(--text3);margin-top:4px}
-.rpt-compact .c-bar{height:3px;border-radius:2px;background:rgba(124,90,240,.03);margin-top:8px;overflow:hidden}
+.rpt-compact .c-label{font-size:11px;color:var(--text3);margin-bottom:8px;display:flex;align-items:center;gap:4px;font-weight:500;letter-spacing:.3px;text-transform:uppercase}
+.rpt-compact .c-val{font-size:28px;font-weight:400;letter-spacing:-.6px;font-variant-numeric:tabular-nums}
+.rpt-compact .c-sub{font-size:11px;font-family:Inter,sans-serif;color:var(--text3);margin-top:6px}
+.rpt-compact .c-bar{height:4px;border-radius:2px;background:rgba(124,90,240,.03);margin-top:10px;overflow:hidden}
 .rpt-compact .c-bar-fill{height:100%;border-radius:2px;transition:width .8s ease}
 /* Light theme */
 [data-theme="light"] .rpt-hero{box-shadow:0 2px 12px rgba(124,90,240,.02)}
@@ -2764,11 +2774,11 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .rpt-d3{animation-delay:.18s}.rpt-d4{animation-delay:.22s}.rpt-d5{animation-delay:.26s}
 .rpt-d6{animation-delay:.30s}.rpt-d7{animation-delay:.34s}.rpt-d8{animation-delay:.38s}
 .rpt-d9{animation-delay:.42s}.rpt-d10{animation-delay:.46s}
-.rpt-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 22px;transition:all .2s}
+.rpt-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 24px;transition:all .2s}
 .rpt-card:hover{border-color:rgba(124,90,240,.1)}
-.rpt-card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
-.rpt-card-title{font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px}
-.rpt-card-desc{font-size:10px;color:var(--text3);margin-bottom:14px;line-height:1.5}
+.rpt-card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.rpt-card-title{font-size:15px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:6px;letter-spacing:-.1px}
+.rpt-card-desc{font-size:12px;color:var(--text3);margin-bottom:16px;line-height:1.5}
 .rpt-chart{position:relative;width:100%;height:180px}
 .rpt-chart-sm{position:relative;width:100%;height:150px}
 .rpt-g2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
@@ -2866,7 +2876,7 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .pb-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
 .pb-stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 18px;text-align:center}
 .pb-stat-val{font-size:24px;font-weight:400;letter-spacing:-1px}
-.pb-stat-label{font-size:9px;color:var(--text3);font-family:Inter,sans-serif;margin-top:4px}
+.pb-stat-label{font-size:11px;color:var(--text3);font-family:Inter,sans-serif;margin-top:4px}
 .pb-tabs{display:flex;gap:3px;padding:4px;background:var(--bg2);border-radius:12px;border:1px solid var(--border);margin-bottom:20px;width:fit-content}
 .pb-tab{padding:10px 22px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;border:none;background:transparent;color:var(--text3);font-family:Inter,sans-serif}
 .pb-tab:hover{color:var(--text2);background:rgba(124,90,240,.02)}
@@ -2883,7 +2893,7 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .pb-card-stat-val{font-size:14px;font-weight:500}
 .pb-card-stat-label{font-size:8px;color:var(--text3);font-family:Inter,sans-serif;margin-top:2px}
 .pb-card-confluences{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px}
-.pb-card-conf{padding:3px 8px;border-radius:5px;font-size:9px;font-family:Inter,sans-serif;background:rgba(124,90,240,.03);color:var(--text3);border:1px solid rgba(124,90,240,.03)}
+.pb-card-conf{padding:3px 8px;border-radius:5px;font-size:11px;font-family:Inter,sans-serif;background:rgba(124,90,240,.03);color:var(--text3);border:1px solid rgba(124,90,240,.03)}
 .pb-card-badge{position:absolute;top:12px;right:12px;padding:3px 8px;border-radius:5px;font-size:8px;font-family:Inter,sans-serif;font-weight:600}
 .pb-card-add{border:2px dashed var(--border);background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:200px;gap:8px;color:var(--text3);font-size:13px}
 .pb-card-add:hover{border-color:var(--accent);color:var(--accent3)}
@@ -2895,7 +2905,7 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .pb-tpl-name{font-size:14px;font-weight:600;margin-bottom:4px}
 .pb-tpl-desc{font-size:11px;color:var(--text3);line-height:1.5;margin-bottom:12px}
 .pb-tpl-tags{display:flex;flex-wrap:wrap;gap:4px}
-.pb-tpl-tag{padding:3px 8px;border-radius:5px;font-size:9px;font-family:Inter,sans-serif;background:rgba(124,90,240,.02);color:var(--text3);border:1px solid rgba(124,90,240,.03)}
+.pb-tpl-tag{padding:3px 8px;border-radius:5px;font-size:11px;font-family:Inter,sans-serif;background:rgba(124,90,240,.02);color:var(--text3);border:1px solid rgba(124,90,240,.03)}
 /* Builder modal */
 .pb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:1000;justify-content:center;align-items:flex-start;padding:40px 20px;overflow-y:auto}
 .pb-overlay.open{display:flex}
@@ -2912,7 +2922,7 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .pb-builder-body{padding:0 28px 24px;max-height:60vh;overflow-y:auto}
 .pb-section{margin-bottom:24px}
 .pb-section-title{font-size:13px;font-weight:600;font-family:Inter,sans-serif;margin-bottom:4px;display:flex;align-items:center;gap:6px}
-.pb-section-desc{font-size:10px;color:var(--text3);margin-bottom:12px}
+.pb-section-desc{font-size:12px;color:var(--text3);margin-bottom:12px}
 .pb-input{width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px;font-family:Inter,sans-serif;transition:border .15s}
 .pb-input:focus{outline:none;border-color:var(--accent)}
 .pb-textarea{resize:vertical;min-height:60px}
@@ -2936,7 +2946,7 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 /* Community */
 .pb-invite{display:flex;gap:10px;margin-bottom:20px}
 .pb-invite input{flex:1}
-.pb-imported{display:flex;align-items:center;gap:8px;padding:3px 10px;border-radius:6px;font-size:9px;font-family:Inter,sans-serif;background:rgba(46,204,138,.08);color:var(--green);border:1px solid rgba(46,204,138,.12)}
+.pb-imported{display:flex;align-items:center;gap:8px;padding:3px 10px;border-radius:6px;font-size:11px;font-family:Inter,sans-serif;background:rgba(46,204,138,.08);color:var(--green);border:1px solid rgba(46,204,138,.12)}
 
 /* ═══ JOURNAL ═══ */
 .jr-stats{display:flex;align-items:stretch;gap:12px;margin-bottom:18px}
@@ -2945,15 +2955,15 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .jr-hero::before{content:'';position:absolute;top:-30%;right:-15%;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(124,90,240,.04),transparent 70%);pointer-events:none}
 .jr-hero.neg::before{background:radial-gradient(circle,rgba(124,90,240,.04),transparent 70%)}
 .jr-hero-val{font-size:48px;font-weight:400;letter-spacing:-2.5px;line-height:1}
-.jr-hero-sub{font-size:10px;font-family:Inter,sans-serif;color:var(--text3);margin-top:8px}
-.jr-hero-badge{position:absolute;top:14px;right:16px;padding:4px 10px;border-radius:6px;font-size:9px;font-family:Inter,sans-serif;font-weight:600}
+.jr-hero-sub{font-size:12px;font-family:Inter,sans-serif;color:var(--text3);margin-top:8px}
+.jr-hero-badge{position:absolute;top:14px;right:16px;padding:4px 10px;border-radius:6px;font-size:11px;font-family:Inter,sans-serif;font-weight:600}
 .jr-stat{flex:1;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;justify-content:center}
 .jr-stat-val{font-size:34px;font-weight:400;letter-spacing:-1.5px;line-height:1;margin:4px 0 6px}
-.jr-stat-label{font-size:9px;color:var(--text3);font-family:Inter,sans-serif;font-weight:600;letter-spacing:.8px;text-transform:uppercase}
-.jr-stat-sub{font-size:9px;color:var(--text3);font-family:Inter,sans-serif;margin-top:2px}
-.jr-streak{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:6px;font-size:10px;font-family:Inter,sans-serif;font-weight:600;margin-top:6px}
+.jr-stat-label{font-size:11px;color:var(--text3);font-family:Inter,sans-serif;font-weight:600;letter-spacing:.8px;text-transform:uppercase}
+.jr-stat-sub{font-size:11px;color:var(--text3);font-family:Inter,sans-serif;margin-top:2px}
+.jr-streak{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:6px;font-size:12px;font-family:Inter,sans-serif;font-weight:600;margin-top:6px}
 .jr-today{background:linear-gradient(135deg,rgba(124,90,240,.03),var(--card));border:1px solid rgba(124,90,240,.06);border-radius:14px;padding:16px 22px;margin-bottom:16px;display:flex;align-items:center;gap:20px}
-.jr-today-badge{padding:5px 14px;border-radius:8px;background:var(--accent);color:white;font-size:10px;font-weight:600;font-family:Inter,sans-serif;flex-shrink:0;box-shadow:0 2px 10px rgba(124,90,240,.15)}
+.jr-today-badge{padding:5px 14px;border-radius:8px;background:var(--accent);color:white;font-size:12px;font-weight:600;font-family:Inter,sans-serif;flex-shrink:0;box-shadow:0 2px 10px rgba(124,90,240,.15)}
 .jr-today-stats{display:flex;gap:24px;flex:1}
 .jr-today-stat{text-align:center}
 .jr-today-stat-val{font-size:18px;font-weight:400;letter-spacing:-.5px}
@@ -2970,7 +2980,7 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 /* Table view */
 .jr-table-wrap{overflow-x:auto;background:var(--card);border:1px solid var(--border);border-radius:14px}
 .jr-table{width:100%;border-collapse:separate;border-spacing:0;min-width:900px}
-.jr-table th{font-size:9px;color:var(--text3);font-family:Inter,sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:.5px;padding:12px 14px;text-align:left;border-bottom:1px solid var(--border);background:rgba(124,90,240,.01);cursor:pointer;user-select:none;white-space:nowrap;transition:color .15s}
+.jr-table th{font-size:11px;color:var(--text3);font-family:Inter,sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:.5px;padding:12px 14px;text-align:left;border-bottom:1px solid var(--border);background:rgba(124,90,240,.01);cursor:pointer;user-select:none;white-space:nowrap;transition:color .15s}
 .jr-table th:hover{color:var(--accent3)}
 .jr-table th:active{color:var(--accent)}
 .jr-table td{font-size:12px;padding:12px 14px;border-bottom:1px solid rgba(124,90,240,.02);transition:background .1s}
@@ -2980,12 +2990,12 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .jr-table tr.jr-glow-loss{box-shadow:inset 4px 0 0 var(--red)}
 .jr-table tr.jr-glow-be{box-shadow:inset 4px 0 0 var(--accent)}
 .jr-day-sep{background:rgba(124,90,240,.02)}
-.jr-day-sep td{padding:8px 16px!important;font-size:10px!important;font-family:Inter,sans-serif!important;color:var(--text3)!important;border-bottom:1px solid rgba(124,90,240,.03)!important}
+.jr-day-sep td{padding:8px 16px!important;font-size:12px!important;font-family:Inter,sans-serif!important;color:var(--text3)!important;border-bottom:1px solid rgba(124,90,240,.03)!important}
 .jr-grade-a{color:var(--green);font-weight:600;font-family:Inter,sans-serif}
 .jr-grade-b{color:var(--accent3);font-weight:600;font-family:Inter,sans-serif}
 .jr-grade-c{color:#f0b429;font-weight:600;font-family:Inter,sans-serif}
 .jr-grade-d{color:var(--red);font-weight:600;font-family:Inter,sans-serif}
-.jr-pill{display:inline-block;padding:2px 8px;border-radius:5px;font-size:9px;font-family:Inter,sans-serif;font-weight:600}
+.jr-pill{display:inline-block;padding:2px 8px;border-radius:5px;font-size:11px;font-family:Inter,sans-serif;font-weight:600}
 .jr-pill-win{background:rgba(46,204,138,.1);color:var(--green)}
 .jr-pill-loss{background:rgba(224,92,122,.1);color:var(--red)}
 .jr-pill-be{background:rgba(124,90,240,.04);color:var(--accent3)}
@@ -3002,12 +3012,12 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .jr-card-pair{font-size:16px;font-weight:600}
 .jr-card-pnl{font-size:22px;font-weight:400;letter-spacing:-.5px}
 .jr-card-grade{position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;font-family:Inter,sans-serif}
-.jr-card-row{display:flex;gap:14px;font-size:10px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:6px}
+.jr-card-row{display:flex;gap:14px;font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:6px}
 .jr-card-confs{display:flex;flex-wrap:wrap;gap:3px;margin-top:8px}
 .jr-card-conf{padding:2px 7px;border-radius:4px;font-size:8px;font-family:Inter,sans-serif;background:rgba(124,90,240,.03);color:var(--text3)}
 .jr-card-mistakes{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
 .jr-card-mistake{padding:2px 6px;border-radius:4px;font-size:7px;font-family:Inter,sans-serif;background:rgba(224,92,122,.08);color:var(--red)}
-.jr-card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding:10px 18px;border-top:1px solid rgba(124,90,240,.02);font-size:9px;color:var(--text3);font-family:Inter,sans-serif}
+.jr-card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding:10px 18px;border-top:1px solid rgba(124,90,240,.02);font-size:11px;color:var(--text3);font-family:Inter,sans-serif}
 
 /* ═══ DAY VIEW ═══ */
 .dv-layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px}
@@ -3017,7 +3027,7 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .dv-side-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px}
 .dv-side-label{font-size:8px;color:var(--text3);font-family:Inter,sans-serif;font-weight:600;letter-spacing:.5px;margin-bottom:5px}
 .dv-side-val{font-size:22px;font-weight:400;letter-spacing:-1px}
-.dv-side-sub{font-size:9px;color:var(--text3);font-family:Inter,sans-serif;margin-top:2px}
+.dv-side-sub{font-size:11px;color:var(--text3);font-family:Inter,sans-serif;margin-top:2px}
 .dv-side-hero{background:var(--card);border-color:var(--border)}
 .dv-side-hero.neg{background:var(--card);border-color:var(--border)}
 .dv-month-nav{display:flex;align-items:center;gap:14px;margin-bottom:16px}
@@ -3025,7 +3035,7 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .dv-arrow{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
 .dv-arrow:hover{border-color:var(--accent);color:var(--accent3)}
 .dv-cal-grid{display:grid;gap:5px}
-.dv-cal-head{font-size:9px;color:var(--text3);font-family:Inter,sans-serif;font-weight:400;text-align:center;padding:0 0 10px;letter-spacing:1.5px;text-transform:uppercase;opacity:.65}
+.dv-cal-head{font-size:11px;color:var(--text3);font-family:Inter,sans-serif;font-weight:400;text-align:center;padding:0 0 10px;letter-spacing:1.5px;text-transform:uppercase;opacity:.65}
 .dv-day{border-radius:10px;padding:10px 8px;cursor:pointer;transition:all .2s;text-align:center;border:1.5px solid rgba(124,90,240,.15);min-height:82px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;font-feature-settings:"tnum" 1}
 .dv-day:hover{background:rgba(124,90,240,.04);border-color:rgba(124,90,240,.25)}
 .dv-day.empty{opacity:0;pointer-events:none}
@@ -3036,17 +3046,17 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .dv-day-num{font-size:11px;font-weight:300;color:var(--text3);margin-bottom:4px;font-variant-numeric:tabular-nums}
 .dv-day.today .dv-day-num{color:var(--accent3);font-weight:400}
 .dv-day-pnl{font-size:16px;font-family:Inter,sans-serif;font-weight:400;letter-spacing:-.4px;font-variant-numeric:tabular-nums}
-.dv-day-count{font-size:9px;color:var(--text3);font-family:Inter,sans-serif;font-weight:300;margin-top:3px;font-variant-numeric:tabular-nums}
+.dv-day-count{font-size:11px;color:var(--text3);font-family:Inter,sans-serif;font-weight:300;margin-top:3px;font-variant-numeric:tabular-nums}
 .dv-day-bar{width:80%;height:3px;border-radius:2px;margin-top:auto;opacity:.5}
 .dv-week-row{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;padding:8px 14px;font-size:11px;font-family:Inter,sans-serif;font-weight:400;color:var(--text3);border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:4px 0;background:rgba(124,90,240,.015);border-radius:6px}
-.dv-week-row .dv-wk-label{font-size:9px;letter-spacing:1px;opacity:.6;text-transform:uppercase}
+.dv-week-row .dv-wk-label{font-size:11px;letter-spacing:1px;opacity:.6;text-transform:uppercase}
 .dv-week-row .dv-wk-stats{display:flex;gap:12px;align-items:center;font-size:11px;font-variant-numeric:tabular-nums}
 .dv-week-row .dv-wk-pnl{font-size:13px;font-weight:400;min-width:70px;text-align:right;font-variant-numeric:tabular-nums;letter-spacing:-.3px}
 .dv-tabs{display:flex;gap:3px;padding:3px;background:var(--bg2);border-radius:10px;border:1px solid var(--border);margin-bottom:16px;width:fit-content}
 .dv-tab{padding:8px 18px;border-radius:8px;font-size:11px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--text3);font-family:Inter,sans-serif;transition:all .2s}
 .dv-tab.active{background:var(--accent);color:white;box-shadow:0 2px 10px rgba(124,90,240,.25)}
 .dv-tc{display:none}.dv-tc.active{display:block}
-.dv-toggle{padding:5px 12px;border-radius:7px;font-size:10px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text3);font-family:Inter,sans-serif;transition:all .15s}
+.dv-toggle{padding:5px 12px;border-radius:7px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text3);font-family:Inter,sans-serif;transition:all .15s}
 .dv-toggle:hover{border-color:rgba(124,90,240,.1)}
 .dv-toggle.on{background:rgba(124,90,240,.1);border-color:var(--accent);color:var(--accent3)}
 /* V1 Heatmap */
@@ -3058,7 +3068,7 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .dv-hm-bar-wrap::before{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1px;background:rgba(124,90,240,.03)}
 .dv-hm-day{width:80%;border-radius:3px;transition:all .2s;cursor:pointer;position:relative}
 .dv-hm-day:hover{width:100%;opacity:1!important;filter:brightness(1.3)}
-.dv-hm-day::after{content:attr(data-tip);position:absolute;bottom:100%;left:50%;transform:translateX(-50%) translateY(-4px);background:rgba(30,24,56,.95);border:1px solid rgba(124,90,240,.1);border-radius:6px;padding:4px 10px;font-size:9px;font-family:Inter,sans-serif;color:var(--text);white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;z-index:10;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+.dv-hm-day::after{content:attr(data-tip);position:absolute;bottom:100%;left:50%;transform:translateX(-50%) translateY(-4px);background:rgba(30,24,56,.95);border:1px solid rgba(124,90,240,.1);border-radius:6px;padding:4px 10px;font-size:11px;font-family:Inter,sans-serif;color:var(--text);white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;z-index:10;box-shadow:0 4px 12px rgba(0,0,0,.4)}
 .dv-hm-day:hover::after{opacity:1}
 .dv-hm-net{width:80%;height:4px;border-radius:2px;margin-top:6px;transition:all .3s}
 .dv-hm-pnl{font-size:11px;font-family:Inter,sans-serif;font-weight:600;margin-top:8px}
@@ -3067,7 +3077,7 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .dv-explore{background:var(--card);border:1px solid var(--border);border-radius:16px;margin-top:16px;overflow:hidden}
 .dv-explore-header{padding:18px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
 .dv-explore-date{font-size:16px;font-weight:600;font-family:Inter,sans-serif}
-.dv-explore-meta{font-size:10px;color:var(--text3);font-family:Inter,sans-serif;margin-top:2px}
+.dv-explore-meta{font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-top:2px}
 .dv-explore-pnl{font-size:30px;font-weight:400;letter-spacing:-2px}
 .dv-explore-stats{display:grid;grid-template-columns:repeat(6,1fr);border-bottom:1px solid var(--border)}
 .dv-ex-stat{text-align:center;padding:12px 6px;border-right:1px solid rgba(124,90,240,.02)}
@@ -3079,7 +3089,7 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .dv-trade-row:last-child{border:none}
 .dv-trade-row:hover{background:rgba(124,90,240,.01);margin:0 -24px;padding:10px 24px}
 .dv-tr-glow{width:3px;height:30px;border-radius:2px;flex-shrink:0}
-.dv-tr-time{font-size:10px;font-family:Inter,sans-serif;color:var(--text3);min-width:42px;text-align:center}
+.dv-tr-time{font-size:12px;font-family:Inter,sans-serif;color:var(--text3);min-width:42px;text-align:center}
 .dv-tr-pair{font-size:13px;font-weight:600;min-width:60px}
 .dv-tr-setup{font-size:11px;color:var(--text2);flex:1;display:flex;align-items:center;gap:6px}
 .dv-tr-setup-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
@@ -3103,7 +3113,7 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .dv-session-seg{display:flex;align-items:center;justify-content:center;font-size:8px;font-family:Inter,sans-serif;font-weight:600;color:white;min-width:30px;transition:all .2s}
 .dv-session-seg:hover{filter:brightness(1.2)}
 .dv-session-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-.dv-session-pill{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:8px;font-size:10px;font-family:Inter,sans-serif;background:rgba(124,90,240,.02);border:1px solid rgba(124,90,240,.03)}
+.dv-session-pill{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:8px;font-size:12px;font-family:Inter,sans-serif;background:rgba(124,90,240,.02);border:1px solid rgba(124,90,240,.03)}
 .dv-session-dot{width:8px;height:8px;border-radius:50%}
 /* Mistake summary */
 .dv-mistakes-card{padding:14px 24px;border-bottom:1px solid var(--border);background:rgba(224,92,122,.02)}
@@ -3111,7 +3121,7 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .dv-mistakes-title{font-size:8px;color:var(--red);font-family:Inter,sans-serif;font-weight:600;letter-spacing:.5px}
 .dv-discipline{padding:4px 12px;border-radius:6px;font-size:11px;font-weight:600;font-family:Inter,sans-serif}
 .dv-mistakes-tags{display:flex;flex-wrap:wrap;gap:5px}
-.dv-mistake-tag{padding:4px 10px;border-radius:6px;font-size:9px;font-family:Inter,sans-serif;font-weight:500;background:rgba(224,92,122,.08);color:var(--red);border:1px solid rgba(224,92,122,.08)}
+.dv-mistake-tag{padding:4px 10px;border-radius:6px;font-size:11px;font-family:Inter,sans-serif;font-weight:500;background:rgba(224,92,122,.08);color:var(--red);border:1px solid rgba(224,92,122,.08)}
 /* Day nav arrows */
 .dv-ex-nav{display:flex;gap:6px}
 .dv-ex-arrow{width:28px;height:28px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:12px}
@@ -3194,7 +3204,7 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .nb-card.pinned{border-color:rgba(240,180,41,.15);box-shadow:0 0 20px rgba(240,180,41,.04)}
 .nb-pin{position:absolute;top:14px;right:14px;font-size:14px;opacity:.3;transition:all .2s}
 .nb-card.pinned .nb-pin{opacity:1;color:#f0b429;text-shadow:0 0 8px rgba(240,180,41,.3)}
-.nb-card-type{display:inline-block;padding:4px 12px;border-radius:8px;font-size:10px;font-weight:600;font-family:Inter,sans-serif;letter-spacing:.3px}
+.nb-card-type{display:inline-block;padding:4px 12px;border-radius:8px;font-size:12px;font-weight:600;font-family:Inter,sans-serif;letter-spacing:.3px}
 .nb-card[data-type="pre-market"] .nb-card-type{background:rgba(46,204,138,.1);color:var(--green)}
 .nb-card[data-type="post-market"] .nb-card-type{background:rgba(124,90,240,.1);color:var(--accent3)}
 .nb-card[data-type="weekly"] .nb-card-type{background:rgba(240,180,41,.1);color:#f0b429}
@@ -3203,8 +3213,8 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .nb-card-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.4}
 .nb-card-preview{font-size:12px;color:var(--text3);line-height:1.7;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:14px}
 .nb-card-footer{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid rgba(124,90,240,.03)}
-.nb-card-date{font-size:10px;color:var(--text3);font-family:Inter,sans-serif;font-weight:500}
-.nb-card-words{font-size:10px;color:var(--text3);font-family:Inter,sans-serif;font-weight:500}
+.nb-card-date{font-size:12px;color:var(--text3);font-family:Inter,sans-serif;font-weight:500}
+.nb-card-words{font-size:12px;color:var(--text3);font-family:Inter,sans-serif;font-weight:500}
 .nb-mood{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text3);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;font-family:Inter,sans-serif}
 .nb-mood:hover{border-color:rgba(124,90,240,.15);color:var(--text2);background:rgba(124,90,240,.03)}
 .nb-mood.active[data-val="1"]{background:rgba(224,92,122,.15);border-color:rgba(224,92,122,.3);color:var(--red)}
@@ -3212,7 +3222,7 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .nb-mood.active[data-val="3"]{background:rgba(124,90,240,.1);border-color:rgba(124,90,240,.2);color:var(--accent3)}
 .nb-mood.active[data-val="4"]{background:rgba(46,204,138,.12);border-color:rgba(46,204,138,.25);color:var(--green)}
 .nb-mood.active[data-val="5"]{background:rgba(46,204,138,.2);border-color:rgba(46,204,138,.35);color:var(--green)}
-.nb-card-mood{font-size:10px;font-weight:600;padding:3px 10px;border-radius:6px;display:inline-block;letter-spacing:.3px}
+.nb-card-mood{font-size:12px;font-weight:600;padding:3px 10px;border-radius:6px;display:inline-block;letter-spacing:.3px}
 @keyframes nbFadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .nb-card{animation:nbFadeIn .35s cubic-bezier(.22,1,.36,1) both}
 /* Notebook modal */
@@ -3233,7 +3243,7 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .rm-config::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(224,92,122,.12),transparent)}
 .rm-config-title{font-size:11px;color:var(--accent3);font-family:Inter,sans-serif;font-weight:600;letter-spacing:.5px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
 .rm-config-row{display:grid;grid-template-columns:1.3fr repeat(6,1fr);gap:10px}
-.rm-config-field label{font-size:9px;color:var(--text3);font-family:Inter,sans-serif;font-weight:600;display:block;margin-bottom:4px;letter-spacing:.3px}
+.rm-config-field label{font-size:11px;color:var(--text3);font-family:Inter,sans-serif;font-weight:600;display:block;margin-bottom:4px;letter-spacing:.3px}
 .rm-config-field input,.rm-config-field select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;font-family:Inter,sans-serif;font-weight:500;transition:border .15s}
 .rm-config-field input:focus,.rm-config-field select:focus{outline:none;border-color:rgba(124,90,240,.15)}
 .rm-status-banner{padding:14px 24px;border-radius:14px;text-align:center;font-size:16px;font-weight:600;font-family:Inter,sans-serif;margin-bottom:18px;transition:all .3s}
@@ -3243,7 +3253,7 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .rm-gauge-card.safe::before{background:linear-gradient(90deg,transparent,rgba(46,204,138,.2),transparent)}
 .rm-gauge-card.warn::before{background:linear-gradient(90deg,transparent,rgba(240,180,41,.3),transparent)}
 .rm-gauge-card.danger::before{background:linear-gradient(90deg,transparent,rgba(224,92,122,.3),transparent)}
-.rm-gauge-label{font-size:10px;color:var(--text2);font-family:Inter,sans-serif;font-weight:600;letter-spacing:.8px;margin-bottom:12px;text-transform:uppercase}
+.rm-gauge-label{font-size:12px;color:var(--text2);font-family:Inter,sans-serif;font-weight:600;letter-spacing:.8px;margin-bottom:12px;text-transform:uppercase}
 .rm-gauge-val{font-size:36px;font-weight:400;letter-spacing:-2px;margin-bottom:4px}
 .rm-gauge-sub{font-size:11px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:14px}
 .rm-gauge-bar{width:100%;height:8px;border-radius:4px;background:rgba(15,23,42,.06);overflow:hidden;position:relative}
@@ -3252,9 +3262,9 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .rm-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
 .rm-stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;position:relative;overflow:hidden}
 .rm-stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(124,90,240,.06),transparent)}
-.rm-stat-label{font-size:9px;color:var(--text3);font-family:Inter,sans-serif;font-weight:600;letter-spacing:.3px}
+.rm-stat-label{font-size:11px;color:var(--text3);font-family:Inter,sans-serif;font-weight:600;letter-spacing:.3px}
 .rm-stat-val{font-size:22px;font-weight:400;margin-top:4px}
-.rm-stat-sub{font-size:10px;color:var(--text3);margin-top:2px}
+.rm-stat-sub{font-size:12px;color:var(--text3);margin-top:2px}
 .rm-rules{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px 24px;position:relative;overflow:hidden}
 .rm-rules::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(124,90,240,.06),transparent)}
 .rm-rules-title{font-size:11px;color:var(--accent3);font-family:Inter,sans-serif;font-weight:600;letter-spacing:.5px;margin-bottom:14px}
@@ -3276,10 +3286,10 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .pt-level-badge{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;border:2px solid rgba(240,180,41,.2);font-weight:400;font-family:Inter,sans-serif}
 .pt-level-info{flex:1}
 .pt-level-name{font-size:15px;font-weight:600;font-family:Inter,sans-serif;margin-bottom:1px}
-.pt-level-sub{font-size:10px;color:var(--text3);margin-bottom:6px}
+.pt-level-sub{font-size:12px;color:var(--text3);margin-bottom:6px}
 .pt-level-bar{width:100%;height:5px;border-radius:3px;background:var(--bg);overflow:hidden}
 .pt-level-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),#f0b429);transition:width .6s cubic-bezier(.22,1,.36,1)}
-.pt-level-xp{font-size:9px;color:var(--text3);font-family:Inter,sans-serif;margin-top:3px}
+.pt-level-xp{font-size:11px;color:var(--text3);font-family:Inter,sans-serif;margin-top:3px}
 .pt-goals{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-bottom:10px}
 .pt-goal-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;position:relative;overflow:hidden}
 
@@ -3296,7 +3306,7 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .pt-streak-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center;position:relative;overflow:hidden}
 .pt-streak-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(124,90,240,.06),transparent)}
 .pt-streak-val{font-size:28px;font-weight:400;margin-bottom:2px}
-.pt-streak-label{font-size:9px;color:var(--text3);font-family:Inter,sans-serif;font-weight:600;letter-spacing:.3px}
+.pt-streak-label{font-size:11px;color:var(--text3);font-family:Inter,sans-serif;font-weight:600;letter-spacing:.3px}
 .pt-milestones{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px 24px;position:relative;overflow:hidden}
 .pt-milestones::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(124,90,240,.06),transparent)}
 .pt-ms-title{font-size:11px;color:var(--accent3);font-family:Inter,sans-serif;font-weight:600;letter-spacing:.5px;margin-bottom:14px}
@@ -3306,7 +3316,7 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .pt-ms-badge:hover{transform:translateY(-2px)}
 .pt-ms-icon{font-size:24px;margin-bottom:6px}
 .pt-ms-badge:not(.earned) .pt-ms-icon{opacity:.2;filter:grayscale(1)}
-.pt-ms-name{font-size:10px;font-weight:600;color:var(--text2)}
+.pt-ms-name{font-size:12px;font-weight:600;color:var(--text2)}
 .pt-ms-badge:not(.earned) .pt-ms-name{color:var(--text3)}
 .pt-ms-req{font-size:8px;color:var(--text3);margin-top:2px}
 /* ═══ RESOURCES ═══ */
@@ -3520,14 +3530,14 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 /* Polish: explore slide down */
 .dv-explore{transition:all .35s cubic-bezier(.22,1,.36,1);transform-origin:top}
 /* Polish: hover tooltip on calendar */
-.dv-day-tip{position:absolute;bottom:100%;left:50%;transform:translateX(-50%) translateY(-6px);background:rgba(30,24,56,.95);border:1px solid rgba(124,90,240,.1);border-radius:8px;padding:6px 12px;font-size:9px;font-family:Inter,sans-serif;color:var(--text);white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;z-index:20;box-shadow:0 4px 16px rgba(0,0,0,.4)}
+.dv-day-tip{position:absolute;bottom:100%;left:50%;transform:translateX(-50%) translateY(-6px);background:rgba(30,24,56,.95);border:1px solid rgba(124,90,240,.1);border-radius:8px;padding:6px 12px;font-size:11px;font-family:Inter,sans-serif;color:var(--text);white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;z-index:20;box-shadow:0 4px 16px rgba(0,0,0,.4)}
 .dv-day:hover .dv-day-tip{opacity:1}
 [data-theme="light"] .dv-day-tip{background:var(--card);border-color:rgba(124,90,240,.12);color:var(--text);box-shadow:0 4px 16px rgba(0,0,0,.12)}
 [data-theme="light"] .dv-day-tip{background:var(--card);border-color:var(--border);color:var(--text);box-shadow:0 4px 16px rgba(0,0,0,.1)}
 /* Polish: sparkline area fill */
 .dv-spark-fill{opacity:.08}
 /* Polish: empty month message */
-.dv-empty-msg{color:var(--text3);font-size:10px;font-family:Inter,sans-serif;opacity:.25;grid-column:1/-1;text-align:center;padding:30px 0}
+.dv-empty-msg{color:var(--text3);font-size:12px;font-family:Inter,sans-serif;opacity:.25;grid-column:1/-1;text-align:center;padding:30px 0}
 
 /* Add Trade Modal */
 .jr-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:1000;justify-content:center;align-items:flex-start;padding:20px;overflow-y:auto}
@@ -3554,9 +3564,9 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .jr-field-prefilled::after{content:'';position:absolute;top:0;right:0;width:6px;height:6px;border-radius:50%;background:var(--accent);opacity:.6}
 .jr-group{margin-bottom:20px}
 .jr-group-title{font-size:12px;font-weight:600;color:var(--accent3);margin-bottom:4px;font-family:Inter,sans-serif}
-.jr-group-desc{font-size:10px;color:var(--text3);margin-bottom:10px}
+.jr-group-desc{font-size:12px;color:var(--text3);margin-bottom:10px}
 .jr-field{margin-bottom:12px}
-.jr-label{font-size:9px;color:var(--text3);font-family:Inter,sans-serif;font-weight:600;margin-bottom:4px;display:block}
+.jr-label{font-size:11px;color:var(--text3);font-family:Inter,sans-serif;font-weight:600;margin-bottom:4px;display:block}
 .jr-input{width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px;font-family:Inter,sans-serif;transition:border .15s}
 .jr-input:focus{outline:none;border-color:var(--accent)}
 .jr-select{width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px;cursor:pointer;font-family:Inter,sans-serif}
@@ -3564,15 +3574,15 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .jr-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 .jr-row4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
 .jr-conf-grid{display:flex;flex-wrap:wrap;gap:5px}
-.jr-conf-pill{padding:6px 12px;border-radius:7px;font-size:10px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text3);transition:all .15s;user-select:none}
+.jr-conf-pill{padding:6px 12px;border-radius:7px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text3);transition:all .15s;user-select:none}
 .jr-conf-pill:hover{border-color:rgba(124,90,240,.1)}
 .jr-conf-pill.on{background:rgba(124,90,240,.08);border-color:var(--accent);color:var(--accent3);font-weight:600}
 .jr-ctx-block{background:rgba(124,90,240,.01);border:1px solid rgba(124,90,240,.03);border-radius:10px;padding:12px;margin-bottom:8px}
-.jr-ctx-label{font-size:9px;color:var(--text3);font-family:Inter,sans-serif;font-weight:600;margin-bottom:6px}
+.jr-ctx-label{font-size:11px;color:var(--text3);font-family:Inter,sans-serif;font-weight:600;margin-bottom:6px}
 .jr-ctx-pills{display:flex;flex-wrap:wrap;gap:4px}
-.jr-ctx-pill{padding:5px 12px;border-radius:7px;font-size:10px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text3);transition:all .15s}
+.jr-ctx-pill{padding:5px 12px;border-radius:7px;font-size:12px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text3);transition:all .15s}
 .jr-ctx-pill.on{background:rgba(124,90,240,.06);border-color:var(--accent);color:var(--accent3)}
-.jr-pnl-preview{padding:14px;border-radius:10px;text-align:center;margin-top:10px;font-size:10px;color:var(--text3)}
+.jr-pnl-preview{padding:14px;border-radius:10px;text-align:center;margin-top:10px;font-size:12px;color:var(--text3)}
 .jr-pnl-val{font-size:28px;font-weight:400;letter-spacing:-1px;margin-bottom:2px}
 .jr-empty{text-align:center;padding:60px 20px;color:var(--text3)}
 .jr-empty svg{margin-bottom:12px;opacity:.3}
@@ -3585,13 +3595,13 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .jr-grade.on{border-color:var(--accent);color:var(--accent3);background:rgba(124,90,240,.06)}
 /* Psych tags */
 .jr-psych-tags{display:flex;flex-wrap:wrap;gap:5px}
-.jr-psych-tag{padding:5px 12px;border-radius:7px;font-size:10px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text3);transition:all .15s;user-select:none}
+.jr-psych-tag{padding:5px 12px;border-radius:7px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text3);transition:all .15s;user-select:none}
 .jr-psych-tag:hover{border-color:rgba(224,92,122,.2)}
 .jr-psych-tag.on{background:rgba(224,92,122,.12);border-color:rgba(224,92,122,.3);color:var(--red)}
 /* Detail view */
 .jr-detail-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(124,90,240,.02);font-size:12px}
 .jr-detail-row:last-child{border:none}
-.jr-detail-label{color:var(--text3);font-size:10px;font-family:Inter,sans-serif}
+.jr-detail-label{color:var(--text3);font-size:12px;font-family:Inter,sans-serif}
 .jr-detail-val{font-weight:500}
 .jr-detail-screenshots{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .jr-detail-img{width:120px;height:80px;border-radius:8px;object-fit:cover;border:1px solid var(--border);cursor:pointer}
@@ -3605,7 +3615,7 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .jr-bulk-bar{display:none;align-items:center;gap:10px;padding:10px 18px;background:rgba(124,90,240,.03);border:1px solid rgba(124,90,240,.06);border-radius:10px;margin-bottom:12px;font-size:11px}
 .jr-bulk-bar.show{display:flex}
 /* Running P&L column */
-.jr-running{font-family:Inter,sans-serif;font-size:10px;color:var(--text3)}
+.jr-running{font-family:Inter,sans-serif;font-size:12px;color:var(--text3)}
 .rpt-meter-fill{height:100%;border-radius:8px}
 .rpt-heatmap-wrap{position:relative}
 .rpt-heatmap-scroll{overflow:hidden;scroll-behavior:smooth;cursor:grab}
@@ -5286,7 +5296,7 @@ window.toggleSidebar = function(){
 
     <!-- Edit toolbar (shown only in edit mode) -->
     <div id="dash-edit-toolbar" style="display:none;align-items:center;justify-content:space-between;padding:10px 16px;margin-bottom:12px;background:rgba(124,90,240,.06);border:1px solid rgba(124,90,240,.18);border-radius:10px;font-family:Inter,sans-serif">
-      <span style="font-size:11px;font-weight:600;color:var(--accent);letter-spacing:.5px">⌘ EDIT MODE — drag to reorder · click 🔄 to swap metric · × to hide</span>
+      <span style="font-size:11px;font-weight:600;color:var(--accent);letter-spacing:.5px">⌘ EDIT MODE — drag tiles to reorder · drag section handles (left side) to reorder big widgets · 🔄 swap · × hide</span>
       <button onclick="dashEditDone()" style="background:var(--accent);border:none;color:#fff;padding:6px 14px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">Done</button>
     </div>
 
@@ -5353,8 +5363,9 @@ window.toggleSidebar = function(){
     <!-- DASHBOARD OVERVIEW (charts + secondary metrics) -->
     <div id="dash-row-0" style="margin-top:0">
       <div style="display:none"><!-- legacy collapse markers, kept for JS compat --></div>
-      <div class="dash-row-body">
+      <div class="dash-row-body" id="dash-sections-host">
                 <!-- Advanced metrics row (Recovery / Consistency / Goals) — Var B handles Max DD + Streaks -->
+        <div class="dash-section" data-section="advanced-metrics">
         <div class="dash-advanced-grid" data-widget="advanced-metrics" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:0">
           <!-- Recovery Factor -->
           <div class="card" data-widget="recovery-factor" style="padding:22px 24px;display:flex;flex-direction:column;min-height:220px;position:relative;overflow:hidden">
@@ -5420,8 +5431,10 @@ window.toggleSidebar = function(){
             <div id="dash-goals-list" style="display:flex;flex-direction:column;gap:18px;font-family:Inter,sans-serif;flex:1;justify-content:center"></div>
           </div>
         </div>
+        </div><!-- /section advanced-metrics -->
 
         <!-- RECENT TRADES + CALENDAR -->
+        <div class="dash-section" data-section="recent-calendar">
         <div class="dash-charts-split" style="display:grid;grid-template-columns:30fr 70fr;gap:12px;margin-top:12px">
           <!-- Recent Trades -->
           <div class="card" data-widget="recent-trades" style="padding:14px 16px">
@@ -5445,8 +5458,10 @@ window.toggleSidebar = function(){
             <div id="dash-calendar-grid" style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px"></div>
           </div>
         </div>
+        </div><!-- /section recent-calendar -->
 
         <!-- ALL 4 CHARTS — 2×2 compact -->
+        <div class="dash-section" data-section="charts">
         <div class="dash-bottom-grid" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:1fr 1fr;gap:10px;margin-top:12px">
           <div class="card" data-widget="chart-cumpnl" style="padding:12px 16px 8px">
             <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px"><span class="dash-label" style="font-size:9px">Daily net cumulative P&L</span><div id="dash-cum-total" class="dash-big-num green" style="font-size:15px;letter-spacing:-.5px">&#8212;</div></div>
@@ -5468,11 +5483,13 @@ window.toggleSidebar = function(){
             <canvas id="dash-drawdown-chart" height="85"></canvas>
           </div>
         </div>
+        </div><!-- /section charts -->
 
         <!-- ════════════════════════════════════════════════════════ -->
         <!-- EXTRA WIDGETS — hidden by default, added via gallery     -->
         <!-- May 2026                                                 -->
         <!-- ════════════════════════════════════════════════════════ -->
+        <div class="dash-section" data-section="extras">
         <div class="dash-extras-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px">
 
           <!-- Pair distribution donut -->
@@ -5528,6 +5545,7 @@ window.toggleSidebar = function(){
           </div>
 
         </div>
+        </div><!-- /section extras -->
 
         <!-- Hidden IDs -->
         <div style="display:none"><span id="stat-best-day"></span><span id="stat-worst-day"></span><span id="stat-win-streak"></span><span id="stat-avg-trade"></span><span id="stat-trading-days"></span><div id="spider-wr-val"></div><div id="spider-wr-bar"></div><span id="spider-wr-dot"></span><div id="spider-pf-val"></div><div id="spider-pf-bar"></div><span id="spider-pf-dot"></span><div id="spider-rr-val"></div><div id="spider-rr-bar"></div><span id="spider-rr-dot"></span><div id="spider-con-val"></div><div id="spider-con-bar"></div><span id="spider-con-dot"></span><div id="spider-dd-val"></div><div id="spider-dd-bar"></div><span id="spider-dd-dot"></span><div id="spider-disc-val"></div><div id="spider-disc-bar"></div><span id="spider-disc-dot"></span><div id="dash-pnl-change"></div><svg viewBox="0 0 110 68"><path d="M 10 62 A 46 46 0 0 1 100 62" id="dash-wr-circle" stroke-dasharray="144.5" stroke-dashoffset="96"/></svg></div>
@@ -5541,7 +5559,10 @@ window.toggleSidebar = function(){
 <div id="page-journal" class="page">
     <div class="page-header">
       <div><div class="page-title">Journal</div><div class="page-sub">Log, review, and learn from every trade</div></div>
-      <button class="btn btn-primary" onclick="openJrModal()">+ Add Trade</button>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn btn-ghost" onclick="jrOpenBulkEdit()" title="Apply tags/setup to multiple trades at once" style="font-size:12px;padding:8px 14px;display:flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11H5a2 2 0 00-2 2v7a2 2 0 002 2h14a2 2 0 002-2v-7a2 2 0 00-2-2h-4M9 11V7a3 3 0 016 0v4M9 11h6"/></svg>Bulk edit</button>
+        <button class="btn btn-primary" onclick="openJrModal()">+ Add Trade</button>
+      </div>
     </div>
 
     <!-- Hero stat strip -->
@@ -8711,6 +8732,19 @@ window.toggleSidebar = function(){
         <div style="font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.5px;margin-bottom:8px">ACCOUNT</div>
         <div id="settings-email" style="font-size:13px;font-weight:600;color:var(--text)">—</div>
         <div id="settings-sync-status" style="font-size:10px;color:var(--text3);margin-top:4px">Cloud sync status</div>
+      </div>
+
+      <!-- Mentor Share section (May 2026) -->
+      <div style="padding:14px 16px;background:var(--bg2);border-radius:10px;border:1px solid var(--border)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div style="font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.5px">MENTOR SHARE</div>
+          <span style="font-size:9px;color:var(--accent3);background:rgba(124,90,240,.1);padding:2px 8px;border-radius:4px;font-weight:600;letter-spacing:.4px">BETA</span>
+        </div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:10px">Generate a read-only link for your mentor to review your trades + leave comments.</div>
+        <button onclick="tqOpenShareModal()" style="width:100%;padding:10px 14px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;display:flex;align-items:center;justify-content:center;gap:8px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
+          Generate mentor link
+        </button>
       </div>
 
       <!-- Theme section -->
@@ -21996,6 +22030,296 @@ window.toggleSidebar = function(){
   }
   window.openJrModal = openJrModal;
 
+  // ════════════════════════════════════════════════════════════
+  // BULK EDIT — apply setup/session/psychTags to multiple trades
+  // May 2026
+  // ════════════════════════════════════════════════════════════
+  window.jrOpenBulkEdit = function(){
+    var prev = document.getElementById('jr-bulk-modal');
+    if(prev) prev.remove();
+    // Get all active trades for filter context
+    var allTrades = [];
+    try{ allTrades = JSON.parse(rfxGet('rf_trades')||'[]').filter(function(t){return !t.deleted;}); }catch(e){}
+    if(allTrades.length === 0){
+      if(typeof tqToast==='function') tqToast('No trades to edit', {type:'info', duration:2500});
+      return;
+    }
+    // Get setup options (from playbook or defaults)
+    var setupOpts = [];
+    if(typeof getPlaybooks==='function'){
+      var pbs = getPlaybooks().filter(function(s){return s.active!==false;});
+      if(pbs.length>0) setupOpts = pbs.map(function(s){return s.name;});
+    }
+    if(setupOpts.length===0){
+      setupOpts = ['London Reversal','NY Continuation','SMT Continuation','Asia Sweep','Market Mechanics','News Fade','London 50% Asia Continuation','SMT London Continuation','SMT New York Continuation','USD News Strategy'];
+    }
+    // Common psych tags
+    var psychOpts = ['FOMO','Revenge trading','Reversal module without MED IDM','Over trading/Over leverage','Trade out of the plan','Early entry','Early BE','Wrong SL placement','Hesitation','News spike','Chasing'];
+    // Get unique pairs from existing trades
+    var pairCounts = {};
+    allTrades.forEach(function(t){ var p=t.pair||t.symbol||'Other'; pairCounts[p]=(pairCounts[p]||0)+1; });
+    var pairs = Object.keys(pairCounts).sort(function(a,b){return pairCounts[b]-pairCounts[a];});
+    // Get accounts
+    var accs = [];
+    try{ accs = JSON.parse(rfxGet('rf_accounts')||'[]').filter(function(a){return a&&!a.deleted;}); }catch(e){}
+
+    var html = ''+
+      '<div id="jr-bulk-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;font-family:Inter,sans-serif" onclick="if(event.target===this)document.getElementById(\'jr-bulk-modal\').remove()">'+
+        '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;width:100%;max-width:680px;max-height:88vh;overflow-y:auto;padding:26px 28px;box-shadow:0 20px 60px rgba(0,0,0,.5)">'+
+          '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'+
+            '<div style="font-size:18px;font-weight:600;color:var(--text)">Bulk edit trades</div>'+
+            '<button onclick="document.getElementById(\'jr-bulk-modal\').remove()" style="background:transparent;border:none;color:var(--text3);font-size:20px;cursor:pointer;padding:4px 8px">×</button>'+
+          '</div>'+
+          '<div style="font-size:12px;color:var(--text3);margin-bottom:22px">Apply tags / setup / session to multiple trades at once. Useful for backfilling old trades.</div>'+
+
+          // Step 1: Filter
+          '<div style="font-size:12px;font-weight:600;color:var(--accent3);letter-spacing:.5px;margin-bottom:10px;text-transform:uppercase">1. Filter trades</div>'+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px">'+
+            '<div>'+
+              '<label style="font-size:11px;color:var(--text3);display:block;margin-bottom:5px">Pair</label>'+
+              '<select id="jr-bulk-filter-pair" style="width:100%;padding:8px 10px;background:var(--card);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:12px;font-family:Inter,sans-serif">'+
+                '<option value="">All pairs ('+allTrades.length+')</option>'+
+                pairs.map(function(p){return '<option value="'+p+'">'+p+' ('+pairCounts[p]+')</option>';}).join('')+
+              '</select>'+
+            '</div>'+
+            '<div>'+
+              '<label style="font-size:11px;color:var(--text3);display:block;margin-bottom:5px">Account</label>'+
+              '<select id="jr-bulk-filter-account" style="width:100%;padding:8px 10px;background:var(--card);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:12px;font-family:Inter,sans-serif">'+
+                '<option value="">All accounts</option>'+
+                accs.map(function(a){return '<option value="'+a.id+'">'+(a.name||'unnamed')+'</option>';}).join('')+
+              '</select>'+
+            '</div>'+
+            '<div>'+
+              '<label style="font-size:11px;color:var(--text3);display:block;margin-bottom:5px">Date from</label>'+
+              '<input id="jr-bulk-filter-from" type="date" style="width:100%;padding:8px 10px;background:var(--card);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:12px;font-family:Inter,sans-serif">'+
+            '</div>'+
+            '<div>'+
+              '<label style="font-size:11px;color:var(--text3);display:block;margin-bottom:5px">Date to</label>'+
+              '<input id="jr-bulk-filter-to" type="date" style="width:100%;padding:8px 10px;background:var(--card);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:12px;font-family:Inter,sans-serif">'+
+            '</div>'+
+            '<div>'+
+              '<label style="font-size:11px;color:var(--text3);display:block;margin-bottom:5px">Outcome</label>'+
+              '<select id="jr-bulk-filter-outcome" style="width:100%;padding:8px 10px;background:var(--card);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:12px;font-family:Inter,sans-serif">'+
+                '<option value="">All</option>'+
+                '<option value="win">Wins only</option>'+
+                '<option value="loss">Losses only</option>'+
+                '<option value="be">Breakeven only</option>'+
+              '</select>'+
+            '</div>'+
+            '<div>'+
+              '<label style="font-size:11px;color:var(--text3);display:block;margin-bottom:5px">Missing field</label>'+
+              '<select id="jr-bulk-filter-missing" style="width:100%;padding:8px 10px;background:var(--card);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:12px;font-family:Inter,sans-serif">'+
+                '<option value="">No filter</option>'+
+                '<option value="setup">Missing setup</option>'+
+                '<option value="session">Missing session</option>'+
+                '<option value="psychTags">No psych tags</option>'+
+                '<option value="duration">No duration</option>'+
+              '</select>'+
+            '</div>'+
+          '</div>'+
+
+          '<div id="jr-bulk-match-count" style="padding:10px 14px;background:rgba(124,90,240,.06);border:0.5px solid rgba(124,90,240,.2);border-radius:8px;font-size:12px;color:var(--text2);margin-bottom:22px;text-align:center;font-family:DM Mono,monospace">— trades match the filter</div>'+
+
+          // Step 2: What to apply
+          '<div style="font-size:12px;font-weight:600;color:var(--accent3);letter-spacing:.5px;margin-bottom:10px;text-transform:uppercase">2. Apply changes</div>'+
+          '<div style="display:flex;flex-direction:column;gap:14px;margin-bottom:22px">'+
+
+            // Setup
+            '<div style="display:grid;grid-template-columns:120px 1fr;gap:10px;align-items:center">'+
+              '<label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer">'+
+                '<input type="checkbox" id="jr-bulk-apply-setup" onchange="document.getElementById(\'jr-bulk-setup-val\').disabled=!this.checked"> Set setup'+
+              '</label>'+
+              '<select id="jr-bulk-setup-val" disabled style="padding:8px 10px;background:var(--card);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:12px;font-family:Inter,sans-serif">'+
+                setupOpts.map(function(s){return '<option value="'+s+'">'+s+'</option>';}).join('')+
+              '</select>'+
+            '</div>'+
+
+            // Session
+            '<div style="display:grid;grid-template-columns:120px 1fr;gap:10px;align-items:center">'+
+              '<label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer">'+
+                '<input type="checkbox" id="jr-bulk-apply-session" onchange="document.getElementById(\'jr-bulk-session-val\').disabled=!this.checked"> Set session'+
+              '</label>'+
+              '<select id="jr-bulk-session-val" disabled style="padding:8px 10px;background:var(--card);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:12px;font-family:Inter,sans-serif">'+
+                '<option value="auto">Auto-detect from entry time</option>'+
+                '<option value="Asia">Asia</option>'+
+                '<option value="Frankfurt">Frankfurt</option>'+
+                '<option value="London">London</option>'+
+                '<option value="New York">New York</option>'+
+                '<option value="London Close">London Close</option>'+
+                '<option value="Off-hours">Off-hours</option>'+
+              '</select>'+
+            '</div>'+
+
+            // Auto-calculate duration
+            '<div style="display:grid;grid-template-columns:120px 1fr;gap:10px;align-items:center">'+
+              '<label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer">'+
+                '<input type="checkbox" id="jr-bulk-apply-duration"> Calc duration'+
+              '</label>'+
+              '<span style="font-size:11px;color:var(--text3);font-style:italic">Auto-compute from entry/exit times (where both exist)</span>'+
+            '</div>'+
+
+            // Psych tags
+            '<div style="display:grid;grid-template-columns:120px 1fr;gap:10px;align-items:start">'+
+              '<label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer;padding-top:6px">'+
+                '<input type="checkbox" id="jr-bulk-apply-psych" onchange="document.querySelectorAll(\'.jr-bulk-psych-pill\').forEach(function(p){p.style.opacity=document.getElementById(\'jr-bulk-apply-psych\').checked?\'1\':\'.4\';p.style.pointerEvents=document.getElementById(\'jr-bulk-apply-psych\').checked?\'auto\':\'none\';})"> Add psych tags'+
+              '</label>'+
+              '<div style="display:flex;flex-wrap:wrap;gap:5px;opacity:.4;pointer-events:none">'+
+                psychOpts.map(function(t){return '<button class="jr-bulk-psych-pill" data-tag="'+t+'" onclick="this.classList.toggle(\'on\');this.style.background=this.classList.contains(\'on\')?\'rgba(239,68,68,.12)\':\'transparent\';this.style.color=this.classList.contains(\'on\')?\'#ef4444\':\'var(--text3)\';this.style.borderColor=this.classList.contains(\'on\')?\'rgba(239,68,68,.3)\':\'var(--border)\'" style="padding:4px 10px;border-radius:5px;font-size:11px;background:transparent;color:var(--text3);border:0.5px solid var(--border);cursor:pointer;font-family:Inter,sans-serif">'+t+'</button>';}).join('')+
+              '</div>'+
+            '</div>'+
+
+          '</div>'+
+
+          // Step 3: Apply
+          '<div style="display:flex;gap:8px;justify-content:flex-end;border-top:1px solid var(--border);padding-top:18px">'+
+            '<button onclick="document.getElementById(\'jr-bulk-modal\').remove()" style="background:var(--bg3);color:var(--text);border:1px solid var(--border);padding:10px 20px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">Cancel</button>'+
+            '<button id="jr-bulk-apply-btn" onclick="jrApplyBulkEdit()" style="background:var(--accent);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">Apply changes</button>'+
+          '</div>'+
+        '</div>'+
+      '</div>';
+
+    var w = document.createElement('div');
+    w.innerHTML = html;
+    document.body.appendChild(w.firstElementChild);
+
+    // Live match count update
+    function updateMatchCount(){
+      var matched = jrBulkGetMatchedTrades();
+      var el = document.getElementById('jr-bulk-match-count');
+      if(el) el.textContent = matched.length + ' trade'+(matched.length===1?'':'s')+' match the filter';
+    }
+    ['jr-bulk-filter-pair','jr-bulk-filter-account','jr-bulk-filter-from','jr-bulk-filter-to','jr-bulk-filter-outcome','jr-bulk-filter-missing'].forEach(function(id){
+      var el = document.getElementById(id);
+      if(el) el.addEventListener('change', updateMatchCount);
+    });
+    updateMatchCount();
+  };
+
+  // Get trades matching current bulk-edit filters
+  function jrBulkGetMatchedTrades(){
+    var trades = [];
+    try{ trades = JSON.parse(rfxGet('rf_trades')||'[]').filter(function(t){return !t.deleted;}); }catch(e){ return []; }
+    var pair = (document.getElementById('jr-bulk-filter-pair')||{}).value || '';
+    var account = (document.getElementById('jr-bulk-filter-account')||{}).value || '';
+    var dateFrom = (document.getElementById('jr-bulk-filter-from')||{}).value || '';
+    var dateTo = (document.getElementById('jr-bulk-filter-to')||{}).value || '';
+    var outcome = (document.getElementById('jr-bulk-filter-outcome')||{}).value || '';
+    var missing = (document.getElementById('jr-bulk-filter-missing')||{}).value || '';
+    return trades.filter(function(t){
+      if(pair && (t.pair||t.symbol)!==pair) return false;
+      if(account && t.account!==account) return false;
+      var d = String(t.date||'').slice(0,10);
+      if(dateFrom && d<dateFrom) return false;
+      if(dateTo && d>dateTo) return false;
+      var pnl = (typeof tqConvertTradePnl==='function') ? tqConvertTradePnl(t) : (parseFloat(t.pnl)||0);
+      if(outcome==='win' && pnl<=0) return false;
+      if(outcome==='loss' && pnl>=0) return false;
+      if(outcome==='be' && Math.abs(pnl)>=0.01) return false;
+      if(missing==='setup' && (t.setup||t.playbookSetup)) return false;
+      if(missing==='session' && t.session) return false;
+      if(missing==='psychTags' && Array.isArray(t.psychTags) && t.psychTags.length>0) return false;
+      if(missing==='duration' && (t.duration||t.holdMinutes)) return false;
+      return true;
+    });
+  }
+  window.jrBulkGetMatchedTrades = jrBulkGetMatchedTrades;
+
+  // Apply selected changes to matched trades
+  window.jrApplyBulkEdit = function(){
+    var matched = jrBulkGetMatchedTrades();
+    if(matched.length===0){
+      if(typeof tqToast==='function') tqToast('No trades match the filter', {type:'error', duration:3000});
+      return;
+    }
+    var doSetup = document.getElementById('jr-bulk-apply-setup').checked;
+    var doSession = document.getElementById('jr-bulk-apply-session').checked;
+    var doDuration = document.getElementById('jr-bulk-apply-duration').checked;
+    var doPsych = document.getElementById('jr-bulk-apply-psych').checked;
+    if(!doSetup && !doSession && !doDuration && !doPsych){
+      if(typeof tqToast==='function') tqToast('Pick at least one change to apply', {type:'error', duration:3000});
+      return;
+    }
+    var setupVal = document.getElementById('jr-bulk-setup-val').value;
+    var sessionVal = document.getElementById('jr-bulk-session-val').value;
+    var psychTags = [];
+    document.querySelectorAll('.jr-bulk-psych-pill.on').forEach(function(p){ psychTags.push(p.getAttribute('data-tag')); });
+    if(doPsych && psychTags.length===0){
+      if(typeof tqToast==='function') tqToast('Pick at least one psych tag', {type:'error', duration:3000});
+      return;
+    }
+
+    // Confirm
+    tqConfirm('Apply changes to '+matched.length+' trade'+(matched.length===1?'':'s')+'?\n\nThis will modify your trades. Soft-deleted trades are excluded.', {title:'Confirm bulk edit', okLabel:'Apply', danger:false}).then(function(ok){
+      if(!ok) return;
+      try{
+        var allTrades = JSON.parse(rfxGet('rf_trades')||'[]');
+        var matchedIds = {};
+        matched.forEach(function(m){ matchedIds[m.id] = true; });
+        var changedCount = 0;
+        var pending = [];
+        allTrades.forEach(function(t){
+          if(!matchedIds[t.id]) return;
+          var changed = false;
+          if(doSetup && t.setup !== setupVal){ t.setup = setupVal; changed = true; }
+          if(doSession){
+            var newSess;
+            if(sessionVal === 'auto'){
+              if(t.entryTime){
+                var m = String(t.entryTime).match(/^(\d{1,2})/);
+                if(m){
+                  var hr = parseInt(m[1],10);
+                  if(hr>=0 && hr<7) newSess='Asia';
+                  else if(hr>=7 && hr<8) newSess='Frankfurt';
+                  else if(hr>=8 && hr<13) newSess='London';
+                  else if(hr>=13 && hr<17) newSess='New York';
+                  else if(hr>=17 && hr<20) newSess='London Close';
+                  else newSess='Off-hours';
+                }
+              }
+            } else { newSess = sessionVal; }
+            if(newSess && t.session !== newSess){ t.session = newSess; changed = true; }
+          }
+          if(doDuration && t.entryTime && t.exitTime && !t.duration){
+            var em = String(t.entryTime).match(/^(\d{1,2}):(\d{1,2})/);
+            var xm = String(t.exitTime).match(/^(\d{1,2}):(\d{1,2})/);
+            if(em && xm){
+              var emin = parseInt(em[1],10)*60 + parseInt(em[2],10);
+              var xmin = parseInt(xm[1],10)*60 + parseInt(xm[2],10);
+              var dur = xmin - emin;
+              if(dur < 0) dur += 24*60;
+              if(dur > 0){ t.duration = dur; changed = true; }
+            }
+          }
+          if(doPsych){
+            var existing = Array.isArray(t.psychTags) ? t.psychTags.slice() : [];
+            psychTags.forEach(function(tag){ if(existing.indexOf(tag)<0) existing.push(tag); });
+            if(existing.length !== (t.psychTags||[]).length){ t.psychTags = existing; changed = true; }
+          }
+          if(changed){
+            t.updatedAt = new Date().toISOString();
+            changedCount++;
+            pending.push(t);
+          }
+        });
+        rfxSet('rf_trades', JSON.stringify(allTrades));
+        // Push to cloud
+        if(window.tqPushTradesBatch && pending.length){
+          try{ tqPushTradesBatch(pending); }catch(e){console.warn('Bulk push failed:',e);}
+        }
+        // Refresh UI
+        try{ if(typeof renderJournal==='function') renderJournal(); }catch(e){}
+        try{ if(typeof updateDashboard==='function') updateDashboard(); }catch(e){}
+        try{ if(typeof updateReports==='function') updateReports(); }catch(e){}
+        document.getElementById('jr-bulk-modal').remove();
+        if(typeof tqToast==='function') tqToast('✓ Updated '+changedCount+' trade'+(changedCount===1?'':'s'), {type:'success', duration:3500});
+        if(typeof tqHaptic==='function') tqHaptic(20);
+      }catch(e){
+        console.error('Bulk edit failed:', e);
+        if(typeof tqToast==='function') tqToast('⚠ Bulk edit failed: '+(e.message||'unknown'), {type:'error', duration:5000});
+      }
+    });
+  };
+
   // Apply methodology preset to Add Trade modal pills/dropdowns
   // Reads current methodology, rewrites LTF, POI, Model dropdown,
   // and updates the language-tip footer. Preserves any already-on pills.
@@ -25469,6 +25793,13 @@ window.toggleSidebar = function(){
         // Footer
         h2+='<div class="jr-card-footer"><span>'+(tr.session||'—')+(tr.status?' · '+tr.status:'')+'</span>';
         if(tr.cockpitSnapshot) h2+='<button class="sv-card-btn" onclick="event.stopPropagation();openCockpitSnapshot(\''+(tr.id||'')+'\')" title="View full pre-market analysis"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9h18M9 21V9M3 5a2 2 0 012-2h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5z"/></svg>Plan</button>';
+        // Mentor comments badge (May 2026)
+        var _mentorComments = (typeof tqGetMentorCommentsForTrade === 'function') ? tqGetMentorCommentsForTrade(tr.id) : [];
+        if(_mentorComments.length > 0 || window._tqMentorContext){
+          var cCount = _mentorComments.length;
+          var cLabel = cCount>0 ? cCount+' comment'+(cCount===1?'':'s') : 'Add comment';
+          h2+='<button class="sv-card-btn" onclick="event.stopPropagation();tqOpenTradeComments(\''+(tr.id||'')+'\')" title="Mentor comments" style="display:inline-flex;align-items:center;gap:4px;'+(cCount>0?'color:var(--accent3);background:rgba(124,90,240,.08)':'')+'"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>'+cLabel+'</button>';
+        }
         if(tr.planFollowed==='yes') h2+='<span class="tq-green">✓ Plan followed</span>';
         else if(tr.planFollowed==='no') h2+='<span class="tq-red">✗ Plan broken</span>';
         else h2+='<span>—</span>';
@@ -31999,6 +32330,102 @@ window.toggleSidebar = function(){
     window.dashOpenWidgetGallery(null);
   };
 
+  // ════════════════════════════════════════════════════════════
+  // SECTION DRAG-REORDER — May 2026
+  // Lets user reorder big-widget sections (advanced-metrics / recent-calendar / charts / extras)
+  // Saves to localStorage 'tq_dash_section_order'
+  // ════════════════════════════════════════════════════════════
+  var DASH_SECTION_ORDER_KEY = 'tq_dash_section_order';
+  var DASH_SECTIONS_DEFAULT = ['advanced-metrics','recent-calendar','charts','extras'];
+
+  function dashGetSectionOrder(){
+    try{
+      var saved = JSON.parse(rfxGet(DASH_SECTION_ORDER_KEY)||'null');
+      if(!Array.isArray(saved) || saved.length===0) return DASH_SECTIONS_DEFAULT.slice();
+      // Ensure all default sections present (in case new sections added later)
+      DASH_SECTIONS_DEFAULT.forEach(function(s){ if(saved.indexOf(s)<0) saved.push(s); });
+      return saved.filter(function(s){ return DASH_SECTIONS_DEFAULT.indexOf(s)>=0; });
+    }catch(e){ return DASH_SECTIONS_DEFAULT.slice(); }
+  }
+
+  function dashApplySectionOrder(){
+    var host = document.getElementById('dash-sections-host');
+    if(!host) return;
+    var order = dashGetSectionOrder();
+    order.forEach(function(secId){
+      var el = host.querySelector('.dash-section[data-section="'+secId+'"]');
+      if(el) host.appendChild(el); // reorder by re-appending in saved order
+    });
+  }
+  window.dashApplySectionOrder = dashApplySectionOrder;
+
+  function dashInjectSectionHandles(){
+    document.querySelectorAll('.dash-section').forEach(function(sec){
+      if(sec.querySelector(':scope > .section-drag-handle')) return;
+      var handle = document.createElement('div');
+      handle.className = 'section-drag-handle';
+      handle.title = 'Drag to reorder section';
+      handle.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="18" r="1"/></svg>';
+      handle.draggable = true;
+      handle.addEventListener('dragstart', function(e){
+        sec.classList.add('section-drag-source');
+        e.dataTransfer.effectAllowed = 'move';
+        try{ e.dataTransfer.setData('text/plain', sec.getAttribute('data-section')); }catch(_){}
+        // Use the section as drag image so user sees what they're moving
+        try{ e.dataTransfer.setDragImage(sec, 30, 30); }catch(_){}
+      });
+      handle.addEventListener('dragend', function(){
+        sec.classList.remove('section-drag-source');
+        document.querySelectorAll('.section-drop-target').forEach(function(s){ s.classList.remove('section-drop-target'); });
+      });
+      sec.appendChild(handle);
+
+      // Section is drop target
+      sec.addEventListener('dragover', function(e){
+        if(!document.body.classList.contains('dash-edit-mode')) return;
+        var src = document.querySelector('.section-drag-source');
+        if(!src || src===sec) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        document.querySelectorAll('.section-drop-target').forEach(function(s){ if(s!==sec) s.classList.remove('section-drop-target'); });
+        sec.classList.add('section-drop-target');
+      });
+      sec.addEventListener('dragleave', function(e){
+        if(e.relatedTarget && sec.contains(e.relatedTarget)) return;
+        sec.classList.remove('section-drop-target');
+      });
+      sec.addEventListener('drop', function(e){
+        e.preventDefault();
+        var src = document.querySelector('.section-drag-source');
+        if(!src || src===sec) return;
+        // Insert source BEFORE the drop target
+        sec.parentNode.insertBefore(src, sec);
+        sec.classList.remove('section-drop-target');
+        // Persist new order
+        var newOrder = Array.prototype.slice.call(document.querySelectorAll('#dash-sections-host > .dash-section'))
+          .map(function(s){ return s.getAttribute('data-section'); });
+        rfxSet(DASH_SECTION_ORDER_KEY, JSON.stringify(newOrder));
+        if(typeof tqToast === 'function') tqToast('✓ Layout saved', {type:'info', duration:1500});
+        if(typeof tqHaptic === 'function') tqHaptic(10);
+      });
+    });
+  }
+  window.dashInjectSectionHandles = dashInjectSectionHandles;
+
+  // Apply saved order on load + inject handles
+  document.addEventListener('DOMContentLoaded', function(){
+    setTimeout(function(){
+      try{ dashApplySectionOrder(); }catch(e){console.warn('Section order apply failed:',e);}
+      try{ dashInjectSectionHandles(); }catch(e){console.warn('Section handles failed:',e);}
+    }, 200);
+  });
+
+  // Reset section order to default
+  window.dashResetSectionOrder = function(){
+    rfxRemove(DASH_SECTION_ORDER_KEY);
+    location.reload();
+  };
+
   var _dashGroupOpen = {}; // track which collapsible groups are open
 
   // ════════════════════════════════════════════════════════════
@@ -32481,6 +32908,11 @@ window.toggleSidebar = function(){
       btn.style.background = _dashEditing ? 'var(--accent)' : '';
       btn.style.color = _dashEditing ? '#fff' : '';
       btn.style.borderColor = _dashEditing ? 'var(--accent)' : '';
+    }
+    // Section drag mode (May 2026) — body class enables drag handles + dashed outlines
+    document.body.classList.toggle('dash-edit-mode', _dashEditing);
+    if(_dashEditing && typeof window.dashInjectSectionHandles === 'function'){
+      try{ window.dashInjectSectionHandles(); }catch(e){console.warn(e);}
     }
     window.dashRenderTiles();
   };
@@ -35599,6 +36031,142 @@ CREATE POLICY "users manage own tokens" ON tq_share_tokens
   // Apply when Supabase ready
   setTimeout(function(){ if(window._tqMentorContext && window._tqSupa) tqApplyMentorMode(); }, 1500);
   setTimeout(function(){ if(window._tqMentorContext && window._tqMentorContext.loading && window._tqSupa) tqApplyMentorMode(); }, 3500);
+
+  // ════════════════════════════════════════════════════════════
+  // MENTOR COMMENTS — May 2026
+  // ════════════════════════════════════════════════════════════
+  // Allows mentor to leave comments on trades, student sees them with badge.
+  // Table: mentor_comments (id, owner_id, trade_id, token, author_name, comment, created_at)
+  // Mentor mode: can create comments via token
+  // Student mode: can read all comments on their trades, mark as read
+
+  window.tqLoadMentorComments = function(callback){
+    if(!window._tqSupa) return callback && callback({});
+    var ownerId = window._tqMentorContext ? window._tqMentorContext.ownerId : (window._tqUser && window._tqUser.id);
+    if(!ownerId) return callback && callback({});
+    window._tqSupa.from('mentor_comments').select('*').eq('owner_id', ownerId).order('created_at', {ascending: false}).then(function(res){
+      if(res.error){
+        console.warn('Mentor comments load failed (table may not exist):', res.error);
+        if(callback) callback({});
+        return;
+      }
+      var byTrade = {};
+      (res.data||[]).forEach(function(c){
+        if(!byTrade[c.trade_id]) byTrade[c.trade_id] = [];
+        byTrade[c.trade_id].push(c);
+      });
+      window._tqMentorComments = byTrade;
+      try{ rfxSet('tq_mentor_comments_cache', JSON.stringify(byTrade)); }catch(e){}
+      if(callback) callback(byTrade);
+    });
+  };
+
+  window.tqGetMentorCommentsForTrade = function(tradeId){
+    if(!window._tqMentorComments){
+      try{ window._tqMentorComments = JSON.parse(rfxGet('tq_mentor_comments_cache')||'{}'); }catch(e){ window._tqMentorComments = {}; }
+    }
+    return (window._tqMentorComments[tradeId] || []);
+  };
+
+  // Add comment as mentor
+  window.tqAddMentorComment = function(tradeId, comment, authorName){
+    if(!window._tqMentorContext){
+      if(typeof tqToast === 'function') tqToast('Comments only available in mentor view', {type:'error'});
+      return;
+    }
+    if(!window._tqSupa || !comment.trim()) return;
+    var ownerId = window._tqMentorContext.ownerId;
+    var token = window._tqMentorContext.token;
+    return window._tqSupa.from('mentor_comments').insert({
+      owner_id: ownerId,
+      trade_id: tradeId,
+      token: token,
+      author_name: authorName || 'Mentor',
+      comment: comment.trim(),
+      created_at: new Date().toISOString()
+    }).then(function(res){
+      if(res.error){
+        console.error('Mentor comment failed:', res.error);
+        if(typeof tqToast === 'function') tqToast('Comment failed: '+(res.error.message||'unknown'), {type:'error'});
+        return null;
+      }
+      if(typeof tqToast === 'function') tqToast('✓ Comment added', {type:'success', duration:2000});
+      // Reload comments
+      tqLoadMentorComments();
+      return res.data;
+    });
+  };
+
+  // Open comments modal for a specific trade
+  window.tqOpenTradeComments = function(tradeId){
+    var existing = document.getElementById('tq-comments-modal');
+    if(existing) existing.remove();
+    var comments = tqGetMentorCommentsForTrade(tradeId);
+    var isMentor = !!window._tqMentorContext;
+    var trade = null;
+    try{
+      var trades = JSON.parse(rfxGet('rf_trades')||'[]');
+      trade = trades.find(function(t){ return t.id === tradeId; });
+    }catch(e){}
+
+    var commentsHtml = comments.length === 0
+      ? '<div style="padding:20px 16px;color:var(--text3);font-size:12px;text-align:center;font-style:italic">No comments yet</div>'
+      : comments.map(function(c){
+          var date = new Date(c.created_at).toLocaleString();
+          return '<div style="padding:14px 16px;background:var(--card);border:0.5px solid var(--border);border-radius:10px;margin-bottom:10px">' +
+            '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">' +
+              '<span style="font-size:12px;font-weight:600;color:var(--accent3)">'+(c.author_name||'Mentor').replace(/</g,'&lt;')+'</span>' +
+              '<span style="font-size:10px;color:var(--text3);font-family:DM Mono,monospace">'+date+'</span>' +
+            '</div>' +
+            '<div style="font-size:13px;color:var(--text2);line-height:1.6;white-space:pre-wrap">'+(c.comment||'').replace(/</g,'&lt;')+'</div>' +
+          '</div>';
+        }).join('');
+
+    var inputSection = isMentor
+      ? '<div style="border-top:1px solid var(--border);padding-top:14px;margin-top:14px">' +
+          '<input id="tq-comment-author" placeholder="Your name (e.g. Wakar)" style="width:100%;padding:9px 12px;margin-bottom:8px;background:var(--card);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:12px;font-family:Inter,sans-serif" value="'+(localStorage.getItem('tq_mentor_name')||'')+'">' +
+          '<textarea id="tq-comment-text" placeholder="Add a comment for the trader..." rows="3" style="width:100%;padding:9px 12px;background:var(--card);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:13px;font-family:Inter,sans-serif;resize:vertical;line-height:1.5"></textarea>' +
+          '<button onclick="tqSubmitMentorComment(\''+tradeId+'\')" style="margin-top:10px;width:100%;padding:10px;background:var(--accent);color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">Add comment</button>' +
+        '</div>'
+      : '';
+
+    var tradeInfo = trade ? '<div style="font-size:11px;color:var(--text3);font-family:DM Mono,monospace;margin-bottom:14px">'+(trade.pair||'')+' · '+(trade.date||'')+' · '+(trade.direction||'')+' · '+(trade.pnl>=0?'+':'-')+'$'+Math.abs(parseFloat(trade.pnl||0)).toFixed(0)+'</div>' : '';
+
+    var modal = document.createElement('div');
+    modal.id = 'tq-comments-modal';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px)';
+    modal.onclick = function(e){ if(e.target===modal) modal.remove(); };
+    modal.innerHTML =
+      '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;max-width:540px;width:100%;max-height:80vh;overflow-y:auto;padding:24px 26px;box-shadow:0 20px 60px rgba(0,0,0,.5);font-family:Inter,sans-serif">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">' +
+          '<div style="font-size:16px;font-weight:600;color:var(--text)">'+(isMentor?'Add comment':'Mentor comments')+'</div>' +
+          '<button onclick="document.getElementById(\'tq-comments-modal\').remove()" style="background:transparent;border:none;color:var(--text3);font-size:20px;cursor:pointer;padding:4px 8px">×</button>' +
+        '</div>' +
+        tradeInfo +
+        '<div>'+commentsHtml+'</div>' +
+        inputSection +
+      '</div>';
+    document.body.appendChild(modal);
+  };
+
+  window.tqSubmitMentorComment = function(tradeId){
+    var authorEl = document.getElementById('tq-comment-author');
+    var textEl = document.getElementById('tq-comment-text');
+    if(!textEl || !textEl.value.trim()){
+      if(typeof tqToast==='function') tqToast('Please enter a comment', {type:'error', duration:2000});
+      return;
+    }
+    var name = (authorEl && authorEl.value.trim()) || 'Mentor';
+    try{ localStorage.setItem('tq_mentor_name', name); }catch(e){}
+    var p = tqAddMentorComment(tradeId, textEl.value, name);
+    if(p && p.then) p.then(function(){
+      // Refresh modal
+      tqOpenTradeComments(tradeId);
+    });
+  };
+
+  // Load mentor comments after data is ready
+  setTimeout(function(){ if(window._tqUser || window._tqMentorContext) tqLoadMentorComments(); }, 2500);
 
   // ════════════════════════════════════════════════════════════
   // LAST WEEK DIGEST — premium retention feature (May 2026)
