@@ -5358,33 +5358,69 @@ window.toggleSidebar = function(){
       <div class="dash-row-body">
                 <!-- Advanced metrics row (Recovery / Consistency / Goals) — Var B handles Max DD + Streaks -->
         <div class="dash-advanced-grid" data-widget="advanced-metrics" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:0">
-          <!-- Recovery Factor -->
-          <div class="card" data-widget="recovery-factor" style="padding:14px 16px;display:flex;flex-direction:column">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><span class="dash-label" style="font-size:10px">Recovery Factor</span><span class="info-icon" data-tip="Net profit ÷ Max Drawdown. Higher = better recovery from losses. 2.0+ is strong.">i</span></div>
-            <div style="flex:1;display:flex;align-items:center;justify-content:center">
-              <div id="dash-recovery" style="font-size:34px;font-weight:400;letter-spacing:-1.5px;line-height:1;color:var(--text)">&#8212;</div>
+          <!-- Recovery Factor — Variant A: big number + sparkline + status pill -->
+          <div class="card" data-widget="recovery-factor" style="padding:18px 20px;display:flex;flex-direction:column;min-height:160px;position:relative;overflow:hidden">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+              <span style="font-size:10px;color:var(--text3);letter-spacing:.5px;font-weight:500">Recovery Factor</span>
+              <span class="info-icon" data-tip="Net profit ÷ Max Drawdown. Higher = better recovery from losses. 2.0+ is strong.">i</span>
             </div>
-            <div id="dash-recovery-bar" style="height:4px;border-radius:2px;background:var(--bg2);overflow:hidden;margin-top:8px">
-              <div id="dash-recovery-fill" style="height:100%;width:0%;background:linear-gradient(90deg,var(--red),var(--yellow),var(--green));transition:width .6s ease;border-radius:2px"></div>
+            <div style="font-size:9px;color:var(--text3);font-family:DM Mono,monospace;margin-bottom:14px">Net profit ÷ max drawdown</div>
+            <div id="dash-recovery" style="font-size:36px;font-weight:400;letter-spacing:-.6px;line-height:1;color:var(--green);font-variant-numeric:tabular-nums;margin-bottom:4px">&#8212;</div>
+            <svg id="dash-recovery-spark" style="height:30px;margin:12px 0 8px;width:100%" viewBox="0 0 100 30" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="recSparkGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="rgba(29,233,182,.3)"/>
+                  <stop offset="100%" stop-color="rgba(29,233,182,0)"/>
+                </linearGradient>
+              </defs>
+              <path id="dash-recovery-spark-fill" fill="url(#recSparkGrad)" d=""/>
+              <path id="dash-recovery-spark-line" fill="none" stroke="var(--green)" stroke-width="1.5" d=""/>
+            </svg>
+            <div>
+              <span id="dash-recovery-tag" style="display:inline-flex;align-items:center;gap:6px;padding:3px 10px;background:rgba(29,233,182,.08);border:0.5px solid rgba(29,233,182,.25);border-radius:100px;font-size:10px;color:var(--green)">● Loading…</span>
             </div>
-            <div style="display:flex;justify-content:space-between;font-size:8px;color:var(--text3);margin-top:3px;font-family:Inter,sans-serif"><span>Weak</span><span>Strong</span></div>
+            <!-- Hidden bar/fill kept for compat with existing JS -->
+            <div id="dash-recovery-bar" style="display:none"><div id="dash-recovery-fill" style="height:100%;width:0%"></div></div>
           </div>
-          <!-- Consistency Score -->
-          <div class="card" data-widget="consistency" style="padding:14px 16px;display:flex;flex-direction:column">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><span class="dash-label" style="font-size:10px">Consistency</span><span class="info-icon" data-tip="Stability of daily returns. 100 = perfectly steady, 0 = highly volatile. Based on coefficient of variation.">i</span></div>
-            <div style="flex:1;display:flex;align-items:center;justify-content:center;gap:4px">
-              <div id="dash-consistency" style="font-size:34px;font-weight:400;letter-spacing:-1.5px;line-height:1;color:var(--text)">&#8212;</div>
-              <div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif">/100</div>
+          <!-- Consistency Score — Variant A: ring + tag + meta -->
+          <div class="card" data-widget="consistency" style="padding:18px 20px;display:flex;flex-direction:column;min-height:160px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+              <span style="font-size:10px;color:var(--text3);letter-spacing:.5px;font-weight:500">Consistency</span>
+              <span class="info-icon" data-tip="Stability of daily returns. 100 = perfectly steady, 0 = highly volatile.">i</span>
             </div>
-            <div id="dash-consistency-label" style="text-align:center;font-size:9px;font-weight:600;letter-spacing:1px;color:var(--text3);margin-top:6px;text-transform:uppercase">—</div>
+            <div style="font-size:9px;color:var(--text3);font-family:DM Mono,monospace;margin-bottom:14px">Daily return stability score</div>
+            <div style="display:flex;align-items:center;gap:18px;flex:1">
+              <div style="position:relative;flex-shrink:0">
+                <svg width="80" height="80" viewBox="0 0 36 36">
+                  <defs>
+                    <linearGradient id="consRingGrad" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stop-color="#ef4444"/>
+                      <stop offset="50%" stop-color="#fbbf24"/>
+                      <stop offset="100%" stop-color="#1de9b6"/>
+                    </linearGradient>
+                  </defs>
+                  <circle cx="18" cy="18" r="15.9" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="3"/>
+                  <circle id="dash-consistency-ring" cx="18" cy="18" r="15.9" fill="none" stroke="url(#consRingGrad)" stroke-width="3" stroke-dasharray="0 100" stroke-linecap="round" transform="rotate(-90 18 18)"/>
+                </svg>
+                <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+                  <div id="dash-consistency" style="font-size:22px;font-weight:400;color:var(--text);line-height:1;font-variant-numeric:tabular-nums">&#8212;</div>
+                  <div style="font-size:8px;color:var(--text3);letter-spacing:1px;margin-top:1px">/ 100</div>
+                </div>
+              </div>
+              <div style="flex:1;font-size:11px;color:var(--text2);line-height:1.5">
+                <div id="dash-consistency-label" style="display:inline-block;padding:2px 8px;background:rgba(29,233,182,.08);border-radius:4px;color:var(--green);font-size:10px;font-weight:500;margin-bottom:6px">—</div>
+                <div id="dash-consistency-desc" style="font-size:11px;color:var(--text2);line-height:1.5;opacity:.85"></div>
+              </div>
+            </div>
           </div>
-          <!-- GOALS WIDGET -->
-          <div class="card" data-widget="goals" style="padding:14px 16px;display:flex;flex-direction:column">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-              <span class="dash-label" style="font-size:10px">Goals</span>
-              <button onclick="tqOpenGoals()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:11px;padding:0" title="Manage goals">+</button>
+          <!-- GOALS — Variant A: empty state with icon + button OR list -->
+          <div class="card" data-widget="goals" style="padding:18px 20px;display:flex;flex-direction:column;min-height:160px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+              <span style="font-size:10px;color:var(--text3);letter-spacing:.5px;font-weight:500">Goals</span>
+              <button onclick="tqOpenGoals()" style="background:transparent;border:0.5px solid var(--border);color:var(--text3);cursor:pointer;font-size:13px;width:22px;height:22px;border-radius:5px;padding:0;display:inline-flex;align-items:center;justify-content:center" title="Manage goals">+</button>
             </div>
-            <div id="dash-goals-list" style="display:flex;flex-direction:column;gap:6px;font-family:Inter,sans-serif"></div>
+            <div style="font-size:9px;color:var(--text3);font-family:DM Mono,monospace;margin-bottom:14px">Track weekly &amp; monthly targets</div>
+            <div id="dash-goals-list" style="display:flex;flex-direction:column;gap:8px;font-family:Inter,sans-serif;flex:1;justify-content:center"></div>
           </div>
         </div>
 
@@ -31550,6 +31586,64 @@ window.toggleSidebar = function(){
         var recPct = Math.min(100, Math.max(0, recovery / 3 * 100));
         recFill.style.width = recPct + '%';
       }
+      // Variant A — sparkline of cumulative recovery factor (rolling 30-trade window)
+      (function(){
+        var sparkLine = document.getElementById('dash-recovery-spark-line');
+        var sparkFill = document.getElementById('dash-recovery-spark-fill');
+        var tagEl = document.getElementById('dash-recovery-tag');
+        if(!sparkLine || !sparkFill || !tagEl) return;
+        if(!sorted || sorted.length < 5){
+          sparkLine.setAttribute('d',''); sparkFill.setAttribute('d','');
+          tagEl.textContent = '● Need more trades';
+          tagEl.style.background = 'rgba(255,255,255,.04)';
+          tagEl.style.borderColor = 'var(--border)';
+          tagEl.style.color = 'var(--text3)';
+          return;
+        }
+        // Compute running recovery: cumulative net / running max DD up to each point
+        var runCum = 0, runPeak = 0, runMaxDD = 0;
+        var points = sorted.map(function(t){
+          var p = (typeof tqConvertTradePnl==='function')?tqConvertTradePnl(t):(parseFloat(t.pnl)||0);
+          runCum += p;
+          if(runCum > runPeak) runPeak = runCum;
+          var dd = runPeak - runCum;
+          if(dd > runMaxDD) runMaxDD = dd;
+          return runMaxDD > 0 ? runCum/runMaxDD : (runCum>0 ? 5 : 0);
+        });
+        // Smooth: take last 40 points or all
+        var slice = points.slice(-40);
+        if(slice.length < 2){ sparkLine.setAttribute('d',''); sparkFill.setAttribute('d',''); return; }
+        var maxV = Math.max.apply(Math, slice), minV = Math.min.apply(Math, slice);
+        var range = Math.max(0.01, maxV - minV);
+        var step = 100 / (slice.length - 1);
+        var pathPts = slice.map(function(v,i){
+          var x = i * step;
+          var y = 28 - ((v - minV) / range) * 26;
+          return [x, y];
+        });
+        var d = 'M '+pathPts[0][0].toFixed(2)+' '+pathPts[0][1].toFixed(2);
+        for(var i=1;i<pathPts.length;i++){ d += ' L '+pathPts[i][0].toFixed(2)+' '+pathPts[i][1].toFixed(2); }
+        var fillD = d + ' L 100 30 L 0 30 Z';
+        sparkLine.setAttribute('d', d);
+        sparkFill.setAttribute('d', fillD);
+        // Status pill — based on current recovery + trend
+        var firstHalf = slice.slice(0, Math.floor(slice.length/2));
+        var secondHalf = slice.slice(Math.floor(slice.length/2));
+        var firstAvg = firstHalf.reduce(function(a,b){return a+b;},0) / Math.max(1, firstHalf.length);
+        var secondAvg = secondHalf.reduce(function(a,b){return a+b;},0) / Math.max(1, secondHalf.length);
+        var trending = secondAvg > firstAvg + 0.3 ? 'up' : (secondAvg < firstAvg - 0.3 ? 'down' : 'stable');
+        var status, color;
+        if(recovery >= 3){ status = '● Strong'; color = '#1de9b6'; }
+        else if(recovery >= 2){ status = '● Solid'; color = '#1de9b6'; }
+        else if(recovery >= 1){ status = '● Acceptable'; color = '#fbbf24'; }
+        else if(recovery > 0){ status = '● Weak'; color = '#ef4444'; }
+        else { status = '● No edge yet'; color = 'var(--text3)'; }
+        var trendStr = trending==='up' ? ' · trending up' : (trending==='down' ? ' · trending down' : '');
+        tagEl.innerHTML = status + trendStr;
+        tagEl.style.background = recovery >= 1 ? 'rgba(29,233,182,.08)' : 'rgba(239,68,68,.08)';
+        tagEl.style.borderColor = recovery >= 1 ? 'rgba(29,233,182,.25)' : 'rgba(239,68,68,.25)';
+        tagEl.style.color = color;
+      })();
 
       // ── Consistency Score (0-100, based on daily return variation) ──
       var dayKeys = Object.keys(byDay);
@@ -31559,19 +31653,41 @@ window.toggleSidebar = function(){
         var mean = dailyPnls.reduce(function(a,b){return a+b;},0) / dailyPnls.length;
         var variance = dailyPnls.reduce(function(a,b){return a + Math.pow(b-mean,2);},0) / dailyPnls.length;
         var stdDev = Math.sqrt(variance);
-        // Coefficient of variation inverse, normalized to 0-100
         var cv = Math.abs(mean) > 0.01 ? (stdDev / Math.abs(mean)) : 10;
         consScore = Math.max(0, Math.min(100, Math.round(100 - cv * 20)));
-        consLabel = consScore >= 75 ? 'Excellent' : consScore >= 55 ? 'Good' : consScore >= 35 ? 'Average' : consScore >= 15 ? 'Volatile' : 'Erratic';
+        consLabel = consScore >= 75 ? 'EXCELLENT' : consScore >= 55 ? 'GOOD' : consScore >= 35 ? 'AVERAGE' : consScore >= 15 ? 'VOLATILE' : 'ERRATIC';
       }
       var consEl = document.getElementById('dash-consistency');
       var consLabelEl = document.getElementById('dash-consistency-label');
+      var consRingEl = document.getElementById('dash-consistency-ring');
+      var consDescEl = document.getElementById('dash-consistency-desc');
       if(consEl){
         consEl.textContent = dayKeys.length >= 5 ? consScore : '—';
-        consEl.style.color = consScore >= 75 ? 'var(--green)' : consScore >= 55 ? 'var(--text)' : consScore >= 35 ? 'var(--yellow)' : 'var(--red)';
       }
       if(consLabelEl){
-        consLabelEl.textContent = dayKeys.length >= 5 ? consLabel : 'Need 5+ trading days';
+        consLabelEl.textContent = dayKeys.length >= 5 ? consLabel : 'NEED 5+ DAYS';
+        // Color the tag based on score
+        var labelColor = consScore >= 75 ? '#1de9b6' : consScore >= 55 ? '#1de9b6' : consScore >= 35 ? '#fbbf24' : '#ef4444';
+        var labelBg = consScore >= 55 ? 'rgba(29,233,182,.08)' : consScore >= 35 ? 'rgba(251,191,36,.08)' : 'rgba(239,68,68,.08)';
+        consLabelEl.style.color = labelColor;
+        consLabelEl.style.background = labelBg;
+      }
+      if(consRingEl){
+        // Animate stroke-dasharray from 0 to consScore
+        consRingEl.setAttribute('stroke-dasharray', (dayKeys.length >= 5 ? consScore : 0) + ' 100');
+        consRingEl.style.transition = 'stroke-dasharray 0.8s ease';
+      }
+      if(consDescEl){
+        if(dayKeys.length < 5){
+          consDescEl.textContent = 'Log more trading days to score.';
+        } else {
+          var msg = consScore >= 75 ? 'Steady gains across '+dayKeys.length+' days. Disciplined.'
+                  : consScore >= 55 ? 'Steady-ish across '+dayKeys.length+' days. Some volatility.'
+                  : consScore >= 35 ? 'Moderate variation. Improve risk control.'
+                  : consScore >= 15 ? 'High volatility. Cap daily risk.'
+                  : 'Erratic returns. Pause and review rules.';
+          consDescEl.textContent = msg;
+        }
       }
 
       // ── Current Streak (consecutive wins/losses) ──
