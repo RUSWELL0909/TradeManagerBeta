@@ -11725,16 +11725,30 @@ window.toggleSidebar = function(){
   function _tqWaitForSupabase(){
     if(typeof supabase !== 'undefined' && supabase.createClient){
       tqInitSupabase();
-    } else {
-      window.addEventListener('supabase-ready', tqInitSupabase, {once:true});
-      // Fallback: if event never fires, hide auth after 5s
-      setTimeout(function(){
+      return;
+    }
+    // Race condition fix (May 2026): event may have fired before we attached.
+    // Poll for window.supabase as backup to event listener.
+    var pollAttempts = 0;
+    var pollInterval = setInterval(function(){
+      pollAttempts++;
+      if(typeof window.supabase !== 'undefined' && window.supabase.createClient){
+        clearInterval(pollInterval);
+        if(!_tqSupa) tqInitSupabase();
+      } else if(pollAttempts > 50){
+        // 50 * 100ms = 5 seconds max
+        clearInterval(pollInterval);
         if(!_tqSupa){
           console.warn('TradeQuill: Supabase not loaded after 5s, running offline');
           tqHideAuth();
         }
-      }, 5000);
-    }
+      }
+    }, 100);
+    // Also keep event listener as primary path
+    window.addEventListener('supabase-ready', function(){
+      clearInterval(pollInterval);
+      if(!_tqSupa) tqInitSupabase();
+    }, {once:true});
   }
   if(document.readyState==='loading'){
     document.addEventListener('DOMContentLoaded', _tqWaitForSupabase);
@@ -36058,6 +36072,27 @@ CREATE POLICY "users manage own tokens" ON tq_share_tokens
   // Apply when Supabase ready
   setTimeout(function(){ if(window._tqMentorContext && window._tqSupa) tqApplyMentorMode(); }, 1500);
   setTimeout(function(){ if(window._tqMentorContext && window._tqMentorContext.loading && window._tqSupa) tqApplyMentorMode(); }, 3500);
+  // Long retry — Supabase ESM can take 5-10s on slow connections (May 2026)
+  setTimeout(function(){
+    if(window._tqMentorContext && window._tqMentorContext.loading){
+      if(window._tqSupa){
+        tqApplyMentorMode();
+      } else {
+        // Final attempt — poll for Supabase
+        var attempts = 0;
+        var poll = setInterval(function(){
+          attempts++;
+          if(window._tqSupa){
+            clearInterval(poll);
+            if(window._tqMentorContext.loading) tqApplyMentorMode();
+          } else if(attempts > 30){
+            clearInterval(poll);
+            if(typeof tqToast === 'function') tqToast('Could not connect to server. Please refresh.', {type:'error', duration:8000});
+          }
+        }, 500);
+      }
+    }
+  }, 6000);
 
   // ════════════════════════════════════════════════════════════
   // MENTOR COMMENTS — May 2026
