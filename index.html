@@ -31731,7 +31731,6 @@ window.toggleSidebar = function(){
       var actions = document.createElement('div');
       actions.className = 'widget-actions';
       actions.innerHTML =
-        '<button class="widget-action-btn" onclick="event.stopPropagation();dashOpenWidgetGallery(\''+widgetId+'\')" title="Replace this widget"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 01-4 4H3"/></svg></button>' +
         '<button class="widget-action-btn minus" onclick="event.stopPropagation();dashHideWidget(\''+widgetId+'\')" title="Hide widget"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>';
       el.appendChild(actions);
     });
