@@ -5358,15 +5358,15 @@ window.toggleSidebar = function(){
       <div class="dash-row-body">
                 <!-- Advanced metrics row (Recovery / Consistency / Goals) — Var B handles Max DD + Streaks -->
         <div class="dash-advanced-grid" data-widget="advanced-metrics" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:0">
-          <!-- Recovery Factor — Variant A: big number + sparkline + status pill -->
-          <div class="card" data-widget="recovery-factor" style="padding:18px 20px;display:flex;flex-direction:column;min-height:200px;position:relative;overflow:hidden">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
-              <span style="font-size:11px;color:var(--text3);letter-spacing:.5px;font-weight:500">Recovery Factor</span>
+          <!-- Recovery Factor -->
+          <div class="card" data-widget="recovery-factor" style="padding:22px 24px;display:flex;flex-direction:column;min-height:220px;position:relative;overflow:hidden">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+              <span style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:500">Recovery Factor</span>
               <span class="info-icon" data-tip="Net profit ÷ Max Drawdown. Higher = better recovery from losses. 2.0+ is strong.">i</span>
             </div>
-            <div style="font-size:10px;color:var(--text3);font-family:DM Mono,monospace;margin-bottom:14px">Net profit ÷ max drawdown</div>
-            <div id="dash-recovery" style="font-size:42px;font-weight:400;letter-spacing:-.7px;line-height:1;color:var(--green);font-variant-numeric:tabular-nums;margin-bottom:4px">&#8212;</div>
-            <svg id="dash-recovery-spark" style="height:36px;margin:14px 0 10px;width:100%" viewBox="0 0 100 30" preserveAspectRatio="none">
+            <div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:18px">Net profit ÷ max drawdown</div>
+            <div id="dash-recovery" style="font-size:48px;font-weight:400;letter-spacing:-.8px;line-height:1;color:var(--green);font-variant-numeric:tabular-nums;margin-bottom:6px">&#8212;</div>
+            <svg id="dash-recovery-spark" style="height:42px;margin:18px 0 14px;width:100%" viewBox="0 0 100 30" preserveAspectRatio="none">
               <defs>
                 <linearGradient id="recSparkGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stop-color="rgba(29,233,182,.3)"/>
@@ -5377,20 +5377,20 @@ window.toggleSidebar = function(){
               <path id="dash-recovery-spark-line" fill="none" stroke="var(--green)" stroke-width="1.5" d=""/>
             </svg>
             <div>
-              <span id="dash-recovery-tag" style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;background:rgba(29,233,182,.08);border:0.5px solid rgba(29,233,182,.25);border-radius:100px;font-size:11px;color:var(--green);font-weight:500">● Loading…</span>
+              <span id="dash-recovery-tag" style="display:inline-flex;align-items:center;gap:7px;padding:5px 14px;background:rgba(29,233,182,.08);border:0.5px solid rgba(29,233,182,.25);border-radius:100px;font-size:12px;color:var(--green);font-weight:500">● Loading…</span>
             </div>
             <div id="dash-recovery-bar" style="display:none"><div id="dash-recovery-fill" style="height:100%;width:0%"></div></div>
           </div>
-          <!-- Consistency Score — Variant A: ring + tag + meta -->
-          <div class="card" data-widget="consistency" style="padding:18px 20px;display:flex;flex-direction:column;min-height:200px">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
-              <span style="font-size:11px;color:var(--text3);letter-spacing:.5px;font-weight:500">Consistency</span>
+          <!-- Consistency -->
+          <div class="card" data-widget="consistency" style="padding:22px 24px;display:flex;flex-direction:column;min-height:220px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+              <span style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:500">Consistency</span>
               <span class="info-icon" data-tip="Stability of daily returns. 100 = perfectly steady, 0 = highly volatile.">i</span>
             </div>
-            <div style="font-size:10px;color:var(--text3);font-family:DM Mono,monospace;margin-bottom:14px">Daily return stability score</div>
-            <div style="display:flex;align-items:center;gap:18px;flex:1">
+            <div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:18px">Daily return stability score</div>
+            <div style="display:flex;align-items:center;gap:22px;flex:1">
               <div style="position:relative;flex-shrink:0">
-                <svg width="100" height="100" viewBox="0 0 36 36">
+                <svg width="120" height="120" viewBox="0 0 36 36">
                   <defs>
                     <linearGradient id="consRingGrad" x1="0" y1="0" x2="1" y2="0">
                       <stop offset="0%" stop-color="#ef4444"/>
@@ -5402,24 +5402,24 @@ window.toggleSidebar = function(){
                   <circle id="dash-consistency-ring" cx="18" cy="18" r="15.9" fill="none" stroke="url(#consRingGrad)" stroke-width="3" stroke-dasharray="0 100" stroke-linecap="round" transform="rotate(-90 18 18)"/>
                 </svg>
                 <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
-                  <div id="dash-consistency" style="font-size:28px;font-weight:400;color:var(--text);line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.5px">&#8212;</div>
-                  <div style="font-size:9px;color:var(--text3);letter-spacing:1px;margin-top:2px">/ 100</div>
+                  <div id="dash-consistency" style="font-size:34px;font-weight:400;color:var(--text);line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.6px">&#8212;</div>
+                  <div style="font-size:10px;color:var(--text3);letter-spacing:1px;margin-top:3px">/ 100</div>
                 </div>
               </div>
-              <div style="flex:1;font-size:12px;color:var(--text2);line-height:1.5">
-                <div id="dash-consistency-label" style="display:inline-block;padding:3px 10px;background:rgba(29,233,182,.08);border-radius:5px;color:var(--green);font-size:11px;font-weight:500;margin-bottom:8px">—</div>
-                <div id="dash-consistency-desc" style="font-size:12px;color:var(--text2);line-height:1.5;opacity:.85"></div>
+              <div style="flex:1;font-size:13px;color:var(--text2);line-height:1.5">
+                <div id="dash-consistency-label" style="display:inline-block;padding:4px 12px;background:rgba(29,233,182,.08);border-radius:6px;color:var(--green);font-size:12px;font-weight:500;margin-bottom:10px">—</div>
+                <div id="dash-consistency-desc" style="font-size:13px;color:var(--text2);line-height:1.5;opacity:.85"></div>
               </div>
             </div>
           </div>
-          <!-- GOALS — Variant A: empty state with icon + button OR list -->
-          <div class="card" data-widget="goals" style="padding:18px 20px;display:flex;flex-direction:column;min-height:200px">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
-              <span style="font-size:11px;color:var(--text3);letter-spacing:.5px;font-weight:500">Goals</span>
-              <button onclick="tqOpenGoals()" style="background:transparent;border:0.5px solid var(--border);color:var(--text3);cursor:pointer;font-size:14px;width:24px;height:24px;border-radius:5px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-weight:400" title="Manage goals">+</button>
+          <!-- Goals -->
+          <div class="card" data-widget="goals" style="padding:22px 24px;display:flex;flex-direction:column;min-height:220px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+              <span style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:500">Goals</span>
+              <button onclick="tqOpenGoals()" style="background:transparent;border:0.5px solid var(--border);color:var(--text3);cursor:pointer;font-size:16px;width:28px;height:28px;border-radius:6px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-weight:400" title="Manage goals">+</button>
             </div>
-            <div style="font-size:10px;color:var(--text3);font-family:DM Mono,monospace;margin-bottom:14px">Track weekly &amp; monthly targets</div>
-            <div id="dash-goals-list" style="display:flex;flex-direction:column;gap:14px;font-family:Inter,sans-serif;flex:1;justify-content:center"></div>
+            <div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:18px">Track weekly &amp; monthly targets</div>
+            <div id="dash-goals-list" style="display:flex;flex-direction:column;gap:18px;font-family:Inter,sans-serif;flex:1;justify-content:center"></div>
           </div>
         </div>
 
@@ -24698,20 +24698,18 @@ window.toggleSidebar = function(){
     }
     listEl.innerHTML = goals.slice(0,3).map(function(g){
       var p = tqGoalProgress(g);
-      // Unified colors: green (done), green-soft (close), neutral (in progress)
       var col = p.pct >= 100 ? '#1de9b6' : p.pct >= 75 ? '#1de9b6' : 'var(--text2)';
       var barGrad = p.pct >= 100 ? 'linear-gradient(90deg,#1de9b6,rgba(29,233,182,.6))'
                   : p.pct >= 50 ? 'linear-gradient(90deg,rgba(29,233,182,.7),rgba(29,233,182,.3))'
                   : 'rgba(255,255,255,.15)';
       var icon = ({pnl:'💰', win_rate:'🎯', trades:'📊', profit_factor:'⚡'})[g.type] || '🎯';
-      // Strip color from p.label — neutral text only
       var labelClean = String(p.label).replace(/<[^>]*>/g,'').trim();
       return '<div style="margin-bottom:2px">' +
-               '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;font-size:11px">' +
-                 '<span style="color:var(--text2)"><span style="margin-right:6px">'+icon+'</span>'+(g.name||g.type).replace(/</g,'&lt;')+'</span>' +
-                 '<span style="color:'+col+';font-weight:500;font-size:10px;font-family:DM Mono,monospace;font-variant-numeric:tabular-nums">'+labelClean+'</span>' +
+               '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px;font-size:13px">' +
+                 '<span style="color:var(--text2)"><span style="margin-right:8px;font-size:14px">'+icon+'</span>'+(g.name||g.type).replace(/</g,'&lt;')+'</span>' +
+                 '<span style="color:'+col+';font-weight:500;font-size:12px;font-family:DM Mono,monospace;font-variant-numeric:tabular-nums">'+labelClean+'</span>' +
                '</div>' +
-               '<div style="background:rgba(255,255,255,.04);border-radius:3px;height:5px;overflow:hidden"><div style="background:'+barGrad+';height:100%;width:'+p.pct+'%;transition:width .4s;border-radius:3px"></div></div>' +
+               '<div style="background:rgba(255,255,255,.04);border-radius:3px;height:6px;overflow:hidden"><div style="background:'+barGrad+';height:100%;width:'+p.pct+'%;transition:width .4s;border-radius:3px"></div></div>' +
              '</div>';
     }).join('');
   }
