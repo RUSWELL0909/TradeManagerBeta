@@ -3895,8 +3895,11 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(124,90,240,.15);outlin
 .jr-detail-row:last-child{border:none}
 .jr-detail-label{color:var(--text3);font-size:12px;font-family:Inter,sans-serif}
 .jr-detail-val{font-weight:500}
-.jr-detail-screenshots{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.jr-detail-img{width:120px;height:80px;border-radius:8px;object-fit:cover;border:1px solid var(--border);cursor:pointer}
+.jr-detail-screenshots{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.jr-detail-img{width:180px;height:120px;border-radius:10px;object-fit:cover;border:1px solid var(--border);cursor:pointer;transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;display:block}
+.jr-detail-img:hover{transform:scale(1.02);border-color:rgba(124,90,240,.3);box-shadow:0 4px 16px rgba(15,23,42,.12)}
+[data-theme="light"] .jr-detail-img{border-color:#e6ebf2;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+[data-theme="light"] .jr-detail-img:hover{border-color:rgba(124,90,240,.3);box-shadow:0 8px 24px rgba(15,23,42,.12)}
 /* Quick add */
 .jr-quick{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 18px;display:flex;gap:8px;align-items:center;margin-bottom:14px}
 .jr-quick input,.jr-quick select{padding:7px 10px;border-radius:7px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:11px;font-family:Inter,sans-serif}
@@ -23572,9 +23575,56 @@ window.toggleSidebar = function(){
     // Notes
     if(t.notes) h+='<div style="margin-bottom:16px;padding:12px;border-radius:10px;background:rgba(124,90,240,.02);border:1px solid rgba(124,90,240,.03);font-size:11px;color:var(--text2);line-height:1.6">'+t.notes+'</div>';
 
-    // Screenshots
+    // Screenshots — premium gallery with section label (May 2026)
+    // Screenshots may be: data URLs (legacy), http URLs (CDN), or idb:keys (IndexedDB refs)
+    // We render placeholders + async resolve idb refs after modal opens
     if(t.screenshots&&t.screenshots.length>0){
-      h+='<div class="jr-detail-screenshots">'+t.screenshots.map(function(s){return '<img class="jr-detail-img" src="'+s+'" onclick="openLightbox(this.src)">';}).join('')+'</div>';
+      h+='<div style="margin-top:18px;margin-bottom:16px">';
+      h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">';
+      h+='<div style="font-size:10px;color:var(--accent3);font-family:Inter,sans-serif;font-weight:600;letter-spacing:.5px;text-transform:uppercase">Screenshots <span style="color:var(--text3);font-weight:500;margin-left:4px">'+t.screenshots.length+'</span></div>';
+      h+='<div style="font-size:10px;color:var(--text3);font-family:Inter,sans-serif">Click to enlarge</div>';
+      h+='</div>';
+      h+='<div class="jr-detail-screenshots" id="jr-detail-screenshots-'+t.id+'">';
+      t.screenshots.forEach(function(s, idx){
+        var isReady = typeof s === 'string' && (s.indexOf('data:') === 0 || s.indexOf('http') === 0);
+        if(isReady){
+          h+='<img class="jr-detail-img" src="'+s+'" onclick="openLightbox(this.src)">';
+        } else {
+          // Placeholder for async-resolved ref
+          h+='<div class="jr-detail-img jr-detail-img-loading" data-ref="'+(typeof s==='string'?s.replace(/"/g,'&quot;'):'')+'" data-idx="'+idx+'" style="display:flex;align-items:center;justify-content:center;background:var(--bg);color:var(--text3);font-size:11px">Loading…</div>';
+        }
+      });
+      h+='</div></div>';
+      // Schedule async resolve
+      setTimeout(function(){
+        var container = document.getElementById('jr-detail-screenshots-'+t.id);
+        if(!container) return;
+        container.querySelectorAll('.jr-detail-img-loading').forEach(function(placeholder){
+          var ref = placeholder.getAttribute('data-ref');
+          if(!ref) return;
+          if(typeof window.tqResolveScreenshot !== 'function'){
+            placeholder.textContent = '⚠';
+            placeholder.title = 'Storage unavailable';
+            return;
+          }
+          window.tqResolveScreenshot(ref).then(function(resolved){
+            if(!resolved){
+              placeholder.textContent = '⚠';
+              placeholder.title = 'Image not found';
+              placeholder.style.color = 'var(--red)';
+              return;
+            }
+            var img = document.createElement('img');
+            img.className = 'jr-detail-img';
+            img.src = resolved;
+            img.onclick = function(){ openLightbox(resolved); };
+            placeholder.parentNode.replaceChild(img, placeholder);
+          }).catch(function(){
+            placeholder.textContent = '⚠';
+            placeholder.style.color = 'var(--red)';
+          });
+        });
+      }, 50);
     }
 
     // ── Cockpit Snapshot (Pre-trade Plan) ──
