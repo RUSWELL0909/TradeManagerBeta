@@ -3228,6 +3228,30 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(124,90,240,.15);outlin
 .jr-stat{flex:1;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;justify-content:center}
 .jr-stat-val{font-size:34px;font-weight:400;letter-spacing:-1.5px;line-height:1;margin:4px 0 6px}
 .jr-stat-label{font-size:11px;color:var(--text3);font-family:Inter,sans-serif;font-weight:600;letter-spacing:.8px;text-transform:uppercase}
+
+/* ═══════════════════════════════════════════════════════════════
+   MERGED GRID SYSTEM — Variant 3 (May 2026)
+   Used in trade detail modal: top stats + price levels
+   Single bordered container with internal dividers
+   ═══════════════════════════════════════════════════════════════ */
+.tq-merged-grid{display:grid;gap:0;background:var(--bg);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.tq-merged-grid-5{grid-template-columns:repeat(5,1fr)}
+.tq-merged-grid-4{grid-template-columns:repeat(4,1fr)}
+.tq-merged-cell{padding:14px 16px;border-right:1px solid var(--border);text-align:left;background:var(--card);transition:background .15s}
+.tq-merged-cell:last-child{border-right:none}
+.tq-merged-cell:hover{background:var(--bg)}
+.tq-merged-label{font-size:9px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:600;font-family:Inter,sans-serif}
+.tq-merged-label-red{color:var(--red);opacity:.85}
+.tq-merged-label-green{color:var(--green);opacity:.9}
+.tq-merged-val{font-size:20px;font-weight:500;margin-top:4px;color:var(--text);font-variant-numeric:tabular-nums;letter-spacing:-.4px;line-height:1.2;min-height:22px;display:flex;align-items:center}
+.tq-merged-val-mono{font-family:'DM Mono',monospace;font-size:15px;font-weight:500;letter-spacing:0}
+.tq-merged-val-green,span.tq-merged-val-green{color:var(--green)}
+.tq-merged-val-red,span.tq-merged-val-red{color:var(--red)}
+.tq-merged-val-empty,span.tq-merged-val-empty{color:var(--text3);opacity:.5;font-weight:400}
+/* Light theme: subtle outer shadow */
+[data-theme="light"] .tq-merged-grid{background:#eef2f7;border-color:#e6ebf2;box-shadow:0 1px 2px rgba(15,23,42,.03)}
+[data-theme="light"] .tq-merged-cell{background:#ffffff;border-right-color:#eef2f7}
+[data-theme="light"] .tq-merged-cell:hover{background:#fafbfd}
 .jr-stat-sub{font-size:11px;color:var(--text3);font-family:Inter,sans-serif;margin-top:2px}
 .jr-streak{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:6px;font-size:12px;font-family:Inter,sans-serif;font-weight:600;margin-top:6px}
 .jr-today{background:linear-gradient(135deg,rgba(124,90,240,.03),var(--card));border:1px solid rgba(124,90,240,.06);border-radius:14px;padding:16px 22px;margin-bottom:16px;display:flex;align-items:center;gap:20px}
@@ -23459,13 +23483,15 @@ window.toggleSidebar = function(){
     h+='<div><div style="font-size:20px;font-weight:600">'+t.pair+'</div><div style="font-size:10px;color:var(--text3);font-family:Inter,sans-serif">'+t.date+(t.session?' · '+t.session:'')+'</div></div></div>';
     h+='<div style="font-size:28px;font-weight:400;color:'+(pnl>=0?'var(--green)':'var(--red)')+'">'+(pnl>=0?'+':'-')+'$'+Math.abs(pnl).toLocaleString('en-US')+'</div></div>';
 
-    // Quick stats
-    h+='<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:20px">';
-    h+='<div class="jr-stat"><div class="jr-stat-val"><span class="jr-pill '+(isLong?'jr-pill-buy':'jr-pill-sell')+'">'+(isLong?'LONG':'SHORT')+'</span></div><div class="jr-stat-label">DIRECTION</div></div>';
-    h+='<div class="jr-stat"><div class="jr-stat-val">'+rr+'</div><div class="jr-stat-label">R:R</div></div>';
-    h+='<div class="jr-stat"><div class="jr-stat-val">'+(t.grade||'—')+'</div><div class="jr-stat-label">GRADE</div></div>';
-    h+='<div class="jr-stat"><div class="jr-stat-val">'+(t.status||'—')+'</div><div class="jr-stat-label">STATUS</div></div>';
-    h+='<div class="jr-stat"><div class="jr-stat-val" style="color:'+(t.planFollowed==='yes'?'var(--green)':t.planFollowed==='no'?'var(--red)':'var(--text3)')+'">'+(t.planFollowed==='yes'?'✓ Yes':t.planFollowed==='no'?'✗ No':'—')+'</div><div class="jr-stat-label">PLAN</div></div>';
+    // Quick stats — Variant 3 merged grid with dividers (May 2026)
+    h+='<div class="tq-merged-grid tq-merged-grid-5" style="margin-bottom:20px">';
+    h+='<div class="tq-merged-cell"><div class="tq-merged-label">Direction</div><div class="tq-merged-val"><span class="jr-pill '+(isLong?'jr-pill-buy':'jr-pill-sell')+'">'+(isLong?'LONG':'SHORT')+'</span></div></div>';
+    var rrColor = (parseFloat(rr) > 0) ? (pnl>=0?'tq-merged-val-green':'tq-merged-val-red') : '';
+    h+='<div class="tq-merged-cell"><div class="tq-merged-label">R:R</div><div class="tq-merged-val '+rrColor+'">'+rr+'</div></div>';
+    h+='<div class="tq-merged-cell"><div class="tq-merged-label">Grade</div><div class="tq-merged-val '+(t.grade?'':'tq-merged-val-empty')+'">'+(t.grade||'—')+'</div></div>';
+    h+='<div class="tq-merged-cell"><div class="tq-merged-label">Status</div><div class="tq-merged-val '+(t.status?'':'tq-merged-val-empty')+'">'+(t.status||'—')+'</div></div>';
+    var planVal = t.planFollowed==='yes'?'<span class="tq-merged-val-green">✓ Yes</span>':t.planFollowed==='no'?'<span class="tq-merged-val-red">✗ No</span>':'<span class="tq-merged-val-empty">—</span>';
+    h+='<div class="tq-merged-cell"><div class="tq-merged-label">Plan</div><div class="tq-merged-val">'+planVal+'</div></div>';
     h+='</div>';
 
     // Setup & confluences
@@ -23507,11 +23533,12 @@ window.toggleSidebar = function(){
       h+='<div style="display:flex;flex-wrap:wrap;gap:4px">'+t.poiTypes.map(function(c){return '<span class="pb-card-conf">'+c+'</span>';}).join('')+'</div></div>';
     }
 
-    // Prices
-    h+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px">';
-    ['Entry|'+t.entry,'SL|'+t.sl,'TP|'+t.tp,'Exit|'+t.exit].forEach(function(s){var p=s.split('|');
-      h+='<div class="jr-stat"><div class="jr-stat-val" style="font-size:13px;font-family:Inter,sans-serif">'+(parseFloat(p[1])?p[1]:'—')+'</div><div class="jr-stat-label">'+p[0]+'</div></div>';
-    });
+    // Prices — Variant 3 merged grid w/ semantic SL=red, TP=green (May 2026)
+    h+='<div class="tq-merged-grid tq-merged-grid-4" style="margin-bottom:16px">';
+    h+='<div class="tq-merged-cell"><div class="tq-merged-label">Entry</div><div class="tq-merged-val tq-merged-val-mono">'+(parseFloat(t.entry)?t.entry:'<span class="tq-merged-val-empty">—</span>')+'</div></div>';
+    h+='<div class="tq-merged-cell"><div class="tq-merged-label tq-merged-label-red">Stop Loss</div><div class="tq-merged-val tq-merged-val-mono '+(parseFloat(t.sl)?'tq-merged-val-red':'')+'">'+(parseFloat(t.sl)?t.sl:'<span class="tq-merged-val-empty">—</span>')+'</div></div>';
+    h+='<div class="tq-merged-cell"><div class="tq-merged-label tq-merged-label-green">Take Profit</div><div class="tq-merged-val tq-merged-val-mono '+(parseFloat(t.tp)?'tq-merged-val-green':'')+'">'+(parseFloat(t.tp)?t.tp:'<span class="tq-merged-val-empty">—</span>')+'</div></div>';
+    h+='<div class="tq-merged-cell"><div class="tq-merged-label">Exit</div><div class="tq-merged-val tq-merged-val-mono">'+(parseFloat(t.exit)?t.exit:'<span class="tq-merged-val-empty">—</span>')+'</div></div>';
     h+='</div>';
 
     // Details
