@@ -4568,11 +4568,12 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
 .dash-bigsq{background:rgba(255,255,255,.012);border:0.5px solid rgba(255,255,255,.05);border-radius:14px;padding:12px;position:relative;min-width:0}
 .dash-bigsq-label{font-family:Inter,sans-serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);opacity:.7;margin-bottom:10px;padding:0 4px;display:flex;align-items:center;gap:8px}
 .dash-bigsq-label::before{content:'';flex:0 0 12px;height:1px;background:rgba(124,90,240,.5)}
-.dash-bigsq-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dash-bigsq-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;grid-auto-rows:1fr}
 .kpi-row-vb{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 /* Smaller variant used inside big squares — same Variant B aesthetic, just compact */
-.dash-bigsq-grid .kpi-slot{min-width:0}
-.dash-bigsq-grid .kpi-tile{min-height:130px;padding:16px 18px 16px 22px;border-radius:11px}
+.dash-bigsq-grid .kpi-slot{min-width:0;display:flex;align-items:stretch}
+.dash-bigsq-grid .kpi-slot > .kpi-tile{flex:1;width:100%}
+.dash-bigsq-grid .kpi-tile{min-height:165px;padding:18px 20px 18px 24px;border-radius:11px;display:flex;flex-direction:column}
 .dash-bigsq-grid .kpi-tile::before{left:0;top:18px;bottom:18px;right:auto;height:auto;width:3px}
 .dash-bigsq-grid .kpi-tile-label{font-size:11px;margin-bottom:8px;letter-spacing:.5px}
 .dash-bigsq-grid .kpi-tile-info{width:14px;height:14px;font-size:9px}
@@ -4581,8 +4582,8 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
 .dash-bigsq-grid .kpi-tile-mini{margin:12px 0 8px;height:6px}
 .dash-bigsq-grid .kpi-tile-mini div{height:3px}
 .dash-bigsq-grid .kpi-tile-mini div.on{height:6px}
-.dash-bigsq-grid .kpi-tile-foot{font-size:10px}
-.dash-bigsq-grid .kpi-slot-empty{min-height:130px;padding:16px;font-size:11px;border-radius:11px}
+.dash-bigsq-grid .kpi-tile-foot{font-size:10px;margin-top:auto}
+.dash-bigsq-grid .kpi-slot-empty{min-height:165px;padding:16px;font-size:11px;border-radius:11px}
 @media (max-width:980px){
   .dash-bigsq-row{grid-template-columns:1fr!important}
 }
