@@ -4699,6 +4699,41 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
 [data-theme="light"] .kpi-tile-badge.amber{background:#fffbeb;color:#d97706}
 [data-theme="light"] .kpi-tile-badge.neutral{background:#f1f5f9;color:#64748b}
 
+/* ═══════════════════════════════════════════════════════════════════
+   PDF EXPORT MODAL — Premium Glass (May 2026)
+   ═══════════════════════════════════════════════════════════════════ */
+.tq-pdf-modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:99998;align-items:center;justify-content:center;padding:20px;animation:tqPdfFade .2s ease}
+.tq-pdf-modal-overlay.show{display:flex}
+@keyframes tqPdfFade{from{opacity:0}to{opacity:1}}
+.tq-pdf-modal{background:var(--card);border:1px solid var(--border);border-radius:16px;width:100%;max-width:580px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 24px 70px rgba(0,0,0,.4),0 4px 16px rgba(15,23,42,.12),0 0 0 1px rgba(15,23,42,.02);overflow:hidden;font-family:Inter,sans-serif;animation:tqPdfSlide .25s cubic-bezier(.22,1,.36,1)}
+@keyframes tqPdfSlide{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+[data-theme="light"] .tq-pdf-modal{box-shadow:0 24px 70px rgba(15,23,42,.18),0 4px 16px rgba(15,23,42,.08),0 0 0 1px rgba(15,23,42,.02)}
+.tq-pdf-head{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;background:linear-gradient(180deg,rgba(124,90,240,.04) 0%,transparent 100%)}
+.tq-pdf-title{font-size:17px;font-weight:600;color:var(--text);letter-spacing:-.2px}
+.tq-pdf-sub{font-size:11px;color:var(--text3);margin-top:4px;line-height:1.5;max-width:420px}
+.tq-pdf-close{width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text3);cursor:pointer;font-size:14px;transition:all .15s;flex-shrink:0}
+.tq-pdf-close:hover{background:var(--bg2);border-color:rgba(124,90,240,.3);color:var(--accent3)}
+.tq-pdf-body{padding:20px 24px;overflow-y:auto;flex:1}
+.tq-pdf-section-label{font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px}
+.tq-pdf-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.tq-pdf-field label{display:block;font-size:10px;color:var(--text3);font-weight:600;letter-spacing:.3px;text-transform:uppercase;margin-bottom:5px}
+.tq-pdf-field input,.tq-pdf-field select{width:100%;padding:9px 11px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;font-family:Inter,sans-serif;font-weight:500;transition:all .15s}
+.tq-pdf-field input:focus,.tq-pdf-field select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,90,240,.1);outline:none}
+[data-theme="light"] .tq-pdf-field input,[data-theme="light"] .tq-pdf-field select{background:#ffffff;border-color:#e2e8f0}
+.tq-pdf-preset-row{display:flex;flex-wrap:wrap;gap:6px}
+.tq-pdf-preset{padding:6px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text2);font-size:11px;font-weight:500;cursor:pointer;font-family:Inter,sans-serif;transition:all .15s}
+.tq-pdf-preset:hover{background:rgba(124,90,240,.08);border-color:rgba(124,90,240,.3);color:var(--accent3)}
+[data-theme="light"] .tq-pdf-preset{background:#ffffff;border-color:#e2e8f0}
+[data-theme="light"] .tq-pdf-preset:hover{background:#f5f3ff;border-color:rgba(124,90,240,.3)}
+.tq-pdf-count-box{margin-top:16px;padding:14px 16px;background:linear-gradient(135deg,rgba(124,90,240,.06),rgba(124,90,240,.02));border:1px solid rgba(124,90,240,.18);border-radius:10px;display:flex;align-items:center;gap:12px}
+.tq-pdf-footer{padding:14px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;background:var(--bg2)}
+[data-theme="light"] .tq-pdf-footer{background:#fafbfd}
+.tq-pdf-btn{padding:9px 18px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;border:none;display:inline-flex;align-items:center;transition:all .15s}
+.tq-pdf-btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text2)}
+.tq-pdf-btn-ghost:hover{background:var(--bg2);color:var(--text)}
+.tq-pdf-btn-primary{background:var(--accent);color:#fff;box-shadow:0 1px 2px rgba(124,90,240,.25)}
+.tq-pdf-btn-primary:hover{background:var(--accent3);box-shadow:0 4px 12px rgba(124,90,240,.3)}
+
 /* Edit mode visual */
 .kpi-tile.editing{cursor:grab;outline:1.5px dashed rgba(124,90,240,.35);outline-offset:-1px}
 .kpi-tile.editing:hover{outline-color:rgba(124,90,240,.7);transform:translateY(-1px)}
@@ -8331,6 +8366,81 @@ window.toggleSidebar = function(){
     </div><!-- /reports-content -->
 
   </div>
+
+  <!-- ═══ PDF EXPORT MODAL (May 2026) ═══ -->
+  <div id="modal-pdfExport" class="tq-pdf-modal-overlay">
+    <div class="tq-pdf-modal">
+      <div class="tq-pdf-head">
+        <div>
+          <div class="tq-pdf-title">Export Premium Report</div>
+          <div class="tq-pdf-sub">Generate a beautiful PDF — share with mentors, prop firms, or keep for review</div>
+        </div>
+        <button class="tq-pdf-close" onclick="closePdfExportModal()" title="Close">✕</button>
+      </div>
+      <div class="tq-pdf-body">
+        <div class="tq-pdf-section-label">Filters (optional — defaults to all trades)</div>
+        <div class="tq-pdf-row">
+          <div class="tq-pdf-field">
+            <label>Date From</label>
+            <input type="date" id="pdf-date-from" class="jr-input">
+          </div>
+          <div class="tq-pdf-field">
+            <label>Date To</label>
+            <input type="date" id="pdf-date-to" class="jr-input">
+          </div>
+        </div>
+        <div class="tq-pdf-row">
+          <div class="tq-pdf-field">
+            <label>Pair</label>
+            <select id="pdf-pair" class="jr-select"><option value="">All Pairs</option></select>
+          </div>
+          <div class="tq-pdf-field">
+            <label>Account</label>
+            <select id="pdf-account" class="jr-select"><option value="">All Accounts</option></select>
+          </div>
+        </div>
+        <div class="tq-pdf-row">
+          <div class="tq-pdf-field">
+            <label>Direction</label>
+            <select id="pdf-dir" class="jr-select">
+              <option value="">Long & Short</option>
+              <option value="buy">Long Only</option>
+              <option value="sell">Short Only</option>
+            </select>
+          </div>
+          <div class="tq-pdf-field">
+            <label>Setup</label>
+            <select id="pdf-setup" class="jr-select"><option value="">All Setups</option></select>
+          </div>
+        </div>
+        <div class="tq-pdf-presets">
+          <div class="tq-pdf-section-label" style="margin-top:14px">Quick presets</div>
+          <div class="tq-pdf-preset-row">
+            <button class="tq-pdf-preset" onclick="pdfApplyPreset('week')">Last 7 days</button>
+            <button class="tq-pdf-preset" onclick="pdfApplyPreset('month')">Last 30 days</button>
+            <button class="tq-pdf-preset" onclick="pdfApplyPreset('mtd')">Month-to-date</button>
+            <button class="tq-pdf-preset" onclick="pdfApplyPreset('ytd')">Year-to-date</button>
+            <button class="tq-pdf-preset" onclick="pdfApplyPreset('all')">All time</button>
+          </div>
+        </div>
+        <div class="tq-pdf-count-box">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent3)" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+          <div>
+            <div id="pdf-trade-count" style="font-size:16px;font-weight:600;color:var(--text)">0 trades match filters</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px;font-family:Inter,sans-serif">Report includes KPIs, equity curve, breakdowns by pair/session/setup, key insights, and recent trades</div>
+          </div>
+        </div>
+      </div>
+      <div class="tq-pdf-footer">
+        <button class="tq-pdf-btn tq-pdf-btn-ghost" onclick="closePdfExportModal()">Cancel</button>
+        <button class="tq-pdf-btn tq-pdf-btn-primary" onclick="exportReports()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:4px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Generate PDF
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div id="page-playbook" class="page">
     <div class="page-header">
       <div><div class="page-title">Playbook</div><div class="page-sub">Define your edge · Build setups · Track what works</div></div>
@@ -19062,8 +19172,8 @@ window.toggleSidebar = function(){
     // Populate account dropdown
     var accSel=document.getElementById('pdf-account');
     if(accSel){
-      var accs=JSON.parse(rfxGet('rf_accounts')||'[]');
-      accSel.innerHTML='<option value="">All Accounts</option>'+accs.map(function(a){return '<option value="'+a.id+'">'+a.name+'</option>';}).join('');
+      var accs=JSON.parse(rfxGet('rf_accounts')||'[]').filter(function(a){return !a.deleted;});
+      accSel.innerHTML='<option value="">All Accounts</option>'+accs.map(function(a){return '<option value="'+a.id+'">'+a.name+(a.archived?' (archived)':'')+'</option>';}).join('');
     }
     // Populate setup dropdown
     var setupSel=document.getElementById('pdf-setup');
@@ -19071,20 +19181,59 @@ window.toggleSidebar = function(){
       var sps={};trades.forEach(function(t){if(t.setup)sps[t.setup]=true;});
       setupSel.innerHTML='<option value="">All Setups</option>'+Object.keys(sps).sort().map(function(s){return '<option>'+s+'</option>';}).join('');
     }
+    // Reset filters on open
+    var df=document.getElementById('pdf-date-from'); if(df) df.value='';
+    var dt=document.getElementById('pdf-date-to'); if(dt) dt.value='';
+    var dr=document.getElementById('pdf-dir'); if(dr) dr.value='';
     // Update count on filter change
     function updCount(){
       var filtered=_pdfFilterTrades();
       var el=document.getElementById('pdf-trade-count');
-      if(el) el.textContent=filtered.length+' trades match filters';
+      if(el) el.textContent=filtered.length+' trade'+(filtered.length===1?'':'s')+' match filter'+(filtered.length===1?'':'s');
     }
     ['pdf-date-from','pdf-date-to','pdf-pair','pdf-account','pdf-dir','pdf-setup'].forEach(function(id){
       var el=document.getElementById(id);
       if(el) el.onchange=updCount;
     });
     updCount();
-    document.getElementById('modal-pdfExport').classList.add('show');
+    var m = document.getElementById('modal-pdfExport');
+    if(m) m.classList.add('show');
   }
   window.openExportModal=openExportModal;
+
+  function closePdfExportModal(){
+    var m = document.getElementById('modal-pdfExport');
+    if(m) m.classList.remove('show');
+  }
+  window.closePdfExportModal = closePdfExportModal;
+
+  // Quick filter presets
+  function pdfApplyPreset(key){
+    var dfEl = document.getElementById('pdf-date-from');
+    var dtEl = document.getElementById('pdf-date-to');
+    if(!dfEl || !dtEl) return;
+    var now = new Date();
+    var to = now.toISOString().slice(0,10);
+    var from = '';
+    if(key === 'week'){
+      var w = new Date(now - 7*86400000);
+      from = w.toISOString().slice(0,10);
+    } else if(key === 'month'){
+      var mo = new Date(now - 30*86400000);
+      from = mo.toISOString().slice(0,10);
+    } else if(key === 'mtd'){
+      from = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0,10);
+    } else if(key === 'ytd'){
+      from = new Date(now.getFullYear(), 0, 1).toISOString().slice(0,10);
+    } else if(key === 'all'){
+      from = '';
+      to = '';
+    }
+    dfEl.value = from;
+    dtEl.value = to;
+    dfEl.dispatchEvent(new Event('change'));
+  }
+  window.pdfApplyPreset = pdfApplyPreset;
 
   function _pdfFilterTrades(){
     var trades=getTradesArr().filter(function(t){return !t._demo;});
