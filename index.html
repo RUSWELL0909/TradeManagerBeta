@@ -4702,6 +4702,41 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
 /* ═══════════════════════════════════════════════════════════════════
    PDF EXPORT MODAL — Premium Glass (May 2026)
    ═══════════════════════════════════════════════════════════════════ */
+
+/* Force English date format for all date inputs (May 2026) — overrides OS locale */
+input[type="date"]{
+  font-family:Inter,sans-serif !important;
+}
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-year-field,
+input[type="date"]::-webkit-datetime-edit-text{
+  color:var(--text);
+  padding:0 2px;
+}
+/* When no value: show our English placeholder via :invalid + content trick */
+input[type="date"]:not(:focus):invalid::-webkit-datetime-edit{
+  color:var(--text3);
+  opacity:.6;
+}
+input[type="date"]:in-range::-webkit-datetime-edit{color:var(--text)}
+
+/* English placeholder overlay for empty date inputs — overrides OS locale display */
+input[type="date"].tq-date-en:not(:focus){
+  position:relative;
+}
+input[type="date"].tq-date-en:not(:focus)::-webkit-datetime-edit{
+  position:relative;
+}
+input[type="date"].tq-date-en:not(:focus)::-webkit-datetime-edit-day-field:empty + ::-webkit-datetime-edit-text,
+input[type="date"].tq-date-en:not(:focus):invalid::-webkit-datetime-edit-text{
+  color:transparent;
+}
+/* Show "DD / MM / YYYY" placeholder for empty inputs */
+input[type="date"].tq-date-en:not(:focus):invalid::-webkit-datetime-edit-fields-wrapper,
+input[type="date"].tq-date-en:placeholder-shown::-webkit-datetime-edit-fields-wrapper{
+  color:var(--text3);opacity:.5;
+}
 .tq-pdf-modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:99998;align-items:center;justify-content:center;padding:20px;animation:tqPdfFade .2s ease}
 .tq-pdf-modal-overlay.show{display:flex}
 @keyframes tqPdfFade{from{opacity:0}to{opacity:1}}
@@ -6135,9 +6170,9 @@ window.toggleSidebar = function(){
           <button class="jr-date-preset" data-preset="all" style="padding:3px 8px;font-size:10px;background:transparent;border:none;color:var(--text2);border-radius:4px;cursor:pointer;font-family:Inter,sans-serif">All</button>
         </div>
         <span style="font-size:10px;color:var(--text3)">From</span>
-        <input type="date" class="jr-input" id="jr-date-from" style="width:120px;padding:4px 8px;font-size:11px;border-radius:6px" onchange="renderJournal()">
+        <input type="date" lang="en" class="jr-input" id="jr-date-from" style="width:120px;padding:4px 8px;font-size:11px;border-radius:6px" onchange="renderJournal()">
         <span style="font-size:10px;color:var(--text3)">to</span>
-        <input type="date" class="jr-input" id="jr-date-to" style="width:120px;padding:4px 8px;font-size:11px;border-radius:6px" onchange="renderJournal()">
+        <input type="date" lang="en" class="jr-input" id="jr-date-to" style="width:120px;padding:4px 8px;font-size:11px;border-radius:6px" onchange="renderJournal()">
         <button class="jr-filter" style="padding:4px 10px;font-size:10px" onclick="rfxRemove('tq_filters_journal');document.getElementById('jr-date-from').value='';document.getElementById('jr-date-to').value='';document.querySelectorAll('#jr-pair-filter,#jr-setup-filter,#jr-session-filter,#jr-account-filter,#jr-grade-filter,#jr-dir-filter,#jr-tag-filter').forEach(function(s){s.selectedIndex=0;});renderJournal()">Reset</button>
       </div>
     </div>
@@ -6676,7 +6711,7 @@ window.toggleSidebar = function(){
         <option value="">All Sessions</option>
         <option>Asia KTW</option><option>London KTW</option><option>NY KTW</option><option>Outside KTW</option>
       </select>
-      <input type="date" class="form-input" id="cs-filter-date">
+      <input type="date" lang="en" class="form-input" id="cs-filter-date">
       <button class="btn btn-ghost" id="btn-clear-cs">Clear</button>
     </div>
     <div id="cs-grid" class="cs-grid">
@@ -8382,11 +8417,11 @@ window.toggleSidebar = function(){
         <div class="tq-pdf-row">
           <div class="tq-pdf-field">
             <label>Date From</label>
-            <input type="date" id="pdf-date-from" class="jr-input">
+            <input type="date" lang="en" id="pdf-date-from" class="jr-input">
           </div>
           <div class="tq-pdf-field">
             <label>Date To</label>
-            <input type="date" id="pdf-date-to" class="jr-input">
+            <input type="date" lang="en" id="pdf-date-to" class="jr-input">
           </div>
         </div>
         <div class="tq-pdf-row">
@@ -19160,6 +19195,30 @@ window.toggleSidebar = function(){
     updateReports();
   }
   window.rptPill = rptPill;
+
+  // ══ FORCE ENGLISH DATE FORMAT (May 2026) ══
+  // Chrome/Edge ignore lang="en" for date inputs and use OS locale (e.g. дд.мм.гггг on Russian Windows).
+  // Workaround: wrap each empty date input with a fake placeholder overlay showing "DD/MM/YYYY".
+  function _tqForceEnglishDateInputs(){
+    document.querySelectorAll('input[type="date"]').forEach(function(input){
+      if(input._tqDateWrapped) return;
+      input._tqDateWrapped = true;
+      // Set data attribute for CSS pseudo-element fallback
+      input.setAttribute('data-placeholder', 'DD / MM / YYYY');
+      // Hide native placeholder text via inline JS by adding a class
+      input.classList.add('tq-date-en');
+      // When focus → user uses native picker (calendar still in OS locale, but ok)
+    });
+  }
+  // Initial run after DOM ready
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', _tqForceEnglishDateInputs);
+  } else {
+    _tqForceEnglishDateInputs();
+  }
+  // Re-scan after modal opens (dynamic content)
+  setInterval(_tqForceEnglishDateInputs, 2000);
+  window._tqForceEnglishDateInputs = _tqForceEnglishDateInputs;
 
   function openExportModal(){
     var trades=getTradesArr().filter(function(t){return !t._demo;});
