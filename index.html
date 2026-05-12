@@ -5627,8 +5627,9 @@ window.toggleSidebar = function(){
     <!-- ════════════════════════════════════════════════════════ -->
 
     <!-- Edit toolbar (shown only in edit mode) -->
-    <div id="dash-edit-toolbar" style="display:none;align-items:center;justify-content:space-between;padding:10px 16px;margin-bottom:12px;background:rgba(124,90,240,.06);border:1px solid rgba(124,90,240,.18);border-radius:10px;font-family:Inter,sans-serif">
-      <span style="font-size:11px;font-weight:600;color:var(--accent);letter-spacing:.5px">⌘ EDIT MODE — drag tiles to reorder · drag section handles (left side) to reorder big widgets · 🔄 swap · × hide</span>
+    <div id="dash-edit-toolbar" style="display:none;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;margin-bottom:12px;background:rgba(124,90,240,.06);border:1px solid rgba(124,90,240,.18);border-radius:10px;font-family:Inter,sans-serif">
+      <span style="font-size:11px;font-weight:600;color:var(--accent);letter-spacing:.5px;flex:1">⌘ EDIT MODE — drag tiles to reorder · 🔄 swap · × hide · drag section handles (left) to reorder big widgets</span>
+      <button onclick="dashResetLayout()" title="Restore default 12 metrics + section order" style="background:transparent;border:1px solid rgba(124,90,240,.3);color:var(--accent3);padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;display:flex;align-items:center;gap:4px"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Reset</button>
       <button onclick="dashEditDone()" style="background:var(--accent);border:none;color:#fff;padding:6px 14px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">Done</button>
     </div>
 
@@ -33509,6 +33510,22 @@ window.toggleSidebar = function(){
       });
     });
   }
+
+  // Reset KPI tile layout + section order to defaults (May 2026)
+  window.dashResetLayout = function(){
+    var ok = (typeof tqConfirm === 'function')
+      ? tqConfirm('Reset dashboard to default layout? Your widget arrangements and section order will be restored to defaults.', {title:'Reset layout', okLabel:'Reset', danger:false})
+      : Promise.resolve(window.confirm('Reset dashboard to default layout?'));
+    Promise.resolve(ok).then(function(confirmed){
+      if(!confirmed) return;
+      try{ rfxRemove(DASH_LAYOUT_KEY); }catch(e){}
+      try{ rfxRemove(DASH_SECTION_ORDER_KEY); }catch(e){}
+      if(typeof window.dashRenderTiles === 'function') window.dashRenderTiles();
+      if(typeof window.dashApplySectionOrder === 'function') window.dashApplySectionOrder();
+      if(typeof tqToast === 'function') tqToast('✓ Layout reset to default', {type:'success', duration:2500});
+      if(typeof tqHaptic === 'function') tqHaptic(20);
+    });
+  };
 
   // Swap modal — replace specific slot with another metric
   window.dashOpenSwapModal = function(slot){
