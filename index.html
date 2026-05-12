@@ -2647,13 +2647,17 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(124,90,240,.15);outlin
   .dash-row-body {
     overflow: hidden;
     transition: max-height .4s cubic-bezier(.22,1,.36,1), opacity .3s ease;
-    max-height: 2000px;
+    max-height: 100000px;
     opacity: 1;
   }
   .dash-row-wrap.collapsed .dash-row-body {
     max-height: 0;
     opacity: 0;
     pointer-events: none;
+  }
+  /* When expanded, lift overflow restriction after animation so dropdowns/menus aren't clipped */
+  .dash-row-wrap:not(.collapsed) .dash-row-body {
+    overflow: visible;
   }
   /* Collapsed placeholder bar */
   .dash-row-collapsed-bar {
