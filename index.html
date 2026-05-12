@@ -29688,22 +29688,48 @@ window.toggleSidebar = function(){
   }
 
   function openLightbox(src){
-    var lb=document.getElementById('ck-lightbox');
-    var img=document.getElementById('ck-lightbox-img');
-    if(!lb||!img) return;
-    _lbInit();
-    img.src=src;
-    _lbZoom=1;_lbPanX=0;_lbPanY=0;
-    img.style.transform='scale(1) translate(0px,0px)';
-    lb.classList.add('open');
-    document.body.style.overflow='hidden';
-    document.body.style.touchAction='none';
+    if(!src) return;
+    // Remove any existing lightbox
+    var existing = document.getElementById('tq-lightbox');
+    if(existing) existing.remove();
+
+    // Build lightbox on-demand
+    var lb = document.createElement('div');
+    lb.id = 'tq-lightbox';
+    lb.style.cssText = 'position:fixed;inset:0;background:rgba(8,6,18,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:999999;display:flex;align-items:center;justify-content:center;cursor:zoom-out;padding:40px;animation:tqLbFade .2s ease;';
+
+    var img = document.createElement('img');
+    img.src = src;
+    img.style.cssText = 'max-width:100%;max-height:100%;border-radius:8px;box-shadow:0 30px 80px rgba(0,0,0,.6);object-fit:contain;cursor:default;';
+    img.onclick = function(e){ e.stopPropagation(); };
+
+    var closeBtn = document.createElement('button');
+    closeBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+    closeBtn.style.cssText = 'position:absolute;top:20px;right:20px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);';
+    closeBtn.onmouseenter = function(){ closeBtn.style.background = 'rgba(255,255,255,.18)'; };
+    closeBtn.onmouseleave = function(){ closeBtn.style.background = 'rgba(255,255,255,.1)'; };
+
+    lb.appendChild(img);
+    lb.appendChild(closeBtn);
+    lb.onclick = function(){ closeLightbox(); };
+    closeBtn.onclick = function(e){ e.stopPropagation(); closeLightbox(); };
+
+    // Keyboard close (Esc)
+    function escHandler(e){ if(e.key === 'Escape'){ closeLightbox(); document.removeEventListener('keydown', escHandler); } }
+    document.addEventListener('keydown', escHandler);
+
+    document.body.appendChild(lb);
+    document.body.style.overflow = 'hidden';
   }
   function closeLightbox(){
-    var lb=document.getElementById('ck-lightbox');
-    if(lb) lb.classList.remove('open');
-    document.body.style.overflow='';
-    document.body.style.touchAction='';
+    var lb = document.getElementById('tq-lightbox');
+    if(lb){
+      lb.style.opacity = '0';
+      lb.style.transition = 'opacity .15s ease';
+      setTimeout(function(){ if(lb.parentNode) lb.parentNode.removeChild(lb); }, 150);
+    }
+    document.body.style.overflow = '';
+    document.body.style.touchAction = '';
   }
   window.openLightbox=openLightbox;
   window.closeLightbox=closeLightbox;
@@ -34328,8 +34354,14 @@ window.toggleSidebar = function(){
           var total = st.w+st.l;
           return {s:s, wr: total>0?st.w/total*100:0, total:total};
         }).filter(function(x){return x.total>=3;}).sort(function(a,b){return b.wr-a.wr;}).slice(0,5);
-        if(setups.length === 0){
-          el.innerHTML = _emptyState('win-by-setup', 'Tag setups in your trades', 'Min 3 per setup');
+        // If only "Other" (= no setup tagged), show actionable empty state
+        var onlyOther = setups.length === 1 && setups[0].s === 'Other';
+        if(setups.length === 0 || onlyOther){
+          el.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px;text-align:center;min-height:140px">'+
+            '<div style="font-size:13px;color:var(--text2);margin-bottom:6px;font-weight:500">No setup data yet</div>'+
+            '<div style="font-size:11px;color:var(--text3);margin-bottom:14px;max-width:260px;line-height:1.5">Tag your trades with setup names to see win rate per strategy. You can backfill old trades in one click.</div>'+
+            '<button onclick="showPage(\'journal\');setTimeout(function(){if(window.jrOpenBulkEdit)jrOpenBulkEdit();},200)" style="padding:8px 16px;background:rgba(124,90,240,.1);color:var(--accent3);border:1px solid rgba(124,90,240,.2);border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">Bulk-fill setups →</button>'+
+          '</div>';
         } else {
           el.innerHTML = '<div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:14px">Min 3 trades to qualify</div>' +
             setups.map(function(s){
@@ -34493,7 +34525,11 @@ window.toggleSidebar = function(){
         });
         var mistakes = Object.keys(tagPnl).map(function(t){return {t:t, p:tagPnl[t]};}).sort(function(a,b){return a.p-b.p;}).slice(0,5);
         if(mistakes.length === 0){
-          el.innerHTML = _emptyState('top-mistakes', 'Tag losing trades with mistakes', 'See what costs you most');
+          el.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px;text-align:center;min-height:140px">'+
+            '<div style="font-size:13px;color:var(--text2);margin-bottom:6px;font-weight:500">No mistakes tagged yet</div>'+
+            '<div style="font-size:11px;color:var(--text3);margin-bottom:14px;max-width:260px;line-height:1.5">Add psych tags (FOMO, Revenge, Early exit, etc.) to losing trades to see what costs you most.</div>'+
+            '<button onclick="showPage(\'journal\');setTimeout(function(){if(window.jrOpenBulkEdit)jrOpenBulkEdit();},200)" style="padding:8px 16px;background:rgba(124,90,240,.1);color:var(--accent3);border:1px solid rgba(124,90,240,.2);border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">Bulk-tag mistakes →</button>'+
+          '</div>';
         } else {
           var max = Math.abs(mistakes[0].p);
           el.innerHTML = '<div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:14px">Total cost across mistakes</div>' +
