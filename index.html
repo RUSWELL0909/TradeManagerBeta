@@ -19396,8 +19396,8 @@ window.toggleSidebar = function(){
   }
   window.exportReports = exportReports;
 
-  // ══ PREMIUM PDF REPORT BUILDER v3 (May 2026) ══
-  // 2-page compact colorful editorial — full dark theme
+  // ══ PREMIUM PDF REPORT BUILDER v4 (May 2026) ══
+  // 1-page ultra-compact colorful editorial
   function _buildPremiumReportHTML(trades, filterStr, accName){
     var now = new Date();
 
@@ -19526,7 +19526,7 @@ window.toggleSidebar = function(){
       var maxEq = Math.max.apply(null, equityPoints.map(function(p){return p.equity;}));
       var minEq = Math.min.apply(null, equityPoints.map(function(p){return p.equity;}));
       var range = maxEq - minEq || 1;
-      var w = 700, h = 90, padding = 6;
+      var w = 700, h = 60, padding = 4;
       var pts = equityPoints.map(function(p,i){
         var x = padding + (i/(equityPoints.length-1)) * (w - 2*padding);
         var y = padding + (1 - (p.equity - minEq)/range) * (h - 2*padding);
@@ -19535,7 +19535,7 @@ window.toggleSidebar = function(){
       var areaPts = padding+','+(h-padding)+' '+pts+' '+(w-padding)+','+(h-padding);
       var lineColor = equityPoints[equityPoints.length-1].equity >= 0 ? '#1de9b6' : '#ef4444';
       var fillColor = equityPoints[equityPoints.length-1].equity >= 0 ? 'rgba(29,233,182,.20)' : 'rgba(239,68,68,.20)';
-      eqSvg = '<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" style="width:100%;height:90px;display:block">' +
+      eqSvg = '<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" style="width:100%;height:60px;display:block">' +
         '<polygon points="'+areaPts+'" fill="'+fillColor+'"/>' +
         '<polyline points="'+pts+'" fill="none" stroke="'+lineColor+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>' +
         '</svg>';
@@ -19546,7 +19546,7 @@ window.toggleSidebar = function(){
     function fmtR(v){return (v>=0?'+':'')+v.toFixed(2)+'R';}
     function dateRange(){
       if(dayKeys.length===0) return '-';
-      return dayKeys[0]+' -> '+dayKeys[dayKeys.length-1];
+      return dayKeys[0]+' - '+dayKeys[dayKeys.length-1];
     }
     function periodName(){
       if(dayKeys.length===0) return 'All Time';
@@ -19560,40 +19560,41 @@ window.toggleSidebar = function(){
 
     var bottomLine = '';
     if(netPnl > 0 && pf >= 1.5 && wr >= 50){
-      bottomLine = 'Your edge is real and statistically meaningful. Focus on protecting position sizing - strong systems lose to discipline gaps, not strategy.';
+      bottomLine = 'Your edge is real. Focus on protecting position sizing - strong systems lose to discipline gaps, not strategy.';
     } else if(netPnl > 0 && pf >= 1){
-      bottomLine = 'Net profitable but margins are thin. PF at '+pf.toFixed(2)+' - every $1 lost takes back $'+(1/pf).toFixed(2)+'. Tighten setup selection.';
+      bottomLine = 'Net profitable but margins thin. PF at '+pf.toFixed(2)+' - every $1 lost takes back $'+(1/pf).toFixed(2)+'. Tighten setup selection.';
     } else if(netPnl <= 0){
-      bottomLine = 'Negative period. Before changing strategy, check execution: how many trades broke your plan? Often the strategy is fine.';
+      bottomLine = 'Negative period. Check execution before strategy: how many trades broke your plan? Strategy is often fine.';
     } else {
       bottomLine = 'Period closed positive. Continue documenting setups. Patterns become statistically meaningful at 50+ trades per setup.';
     }
 
     var setupList = Object.keys(bySetup).filter(function(s){return s !== 'Untagged' && bySetup[s].count >= 2;}).sort(function(a,b){return bySetup[b].pnl - bySetup[a].pnl;});
-    var pairsList = Object.keys(byPair).sort(function(a,b){return byPair[b].pnl - byPair[a].pnl;}).slice(0,6);
+    var pairsList = Object.keys(byPair).sort(function(a,b){return byPair[b].pnl - byPair[a].pnl;});
     var sessList = Object.keys(bySession).filter(function(s){return s !== 'Untagged';}).sort(function(a,b){return bySession[b].pnl - bySession[a].pnl;});
 
     var actions = [];
     if(topMistakes.length > 0 && topMistakes[0].pnl < -50){
-      actions.push({icon:'!', tone:'red', title:'Address "'+topMistakes[0].tag+'"', text:'Cost '+fmtPnl(topMistakes[0].pnl)+' across '+topMistakes[0].count+' trades.'});
+      actions.push({tone:'red', title:'Address "'+topMistakes[0].tag+'"', text:'Cost '+fmtPnl(topMistakes[0].pnl)+' across '+topMistakes[0].count+' trades.'});
     }
     if(setupList.length > 0 && bySetup[setupList[0]].pnl > 0){
       var best = bySetup[setupList[0]];
-      actions.push({icon:'+', tone:'green', title:'Continue '+setupList[0], text:'Top performer ('+fmtPnl(best.pnl)+' over '+best.count+' trades).'});
+      actions.push({tone:'green', title:'Continue '+setupList[0], text:'Top performer ('+fmtPnl(best.pnl)+' over '+best.count+' trades).'});
     }
     if(setupList.length > 1 && bySetup[setupList[setupList.length-1]].pnl < 0){
       var worst = bySetup[setupList[setupList.length-1]];
-      actions.push({icon:'-', tone:'amber', title:'Pause '+setupList[setupList.length-1], text:'Lost '+fmtPnl(worst.pnl)+' over '+worst.count+' trades.'});
+      actions.push({tone:'amber', title:'Pause '+setupList[setupList.length-1], text:'Lost '+fmtPnl(worst.pnl)+' over '+worst.count+' trades.'});
     }
     if(planBroken.length >= 3 && planBrokenWR < planFollowedWR - 10){
-      actions.push({icon:'>', tone:'purple', title:'Aim for 90% plan adherence', text:'Plan followed: '+planFollowedWR.toFixed(0)+'% WR vs broken: '+planBrokenWR.toFixed(0)+'%.'});
+      actions.push({tone:'purple', title:'Aim for 90%+ plan adherence', text:'Followed: '+planFollowedWR.toFixed(0)+'% WR vs broken: '+planBrokenWR.toFixed(0)+'%.'});
     }
     while(actions.length < 3){
-      actions.push({icon:'*', tone:'purple', title:'Tag all trades consistently', text:'Add setup names + psych tags for richer insights next period.'});
+      actions.push({tone:'purple', title:'Tag all trades consistently', text:'Add setup names + psych tags for richer insights.'});
     }
     actions = actions.slice(0, 3);
 
     var pnlColor = netPnl >= 0 ? '#1de9b6' : '#ef4444';
+    var bestDayPnl = dayKeys.length > 0 ? Math.max.apply(null, dayKeys.map(function(d){return byDay[d].pnl;})) : 0;
 
     var html = '';
     html += '<style>' +
@@ -19601,138 +19602,136 @@ window.toggleSidebar = function(){
       'html,body{background:#0d0820;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact}' +
       '.pdfreport{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;width:794px;margin:0;padding:0;color:#fff}' +
       '@page{size:A4;margin:0}' +
-      '.tq-page{width:794px;min-height:1123px;background:linear-gradient(155deg,#0d0820 0%,#1a1330 50%,#241947 100%);color:#fff;position:relative;overflow:hidden;page-break-after:always;page-break-inside:avoid}' +
-      '.tq-page:last-child{page-break-after:auto}' +
-      '.tq-glow-tr{position:absolute;top:-220px;right:-180px;width:560px;height:560px;border-radius:50%;background:radial-gradient(circle,rgba(124,90,240,.35) 0%,transparent 65%);pointer-events:none}' +
-      '.tq-glow-bl{position:absolute;bottom:-200px;left:-150px;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(29,233,182,.12) 0%,transparent 65%);pointer-events:none}' +
-      '.tq-content{position:relative;z-index:2;padding:38px 44px 60px}' +
+      '.tq-page{width:794px;height:1123px;background:linear-gradient(155deg,#0d0820 0%,#1a1330 50%,#241947 100%);color:#fff;position:relative;overflow:hidden;page-break-after:auto}' +
+      '.tq-glow-tr{position:absolute;top:-200px;right:-160px;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(124,90,240,.35) 0%,transparent 65%);pointer-events:none}' +
+      '.tq-glow-bl{position:absolute;bottom:-180px;left:-130px;width:460px;height:460px;border-radius:50%;background:radial-gradient(circle,rgba(29,233,182,.10) 0%,transparent 65%);pointer-events:none}' +
+      '.tq-content{position:relative;z-index:2;padding:24px 30px 18px}' +
+      // Top header
+      '.tq-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}' +
       '.tq-brand{font-size:10px;letter-spacing:4px;color:rgba(255,255,255,.6);text-transform:uppercase;font-weight:700}' +
-      '.tq-tagline{font-size:11px;color:rgba(255,255,255,.4);font-style:italic;margin-top:2px;letter-spacing:.3px}' +
-      '.tq-hero{margin-top:36px;display:flex;justify-content:space-between;align-items:flex-end;gap:30px}' +
-      '.tq-eyebrow{font-size:11px;color:rgba(255,255,255,.55);letter-spacing:.5px;text-transform:uppercase;font-weight:600;margin-bottom:6px}' +
-      '.tq-title{font-size:38px;font-weight:600;letter-spacing:-1.2px;line-height:1.05}' +
-      '.tq-meta{font-size:11px;color:rgba(255,255,255,.55);margin-top:8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.2px}' +
-      '.tq-pnl{font-size:44px;font-weight:600;letter-spacing:-1.4px;line-height:1;font-variant-numeric:tabular-nums;text-align:right}' +
-      '.tq-pnl-label{font-size:10px;color:rgba(255,255,255,.5);letter-spacing:.5px;text-transform:uppercase;font-weight:700;text-align:right}' +
-      '.tq-pnl-sub{font-size:11px;margin-top:4px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;text-align:right}' +
-      '.tq-score{margin-top:24px;padding:20px 24px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;display:flex;align-items:center;justify-content:space-between;gap:24px}' +
-      '.tq-kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:18px}' +
-      '.tq-kpi{padding:12px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;position:relative;overflow:hidden}' +
-      '.tq-kpi::before{content:"";position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:0 2px 2px 0}' +
+      '.tq-tagline{font-size:10px;color:rgba(255,255,255,.4);font-style:italic;margin-top:1px;letter-spacing:.3px}' +
+      // Hero row (period + P&L + score in single line)
+      '.tq-hero{display:grid;grid-template-columns:1fr auto auto;gap:20px;align-items:center;padding:14px 18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px}' +
+      '.tq-eyebrow{font-size:9px;color:rgba(255,255,255,.5);letter-spacing:.6px;text-transform:uppercase;font-weight:700;margin-bottom:3px}' +
+      '.tq-title{font-size:24px;font-weight:600;letter-spacing:-.7px;line-height:1.05;color:#fff}' +
+      '.tq-meta{font-size:10px;color:rgba(255,255,255,.5);margin-top:4px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.2px}' +
+      '.tq-pnl{font-size:32px;font-weight:600;letter-spacing:-1px;line-height:1;font-variant-numeric:tabular-nums;text-align:right}' +
+      '.tq-pnl-sub{font-size:9px;margin-top:3px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;text-align:right;color:rgba(255,255,255,.5)}' +
+      '.tq-score-mini{display:flex;flex-direction:column;align-items:center;padding-left:18px;border-left:1px solid rgba(255,255,255,.1)}' +
+      '.tq-score-mini-lbl{font-size:8px;color:rgba(255,255,255,.5);letter-spacing:.5px;text-transform:uppercase;font-weight:700;margin-bottom:2px}' +
+      '.tq-score-mini-v{font-size:30px;font-weight:600;color:#fff;letter-spacing:-.8px;line-height:1;font-variant-numeric:tabular-nums}' +
+      '.tq-score-mini-out{font-size:11px;color:rgba(255,255,255,.4)}' +
+      '.tq-score-pill{display:inline-block;font-size:8px;font-weight:700;letter-spacing:.5px;padding:2px 7px;border-radius:3px;text-transform:uppercase;margin-top:4px}' +
+      // KPI grid
+      '.tq-kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:10px}' +
+      '.tq-kpi{padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;position:relative;overflow:hidden}' +
+      '.tq-kpi::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 2px 2px 0}' +
       '.tq-kpi.green::before{background:#1de9b6}' +
       '.tq-kpi.red::before{background:#ef4444}' +
       '.tq-kpi.amber::before{background:#fbbf24}' +
-      '.tq-kpi-l{padding-left:6px}' +
-      '.tq-kpi-lbl{font-size:9px;color:rgba(255,255,255,.5);letter-spacing:.6px;text-transform:uppercase;font-weight:700}' +
-      '.tq-kpi-v{font-size:19px;font-weight:600;margin-top:4px;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:-.4px;line-height:1.05}' +
+      '.tq-kpi-l{padding-left:5px}' +
+      '.tq-kpi-lbl{font-size:8px;color:rgba(255,255,255,.5);letter-spacing:.6px;text-transform:uppercase;font-weight:700}' +
+      '.tq-kpi-v{font-size:17px;font-weight:600;margin-top:3px;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:-.3px;line-height:1.05}' +
       '.tq-kpi-v.g{color:#1de9b6}' +
       '.tq-kpi-v.r{color:#ef4444}' +
-      '.tq-kpi-pill{display:inline-block;font-size:8px;font-weight:700;letter-spacing:.5px;padding:2px 6px;border-radius:3px;margin-top:5px;text-transform:uppercase}' +
+      '.tq-kpi-pill{display:inline-block;font-size:7.5px;font-weight:700;letter-spacing:.4px;padding:1px 5px;border-radius:3px;margin-top:4px;text-transform:uppercase}' +
       '.tq-kpi-pill.g{background:rgba(29,233,182,.15);color:#1de9b6}' +
       '.tq-kpi-pill.r{background:rgba(239,68,68,.15);color:#ef4444}' +
       '.tq-kpi-pill.a{background:rgba(251,191,36,.15);color:#fbbf24}' +
       '.tq-kpi-pill.n{background:rgba(255,255,255,.08);color:rgba(255,255,255,.6)}' +
-      '.tq-kpi-bench{font-size:8px;color:rgba(255,255,255,.35);margin-top:4px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.2px}' +
-      '.tq-insight{margin-top:16px;padding:13px 18px;background:linear-gradient(135deg,rgba(124,90,240,.20),rgba(124,90,240,.05));border-left:3px solid #a78bfa;border-radius:0 8px 8px 0}' +
-      '.tq-insight-lbl{font-size:9px;color:#a78bfa;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px}' +
-      '.tq-insight-text{font-size:13px;color:rgba(255,255,255,.92);line-height:1.5;font-weight:400}' +
-      '.tq-eq-box{margin-top:14px;padding:12px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px}' +
-      '.tq-eq-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}' +
-      '.tq-eq-title{font-size:10px;color:rgba(255,255,255,.6);font-weight:600;letter-spacing:.5px;text-transform:uppercase}' +
-      '.tq-eq-val{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;font-weight:600}' +
-      '.tq-sh{display:flex;align-items:center;gap:10px;margin:16px 0 8px}' +
-      '.tq-sh-num{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:rgba(124,90,240,.25);color:#a78bfa;font-size:10px;font-weight:700;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}' +
-      '.tq-sh-title{font-size:12px;font-weight:600;color:#fff;letter-spacing:-.2px}' +
+      '.tq-kpi-bench{font-size:7.5px;color:rgba(255,255,255,.32);margin-top:3px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.1px}' +
+      // Insight
+      '.tq-insight{margin-top:10px;padding:9px 14px;background:linear-gradient(135deg,rgba(124,90,240,.20),rgba(124,90,240,.05));border-left:3px solid #a78bfa;border-radius:0 7px 7px 0}' +
+      '.tq-insight-lbl{font-size:8px;color:#a78bfa;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px}' +
+      '.tq-insight-text{font-size:11.5px;color:rgba(255,255,255,.92);line-height:1.45;font-weight:400}' +
+      // Equity
+      '.tq-eq{margin-top:10px;padding:8px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px}' +
+      '.tq-eq-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}' +
+      '.tq-eq-title{font-size:9px;color:rgba(255,255,255,.55);font-weight:600;letter-spacing:.5px;text-transform:uppercase}' +
+      '.tq-eq-val{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;font-weight:600}' +
+      // Section header
+      '.tq-sh{display:flex;align-items:center;gap:8px;margin:12px 0 6px}' +
+      '.tq-sh-num{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:50%;background:rgba(124,90,240,.25);color:#a78bfa;font-size:9px;font-weight:700;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}' +
+      '.tq-sh-title{font-size:11px;font-weight:600;color:#fff;letter-spacing:-.1px}' +
       '.tq-sh-line{flex:1;height:1px;background:linear-gradient(90deg,rgba(124,90,240,.3),transparent)}' +
-      '.tq-tbl{width:100%;border-collapse:collapse;font-size:11px;background:rgba(255,255,255,.03);border-radius:8px;overflow:hidden}' +
-      '.tq-tbl th{text-align:left;padding:6px 10px;background:rgba(255,255,255,.06);font-size:8.5px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.5px;font-weight:700;border-bottom:1px solid rgba(255,255,255,.08)}' +
+      // Tables
+      '.tq-tbl{width:100%;border-collapse:collapse;font-size:10px;background:rgba(255,255,255,.03);border-radius:7px;overflow:hidden}' +
+      '.tq-tbl th{text-align:left;padding:5px 8px;background:rgba(255,255,255,.06);font-size:8px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.4px;font-weight:700;border-bottom:1px solid rgba(255,255,255,.08)}' +
       '.tq-tbl th.r{text-align:right}' +
-      '.tq-tbl td{padding:6px 10px;border-bottom:1px solid rgba(255,255,255,.05);font-variant-numeric:tabular-nums;color:rgba(255,255,255,.85)}' +
+      '.tq-tbl td{padding:5px 8px;border-bottom:1px solid rgba(255,255,255,.05);font-variant-numeric:tabular-nums;color:rgba(255,255,255,.85)}' +
       '.tq-tbl td.r{text-align:right}' +
-      '.tq-tbl td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px}' +
+      '.tq-tbl td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px}' +
       '.tq-tbl tr:last-child td{border-bottom:none}' +
       '.tq-tbl .g{color:#1de9b6;font-weight:600}' +
       '.tq-tbl .r{color:#ef4444;font-weight:600}' +
       '.tq-tbl .muted{color:rgba(255,255,255,.4)}' +
       '.tq-tbl .bold{font-weight:600;color:#fff}' +
-      '.tq-bar{height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;min-width:50px}' +
+      // Bars
+      '.tq-bar{height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;min-width:40px}' +
       '.tq-bar-fill{height:100%;background:linear-gradient(90deg,#1de9b6,#34d399);border-radius:2px}' +
       '.tq-bar-fill.red{background:linear-gradient(90deg,#ef4444,#f87171)}' +
-      '.tq-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px}' +
-      '.tq-mini{padding:10px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px}' +
-      '.tq-mini-lbl{font-size:9px;color:rgba(255,255,255,.5);letter-spacing:.5px;text-transform:uppercase;font-weight:700}' +
-      '.tq-mini-v{font-size:17px;font-weight:600;color:#fff;margin-top:3px;font-variant-numeric:tabular-nums;letter-spacing:-.3px}' +
-      '.tq-mini-sub{font-size:9px;color:rgba(255,255,255,.45);margin-top:2px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}' +
-      '.tq-plan-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}' +
-      '.tq-plan-card{padding:12px 16px;border-radius:10px;border:1px solid;position:relative}' +
+      // Grids
+      '.tq-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}' +
+      '.tq-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}' +
+      // Plan compare
+      '.tq-plan-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}' +
+      '.tq-plan-card{padding:9px 12px;border-radius:8px;border:1px solid;position:relative}' +
       '.tq-plan-card.g{background:linear-gradient(135deg,rgba(29,233,182,.10),rgba(29,233,182,.02));border-color:rgba(29,233,182,.25)}' +
       '.tq-plan-card.r{background:linear-gradient(135deg,rgba(239,68,68,.10),rgba(239,68,68,.02));border-color:rgba(239,68,68,.25)}' +
-      '.tq-plan-h{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px}' +
+      '.tq-plan-h{font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px}' +
       '.tq-plan-h.g{color:#1de9b6}' +
       '.tq-plan-h.r{color:#ef4444}' +
-      '.tq-plan-stats{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:11px}' +
+      '.tq-plan-stats{display:flex;justify-content:space-between;align-items:baseline;gap:8px}' +
       '.tq-plan-stats > div{flex:1}' +
-      '.tq-plan-stat-l{color:rgba(255,255,255,.5);font-size:9px;letter-spacing:.3px;text-transform:uppercase}' +
-      '.tq-plan-stat-v{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:600;font-size:13px;color:#fff;margin-top:2px}' +
-      '.tq-actions{display:flex;flex-direction:column;gap:5px;margin-top:6px}' +
-      '.tq-action{padding:9px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-left:3px solid #a78bfa;border-radius:0 8px 8px 0;display:flex;align-items:flex-start;gap:10px}' +
+      '.tq-plan-stat-l{color:rgba(255,255,255,.5);font-size:8px;letter-spacing:.3px;text-transform:uppercase}' +
+      '.tq-plan-stat-v{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:600;font-size:11px;color:#fff;margin-top:1px}' +
+      // Action items
+      '.tq-actions{display:flex;flex-direction:column;gap:4px;margin-top:4px}' +
+      '.tq-action{padding:7px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-left:3px solid #a78bfa;border-radius:0 7px 7px 0}' +
       '.tq-action.red{border-left-color:#ef4444;background:linear-gradient(90deg,rgba(239,68,68,.10),rgba(255,255,255,.02))}' +
       '.tq-action.green{border-left-color:#1de9b6;background:linear-gradient(90deg,rgba(29,233,182,.10),rgba(255,255,255,.02))}' +
       '.tq-action.amber{border-left-color:#fbbf24;background:linear-gradient(90deg,rgba(251,191,36,.10),rgba(255,255,255,.02))}' +
-      '.tq-action-i{font-size:14px;line-height:1;width:18px;flex-shrink:0;margin-top:1px;font-weight:700;color:#a78bfa}' +
-      '.tq-action.red .tq-action-i{color:#ef4444}' +
-      '.tq-action.green .tq-action-i{color:#1de9b6}' +
-      '.tq-action.amber .tq-action-i{color:#fbbf24}' +
-      '.tq-action-t{font-size:12px;font-weight:600;color:#fff}' +
-      '.tq-action-d{font-size:10.5px;color:rgba(255,255,255,.6);margin-top:2px;line-height:1.4}' +
-      '.tq-foot{position:absolute;bottom:18px;left:44px;right:44px;display:flex;justify-content:space-between;font-size:9px;color:rgba(255,255,255,.35);letter-spacing:.5px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;z-index:5}' +
+      '.tq-action-t{font-size:11px;font-weight:600;color:#fff}' +
+      '.tq-action-d{font-size:9.5px;color:rgba(255,255,255,.6);margin-top:1px;line-height:1.4}' +
+      // Footer
+      '.tq-foot{position:absolute;bottom:10px;left:30px;right:30px;display:flex;justify-content:space-between;font-size:8px;color:rgba(255,255,255,.35);letter-spacing:.5px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;z-index:5}' +
       '.tq-foot-brand{color:#a78bfa;font-weight:700;letter-spacing:1px;text-transform:uppercase}' +
-      '@media print{.tq-page{page-break-after:always;break-after:page}}' +
+      '@media print{.tq-page{page-break-after:auto}}' +
       '</style>';
 
-    html += '<div class="pdfreport">';
-
-    // ═══ PAGE 1: COVER + KPIs + EQUITY + STRATEGY/PAIR ═══
-    html += '<div class="tq-page">';
+    html += '<div class="pdfreport"><div class="tq-page">';
     html += '<div class="tq-glow-tr"></div><div class="tq-glow-bl"></div>';
     html += '<div class="tq-content">';
 
-    html += '<div style="display:flex;justify-content:space-between;align-items:flex-start">';
-    html += '<div>';
-    html += '<div class="tq-brand">TradeQuill</div>';
-    html += '<div class="tq-tagline">Your edge, written.</div>';
-    html += '</div>';
+    // Top brand row
+    html += '<div class="tq-top">';
+    html += '<div><div class="tq-brand">TradeQuill</div><div class="tq-tagline">Your edge, written.</div></div>';
     html += '<div style="text-align:right">';
-    html += '<div style="font-size:9px;color:rgba(255,255,255,.4);letter-spacing:.5px;text-transform:uppercase;font-weight:600">Performance Report</div>';
-    html += '<div style="font-size:10px;color:rgba(255,255,255,.55);margin-top:3px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace">'+now.toISOString().slice(0,10)+'</div>';
+    html += '<div style="font-size:8px;color:rgba(255,255,255,.4);letter-spacing:.5px;text-transform:uppercase;font-weight:600">Performance Report</div>';
+    html += '<div style="font-size:9px;color:rgba(255,255,255,.55);margin-top:2px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace">'+now.toISOString().slice(0,10)+'</div>';
     html += '</div>';
     html += '</div>';
 
+    // Hero compact row — Period + P&L + Score in one line
     html += '<div class="tq-hero">';
     html += '<div>';
     html += '<div class="tq-eyebrow">Period</div>';
     html += '<div class="tq-title">'+periodName()+'</div>';
-    html += '<div class="tq-meta">'+dateRange()+' &middot; '+trades.length+' trades &middot; '+dayKeys.length+' trading days</div>';
+    html += '<div class="tq-meta">'+dateRange()+' &middot; '+trades.length+' trades &middot; '+dayKeys.length+' days &middot; '+wins.length+'W / '+losses.length+'L</div>';
     html += '</div>';
     html += '<div>';
-    html += '<div class="tq-pnl-label">Net P&amp;L</div>';
+    html += '<div class="tq-eyebrow" style="text-align:right">Net P&amp;L</div>';
     html += '<div class="tq-pnl" style="color:'+pnlColor+'">'+fmtPnl(netPnl)+'</div>';
-    html += '<div class="tq-pnl-sub" style="color:rgba('+(netPnl>=0?'29,233,182':'239,68,68')+',.7)">'+wins.length+'W &middot; '+losses.length+'L &middot; '+greenDays+'/'+dayKeys.length+' green days</div>';
+    html += '<div class="tq-pnl-sub">'+greenDays+'/'+dayKeys.length+' green &middot; max DD -'+ddPct.toFixed(1)+'%</div>';
+    html += '</div>';
+    html += '<div class="tq-score-mini">';
+    html += '<div class="tq-score-mini-lbl">TQ Score</div>';
+    html += '<div><span class="tq-score-mini-v">'+tqScore+'</span><span class="tq-score-mini-out">/100</span></div>';
+    html += '<div class="tq-score-pill" style="background:'+scoreTone.bg+';color:'+scoreTone.color+';border:1px solid '+scoreTone.border+'">'+scoreTone.label+'</div>';
     html += '</div>';
     html += '</div>';
 
-    html += '<div class="tq-score">';
-    html += '<div>';
-    html += '<div style="font-size:10px;color:rgba(255,255,255,.55);letter-spacing:.6px;text-transform:uppercase;font-weight:700">TradeQuill Score</div>';
-    html += '<div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:2px">Composite of 5 core metrics</div>';
-    html += '</div>';
-    html += '<div style="display:flex;align-items:baseline">';
-    html += '<div style="font-size:50px;font-weight:600;color:#fff;letter-spacing:-1.4px;line-height:1;font-variant-numeric:tabular-nums">'+tqScore+'</div>';
-    html += '<div style="font-size:15px;color:rgba(255,255,255,.4);margin-left:3px">/100</div>';
-    html += '</div>';
-    html += '<div><div style="display:inline-block;font-size:10px;font-weight:700;letter-spacing:.6px;padding:5px 12px;border-radius:5px;text-transform:uppercase;background:'+scoreTone.bg+';color:'+scoreTone.color+';border:1px solid '+scoreTone.border+'">'+scoreTone.label+'</div></div>';
-    html += '</div>';
-
+    // KPI grid (5 metrics)
     var wrTone = wr >= 60 ? {label:'STRONG', cls:'g'} : wr >= 45 ? {label:'SOLID', cls:'a'} : {label:'WEAK', cls:'r'};
     var pfTone = pf >= 2 ? {label:'EXCELLENT', cls:'g'} : pf >= 1.5 ? {label:'STRONG', cls:'g'} : pf >= 1.3 ? {label:'SOLID', cls:'a'} : pf >= 1 ? {label:'BE', cls:'n'} : {label:'LOSING', cls:'r'};
     var expTone = expectancy > 0 ? {label:'EDGE', cls:'g'} : {label:'NEGATIVE', cls:'r'};
@@ -19743,17 +19742,19 @@ window.toggleSidebar = function(){
     html += '<div class="tq-kpi '+(wr>=50?'green':'red')+'"><div class="tq-kpi-l"><div class="tq-kpi-lbl">Win Rate</div><div class="tq-kpi-v">'+fmtPct(wr)+'</div><div class="tq-kpi-pill '+wrTone.cls+'">'+wrTone.label+'</div><div class="tq-kpi-bench">benchmark 40-60%</div></div></div>';
     html += '<div class="tq-kpi '+(pf>=1.5?'green':pf>=1?'amber':'red')+'"><div class="tq-kpi-l"><div class="tq-kpi-lbl">Profit Factor</div><div class="tq-kpi-v">'+(pf===99?'inf':pf.toFixed(2))+'</div><div class="tq-kpi-pill '+pfTone.cls+'">'+pfTone.label+'</div><div class="tq-kpi-bench">benchmark &gt;1.5</div></div></div>';
     html += '<div class="tq-kpi '+(expectancy>0?'green':'red')+'"><div class="tq-kpi-l"><div class="tq-kpi-lbl">Expectancy</div><div class="tq-kpi-v '+(expectancy>=0?'g':'r')+'">'+fmtPnl(expectancy)+'</div><div class="tq-kpi-pill '+expTone.cls+'">'+expTone.label+'</div><div class="tq-kpi-bench">per trade</div></div></div>';
-    html += '<div class="tq-kpi '+(ddPct<15?'green':ddPct<20?'amber':'red')+'"><div class="tq-kpi-l"><div class="tq-kpi-lbl">Max Drawdown</div><div class="tq-kpi-v r">-'+ddPct.toFixed(1)+'%</div><div class="tq-kpi-pill '+ddTone.cls+'">'+ddTone.label+'</div><div class="tq-kpi-bench">target &lt;15%</div></div></div>';
-    html += '<div class="tq-kpi '+(avgR>0.2?'green':avgR>0?'amber':'red')+'"><div class="tq-kpi-l"><div class="tq-kpi-lbl">Avg R-Multiple</div><div class="tq-kpi-v">'+fmtR(avgR)+'</div><div class="tq-kpi-pill '+rTone.cls+'">'+rTone.label+'</div><div class="tq-kpi-bench">target &gt;0.2R</div></div></div>';
+    html += '<div class="tq-kpi '+(ddPct<15?'green':ddPct<20?'amber':'red')+'"><div class="tq-kpi-l"><div class="tq-kpi-lbl">Max DD</div><div class="tq-kpi-v r">-'+ddPct.toFixed(1)+'%</div><div class="tq-kpi-pill '+ddTone.cls+'">'+ddTone.label+'</div><div class="tq-kpi-bench">target &lt;15%</div></div></div>';
+    html += '<div class="tq-kpi '+(avgR>0.2?'green':avgR>0?'amber':'red')+'"><div class="tq-kpi-l"><div class="tq-kpi-lbl">Avg R</div><div class="tq-kpi-v">'+fmtR(avgR)+'</div><div class="tq-kpi-pill '+rTone.cls+'">'+rTone.label+'</div><div class="tq-kpi-bench">target &gt;0.2R</div></div></div>';
     html += '</div>';
 
+    // Bottom Line
     html += '<div class="tq-insight">';
     html += '<div class="tq-insight-lbl">Bottom Line</div>';
     html += '<div class="tq-insight-text">'+bottomLine+'</div>';
     html += '</div>';
 
+    // Equity curve
     if(eqSvg){
-      html += '<div class="tq-eq-box">';
+      html += '<div class="tq-eq">';
       html += '<div class="tq-eq-head">';
       html += '<div class="tq-eq-title">Equity Curve &middot; Cumulative P&amp;L</div>';
       html += '<div class="tq-eq-val" style="color:'+(netPnl>=0?'#1de9b6':'#ef4444')+'">'+fmtPnl(netPnl)+'</div>';
@@ -19762,17 +19763,20 @@ window.toggleSidebar = function(){
       html += '</div>';
     }
 
-    html += '<div class="tq-grid-2">';
+    // 3-column row: Strategy + Pair + Session
+    html += '<div class="tq-grid-3" style="margin-top:6px">';
+
+    // Strategy
     html += '<div>';
-    html += '<div class="tq-sh"><div class="tq-sh-num">1</div><div class="tq-sh-title">By Strategy</div></div>';
+    html += '<div class="tq-sh"><div class="tq-sh-num">1</div><div class="tq-sh-title">Strategy</div></div>';
     html += '<table class="tq-tbl">';
     html += '<tr><th>Setup</th><th class="r">N</th><th class="r">WR</th><th class="r">P&amp;L</th></tr>';
-    var allSetups = Object.keys(bySetup).sort(function(a,b){return bySetup[b].pnl - bySetup[a].pnl;}).slice(0,5);
+    var allSetups = Object.keys(bySetup).sort(function(a,b){return bySetup[b].pnl - bySetup[a].pnl;}).slice(0,4);
     allSetups.forEach(function(s){
       var d = bySetup[s];
       var swr = d.count > 0 ? (d.wins/d.count*100) : 0;
       html += '<tr>';
-      html += '<td class="bold"'+(s==='Untagged'?' style="color:rgba(255,255,255,.4);font-style:italic"':'')+'>'+s.substring(0,16)+'</td>';
+      html += '<td class="bold"'+(s==='Untagged'?' style="color:rgba(255,255,255,.4);font-style:italic"':'')+'>'+s.substring(0,11)+'</td>';
       html += '<td class="r mono">'+d.count+'</td>';
       html += '<td class="r mono '+(swr>=50?'g':'r')+'">'+swr.toFixed(0)+'%</td>';
       html += '<td class="r mono '+(d.pnl>=0?'g':'r')+'">'+fmtPnl(d.pnl)+'</td>';
@@ -19781,11 +19785,12 @@ window.toggleSidebar = function(){
     html += '</table>';
     html += '</div>';
 
+    // Pair
     html += '<div>';
-    html += '<div class="tq-sh"><div class="tq-sh-num">2</div><div class="tq-sh-title">By Pair</div></div>';
+    html += '<div class="tq-sh"><div class="tq-sh-num">2</div><div class="tq-sh-title">Pair</div></div>';
     html += '<table class="tq-tbl">';
     html += '<tr><th>Pair</th><th class="r">N</th><th class="r">WR</th><th class="r">P&amp;L</th></tr>';
-    pairsList.slice(0,5).forEach(function(p){
+    pairsList.slice(0,4).forEach(function(p){
       var d = byPair[p];
       var pwr = d.count > 0 ? (d.wins/d.count*100) : 0;
       html += '<tr>';
@@ -19797,40 +19802,37 @@ window.toggleSidebar = function(){
     });
     html += '</table>';
     html += '</div>';
-    html += '</div>';
 
-    html += '</div>';
-    html += '<div class="tq-foot"><span class="tq-foot-brand">TradeQuill &middot; Your edge, written.</span><span>Page 1 of 2</span></div>';
-    html += '</div>';
-
-    // ═══ PAGE 2 ═══
-    html += '<div class="tq-page">';
-    html += '<div class="tq-glow-tr"></div><div class="tq-glow-bl"></div>';
-    html += '<div class="tq-content">';
-
-    html += '<div style="display:flex;justify-content:space-between;align-items:flex-start">';
+    // Session
     html += '<div>';
-    html += '<div class="tq-brand">TradeQuill</div>';
-    html += '<div class="tq-tagline">Time &middot; Psychology &middot; Actions</div>';
-    html += '</div>';
-    html += '<div style="text-align:right">';
-    html += '<div style="font-size:9px;color:rgba(255,255,255,.4);letter-spacing:.5px;text-transform:uppercase;font-weight:600">'+periodName()+'</div>';
-    html += '<div style="font-size:10px;color:rgba(255,255,255,.55);margin-top:3px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace">'+trades.length+' trades &middot; '+fmtPnl(netPnl)+'</div>';
-    html += '</div>';
+    html += '<div class="tq-sh"><div class="tq-sh-num">3</div><div class="tq-sh-title">Session</div></div>';
+    html += '<table class="tq-tbl">';
+    html += '<tr><th>Session</th><th class="r">N</th><th class="r">WR</th><th class="r">P&amp;L</th></tr>';
+    if(sessList.length > 0){
+      sessList.slice(0,4).forEach(function(s){
+        var d = bySession[s];
+        var swr = d.count > 0 ? (d.wins/d.count*100) : 0;
+        html += '<tr>';
+        html += '<td class="bold">'+s.substring(0,10)+'</td>';
+        html += '<td class="r mono">'+d.count+'</td>';
+        html += '<td class="r mono '+(swr>=50?'g':'r')+'">'+swr.toFixed(0)+'%</td>';
+        html += '<td class="r mono '+(d.pnl>=0?'g':'r')+'">'+fmtPnl(d.pnl)+'</td>';
+        html += '</tr>';
+      });
+    } else {
+      html += '<tr><td colspan="4" style="text-align:center;color:rgba(255,255,255,.4);font-style:italic;padding:14px 8px">No data</td></tr>';
+    }
+    html += '</table>';
     html += '</div>';
 
-    var bestDayPnl = dayKeys.length > 0 ? Math.max.apply(null, dayKeys.map(function(d){return byDay[d].pnl;})) : 0;
-    html += '<div style="margin-top:24px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px">';
-    html += '<div class="tq-mini"><div class="tq-mini-lbl">Avg Win</div><div class="tq-mini-v" style="color:#1de9b6">+$'+avgWin.toFixed(0)+'</div><div class="tq-mini-sub">'+wins.length+' winners</div></div>';
-    html += '<div class="tq-mini"><div class="tq-mini-lbl">Avg Loss</div><div class="tq-mini-v" style="color:#ef4444">-$'+avgLoss.toFixed(0)+'</div><div class="tq-mini-sub">'+losses.length+' losers</div></div>';
-    html += '<div class="tq-mini"><div class="tq-mini-lbl">Rule Adherence</div><div class="tq-mini-v" style="color:#a78bfa">'+ruleAdherence.toFixed(0)+'%</div><div class="tq-mini-sub">target 85%+</div></div>';
-    html += '<div class="tq-mini"><div class="tq-mini-lbl">Best Day</div><div class="tq-mini-v" style="color:#1de9b6">+$'+bestDayPnl.toFixed(0)+'</div><div class="tq-mini-sub">'+greenDays+'/'+dayKeys.length+' green</div></div>';
-    html += '</div>';
+    html += '</div>'; // end grid-3
 
-    html += '<div class="tq-grid-2" style="margin-top:14px">';
+    // Day of Week + Plan Comparison row
+    html += '<div class="tq-grid-2" style="margin-top:4px">';
 
+    // Day of Week
     html += '<div>';
-    html += '<div class="tq-sh"><div class="tq-sh-num">3</div><div class="tq-sh-title">Day of Week</div></div>';
+    html += '<div class="tq-sh"><div class="tq-sh-num">4</div><div class="tq-sh-title">Day of Week</div></div>';
     var dowData = [];
     for(var di=1; di<=5; di++){
       if(byDow[di].count > 0) dowData.push({day:dowNames[di], count:byDow[di].count, pnl:byDow[di].pnl, wins:byDow[di].wins});
@@ -19846,60 +19848,44 @@ window.toggleSidebar = function(){
         html += '<td class="bold">'+d.day+'</td>';
         html += '<td class="r mono">'+d.count+'</td>';
         html += '<td class="r mono '+(d.pnl>=0?'g':'r')+'">'+fmtPnl(d.pnl)+'</td>';
-        html += '<td style="width:60px"><div class="tq-bar"><div class="tq-bar-fill '+barColor+'" style="width:'+barW.toFixed(1)+'%"></div></div></td>';
+        html += '<td style="width:50px"><div class="tq-bar"><div class="tq-bar-fill '+barColor+'" style="width:'+barW.toFixed(1)+'%"></div></div></td>';
         html += '</tr>';
       });
       html += '</table>';
     } else {
-      html += '<div style="padding:16px;background:rgba(255,255,255,.02);border:1px dashed rgba(255,255,255,.1);border-radius:8px;text-align:center;color:rgba(255,255,255,.4);font-size:11px">No DoW data</div>';
+      html += '<div style="padding:12px;background:rgba(255,255,255,.02);border:1px dashed rgba(255,255,255,.1);border-radius:6px;text-align:center;color:rgba(255,255,255,.4);font-size:10px">No DoW data</div>';
     }
     html += '</div>';
 
+    // Plan comparison (compact)
     html += '<div>';
-    html += '<div class="tq-sh"><div class="tq-sh-num">4</div><div class="tq-sh-title">Session</div></div>';
-    if(sessList.length > 0){
-      html += '<table class="tq-tbl">';
-      html += '<tr><th>Session</th><th class="r">N</th><th class="r">WR</th><th class="r">P&amp;L</th></tr>';
-      sessList.slice(0,5).forEach(function(s){
-        var d = bySession[s];
-        var swr = d.count > 0 ? (d.wins/d.count*100) : 0;
-        html += '<tr>';
-        html += '<td class="bold">'+s.substring(0,12)+'</td>';
-        html += '<td class="r mono">'+d.count+'</td>';
-        html += '<td class="r mono '+(swr>=50?'g':'r')+'">'+swr.toFixed(0)+'%</td>';
-        html += '<td class="r mono '+(d.pnl>=0?'g':'r')+'">'+fmtPnl(d.pnl)+'</td>';
-        html += '</tr>';
-      });
-      html += '</table>';
-    } else {
-      html += '<div style="padding:16px;background:rgba(255,255,255,.02);border:1px dashed rgba(255,255,255,.1);border-radius:8px;text-align:center;color:rgba(255,255,255,.4);font-size:11px">No session data</div>';
-    }
-    html += '</div>';
-
-    html += '</div>';
-
-    html += '<div class="tq-sh"><div class="tq-sh-num">5</div><div class="tq-sh-title">Psychology &amp; Discipline</div><div class="tq-sh-line"></div></div>';
+    html += '<div class="tq-sh"><div class="tq-sh-num">5</div><div class="tq-sh-title">Plan Followed vs Broken</div></div>';
     html += '<div class="tq-plan-row">';
     html += '<div class="tq-plan-card g">';
-    html += '<div class="tq-plan-h g">Plan Followed</div>';
+    html += '<div class="tq-plan-h g">Followed</div>';
     html += '<div class="tq-plan-stats">';
-    html += '<div><div class="tq-plan-stat-l">Trades</div><div class="tq-plan-stat-v">'+planFollowed.length+'</div></div>';
-    html += '<div><div class="tq-plan-stat-l">Win Rate</div><div class="tq-plan-stat-v" style="color:#1de9b6">'+fmtPct(planFollowedWR)+'</div></div>';
+    html += '<div><div class="tq-plan-stat-l">N</div><div class="tq-plan-stat-v">'+planFollowed.length+'</div></div>';
+    html += '<div><div class="tq-plan-stat-l">WR</div><div class="tq-plan-stat-v" style="color:#1de9b6">'+planFollowedWR.toFixed(0)+'%</div></div>';
     html += '<div><div class="tq-plan-stat-l">P&amp;L</div><div class="tq-plan-stat-v" style="color:'+(planFollowedPnl>=0?'#1de9b6':'#ef4444')+'">'+fmtPnl(planFollowedPnl)+'</div></div>';
     html += '</div></div>';
     html += '<div class="tq-plan-card r">';
-    html += '<div class="tq-plan-h r">Plan Broken</div>';
+    html += '<div class="tq-plan-h r">Broken</div>';
     html += '<div class="tq-plan-stats">';
-    html += '<div><div class="tq-plan-stat-l">Trades</div><div class="tq-plan-stat-v">'+planBroken.length+'</div></div>';
-    html += '<div><div class="tq-plan-stat-l">Win Rate</div><div class="tq-plan-stat-v" style="color:'+(planBrokenWR>=50?'#1de9b6':'#ef4444')+'">'+fmtPct(planBrokenWR)+'</div></div>';
+    html += '<div><div class="tq-plan-stat-l">N</div><div class="tq-plan-stat-v">'+planBroken.length+'</div></div>';
+    html += '<div><div class="tq-plan-stat-l">WR</div><div class="tq-plan-stat-v" style="color:'+(planBrokenWR>=50?'#1de9b6':'#ef4444')+'">'+planBrokenWR.toFixed(0)+'%</div></div>';
     html += '<div><div class="tq-plan-stat-l">P&amp;L</div><div class="tq-plan-stat-v" style="color:'+(planBrokenPnl>=0?'#1de9b6':'#ef4444')+'">'+fmtPnl(planBrokenPnl)+'</div></div>';
     html += '</div></div>';
     html += '</div>';
+    html += '<div style="margin-top:6px;font-size:9px;color:rgba(255,255,255,.5);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;text-align:center">Rule Adherence: <span style="color:#a78bfa;font-weight:700">'+ruleAdherence.toFixed(0)+'%</span> &middot; target 85%+</div>';
+    html += '</div>';
 
+    html += '</div>'; // end grid-2
+
+    // Top Mistakes (if exist)
     if(topMistakes.length > 0){
-      html += '<div style="margin-top:10px">';
+      html += '<div class="tq-sh"><div class="tq-sh-num">6</div><div class="tq-sh-title">Top Costly Mistakes</div><div class="tq-sh-line"></div></div>';
       html += '<table class="tq-tbl">';
-      html += '<tr><th>Top Costly Mistakes</th><th class="r">Count</th><th class="r">Avg Cost</th><th class="r">Total Impact</th></tr>';
+      html += '<tr><th>Mistake</th><th class="r">Count</th><th class="r">Avg Cost</th><th class="r">Total Impact</th></tr>';
       topMistakes.forEach(function(m){
         var avgCost = m.pnl / m.count;
         html += '<tr>';
@@ -19910,31 +19896,27 @@ window.toggleSidebar = function(){
         html += '</tr>';
       });
       html += '</table>';
-      html += '</div>';
     }
 
-    html += '<div class="tq-sh" style="margin-top:14px"><div class="tq-sh-num">6</div><div class="tq-sh-title">Action Items &middot; Next Period</div><div class="tq-sh-line"></div></div>';
+    // Action items
+    html += '<div class="tq-sh"><div class="tq-sh-num">'+(topMistakes.length>0?'7':'6')+'</div><div class="tq-sh-title">Action Items &middot; Next Period</div><div class="tq-sh-line"></div></div>';
     html += '<div class="tq-actions">';
     actions.forEach(function(a){
       html += '<div class="tq-action '+a.tone+'">';
-      html += '<div class="tq-action-i">'+a.icon+'</div>';
-      html += '<div style="flex:1">';
       html += '<div class="tq-action-t">'+a.title+'</div>';
       html += '<div class="tq-action-d">'+a.text+'</div>';
-      html += '</div>';
       html += '</div>';
     });
     html += '</div>';
 
-    html += '</div>';
-    html += '<div class="tq-foot"><span class="tq-foot-brand">TradeQuill &middot; Your edge, written.</span><span>Page 2 of 2 &middot; '+now.toISOString().slice(0,10)+'</span></div>';
-    html += '</div>';
-
-    html += '</div>';
+    html += '</div>'; // end content
+    html += '<div class="tq-foot"><span class="tq-foot-brand">TradeQuill &middot; Your edge, written.</span><span>'+now.toISOString().slice(0,10)+' &middot; '+(accName||filterStr||'All Accounts')+'</span></div>';
+    html += '</div></div>'; // end page + report
 
     return html;
   }
   // ══ END PREMIUM PDF REPORT BUILDER ══
+
 
 
 
