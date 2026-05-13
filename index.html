@@ -19337,23 +19337,40 @@ window.toggleSidebar = function(){
     // Generate full premium HTML
     var html = _buildPremiumReportHTML(trades, filterStr, accName);
 
-    // Create offscreen container
+    // Create container FULLY VISIBLE during render (html2canvas needs real layout + paint)
+    // We show a loading overlay on top to hide the flash from user.
     var container = document.createElement('div');
-    container.style.cssText = 'position:fixed;left:-99999px;top:0;width:794px;background:#ffffff;z-index:-1';
+    container.id = 'tq-pdf-render-stage';
+    container.style.cssText = 'position:fixed;left:0;top:0;width:794px;background:#ffffff;z-index:99999;overflow:visible';
     container.innerHTML = html;
     document.body.appendChild(container);
+
+    // Loading overlay shown on top — hides the render flash
+    var loadOverlay = document.createElement('div');
+    loadOverlay.id = 'tq-pdf-loading-overlay';
+    loadOverlay.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,.75);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:100000;display:flex;align-items:center;justify-content:center;color:#fff;font-family:Inter,sans-serif;flex-direction:column;gap:14px';
+    loadOverlay.innerHTML =
+      '<div style="width:48px;height:48px;border:3px solid rgba(255,255,255,.15);border-top-color:#7c5af0;border-radius:50%;animation:tqPdfSpin 1s linear infinite"></div>' +
+      '<div style="font-size:14px;font-weight:600">Generating premium PDF…</div>' +
+      '<div style="font-size:11px;color:rgba(255,255,255,.6);font-family:DM Mono,monospace">'+trades.length+' trades · cover · charts · tables · insights</div>' +
+      '<style>@keyframes tqPdfSpin{to{transform:rotate(360deg)}}</style>';
+    document.body.appendChild(loadOverlay);
 
     // Generate PDF using html2pdf (jsPDF + html2canvas)
     var now = new Date();
     var fileName = 'TradeQuill_Report_' + now.toISOString().slice(0,10) + '.pdf';
 
-    if(typeof html2pdf === 'undefined'){
-      // Fallback: open in new window for browser print
-      var win = window.open('','_blank','width=900,height=700');
-      win.document.write('<!DOCTYPE html><html><head><title>'+fileName+'</title></head><body>'+html+'</body></html>');
-      win.document.close();
-      setTimeout(function(){win.print();}, 800);
+    function _cleanup(){
       try{ document.body.removeChild(container); }catch(e){}
+      try{ document.body.removeChild(loadOverlay); }catch(e){}
+    }
+
+    if(typeof html2pdf === 'undefined'){
+      _cleanup();
+      var winFB = window.open('','_blank','width=900,height=700');
+      winFB.document.write('<!DOCTYPE html><html><head><title>'+fileName+'</title></head><body>'+html+'</body></html>');
+      winFB.document.close();
+      setTimeout(function(){winFB.print();}, 800);
       return;
     }
 
@@ -19366,25 +19383,30 @@ window.toggleSidebar = function(){
         useCORS: true,
         backgroundColor: '#ffffff',
         windowWidth: 794,
-        letterRendering: true
+        scrollY: 0,
+        scrollX: 0,
+        letterRendering: true,
+        logging: false
       },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true },
       pagebreak: { mode: ['avoid-all', 'css', 'legacy'], avoid: '.pdf-avoid-break' }
     };
 
-    html2pdf().set(opt).from(container).save().then(function(){
-      try{ document.body.removeChild(container); }catch(e){}
-      if(typeof tqToast === 'function') tqToast('✓ PDF downloaded — ' + fileName, {type:'success', duration:3500});
-    }).catch(function(err){
-      console.error('PDF gen error:', err);
-      try{ document.body.removeChild(container); }catch(e){}
-      if(typeof tqToast === 'function') tqToast('PDF generation failed. Opening print view as fallback.', {type:'warning', duration:3000});
-      // Fallback to print
-      var win = window.open('','_blank','width=900,height=700');
-      win.document.write('<!DOCTYPE html><html><head><title>'+fileName+'</title></head><body>'+html+'</body></html>');
-      win.document.close();
-      setTimeout(function(){win.print();}, 800);
-    });
+    // Wait for layout to settle before rendering (fonts, SVG, gradients)
+    setTimeout(function(){
+      html2pdf().set(opt).from(container).save().then(function(){
+        _cleanup();
+        if(typeof tqToast === 'function') tqToast('✓ PDF downloaded — ' + fileName, {type:'success', duration:3500});
+      }).catch(function(err){
+        console.error('PDF gen error:', err);
+        _cleanup();
+        if(typeof tqToast === 'function') tqToast('PDF generation failed. Opening print view as fallback.', {type:'warning', duration:3000});
+        var winE = window.open('','_blank','width=900,height=700');
+        winE.document.write('<!DOCTYPE html><html><head><title>'+fileName+'</title></head><body>'+html+'</body></html>');
+        winE.document.close();
+        setTimeout(function(){winE.print();}, 800);
+      });
+    }, 400);
   }
   window.exportReports = exportReports;
 
