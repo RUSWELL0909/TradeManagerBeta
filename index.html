@@ -19396,59 +19396,84 @@ window.toggleSidebar = function(){
   }
   window.exportReports = exportReports;
 
-  // ══ PREMIUM PDF REPORT BUILDER (May 2026) ══
-  // Generates rich HTML that html2pdf renders into a beautiful PDF
+  // ══ PREMIUM PDF REPORT BUILDER v2 (May 2026) ══
+  // 7-page editorial-grade template inspired by TradeZella + Stripe Atlas
   function _buildPremiumReportHTML(trades, filterStr, accName){
     var now = new Date();
 
-    // ── COMPUTE METRICS ──
-    var wins = trades.filter(function(t){return tqConvertTradePnl(t) > 0;});
-    var losses = trades.filter(function(t){return tqConvertTradePnl(t) < 0;});
-    var breakEvens = trades.filter(function(t){return Math.abs(tqConvertTradePnl(t)) < 0.01;});
-    var netPnl = trades.reduce(function(a,t){return a + tqConvertTradePnl(t);}, 0);
-    var grossWin = wins.reduce(function(a,t){return a + tqConvertTradePnl(t);}, 0);
-    var grossLoss = Math.abs(losses.reduce(function(a,t){return a + tqConvertTradePnl(t);}, 0));
+    // ─── COMPUTE ALL METRICS ───
+    function _pnl(t){ return (typeof tqConvertTradePnl==='function')?tqConvertTradePnl(t):(parseFloat(t.pnl)||0); }
+    var wins = trades.filter(function(t){return _pnl(t) > 0;});
+    var losses = trades.filter(function(t){return _pnl(t) < 0;});
+    var breakEvens = trades.filter(function(t){return Math.abs(_pnl(t)) < 0.01;});
+    var netPnl = trades.reduce(function(a,t){return a + _pnl(t);}, 0);
+    var grossWin = wins.reduce(function(a,t){return a + _pnl(t);}, 0);
+    var grossLoss = Math.abs(losses.reduce(function(a,t){return a + _pnl(t);}, 0));
     var wr = trades.length > 0 ? (wins.length / trades.length * 100) : 0;
     var pf = grossLoss > 0 ? grossWin / grossLoss : (grossWin > 0 ? 99 : 0);
     var avgWin = wins.length > 0 ? grossWin / wins.length : 0;
     var avgLoss = losses.length > 0 ? grossLoss / losses.length : 0;
-    var avgTrade = trades.length > 0 ? netPnl / trades.length : 0;
     var expectancy = (wr/100)*avgWin - (1-wr/100)*avgLoss;
+
+    // R-multiple calc
+    var rMultiples = trades.map(function(t){
+      var entry = parseFloat(t.entry), sl = parseFloat(t.sl), exit = parseFloat(t.exit);
+      if(!entry || !sl || !exit) return null;
+      var risk = Math.abs(entry - sl);
+      if(risk < 0.00001) return null;
+      var p = _pnl(t);
+      return p / (risk * (Math.abs(p) / Math.max(0.01, Math.abs(exit - entry))));
+    }).filter(function(r){return r !== null;});
+    var avgR = rMultiples.length > 0 ? rMultiples.reduce(function(a,r){return a+r;},0)/rMultiples.length : 0;
+
+    // Drawdown
+    var sortedTrades = trades.slice().sort(function(a,b){return (a.date||'').localeCompare(b.date||'');});
+    var peak = 0, running = 0, maxDD = 0, ddPct = 0;
+    sortedTrades.forEach(function(t){
+      running += _pnl(t);
+      if(running > peak) peak = running;
+      var dd = peak - running;
+      if(dd > maxDD){ maxDD = dd; ddPct = peak > 0 ? (dd/peak)*100 : 0; }
+    });
+
+    // Composite TradeQuill Score (0-100)
+    function _scoreMetric(value, ranges){
+      for(var i=0;i<ranges.length;i++){
+        if(value >= ranges[i][0]) return ranges[i][1];
+      }
+      return 0;
+    }
+    var wrScore = _scoreMetric(wr, [[65,100],[55,85],[45,70],[35,50],[0,30]]);
+    var pfScore = _scoreMetric(pf, [[2,100],[1.5,85],[1.3,70],[1,50],[0.7,30],[0,15]]);
+    var expScore = expectancy > 0 ? Math.min(100, 50 + expectancy/10) : Math.max(0, 50 + expectancy/5);
+    var ddScore = _scoreMetric(ddPct, [[0,100],[5,85],[10,65],[15,40],[20,20],[100,0]].reverse());
+    var rScore = _scoreMetric(avgR, [[0.5,100],[0.3,85],[0.2,70],[0.1,50],[0,30],[-100,10]]);
+    var tqScore = Math.round((wrScore + pfScore + expScore + ddScore + rScore) / 5);
+    var scoreTone = tqScore >= 75 ? {label:'STRONG EDGE', color:'#10b981', bg:'rgba(16,185,129,.15)', border:'rgba(16,185,129,.3)'}
+                  : tqScore >= 55 ? {label:'DEVELOPING', color:'#d97706', bg:'rgba(217,119,6,.15)', border:'rgba(217,119,6,.3)'}
+                  : {label:'NEEDS WORK', color:'#dc2626', bg:'rgba(220,38,38,.15)', border:'rgba(220,38,38,.3)'};
 
     // Daily aggregation
     var byDay = {};
     trades.forEach(function(t){
       if(!t.date) return;
       if(!byDay[t.date]) byDay[t.date] = {pnl:0, count:0};
-      byDay[t.date].pnl += tqConvertTradePnl(t);
+      byDay[t.date].pnl += _pnl(t);
       byDay[t.date].count++;
     });
     var dayKeys = Object.keys(byDay).sort();
     var greenDays = dayKeys.filter(function(d){return byDay[d].pnl > 0;}).length;
     var redDays = dayKeys.filter(function(d){return byDay[d].pnl < 0;}).length;
-    var beDays = dayKeys.length - greenDays - redDays;
-    var bestDay = dayKeys.reduce(function(b,d){return byDay[d].pnl > (byDay[b]?.pnl||-Infinity) ? d : b;}, dayKeys[0]);
-    var worstDay = dayKeys.reduce(function(w,d){return byDay[d].pnl < (byDay[w]?.pnl||Infinity) ? d : w;}, dayKeys[0]);
-
-    // Drawdown calc
-    var sortedTrades = trades.slice().sort(function(a,b){return (a.date||'').localeCompare(b.date||'');});
-    var peak = 0, running = 0, maxDD = 0, ddPct = 0;
-    sortedTrades.forEach(function(t){
-      running += tqConvertTradePnl(t);
-      if(running > peak) peak = running;
-      var dd = peak - running;
-      if(dd > maxDD){ maxDD = dd; ddPct = peak > 0 ? (dd/peak)*100 : 0; }
-    });
 
     // By pair
     var byPair = {};
     trades.forEach(function(t){
       var p = t.pair || 'Other';
       if(!byPair[p]) byPair[p] = {pnl:0, count:0, wins:0, losses:0};
-      byPair[p].pnl += tqConvertTradePnl(t);
+      byPair[p].pnl += _pnl(t);
       byPair[p].count++;
-      if(tqConvertTradePnl(t) > 0) byPair[p].wins++;
-      else if(tqConvertTradePnl(t) < 0) byPair[p].losses++;
+      if(_pnl(t) > 0) byPair[p].wins++;
+      else if(_pnl(t) < 0) byPair[p].losses++;
     });
 
     // By session
@@ -19456,9 +19481,9 @@ window.toggleSidebar = function(){
     trades.forEach(function(t){
       var s = t.session || 'Untagged';
       if(!bySession[s]) bySession[s] = {pnl:0, count:0, wins:0};
-      bySession[s].pnl += tqConvertTradePnl(t);
+      bySession[s].pnl += _pnl(t);
       bySession[s].count++;
-      if(tqConvertTradePnl(t) > 0) bySession[s].wins++;
+      if(_pnl(t) > 0) bySession[s].wins++;
     });
 
     // By setup
@@ -19466,9 +19491,9 @@ window.toggleSidebar = function(){
     trades.forEach(function(t){
       var s = t.setup || 'Untagged';
       if(!bySetup[s]) bySetup[s] = {pnl:0, count:0, wins:0};
-      bySetup[s].pnl += tqConvertTradePnl(t);
+      bySetup[s].pnl += _pnl(t);
       bySetup[s].count++;
-      if(tqConvertTradePnl(t) > 0) bySetup[s].wins++;
+      if(_pnl(t) > 0) bySetup[s].wins++;
     });
 
     // By day of week
@@ -19478,25 +19503,48 @@ window.toggleSidebar = function(){
     trades.forEach(function(t){
       if(!t.date) return;
       var d = new Date(t.date).getDay();
-      byDow[d].pnl += tqConvertTradePnl(t);
+      byDow[d].pnl += _pnl(t);
       byDow[d].count++;
-      if(tqConvertTradePnl(t) > 0) byDow[d].wins++;
+      if(_pnl(t) > 0) byDow[d].wins++;
     });
 
-    // Equity curve data
+    // Psych tags analysis
+    var psychTags = {};
+    trades.forEach(function(t){
+      if(!t.psychTags || !Array.isArray(t.psychTags)) return;
+      t.psychTags.forEach(function(tag){
+        if(!psychTags[tag]) psychTags[tag] = {pnl:0, count:0};
+        psychTags[tag].pnl += _pnl(t);
+        psychTags[tag].count++;
+      });
+    });
+    var topMistakes = Object.keys(psychTags).map(function(t){
+      return {tag:t, pnl:psychTags[t].pnl, count:psychTags[t].count};
+    }).sort(function(a,b){return a.pnl - b.pnl;}).slice(0,5);
+
+    // Plan adherence
+    var planFollowed = trades.filter(function(t){return t.planFollowed === 'yes';});
+    var planBroken = trades.filter(function(t){return t.planFollowed === 'no';});
+    var planFollowedPnl = planFollowed.reduce(function(a,t){return a+_pnl(t);},0);
+    var planBrokenPnl = planBroken.reduce(function(a,t){return a+_pnl(t);},0);
+    var planFollowedWR = planFollowed.length > 0 ? (planFollowed.filter(function(t){return _pnl(t)>0;}).length / planFollowed.length * 100) : 0;
+    var planBrokenWR = planBroken.length > 0 ? (planBroken.filter(function(t){return _pnl(t)>0;}).length / planBroken.length * 100) : 0;
+    var ruleAdherence = trades.length > 0 ? ((planFollowed.length / Math.max(1, planFollowed.length + planBroken.length)) * 100) : 0;
+
+    // Equity curve points
     var equityRunning = 0;
     var equityPoints = sortedTrades.map(function(t){
-      equityRunning += tqConvertTradePnl(t);
+      equityRunning += _pnl(t);
       return {date: t.date, equity: equityRunning};
     });
 
-    // Build inline SVG equity curve (300px wide × 80px tall)
+    // Build equity SVG
     var eqSvg = '';
     if(equityPoints.length > 1){
       var maxEq = Math.max.apply(null, equityPoints.map(function(p){return p.equity;}));
       var minEq = Math.min.apply(null, equityPoints.map(function(p){return p.equity;}));
       var range = maxEq - minEq || 1;
-      var w = 700, h = 120, padding = 6;
+      var w = 700, h = 160, padding = 8;
       var pts = equityPoints.map(function(p,i){
         var x = padding + (i/(equityPoints.length-1)) * (w - 2*padding);
         var y = padding + (1 - (p.equity - minEq)/range) * (h - 2*padding);
@@ -19504,327 +19552,585 @@ window.toggleSidebar = function(){
       }).join(' ');
       var areaPts = padding+','+(h-padding)+' '+pts+' '+(w-padding)+','+(h-padding);
       var lineColor = equityPoints[equityPoints.length-1].equity >= 0 ? '#10b981' : '#dc2626';
-      var fillColor = equityPoints[equityPoints.length-1].equity >= 0 ? 'rgba(16,185,129,.12)' : 'rgba(220,38,38,.10)';
-      eqSvg = '<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" style="width:100%;height:120px;display:block">' +
+      var fillColor = equityPoints[equityPoints.length-1].equity >= 0 ? 'rgba(16,185,129,.10)' : 'rgba(220,38,38,.10)';
+      // Zero baseline if range crosses 0
+      var zeroY = '';
+      if(minEq < 0 && maxEq > 0){
+        var zY = padding + (1 - (0 - minEq)/range) * (h - 2*padding);
+        zeroY = '<line x1="'+padding+'" y1="'+zY.toFixed(1)+'" x2="'+(w-padding)+'" y2="'+zY.toFixed(1)+'" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="2,3"/>';
+      }
+      eqSvg = '<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" style="width:100%;height:160px;display:block">' +
         '<polygon points="'+areaPts+'" fill="'+fillColor+'"/>' +
-        '<polyline points="'+pts+'" fill="none" stroke="'+lineColor+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>' +
+        zeroY +
+        '<polyline points="'+pts+'" fill="none" stroke="'+lineColor+'" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>' +
         '</svg>';
     }
 
     // Format helpers
     function fmtPnl(v){var s=v>=0?'+':'-';return s+'$'+Math.abs(v).toFixed(0);}
     function fmtPct(v){return v.toFixed(1)+'%';}
+    function fmtR(v){return (v>=0?'+':'')+v.toFixed(2)+'R';}
     function dateRange(){
       if(dayKeys.length===0) return '—';
       return dayKeys[0]+' → '+dayKeys[dayKeys.length-1];
     }
+    function periodName(){
+      if(dayKeys.length===0) return 'All Time';
+      var first = new Date(dayKeys[0]);
+      var last = new Date(dayKeys[dayKeys.length-1]);
+      var daysDiff = Math.round((last-first)/86400000);
+      if(daysDiff <= 7) return 'Week of '+first.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+      if(daysDiff <= 35 && first.getMonth() === last.getMonth()) return last.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+      return first.toLocaleDateString('en-US',{month:'short',year:'numeric'})+' → '+last.toLocaleDateString('en-US',{month:'short',year:'numeric'});
+    }
+    function toneFor(metric, value){
+      if(metric === 'wr'){
+        if(value >= 60) return {label:'STRONG', color:'#059669', bg:'#ecfdf5'};
+        if(value >= 45) return {label:'SOLID', color:'#d97706', bg:'#fef3c7'};
+        return {label:'NEEDS WORK', color:'#dc2626', bg:'#fef2f2'};
+      }
+      if(metric === 'pf'){
+        if(value >= 2) return {label:'EXCELLENT', color:'#059669', bg:'#ecfdf5'};
+        if(value >= 1.5) return {label:'STRONG', color:'#059669', bg:'#ecfdf5'};
+        if(value >= 1.3) return {label:'SOLID', color:'#d97706', bg:'#fef3c7'};
+        if(value >= 1) return {label:'BREAK-EVEN', color:'#64748b', bg:'#f1f5f9'};
+        return {label:'LOSING', color:'#dc2626', bg:'#fef2f2'};
+      }
+      if(metric === 'exp'){
+        if(value > 0) return {label:'POSITIVE EDGE', color:'#059669', bg:'#ecfdf5'};
+        return {label:'NEGATIVE', color:'#dc2626', bg:'#fef2f2'};
+      }
+      if(metric === 'dd'){
+        if(value < 5) return {label:'EXCELLENT', color:'#059669', bg:'#ecfdf5'};
+        if(value < 15) return {label:'WITHIN LIMIT', color:'#059669', bg:'#ecfdf5'};
+        if(value < 20) return {label:'ELEVATED', color:'#d97706', bg:'#fef3c7'};
+        return {label:'CRITICAL', color:'#dc2626', bg:'#fef2f2'};
+      }
+      if(metric === 'r'){
+        if(value >= 0.5) return {label:'STRONG', color:'#059669', bg:'#ecfdf5'};
+        if(value >= 0.2) return {label:'PROFITABLE', color:'#059669', bg:'#ecfdf5'};
+        if(value >= 0) return {label:'MARGINAL', color:'#d97706', bg:'#fef3c7'};
+        return {label:'NEGATIVE', color:'#dc2626', bg:'#fef2f2'};
+      }
+      return {label:'—', color:'#64748b', bg:'#f1f5f9'};
+    }
 
-    // ── BUILD HTML ──
+    // Bottom-line insight
+    var bottomLine = '';
+    if(netPnl > 0 && pf >= 1.5 && wr >= 50){
+      bottomLine = 'Your edge is real and statistically meaningful. Win rate, profit factor, and expectancy are all above benchmark. Focus next month on <strong style="color:#7c5af0">protecting your sizing</strong> — strong systems lose money to discipline gaps, not strategy gaps.';
+    } else if(netPnl > 0 && pf >= 1){
+      bottomLine = 'You\'re net profitable but margins are thin. Profit factor sits at <strong style="color:#7c5af0">'+pf.toFixed(2)+'</strong> — every $1 lost takes back $'+(1/pf).toFixed(2)+' of your wins. Tighten setup selection: fewer trades, higher quality.';
+    } else if(netPnl <= 0){
+      bottomLine = 'Negative or break-even period. Before changing strategy, check execution: how many trades broke your plan? Often the strategy is fine and discipline is the leak. See <strong style="color:#7c5af0">Psychology Review</strong> on page 6.';
+    } else {
+      bottomLine = 'Period closed positive. Continue documenting setups and reviewing weekly. The patterns become statistically meaningful at 50+ trades per setup.';
+    }
+
+    // Action items
+    var actions = [];
+    if(topMistakes.length > 0 && topMistakes[0].pnl < -50){
+      actions.push({icon:'⚠', tone:'red', title:'Address "'+topMistakes[0].tag+'" pattern', text:'Cost you '+fmtPnl(topMistakes[0].pnl)+' across '+topMistakes[0].count+' trades. Set a rule for next month.'});
+    }
+    var setupArr = Object.keys(bySetup).map(function(s){return {s:s, d:bySetup[s]};}).filter(function(x){return x.d.count >= 3 && x.s !== 'Untagged';});
+    if(setupArr.length > 0){
+      var best = setupArr.sort(function(a,b){return b.d.pnl - a.d.pnl;})[0];
+      if(best.d.pnl > 0) actions.push({icon:'✓', tone:'green', title:'Continue "'+best.s+'"', text:'Your top performer ('+fmtPnl(best.d.pnl)+' over '+best.d.count+' trades, '+(best.d.wins/best.d.count*100).toFixed(0)+'% WR). Protect it.'});
+      var worst = setupArr[setupArr.length-1];
+      if(worst.d.pnl < 0 && worst.s !== best.s) actions.push({icon:'⏸', tone:'amber', title:'Pause "'+worst.s+'"', text:'Lost '+fmtPnl(worst.d.pnl)+' over '+worst.d.count+' trades. Investigate before continuing.'});
+    }
+    if(planBroken.length >= 3 && planBrokenWR < planFollowedWR - 10){
+      actions.push({icon:'🎯', tone:'purple', title:'Plan adherence target', text:'When you follow plan: '+planFollowedWR.toFixed(0)+'% WR. When you break: '+planBrokenWR.toFixed(0)+'%. Aim for 90%+ adherence next month.'});
+    }
+    if(actions.length === 0){
+      actions.push({icon:'📊', tone:'purple', title:'Document setups consistently', text:'Tag each trade with setup name to get strategy-level insights in future reports.'});
+    }
+
+    // ─── HTML SHELL ───
     var html = '';
     html += '<style>' +
-      '.pdfreport{font-family:Inter,-apple-system,sans-serif;background:#ffffff;color:#0f172a;padding:24px 28px;width:794px;box-sizing:border-box}' +
+      '.pdfreport{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#fff;color:#0f172a;width:794px;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact}' +
       '.pdfreport *{box-sizing:border-box;margin:0;padding:0}' +
-      '.pdf-cover{padding:32px 32px 28px;border-radius:14px;background:linear-gradient(135deg,#1a1330 0%,#0d0820 100%);color:#fff;margin-bottom:18px;position:relative;overflow:hidden}' +
-      '.pdf-cover::before{content:"";position:absolute;top:-50%;right:-20%;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(124,90,240,.22),transparent 70%)}' +
-      '.pdf-brand{font-size:11px;letter-spacing:3px;color:rgba(255,255,255,.6);text-transform:uppercase;font-weight:600;margin-bottom:6px;position:relative}' +
-      '.pdf-cover-title{font-size:30px;font-weight:600;letter-spacing:-.8px;line-height:1.1;margin-bottom:10px;position:relative}' +
-      '.pdf-cover-tagline{font-size:13px;color:rgba(255,255,255,.65);font-weight:400;letter-spacing:.2px;margin-bottom:24px;position:relative;font-style:italic}' +
-      '.pdf-cover-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;position:relative}' +
-      '.pdf-cover-pnl{font-size:48px;font-weight:600;letter-spacing:-1.5px;line-height:1;font-variant-numeric:tabular-nums}' +
-      '.pdf-cover-pnl-label{font-size:10px;color:rgba(255,255,255,.55);letter-spacing:.8px;text-transform:uppercase;margin-top:4px;font-weight:600}' +
-      '.pdf-cover-info{text-align:right;font-size:11px;color:rgba(255,255,255,.7);line-height:1.7}' +
-      '.pdf-cover-info b{color:#fff;font-weight:500}' +
-      '.pdf-section{margin-bottom:18px}' +
-      '.pdf-section.pdf-avoid-break{break-inside:avoid;page-break-inside:avoid}' +
-      '.pdf-section-title{font-size:11px;color:#7c5af0;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}' +
-      '.pdf-section-title::before{content:"";display:inline-block;width:18px;height:1px;background:#7c5af0}' +
-      '.pdf-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}' +
-      '.pdf-kpi-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}' +
-      '.pdf-kpi-tile{background:#ffffff;border:1px solid #e6ebf2;border-radius:10px;padding:14px 16px;position:relative;overflow:hidden}' +
-      '.pdf-kpi-tile::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:3px;background:#cbd5e1;border-radius:0 2px 2px 0}' +
-      '.pdf-kpi-tile.green::before{background:#10b981}' +
-      '.pdf-kpi-tile.red::before{background:#dc2626}' +
-      '.pdf-kpi-tile.purple::before{background:#7c5af0}' +
-      '.pdf-kpi-tile.amber::before{background:#d97706}' +
-      '.pdf-kpi-label{font-size:9px;color:#94a3b8;letter-spacing:.5px;text-transform:uppercase;font-weight:600;margin-bottom:4px}' +
-      '.pdf-kpi-value{font-size:22px;font-weight:600;letter-spacing:-.6px;color:#0f172a;font-variant-numeric:tabular-nums;line-height:1.1}' +
-      '.pdf-kpi-value.green{color:#059669}' +
-      '.pdf-kpi-value.red{color:#dc2626}' +
-      '.pdf-kpi-sub{font-size:10px;color:#94a3b8;margin-top:3px;font-family:"DM Mono",monospace;letter-spacing:.2px}' +
-      '.pdf-chart-wrap{background:#fafbfd;border:1px solid #e6ebf2;border-radius:12px;padding:14px 16px;margin-top:10px}' +
-      '.pdf-chart-title{font-size:11px;color:#475569;font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}' +
-      '.pdf-chart-title span:last-child{font-family:"DM Mono",monospace;font-size:10px;color:#94a3b8}' +
-      '.pdf-table{width:100%;border-collapse:collapse;font-size:10.5px;border:1px solid #e6ebf2;border-radius:10px;overflow:hidden}' +
-      '.pdf-table th{text-align:left;padding:9px 12px;background:#f8fafc;font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:.5px;font-weight:600;border-bottom:1px solid #e6ebf2}' +
-      '.pdf-table td{padding:8px 12px;border-bottom:1px solid #f1f5f9;color:#0f172a;font-variant-numeric:tabular-nums}' +
-      '.pdf-table tr:last-child td{border-bottom:none}' +
-      '.pdf-table tr:nth-child(even) td{background:#fafbfd}' +
-      '.pdf-table .num{font-family:"DM Mono",monospace;font-size:10.5px}' +
-      '.pdf-table .green{color:#059669;font-weight:500}' +
-      '.pdf-table .red{color:#dc2626;font-weight:500}' +
-      '.pdf-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}' +
-      '.pdf-bar{height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden;position:relative}' +
-      '.pdf-bar-fill{height:100%;background:linear-gradient(90deg,#10b981,#34d399);border-radius:3px}' +
-      '.pdf-bar-fill.red{background:linear-gradient(90deg,#dc2626,#ef4444)}' +
-      '.pdf-footer{margin-top:20px;padding-top:14px;border-top:1px solid #e6ebf2;display:flex;justify-content:space-between;align-items:center;font-size:9px;color:#94a3b8}' +
-      '.pdf-footer-brand{display:flex;align-items:center;gap:6px;font-weight:600;color:#7c5af0;letter-spacing:.5px;text-transform:uppercase}' +
-      '.pdf-pill{display:inline-block;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:600;letter-spacing:.4px;text-transform:uppercase}' +
-      '.pdf-pill.green{background:#ecfdf5;color:#059669}' +
-      '.pdf-pill.red{background:#fef2f2;color:#dc2626}' +
-      '.pdf-pill.neutral{background:#f1f5f9;color:#64748b}' +
-      '.pdf-divider{height:1px;background:linear-gradient(90deg,transparent,#e2e8f0,transparent);margin:16px 0}' +
-      '.pdf-insight-box{background:linear-gradient(135deg,rgba(124,90,240,.04),rgba(124,90,240,.01));border:1px solid rgba(124,90,240,.12);border-radius:10px;padding:14px 16px;margin-top:10px}' +
-      '.pdf-insight-title{font-size:10px;color:#7c5af0;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px}' +
-      '.pdf-insight-text{font-size:11.5px;color:#334155;line-height:1.55}' +
+      '.tq-page{padding:32px 36px 28px;page-break-after:always;page-break-inside:avoid;min-height:1100px;position:relative}' +
+      '.tq-page:last-child{page-break-after:auto}' +
+      '.tq-page-num{position:absolute;top:18px;right:36px;font-size:9px;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;font-weight:600;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}' +
+      '.tq-page-label{font-size:10px;color:#7c5af0;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}' +
+      '.tq-page-title{font-size:26px;font-weight:600;letter-spacing:-.5px;line-height:1.15;color:#0f172a}' +
+      '.tq-page-sub{font-size:13px;color:#64748b;margin-top:8px;line-height:1.55;max-width:560px}' +
+      // Cover page
+      '.tq-cover{padding:0;page-break-after:always;page-break-inside:avoid;min-height:1100px;background:linear-gradient(135deg,#0d0820 0%,#1a1330 55%,#241947 100%);color:#fff;position:relative;overflow:hidden}' +
+      '.tq-cover-glow{position:absolute;top:-200px;right:-150px;width:560px;height:560px;border-radius:50%;background:radial-gradient(circle,rgba(124,90,240,.28) 0%,transparent 65%);pointer-events:none}' +
+      '.tq-cover-glow-2{position:absolute;bottom:-180px;left:-120px;width:480px;height:480px;border-radius:50%;background:radial-gradient(circle,rgba(29,233,182,.10) 0%,transparent 65%);pointer-events:none}' +
+      '.tq-cover-content{padding:60px 56px;position:relative;z-index:2}' +
+      '.tq-cover-brand{font-size:10px;letter-spacing:4px;color:rgba(255,255,255,.55);text-transform:uppercase;font-weight:600}' +
+      '.tq-cover-tagline{font-size:11px;color:rgba(255,255,255,.4);font-style:italic;margin-top:2px;letter-spacing:.3px}' +
+      '.tq-cover-hero{margin-top:120px}' +
+      '.tq-cover-eyebrow{font-size:12px;color:rgba(255,255,255,.55);letter-spacing:.5px;text-transform:uppercase;font-weight:500;margin-bottom:6px}' +
+      '.tq-cover-title{font-size:54px;font-weight:600;letter-spacing:-1.5px;line-height:1.05}' +
+      '.tq-cover-meta{font-size:13px;color:rgba(255,255,255,.55);margin-top:14px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.2px}' +
+      '.tq-cover-pnl-wrap{margin-top:80px;display:flex;justify-content:space-between;align-items:flex-end;gap:30px;flex-wrap:wrap}' +
+      '.tq-cover-pnl-label{font-size:10px;color:rgba(255,255,255,.5);letter-spacing:.5px;text-transform:uppercase;font-weight:600;margin-bottom:4px}' +
+      '.tq-cover-pnl{font-size:58px;font-weight:600;letter-spacing:-1.5px;line-height:1;font-variant-numeric:tabular-nums}' +
+      '.tq-cover-pnl-sub{font-size:13px;margin-top:6px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}' +
+      '.tq-score-card{margin-top:64px;padding:24px 28px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;display:flex;align-items:center;justify-content:space-between;gap:24px}' +
+      '.tq-score-num{font-size:64px;font-weight:600;color:#fff;letter-spacing:-1.5px;line-height:1;font-variant-numeric:tabular-nums}' +
+      '.tq-score-out{font-size:18px;color:rgba(255,255,255,.4);font-weight:400;margin-left:2px}' +
+      '.tq-cover-footer{position:absolute;bottom:32px;left:56px;right:56px;display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.4);letter-spacing:.5px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}' +
+      // KPI cards
+      '.tq-kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:24px}' +
+      '.tq-kpi-card{background:#fff;border:1px solid #e6ebf2;border-radius:10px;padding:16px 18px 18px 22px;position:relative;overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,.04)}' +
+      '.tq-kpi-card::before{content:"";position:absolute;left:0;top:16px;bottom:16px;width:3px;background:#cbd5e1;border-radius:0 2px 2px 0}' +
+      '.tq-kpi-card.green::before{background:#10b981}' +
+      '.tq-kpi-card.red::before{background:#dc2626}' +
+      '.tq-kpi-card.amber::before{background:#d97706}' +
+      '.tq-kpi-label{font-size:9px;color:#94a3b8;letter-spacing:.6px;text-transform:uppercase;font-weight:600}' +
+      '.tq-kpi-value{font-size:24px;font-weight:600;margin-top:6px;color:#0f172a;font-variant-numeric:tabular-nums;letter-spacing:-.6px;line-height:1.05}' +
+      '.tq-kpi-value.green{color:#059669}' +
+      '.tq-kpi-value.red{color:#dc2626}' +
+      '.tq-kpi-pill{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.6px;padding:3px 8px;border-radius:4px;margin-top:8px;text-transform:uppercase}' +
+      '.tq-kpi-bench{font-size:9px;color:#94a3b8;margin-top:6px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.2px}' +
+      // Insight box
+      '.tq-insight{margin-top:28px;padding:22px 26px;background:linear-gradient(135deg,rgba(124,90,240,.04),rgba(124,90,240,.01));border-left:3px solid #7c5af0;border-radius:0 10px 10px 0}' +
+      '.tq-insight-eyebrow{font-size:10px;color:#7c5af0;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}' +
+      '.tq-insight-body{font-size:15px;color:#1e293b;line-height:1.6;letter-spacing:-.05px}' +
+      '.tq-warn{margin-top:14px;padding:14px 18px;background:#fef9eb;border:1px solid #fde68a;border-radius:8px;font-size:12px;color:#92400e;line-height:1.55}' +
+      // Charts
+      '.tq-chart-wrap{margin-top:18px;padding:22px 24px;background:#fafbfd;border:1px solid #eef2f7;border-radius:12px}' +
+      '.tq-chart-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px}' +
+      '.tq-chart-title{font-size:11px;color:#475569;font-weight:600;letter-spacing:.2px}' +
+      '.tq-chart-value{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;font-weight:600}' +
+      '.tq-axis{display:flex;justify-content:space-between;margin-top:8px;font-size:10px;color:#94a3b8;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}' +
+      // Tables
+      '.tq-section-h{font-size:11px;color:#7c5af0;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin:28px 0 14px 0;display:flex;align-items:center;gap:8px}' +
+      '.tq-section-h::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(124,90,240,.2),transparent);margin-left:8px}' +
+      '.tq-table{width:100%;border-collapse:collapse;font-size:12px}' +
+      '.tq-table th{text-align:left;padding:11px 14px;background:#fafbfd;font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:.5px;font-weight:700;border-bottom:1px solid #e6ebf2}' +
+      '.tq-table th.r{text-align:right}' +
+      '.tq-table td{padding:11px 14px;border-bottom:1px solid #f1f5f9;font-variant-numeric:tabular-nums}' +
+      '.tq-table td.r{text-align:right}' +
+      '.tq-table td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px}' +
+      '.tq-table tr:last-child td{border-bottom:none}' +
+      '.tq-table .green{color:#059669;font-weight:600}' +
+      '.tq-table .red{color:#dc2626;font-weight:600}' +
+      '.tq-table .muted{color:#94a3b8}' +
+      '.tq-table .bold{font-weight:600}' +
+      // Bars
+      '.tq-bar{height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden;position:relative;min-width:60px}' +
+      '.tq-bar-fill{height:100%;background:linear-gradient(90deg,#10b981,#34d399);border-radius:3px}' +
+      '.tq-bar-fill.red{background:linear-gradient(90deg,#dc2626,#ef4444)}' +
+      // Pills
+      '.tq-pill{display:inline-block;padding:3px 9px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}' +
+      '.tq-pill.green{background:#ecfdf5;color:#059669}' +
+      '.tq-pill.red{background:#fef2f2;color:#dc2626}' +
+      '.tq-pill.neutral{background:#f1f5f9;color:#64748b}' +
+      // Action items
+      '.tq-action-list{display:flex;flex-direction:column;gap:10px;margin-top:18px}' +
+      '.tq-action{padding:16px 20px;background:#fff;border:1px solid #e6ebf2;border-left:3px solid #7c5af0;border-radius:0 10px 10px 0;display:flex;align-items:flex-start;gap:14px}' +
+      '.tq-action.red{border-left-color:#dc2626;background:#fef9f9}' +
+      '.tq-action.green{border-left-color:#10b981;background:#f6fefb}' +
+      '.tq-action.amber{border-left-color:#d97706;background:#fffbeb}' +
+      '.tq-action-icon{font-size:18px;line-height:1;width:24px;flex-shrink:0}' +
+      '.tq-action-title{font-size:14px;font-weight:600;color:#0f172a;letter-spacing:-.1px}' +
+      '.tq-action-text{font-size:12px;color:#475569;margin-top:4px;line-height:1.55}' +
+      // Score breakdown
+      '.tq-score-bar-row{display:grid;grid-template-columns:120px 1fr 60px;gap:14px;align-items:center;padding:10px 0;font-size:12px}' +
+      '.tq-score-bar-label{color:#475569;font-weight:500}' +
+      '.tq-score-bar{height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden}' +
+      '.tq-score-bar-fill{height:100%;background:linear-gradient(90deg,#7c5af0,#a78bfa);border-radius:4px}' +
+      '.tq-score-bar-val{text-align:right;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:600;color:#0f172a}' +
+      // Compact metric row (psychology)
+      '.tq-compare-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}' +
+      '.tq-compare-card{padding:18px 22px;background:#fff;border:1px solid #e6ebf2;border-radius:10px}' +
+      '.tq-compare-card.green{background:linear-gradient(135deg,rgba(16,185,129,.04),transparent);border-color:rgba(16,185,129,.2)}' +
+      '.tq-compare-card.red{background:linear-gradient(135deg,rgba(220,38,38,.04),transparent);border-color:rgba(220,38,38,.2)}' +
+      '.tq-compare-h{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px}' +
+      '.tq-compare-h.green{color:#059669}' +
+      '.tq-compare-h.red{color:#dc2626}' +
+      '.tq-compare-stat{display:flex;justify-content:space-between;padding:6px 0;font-size:12px;border-bottom:1px solid #f1f5f9}' +
+      '.tq-compare-stat:last-child{border-bottom:none}' +
+      '.tq-compare-label{color:#64748b}' +
+      '.tq-compare-value{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:600}' +
+      // Footer
+      '.tq-footer{margin-top:32px;padding-top:16px;border-top:1px solid #e6ebf2;display:flex;justify-content:space-between;align-items:center;font-size:9px;color:#94a3b8;letter-spacing:.3px}' +
+      '.tq-footer-brand{color:#7c5af0;font-weight:700;letter-spacing:1px;text-transform:uppercase}' +
+      '@media print{.tq-page{page-break-after:always}}' +
       '</style>';
 
     html += '<div class="pdfreport">';
 
-    // ── COVER ──
-    var pnlColor = netPnl >= 0 ? '#10b981' : '#dc2626';
-    html += '<div class="pdf-cover pdf-avoid-break">' +
-      '<div class="pdf-brand">📈 TradeQuill</div>' +
-      '<div class="pdf-cover-title">Performance Report</div>' +
-      '<div class="pdf-cover-tagline">Your edge, written.</div>' +
-      '<div class="pdf-cover-hero">' +
-        '<div>' +
-          '<div class="pdf-cover-pnl" style="color:'+pnlColor+'">'+fmtPnl(netPnl)+'</div>' +
-          '<div class="pdf-cover-pnl-label">Net P&L · '+trades.length+' trades</div>' +
-        '</div>' +
-        '<div class="pdf-cover-info">' +
-          '<b>Period:</b> '+dateRange()+'<br>' +
-          '<b>Generated:</b> '+now.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})+'<br>' +
-          '<b>Filter:</b> '+(filterStr||'All trades')+
-          (accName ? '<br><b>Account:</b> '+accName : '') +
-        '</div>' +
-      '</div>' +
-    '</div>';
+    // ─── PAGE 1: COVER ───
+    var pnlColor = netPnl >= 0 ? '#1de9b6' : '#ef4444';
+    html += '<div class="tq-cover">';
+    html += '<div class="tq-cover-glow"></div>';
+    html += '<div class="tq-cover-glow-2"></div>';
+    html += '<div class="tq-cover-content">';
+    html += '<div class="tq-cover-brand">TradeQuill</div>';
+    html += '<div class="tq-cover-tagline">Your edge, written.</div>';
 
-    // ── OVERVIEW KPIs ──
-    var wrTone = wr >= 60 ? 'green' : wr >= 45 ? 'amber' : 'red';
-    var pfTone = pf >= 2 ? 'green' : pf >= 1 ? 'amber' : 'red';
-    html += '<div class="pdf-section pdf-avoid-break">' +
-      '<div class="pdf-section-title">Key Performance Indicators</div>' +
-      '<div class="pdf-kpi-grid">' +
-        '<div class="pdf-kpi-tile '+(netPnl>=0?'green':'red')+'">' +
-          '<div class="pdf-kpi-label">Net P&L</div>' +
-          '<div class="pdf-kpi-value '+(netPnl>=0?'green':'red')+'">'+fmtPnl(netPnl)+'</div>' +
-          '<div class="pdf-kpi-sub">'+trades.length+' trades</div>' +
-        '</div>' +
-        '<div class="pdf-kpi-tile '+wrTone+'">' +
-          '<div class="pdf-kpi-label">Win Rate</div>' +
-          '<div class="pdf-kpi-value">'+fmtPct(wr)+'</div>' +
-          '<div class="pdf-kpi-sub">'+wins.length+'W · '+breakEvens.length+'BE · '+losses.length+'L</div>' +
-        '</div>' +
-        '<div class="pdf-kpi-tile '+pfTone+'">' +
-          '<div class="pdf-kpi-label">Profit Factor</div>' +
-          '<div class="pdf-kpi-value">'+pf.toFixed(2)+'</div>' +
-          '<div class="pdf-kpi-sub">'+fmtPnl(grossWin)+' / -$'+grossLoss.toFixed(0)+'</div>' +
-        '</div>' +
-        '<div class="pdf-kpi-tile purple">' +
-          '<div class="pdf-kpi-label">Expectancy</div>' +
-          '<div class="pdf-kpi-value '+(expectancy>=0?'green':'red')+'">'+fmtPnl(expectancy)+'</div>' +
-          '<div class="pdf-kpi-sub">per trade</div>' +
-        '</div>' +
-      '</div>' +
-    '</div>';
+    html += '<div class="tq-cover-hero">';
+    html += '<div class="tq-cover-eyebrow">Performance Report</div>';
+    html += '<div class="tq-cover-title">'+periodName()+'</div>';
+    html += '<div class="tq-cover-meta">'+dateRange()+' · '+trades.length+' trades · '+dayKeys.length+' trading days</div>';
+    html += '</div>';
 
-    // Second row of KPIs
-    html += '<div class="pdf-section pdf-avoid-break">' +
-      '<div class="pdf-kpi-grid">' +
-        '<div class="pdf-kpi-tile green">' +
-          '<div class="pdf-kpi-label">Avg Win</div>' +
-          '<div class="pdf-kpi-value green">+$'+avgWin.toFixed(0)+'</div>' +
-          '<div class="pdf-kpi-sub">'+wins.length+' wins</div>' +
-        '</div>' +
-        '<div class="pdf-kpi-tile red">' +
-          '<div class="pdf-kpi-label">Avg Loss</div>' +
-          '<div class="pdf-kpi-value red">-$'+avgLoss.toFixed(0)+'</div>' +
-          '<div class="pdf-kpi-sub">'+losses.length+' losses</div>' +
-        '</div>' +
-        '<div class="pdf-kpi-tile red">' +
-          '<div class="pdf-kpi-label">Max Drawdown</div>' +
-          '<div class="pdf-kpi-value red">-$'+maxDD.toFixed(0)+'</div>' +
-          '<div class="pdf-kpi-sub">'+ddPct.toFixed(1)+'% from peak</div>' +
-        '</div>' +
-        '<div class="pdf-kpi-tile '+(greenDays>=redDays?'green':'red')+'">' +
-          '<div class="pdf-kpi-label">Green Days</div>' +
-          '<div class="pdf-kpi-value">'+greenDays+'<span style="font-size:14px;color:#94a3b8;font-weight:400">/'+dayKeys.length+'</span></div>' +
-          '<div class="pdf-kpi-sub">'+(dayKeys.length>0?(greenDays/dayKeys.length*100).toFixed(0):0)+'% profitable</div>' +
-        '</div>' +
-      '</div>' +
-    '</div>';
+    html += '<div class="tq-cover-pnl-wrap">';
+    html += '<div>';
+    html += '<div class="tq-cover-pnl-label">Net P&amp;L</div>';
+    html += '<div class="tq-cover-pnl" style="color:'+pnlColor+'">'+fmtPnl(netPnl)+'</div>';
+    html += '<div class="tq-cover-pnl-sub" style="color:rgba('+(netPnl>=0?'29,233,182':'239,68,68')+',.7)">'+wins.length+' wins · '+losses.length+' losses · '+greenDays+'/'+dayKeys.length+' green days</div>';
+    html += '</div>';
+    html += '</div>';
 
-    // ── EQUITY CURVE ──
+    // TradeQuill Score card
+    html += '<div class="tq-score-card">';
+    html += '<div>';
+    html += '<div style="font-size:10px;color:rgba(255,255,255,.5);letter-spacing:.6px;text-transform:uppercase;font-weight:700">TradeQuill Score</div>';
+    html += '<div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:3px">Composite of 5 core metrics</div>';
+    html += '</div>';
+    html += '<div style="display:flex;align-items:baseline">';
+    html += '<div class="tq-score-num">'+tqScore+'</div>';
+    html += '<div class="tq-score-out">/100</div>';
+    html += '</div>';
+    html += '<div style="text-align:right">';
+    html += '<div style="display:inline-block;font-size:10px;font-weight:700;letter-spacing:.6px;padding:5px 12px;border-radius:5px;text-transform:uppercase;background:'+scoreTone.bg+';color:'+scoreTone.color+';border:1px solid '+scoreTone.border+'">'+scoreTone.label+'</div>';
+    html += '</div>';
+    html += '</div>';
+
+    html += '</div>';
+    html += '<div class="tq-cover-footer">';
+    html += '<div>Generated '+now.toISOString().slice(0,10)+' '+now.toTimeString().slice(0,5)+' UTC</div>';
+    html += '<div>'+(accName||filterStr||'All Accounts')+'</div>';
+    html += '</div>';
+    html += '</div>';
+
+    // ─── PAGE 2: EXECUTIVE SUMMARY ───
+    var wrTone = toneFor('wr', wr);
+    var pfTone = toneFor('pf', pf);
+    var expTone = toneFor('exp', expectancy);
+    var ddTone = toneFor('dd', ddPct);
+    var rTone = toneFor('r', avgR);
+
+    html += '<div class="tq-page">';
+    html += '<div class="tq-page-num">Page 2 · Summary</div>';
+    html += '<div class="tq-page-label">Executive Summary</div>';
+    html += '<div class="tq-page-title">The '+(dayKeys.length<=7?'week':dayKeys.length<=35?'month':'period')+' in 5 numbers</div>';
+    html += '<div class="tq-page-sub">Five metrics every trader should know. Each value compared against typical benchmarks for your trading style.</div>';
+
+    html += '<div class="tq-kpi-grid">';
+    html += '<div class="tq-kpi-card '+(wr>=50?'green':'red')+'"><div class="tq-kpi-label">Win Rate</div><div class="tq-kpi-value">'+fmtPct(wr)+'</div><div class="tq-kpi-pill" style="background:'+wrTone.bg+';color:'+wrTone.color+'">'+wrTone.label+'</div><div class="tq-kpi-bench">benchmark 40-60%</div></div>';
+    html += '<div class="tq-kpi-card '+(pf>=1.5?'green':pf>=1?'amber':'red')+'"><div class="tq-kpi-label">Profit Factor</div><div class="tq-kpi-value">'+(pf===99?'∞':pf.toFixed(2))+'</div><div class="tq-kpi-pill" style="background:'+pfTone.bg+';color:'+pfTone.color+'">'+pfTone.label+'</div><div class="tq-kpi-bench">benchmark &gt;1.5</div></div>';
+    html += '<div class="tq-kpi-card '+(expectancy>0?'green':'red')+'"><div class="tq-kpi-label">Expectancy</div><div class="tq-kpi-value '+(expectancy>=0?'green':'red')+'">'+fmtPnl(expectancy)+'</div><div class="tq-kpi-pill" style="background:'+expTone.bg+';color:'+expTone.color+'">'+expTone.label+'</div><div class="tq-kpi-bench">per trade · n='+trades.length+'</div></div>';
+    html += '<div class="tq-kpi-card '+(ddPct<15?'green':ddPct<20?'amber':'red')+'"><div class="tq-kpi-label">Max Drawdown</div><div class="tq-kpi-value red">-'+ddPct.toFixed(1)+'%</div><div class="tq-kpi-pill" style="background:'+ddTone.bg+';color:'+ddTone.color+'">'+ddTone.label+'</div><div class="tq-kpi-bench">target &lt;15%</div></div>';
+    html += '<div class="tq-kpi-card '+(avgR>0.2?'green':avgR>0?'amber':'red')+'"><div class="tq-kpi-label">Avg R-Multiple</div><div class="tq-kpi-value">'+fmtR(avgR)+'</div><div class="tq-kpi-pill" style="background:'+rTone.bg+';color:'+rTone.color+'">'+rTone.label+'</div><div class="tq-kpi-bench">benchmark &gt;0.2R</div></div>';
+    html += '</div>';
+
+    // Bottom Line insight
+    html += '<div class="tq-insight">';
+    html += '<div class="tq-insight-eyebrow">Bottom Line</div>';
+    html += '<div class="tq-insight-body">'+bottomLine+'</div>';
+    html += '</div>';
+
+    // Score breakdown
+    html += '<div class="tq-section-h">Score Breakdown</div>';
+    function _scoreRow(label, val, max){
+      var pct = Math.min(100, Math.max(0, (val/max)*100));
+      return '<div class="tq-score-bar-row"><div class="tq-score-bar-label">'+label+'</div><div class="tq-score-bar"><div class="tq-score-bar-fill" style="width:'+pct+'%"></div></div><div class="tq-score-bar-val">'+Math.round(val)+'</div></div>';
+    }
+    html += _scoreRow('Profitability (30%)', expScore, 100);
+    html += _scoreRow('Win Rate (20%)', wrScore, 100);
+    html += _scoreRow('Profit Factor (20%)', pfScore, 100);
+    html += _scoreRow('Drawdown (15%)', ddScore, 100);
+    html += _scoreRow('Consistency (15%)', rScore, 100);
+
+    html += '<div class="tq-footer"><span class="tq-footer-brand">TradeQuill · Your edge, written.</span><span>Page 2 of 7</span></div>';
+    html += '</div>';
+
+    // ─── PAGE 3: TRAJECTORY + STRATEGY ───
+    html += '<div class="tq-page">';
+    html += '<div class="tq-page-num">Page 3 · Trajectory</div>';
+    html += '<div class="tq-page-label">Performance Trajectory</div>';
+    html += '<div class="tq-page-title">Equity curve &amp; strategy breakdown</div>';
+    html += '<div class="tq-page-sub">How your capital moved through time, and which setups drove each move.</div>';
+
     if(eqSvg){
-      html += '<div class="pdf-section pdf-avoid-break">' +
-        '<div class="pdf-section-title">Equity Curve</div>' +
-        '<div class="pdf-chart-wrap">' +
-          '<div class="pdf-chart-title">' +
-            '<span>Cumulative P&L over '+trades.length+' trades</span>' +
-            '<span>'+fmtPnl(netPnl)+'</span>' +
-          '</div>' +
-          eqSvg +
-        '</div>' +
-      '</div>';
+      html += '<div class="tq-chart-wrap">';
+      html += '<div class="tq-chart-head">';
+      html += '<div class="tq-chart-title">Cumulative P&amp;L · '+trades.length+' trades</div>';
+      html += '<div class="tq-chart-value" style="color:'+(netPnl>=0?'#059669':'#dc2626')+'">'+fmtPnl(netPnl)+'</div>';
+      html += '</div>';
+      html += eqSvg;
+      if(dayKeys.length > 0){
+        html += '<div class="tq-axis"><span>'+dayKeys[0]+'</span><span>'+dayKeys[dayKeys.length-1]+'</span></div>';
+      }
+      html += '</div>';
     }
 
-    // ── BY PAIR ──
+    // By Setup table
+    var setupList = Object.keys(bySetup).sort(function(a,b){return bySetup[b].pnl - bySetup[a].pnl;});
+    if(setupList.length > 0){
+      html += '<div class="tq-section-h">Performance by Strategy</div>';
+      html += '<table class="tq-table">';
+      html += '<tr><th>Strategy</th><th class="r">Trades</th><th class="r">Win Rate</th><th class="r">Profit Factor</th><th class="r">Net P&amp;L</th></tr>';
+      setupList.forEach(function(s){
+        var d = bySetup[s];
+        var swr = d.count > 0 ? (d.wins/d.count*100) : 0;
+        // Calc per-setup PF
+        var setupTrades = trades.filter(function(t){return (t.setup||'Untagged') === s;});
+        var sgw = setupTrades.filter(function(t){return _pnl(t)>0;}).reduce(function(a,t){return a+_pnl(t);},0);
+        var sgl = Math.abs(setupTrades.filter(function(t){return _pnl(t)<0;}).reduce(function(a,t){return a+_pnl(t);},0));
+        var spf = sgl > 0 ? sgw/sgl : (sgw > 0 ? 99 : 0);
+        var pnlCls = d.pnl >= 0 ? 'green' : 'red';
+        var wrCls = swr >= 50 ? 'green' : 'red';
+        var pfCls = spf >= 1.5 ? 'green' : spf >= 1 ? 'muted' : 'red';
+        var rowBg = s === 'Untagged' ? ' style="background:#fafbfd"' : '';
+        html += '<tr'+rowBg+'>';
+        html += '<td class="bold"'+(s==='Untagged'?' style="color:#94a3b8;font-style:italic"':'')+'>'+s+'</td>';
+        html += '<td class="r mono">'+d.count+'</td>';
+        html += '<td class="r mono '+wrCls+'">'+fmtPct(swr)+'</td>';
+        html += '<td class="r mono '+pfCls+'">'+(spf===99?'∞':spf.toFixed(2))+'</td>';
+        html += '<td class="r mono '+pnlCls+'">'+fmtPnl(d.pnl)+'</td>';
+        html += '</tr>';
+      });
+      html += '</table>';
+
+      // Warn if worst setup losing
+      var realSetups = setupList.filter(function(s){return s !== 'Untagged' && bySetup[s].count >= 3;});
+      if(realSetups.length > 0){
+        var worst = bySetup[realSetups[realSetups.length-1]];
+        if(worst.pnl < 0){
+          html += '<div class="tq-warn"><strong>Insight:</strong> '+realSetups[realSetups.length-1]+' has profit factor below 1.0 with '+worst.count+' trades. Consider pausing or investigating why entries are deteriorating.</div>';
+        }
+      }
+    }
+
+    html += '<div class="tq-footer"><span class="tq-footer-brand">TradeQuill · Your edge, written.</span><span>Page 3 of 7</span></div>';
+    html += '</div>';
+
+    // ─── PAGE 4: TIME ANALYSIS ───
+    html += '<div class="tq-page">';
+    html += '<div class="tq-page-num">Page 4 · Time</div>';
+    html += '<div class="tq-page-label">Time Analysis</div>';
+    html += '<div class="tq-page-title">When you trade matters</div>';
+    html += '<div class="tq-page-sub">Day of week and session breakdown — find when your edge is strongest.</div>';
+
+    // By Day of Week
+    var dowData = [];
+    for(var di=1; di<=5; di++){ // Mon-Fri only
+      if(byDow[di].count > 0) dowData.push({day:dowNames[di], count:byDow[di].count, pnl:byDow[di].pnl, wins:byDow[di].wins});
+    }
+    if(dowData.length > 0){
+      html += '<div class="tq-section-h">Performance by Day of Week</div>';
+      var maxDowAbs = Math.max.apply(null, dowData.map(function(d){return Math.abs(d.pnl);})) || 1;
+      html += '<table class="tq-table">';
+      html += '<tr><th>Day</th><th class="r">Trades</th><th class="r">Win Rate</th><th class="r">Net P&amp;L</th><th>Distribution</th></tr>';
+      dowData.forEach(function(d){
+        var swr = d.count > 0 ? (d.wins/d.count*100) : 0;
+        var barW = Math.abs(d.pnl) / maxDowAbs * 100;
+        var barColor = d.pnl >= 0 ? '' : 'red';
+        html += '<tr>';
+        html += '<td class="bold">'+d.day+'</td>';
+        html += '<td class="r mono">'+d.count+'</td>';
+        html += '<td class="r mono '+(swr>=50?'green':'red')+'">'+fmtPct(swr)+'</td>';
+        html += '<td class="r mono '+(d.pnl>=0?'green':'red')+'">'+fmtPnl(d.pnl)+'</td>';
+        html += '<td style="width:140px"><div class="tq-bar"><div class="tq-bar-fill '+barColor+'" style="width:'+barW.toFixed(1)+'%"></div></div></td>';
+        html += '</tr>';
+      });
+      html += '</table>';
+    }
+
+    // By Session
+    var sessList = Object.keys(bySession).filter(function(s){return s !== 'Untagged';}).sort(function(a,b){return bySession[b].pnl - bySession[a].pnl;});
+    if(sessList.length > 0){
+      html += '<div class="tq-section-h">Performance by Session</div>';
+      html += '<table class="tq-table">';
+      html += '<tr><th>Session</th><th class="r">Trades</th><th class="r">Win Rate</th><th class="r">Net P&amp;L</th><th class="r">Avg / Trade</th></tr>';
+      sessList.forEach(function(s){
+        var d = bySession[s];
+        var swr = d.count > 0 ? (d.wins/d.count*100) : 0;
+        html += '<tr>';
+        html += '<td class="bold">'+s+'</td>';
+        html += '<td class="r mono">'+d.count+'</td>';
+        html += '<td class="r mono '+(swr>=50?'green':'red')+'">'+fmtPct(swr)+'</td>';
+        html += '<td class="r mono '+(d.pnl>=0?'green':'red')+'">'+fmtPnl(d.pnl)+'</td>';
+        html += '<td class="r mono">'+fmtPnl(d.count>0?d.pnl/d.count:0)+'</td>';
+        html += '</tr>';
+      });
+      html += '</table>';
+    }
+
+    // Insight
+    if(sessList.length > 0 && bySession[sessList[0]].pnl > 0){
+      var topSess = sessList[0];
+      var topSessShare = (bySession[topSess].pnl / Math.max(0.01, netPnl) * 100);
+      if(topSessShare > 50 && netPnl > 0){
+        html += '<div class="tq-insight" style="margin-top:24px">';
+        html += '<div class="tq-insight-eyebrow">Time Insight</div>';
+        html += '<div class="tq-insight-body">'+topSess+' generates '+topSessShare.toFixed(0)+'% of your total P&amp;L. Focus on protecting this window — avoid overtrading outside it.</div>';
+        html += '</div>';
+      }
+    }
+
+    html += '<div class="tq-footer"><span class="tq-footer-brand">TradeQuill · Your edge, written.</span><span>Page 4 of 7</span></div>';
+    html += '</div>';
+
+    // ─── PAGE 5: PAIR / EDGE MAP ───
+    html += '<div class="tq-page">';
+    html += '<div class="tq-page-num">Page 5 · Edge Map</div>';
+    html += '<div class="tq-page-label">Edge Map</div>';
+    html += '<div class="tq-page-title">Where your money is made</div>';
+    html += '<div class="tq-page-sub">Pair-level breakdown ranked by net P&amp;L. Bars show distribution of dollar exposure.</div>';
+
     var pairsList = Object.keys(byPair).sort(function(a,b){return byPair[b].pnl - byPair[a].pnl;});
     if(pairsList.length > 0){
       var maxAbsPairPnl = Math.max.apply(null, pairsList.map(function(p){return Math.abs(byPair[p].pnl);})) || 1;
-      html += '<div class="pdf-section pdf-avoid-break">' +
-        '<div class="pdf-section-title">Performance by Pair</div>' +
-        '<table class="pdf-table"><tr><th>Pair</th><th style="text-align:right">Trades</th><th style="text-align:right">Win Rate</th><th style="text-align:right">Net P&L</th><th>Distribution</th></tr>';
+      html += '<table class="tq-table" style="margin-top:18px">';
+      html += '<tr><th>Pair</th><th class="r">Trades</th><th class="r">Win Rate</th><th class="r">Net P&amp;L</th><th class="r">Avg / Trade</th><th>Exposure</th></tr>';
       pairsList.forEach(function(p){
         var d = byPair[p];
         var pwr = d.count > 0 ? (d.wins/d.count*100) : 0;
         var barWidth = Math.abs(d.pnl) / maxAbsPairPnl * 100;
         var barColor = d.pnl >= 0 ? '' : 'red';
-        html += '<tr>' +
-          '<td style="font-weight:600">'+p+'</td>' +
-          '<td class="num" style="text-align:right">'+d.count+'</td>' +
-          '<td class="num '+(pwr>=50?'green':'red')+'" style="text-align:right">'+fmtPct(pwr)+'</td>' +
-          '<td class="num '+(d.pnl>=0?'green':'red')+'" style="text-align:right;font-weight:600">'+fmtPnl(d.pnl)+'</td>' +
-          '<td style="width:120px"><div class="pdf-bar"><div class="pdf-bar-fill '+barColor+'" style="width:'+barWidth.toFixed(1)+'%"></div></div></td>' +
-        '</tr>';
+        html += '<tr>';
+        html += '<td class="bold">'+p+'</td>';
+        html += '<td class="r mono">'+d.count+'</td>';
+        html += '<td class="r mono '+(pwr>=50?'green':'red')+'">'+fmtPct(pwr)+'</td>';
+        html += '<td class="r mono '+(d.pnl>=0?'green':'red')+'">'+fmtPnl(d.pnl)+'</td>';
+        html += '<td class="r mono">'+fmtPnl(d.count>0?d.pnl/d.count:0)+'</td>';
+        html += '<td style="width:140px"><div class="tq-bar"><div class="tq-bar-fill '+barColor+'" style="width:'+barWidth.toFixed(1)+'%"></div></div></td>';
+        html += '</tr>';
       });
-      html += '</table></div>';
+      html += '</table>';
+
+      // Insight about biggest leak
+      var leak = pairsList[pairsList.length-1];
+      if(byPair[leak].pnl < -50){
+        html += '<div class="tq-warn"><strong>Biggest leak:</strong> '+leak+' lost '+fmtPnl(byPair[leak].pnl)+' across '+byPair[leak].count+' trades ('+(byPair[leak].wins/byPair[leak].count*100).toFixed(0)+'% WR). Consider removing from watchlist or investigating execution.</div>';
+      }
     }
 
-    // ── BY SESSION ──
-    var sessList = Object.keys(bySession).sort(function(a,b){return bySession[b].pnl - bySession[a].pnl;});
-    if(sessList.length > 0){
-      html += '<div class="pdf-section pdf-avoid-break">' +
-        '<div class="pdf-section-title">Performance by Session</div>' +
-        '<table class="pdf-table"><tr><th>Session</th><th style="text-align:right">Trades</th><th style="text-align:right">Win Rate</th><th style="text-align:right">Net P&L</th><th style="text-align:right">Avg</th></tr>';
-      sessList.forEach(function(s){
-        var d = bySession[s];
-        var swr = d.count > 0 ? (d.wins/d.count*100) : 0;
-        html += '<tr>' +
-          '<td style="font-weight:600">'+s+'</td>' +
-          '<td class="num" style="text-align:right">'+d.count+'</td>' +
-          '<td class="num '+(swr>=50?'green':'red')+'" style="text-align:right">'+fmtPct(swr)+'</td>' +
-          '<td class="num '+(d.pnl>=0?'green':'red')+'" style="text-align:right;font-weight:600">'+fmtPnl(d.pnl)+'</td>' +
-          '<td class="num" style="text-align:right">'+fmtPnl(d.count>0?d.pnl/d.count:0)+'</td>' +
-        '</tr>';
+    html += '<div class="tq-footer"><span class="tq-footer-brand">TradeQuill · Your edge, written.</span><span>Page 5 of 7</span></div>';
+    html += '</div>';
+
+    // ─── PAGE 6: PSYCHOLOGY ───
+    html += '<div class="tq-page">';
+    html += '<div class="tq-page-num">Page 6 · Psychology</div>';
+    html += '<div class="tq-page-label">Psychology Review</div>';
+    html += '<div class="tq-page-title">Discipline is the edge</div>';
+    html += '<div class="tq-page-sub">Strategy is rarely the problem. Execution is. Here\'s how often you followed plan and what it cost.</div>';
+
+    // Rule Adherence
+    html += '<div style="margin-top:24px;padding:24px 28px;background:linear-gradient(135deg,rgba(124,90,240,.04),rgba(124,90,240,.01));border:1px solid rgba(124,90,240,.1);border-radius:14px;display:flex;align-items:center;justify-content:space-between;gap:20px">';
+    html += '<div>';
+    html += '<div style="font-size:10px;color:#7c5af0;font-weight:700;letter-spacing:1.5px;text-transform:uppercase">Rule Adherence Score</div>';
+    html += '<div style="font-size:12px;color:#64748b;margin-top:4px">% of trades where you followed your plan (target: 85%+)</div>';
+    html += '</div>';
+    html += '<div style="display:flex;align-items:baseline;gap:4px">';
+    html += '<div style="font-size:44px;font-weight:600;color:#7c5af0;letter-spacing:-1px;line-height:1;font-variant-numeric:tabular-nums">'+ruleAdherence.toFixed(0)+'</div>';
+    html += '<div style="font-size:18px;color:#94a3b8">%</div>';
+    html += '</div>';
+    html += '</div>';
+
+    // Plan followed vs broken comparison
+    if(planFollowed.length > 0 || planBroken.length > 0){
+      html += '<div class="tq-section-h">When You Follow Plan vs When You Don\'t</div>';
+      html += '<div class="tq-compare-row">';
+      html += '<div class="tq-compare-card green">';
+      html += '<div class="tq-compare-h green">✓ Plan Followed</div>';
+      html += '<div class="tq-compare-stat"><span class="tq-compare-label">Trades</span><span class="tq-compare-value">'+planFollowed.length+'</span></div>';
+      html += '<div class="tq-compare-stat"><span class="tq-compare-label">Win Rate</span><span class="tq-compare-value" style="color:#059669">'+fmtPct(planFollowedWR)+'</span></div>';
+      html += '<div class="tq-compare-stat"><span class="tq-compare-label">Net P&amp;L</span><span class="tq-compare-value" style="color:'+(planFollowedPnl>=0?'#059669':'#dc2626')+'">'+fmtPnl(planFollowedPnl)+'</span></div>';
+      html += '</div>';
+      html += '<div class="tq-compare-card red">';
+      html += '<div class="tq-compare-h red">✗ Plan Broken</div>';
+      html += '<div class="tq-compare-stat"><span class="tq-compare-label">Trades</span><span class="tq-compare-value">'+planBroken.length+'</span></div>';
+      html += '<div class="tq-compare-stat"><span class="tq-compare-label">Win Rate</span><span class="tq-compare-value" style="color:'+(planBrokenWR>=50?'#059669':'#dc2626')+'">'+fmtPct(planBrokenWR)+'</span></div>';
+      html += '<div class="tq-compare-stat"><span class="tq-compare-label">Net P&amp;L</span><span class="tq-compare-value" style="color:'+(planBrokenPnl>=0?'#059669':'#dc2626')+'">'+fmtPnl(planBrokenPnl)+'</span></div>';
+      html += '</div>';
+      html += '</div>';
+    }
+
+    // Top Costly Mistakes
+    if(topMistakes.length > 0){
+      html += '<div class="tq-section-h">Top Costly Mistakes</div>';
+      html += '<table class="tq-table">';
+      html += '<tr><th>Mistake Tag</th><th class="r">Occurrences</th><th class="r">Avg Cost</th><th class="r">Total Impact</th></tr>';
+      topMistakes.forEach(function(m){
+        var avgCost = m.pnl / m.count;
+        html += '<tr>';
+        html += '<td class="bold">'+m.tag+'</td>';
+        html += '<td class="r mono">'+m.count+'</td>';
+        html += '<td class="r mono '+(avgCost<0?'red':'green')+'">'+fmtPnl(avgCost)+'</td>';
+        html += '<td class="r mono '+(m.pnl<0?'red':'green')+'">'+fmtPnl(m.pnl)+'</td>';
+        html += '</tr>';
       });
-      html += '</table></div>';
+      html += '</table>';
+    } else {
+      html += '<div class="tq-section-h">Top Costly Mistakes</div>';
+      html += '<div style="padding:24px;background:#fafbfd;border:1px dashed #cbd5e1;border-radius:10px;text-align:center;color:#64748b;font-size:13px">No psychology tags recorded. Tag losing trades with FOMO, Revenge, Early exit, etc. to see what costs you most.</div>';
     }
 
-    // ── BY SETUP (only if tagged) ──
-    var setupList = Object.keys(bySetup).filter(function(s){return s !== 'Untagged' || bySetup[s].count < trades.length;}).sort(function(a,b){return bySetup[b].pnl - bySetup[a].pnl;});
-    if(setupList.length > 0 && !(setupList.length === 1 && setupList[0] === 'Untagged')){
-      html += '<div class="pdf-section pdf-avoid-break">' +
-        '<div class="pdf-section-title">Performance by Setup</div>' +
-        '<table class="pdf-table"><tr><th>Setup</th><th style="text-align:right">Trades</th><th style="text-align:right">Win Rate</th><th style="text-align:right">Net P&L</th><th style="text-align:right">Avg</th></tr>';
-      setupList.forEach(function(s){
-        var d = bySetup[s];
-        var swr = d.count > 0 ? (d.wins/d.count*100) : 0;
-        html += '<tr>' +
-          '<td style="font-weight:600">'+s+'</td>' +
-          '<td class="num" style="text-align:right">'+d.count+'</td>' +
-          '<td class="num '+(swr>=50?'green':'red')+'" style="text-align:right">'+fmtPct(swr)+'</td>' +
-          '<td class="num '+(d.pnl>=0?'green':'red')+'" style="text-align:right;font-weight:600">'+fmtPnl(d.pnl)+'</td>' +
-          '<td class="num" style="text-align:right">'+fmtPnl(d.count>0?d.pnl/d.count:0)+'</td>' +
-        '</tr>';
-      });
-      html += '</table></div>';
-    }
+    html += '<div class="tq-footer"><span class="tq-footer-brand">TradeQuill · Your edge, written.</span><span>Page 6 of 7</span></div>';
+    html += '</div>';
 
-    // ── BY DAY OF WEEK ──
-    var dowList = [];
-    for(var di=0; di<7; di++){
-      if(byDow[di].count > 0) dowList.push({day:dowNames[di], count:byDow[di].count, pnl:byDow[di].pnl, wins:byDow[di].wins});
-    }
-    if(dowList.length > 0){
-      var maxDowAbs = Math.max.apply(null, dowList.map(function(d){return Math.abs(d.pnl);})) || 1;
-      html += '<div class="pdf-section pdf-avoid-break">' +
-        '<div class="pdf-section-title">Performance by Day of Week</div>' +
-        '<table class="pdf-table"><tr><th>Day</th><th style="text-align:right">Trades</th><th style="text-align:right">Win Rate</th><th style="text-align:right">Net P&L</th><th>Distribution</th></tr>';
-      dowList.forEach(function(d){
-        var swr = d.count > 0 ? (d.wins/d.count*100) : 0;
-        var barW = Math.abs(d.pnl) / maxDowAbs * 100;
-        var barColor = d.pnl >= 0 ? '' : 'red';
-        html += '<tr>' +
-          '<td style="font-weight:600">'+d.day+'</td>' +
-          '<td class="num" style="text-align:right">'+d.count+'</td>' +
-          '<td class="num '+(swr>=50?'green':'red')+'" style="text-align:right">'+fmtPct(swr)+'</td>' +
-          '<td class="num '+(d.pnl>=0?'green':'red')+'" style="text-align:right;font-weight:600">'+fmtPnl(d.pnl)+'</td>' +
-          '<td style="width:120px"><div class="pdf-bar"><div class="pdf-bar-fill '+barColor+'" style="width:'+barW.toFixed(1)+'%"></div></div></td>' +
-        '</tr>';
-      });
-      html += '</table></div>';
-    }
+    // ─── PAGE 7: ACTION ITEMS + TRADE LOG ───
+    html += '<div class="tq-page">';
+    html += '<div class="tq-page-num">Page 7 · Actions</div>';
+    html += '<div class="tq-page-label">Action Items</div>';
+    html += '<div class="tq-page-title">What to do next</div>';
+    html += '<div class="tq-page-sub">Specific, data-backed recommendations for the next period. One change per week — test, measure, adjust.</div>';
 
-    // ── KEY INSIGHTS ──
-    var insights = [];
-    if(pairsList.length > 0){
-      var bestPair = pairsList[0];
-      var worstPair = pairsList[pairsList.length-1];
-      if(byPair[bestPair].pnl > 0) insights.push({label:'Strongest Edge', text:bestPair+' generated '+fmtPnl(byPair[bestPair].pnl)+' across '+byPair[bestPair].count+' trades ('+(byPair[bestPair].wins/byPair[bestPair].count*100).toFixed(0)+'% WR).'});
-      if(byPair[worstPair].pnl < -50 && worstPair !== bestPair) insights.push({label:'Biggest Leak', text:worstPair+' lost '+fmtPnl(byPair[worstPair].pnl)+' across '+byPair[worstPair].count+' trades — review setup quality or consider avoiding.'});
-    }
-    if(sessList.length > 0){
-      var bestSess = sessList[0];
-      if(bySession[bestSess].pnl > 0) insights.push({label:'Best Session', text:bestSess+' yielded '+fmtPnl(bySession[bestSess].pnl)+' over '+bySession[bestSess].count+' trades.'});
-    }
-    if(pf < 1 && trades.length > 10) insights.push({label:'Risk Alert', text:'Profit factor below 1.0 — for every $1 gained, $'+(1/pf).toFixed(2)+' is lost. Tighten setup selection.'});
-    if(wr >= 60) insights.push({label:'Strong Win Rate', text:'Win rate of '+fmtPct(wr)+' indicates strong setup discipline. Protect this by avoiding overtrading.'});
-    if(maxDD > grossWin*0.5 && grossWin > 0) insights.push({label:'Drawdown Warning', text:'Max DD ($'+maxDD.toFixed(0)+') exceeds 50% of gross wins. Position sizing or risk management may need attention.'});
-    if(insights.length === 0){
-      insights.push({label:'Keep Going', text:'Need more trades for high-confidence insights. Aim for 30+ trades to detect statistical patterns.'});
-    }
-
-    html += '<div class="pdf-section pdf-avoid-break">' +
-      '<div class="pdf-section-title">Key Insights</div>';
-    insights.forEach(function(ins){
-      html += '<div class="pdf-insight-box pdf-avoid-break">' +
-        '<div class="pdf-insight-title">' + ins.label + '</div>' +
-        '<div class="pdf-insight-text">' + ins.text + '</div>' +
-      '</div>';
+    html += '<div class="tq-action-list">';
+    actions.forEach(function(a){
+      html += '<div class="tq-action '+a.tone+'">';
+      html += '<div class="tq-action-icon">'+a.icon+'</div>';
+      html += '<div style="flex:1">';
+      html += '<div class="tq-action-title">'+a.title+'</div>';
+      html += '<div class="tq-action-text">'+a.text+'</div>';
+      html += '</div>';
+      html += '</div>';
     });
     html += '</div>';
 
-    // ── RECENT TRADES (last 15) ──
+    // Last 10 trades preview
     if(sortedTrades.length > 0){
-      html += '<div class="pdf-section">' +
-        '<div class="pdf-section-title">Recent Trades (Last 15)</div>' +
-        '<table class="pdf-table"><tr><th>Date</th><th>Pair</th><th>Dir</th><th style="text-align:right">Entry</th><th style="text-align:right">Exit</th><th style="text-align:right">R:R</th><th>Setup</th><th style="text-align:right">P&L</th></tr>';
-      sortedTrades.slice(-15).reverse().forEach(function(t){
+      html += '<div class="tq-section-h">Recent Trades</div>';
+      html += '<table class="tq-table">';
+      html += '<tr><th>Date</th><th>Pair</th><th>Dir</th><th class="r">R:R</th><th>Setup</th><th class="r">P&amp;L</th></tr>';
+      sortedTrades.slice(-10).reverse().forEach(function(t){
         var rr2 = '—';
         if(t.entry && t.sl && t.exit){
           var r2 = Math.abs(parseFloat(t.entry)-parseFloat(t.sl));
           if(r2 > 0.00001) rr2 = (Math.abs(parseFloat(t.exit)-parseFloat(t.entry))/r2).toFixed(1)+'R';
         }
-        var p2 = tqConvertTradePnl(t);
-        var dirLabel = (t.direction||'').toLowerCase();
-        dirLabel = (dirLabel === 'buy' || dirLabel === 'long') ? '<span class="pdf-pill green">LONG</span>' : (dirLabel === 'sell' || dirLabel === 'short' ? '<span class="pdf-pill red">SHORT</span>' : '<span class="pdf-pill neutral">—</span>');
-        html += '<tr>' +
-          '<td class="num">'+(t.date||'')+'</td>' +
-          '<td style="font-weight:600">'+(t.pair||'—')+'</td>' +
-          '<td>'+dirLabel+'</td>' +
-          '<td class="num" style="text-align:right">'+(t.entry||'—')+'</td>' +
-          '<td class="num" style="text-align:right">'+(t.exit||'—')+'</td>' +
-          '<td class="num" style="text-align:right">'+rr2+'</td>' +
-          '<td style="font-size:10px;color:#64748b">'+(t.setup||'—')+'</td>' +
-          '<td class="num '+(p2>=0?'green':'red')+'" style="text-align:right;font-weight:600">'+fmtPnl(p2)+'</td>' +
-        '</tr>';
+        var p2 = _pnl(t);
+        var dirL = (t.direction||'').toLowerCase();
+        var dirLabel = (dirL === 'buy' || dirL === 'long') ? '<span class="tq-pill green">LONG</span>' :
+                       (dirL === 'sell' || dirL === 'short') ? '<span class="tq-pill red">SHORT</span>' :
+                       '<span class="tq-pill neutral">—</span>';
+        html += '<tr>';
+        html += '<td class="mono">'+(t.date||'')+'</td>';
+        html += '<td class="bold">'+(t.pair||'—')+'</td>';
+        html += '<td>'+dirLabel+'</td>';
+        html += '<td class="r mono">'+rr2+'</td>';
+        html += '<td style="font-size:11px;color:#64748b">'+(t.setup||'—')+'</td>';
+        html += '<td class="r mono '+(p2>=0?'green':'red')+'">'+fmtPnl(p2)+'</td>';
+        html += '</tr>';
       });
-      html += '</table></div>';
+      html += '</table>';
     }
 
-    // ── FOOTER ──
-    html += '<div class="pdf-footer">' +
-      '<div class="pdf-footer-brand">📈 TradeQuill · Your edge, written.</div>' +
-      '<div>Generated '+now.toISOString().slice(0,10)+' · ruswell0909.github.io/TradeManagerBeta</div>' +
-    '</div>';
+    html += '<div class="tq-footer">';
+    html += '<span class="tq-footer-brand">TradeQuill · Your edge, written.</span>';
+    html += '<span>Generated '+now.toISOString().slice(0,10)+' · ruswell0909.github.io/TradeManagerBeta</span>';
+    html += '</div>';
+    html += '</div>';
 
     html += '</div>'; // end .pdfreport
 
     return html;
   }
   // ══ END PREMIUM PDF REPORT BUILDER ══
+
 
   // ═══ REPORTS: Chart instances
   var rptCharts = {};
