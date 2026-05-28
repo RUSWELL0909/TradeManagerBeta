@@ -4703,6 +4703,12 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
    PDF EXPORT MODAL — Premium Glass (May 2026)
    ═══════════════════════════════════════════════════════════════════ */
 
+/* Email Reports toggle switch (May 2026) */
+.email-toggle-switch{position:relative;width:42px;height:24px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;transition:all .2s;flex-shrink:0}
+.email-toggle-thumb{position:absolute;top:2px;left:2px;width:18px;height:18px;background:var(--text3);border-radius:50%;transition:all .25s cubic-bezier(.4,0,.2,1)}
+.email-toggle input:checked + .email-toggle-switch{background:rgba(124,90,240,.18);border-color:rgba(124,90,240,.4)}
+.email-toggle input:checked + .email-toggle-switch .email-toggle-thumb{transform:translateX(18px);background:var(--accent);box-shadow:0 0 8px rgba(124,90,240,.5)}
+
 /* Force English date format for all date inputs (May 2026) — overrides OS locale */
 input[type="date"]{
   font-family:Inter,sans-serif !important;
@@ -5271,6 +5277,11 @@ const _tqSupabaseLoad = (async () => {
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>
       Cockpit
     </div>
+    <div class="nav-item" id="nav-missioncontrol">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+      Mission Control
+      <span style="margin-left:auto;font-size:8px;font-weight:700;padding:2px 5px;background:rgba(124,90,240,.2);color:var(--accent3);border-radius:3px;letter-spacing:.4px">PROP</span>
+    </div>
     <div class="nav-item active" id="nav-dashboard">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
       Dashboard
@@ -5397,6 +5408,50 @@ window.toggleSidebar = function(){
 </script>
 <main class="main">
   <!-- ═══ COCKPIT ═══ -->
+  <!-- ═══ MISSION CONTROL (May 2026 — Prop Suite) ═══ -->
+  <div id="page-missioncontrol" class="page">
+    <!-- HERO HEADER -->
+    <div style="position:relative;margin-bottom:18px;padding:26px 28px;background:linear-gradient(135deg,rgba(124,90,240,.08),rgba(29,233,182,.04));border:1px solid rgba(124,90,240,.18);border-radius:14px;overflow:hidden">
+      <div style="position:absolute;top:-80px;right:-60px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(124,90,240,.18) 0%,transparent 65%);pointer-events:none"></div>
+      <div style="position:relative;display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap">
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent3)" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+            <div style="font-size:11px;letter-spacing:4px;color:var(--accent3);text-transform:uppercase;font-weight:700">Mission Control</div>
+            <span style="font-size:8px;font-weight:700;padding:2px 6px;background:rgba(124,90,240,.15);color:var(--accent3);border-radius:3px;letter-spacing:.4px">PROP SUITE</span>
+          </div>
+          <div style="font-size:24px;font-weight:600;letter-spacing:-.5px;color:var(--text)" id="mc-hero-title">All accounts at a glance</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:4px" id="mc-hero-sub">Real-time rule monitoring across your prop firms</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:10px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700">Aggregate P&amp;L</div>
+          <div id="mc-hero-pnl" style="font-size:30px;font-weight:600;color:var(--green);letter-spacing:-.8px;font-variant-numeric:tabular-nums;line-height:1;margin-top:3px">$0</div>
+          <div id="mc-hero-pnl-sub" style="font-size:10px;color:var(--text3);margin-top:4px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace">across all accounts</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AGGREGATE KPI STRIP -->
+    <div id="mc-agg-strip" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px"></div>
+
+    <!-- WARNINGS BAR (if any breaches) -->
+    <div id="mc-warnings-bar" style="display:none;margin-bottom:18px"></div>
+
+    <!-- ACCOUNT CARDS LIST -->
+    <div id="mc-account-cards" style="display:flex;flex-direction:column;gap:8px"></div>
+
+    <!-- PAYOUT PIPELINE (Phase 2) -->
+    <div id="mc-payout-pipeline" style="display:none;margin-top:22px"></div>
+
+    <!-- EMPTY STATE -->
+    <div id="mc-empty" style="display:none;padding:60px 24px;text-align:center;background:rgba(124,90,240,.03);border:1px dashed rgba(124,90,240,.2);border-radius:14px">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent3)" stroke-width="1.5" style="opacity:.5;margin-bottom:14px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px">No prop firm accounts yet</div>
+      <div style="font-size:12px;color:var(--text2);max-width:400px;margin:0 auto 16px;line-height:1.55">Add a funded account to see real-time rule monitoring, drawdown tracking, and pre-trade compliance checks across all your prop firms.</div>
+      <button class="btn btn-primary" onclick="showPage('accounts');setTimeout(function(){if(window.openAddAccountModal)openAddAccountModal();},150)" style="font-size:12px">+ Add First Prop Firm Account</button>
+    </div>
+  </div>
+
   <div id="page-cockpit" class="page">
     <!-- PREMIUM HEADER -->
     <div class="ck-hero">
@@ -6183,6 +6238,9 @@ window.toggleSidebar = function(){
       <div style="flex:1"></div>
       <button class="pb-btn pb-btn-ghost" style="padding:5px 14px;font-size:10px;color:var(--red);border-color:rgba(239,68,68,.2)" onclick="jrBulkDelete()">Delete Selected</button>
     </div>
+
+    <!-- Prop firm rule status banner (Block 4 — shows when account w/ rules is filtered) -->
+    <div id="jr-rule-banner" style="display:none;margin-bottom:14px"></div>
 
     <!-- Trade list -->
     <div id="jr-list"></div>
@@ -7256,27 +7314,119 @@ window.toggleSidebar = function(){
           <div id="acc-rules-wrap" style="display:none;margin-top:14px;padding:14px;background:rgba(124,90,240,.04);border:1px solid rgba(124,90,240,.12);border-radius:10px">
             <div style="font-size:11px;font-weight:600;letter-spacing:.6px;color:var(--accent3);margin-bottom:10px;display:flex;align-items:center;gap:6px">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              FUNDED ACCOUNT RULES
-              <span style="margin-left:auto;font-size:9px;font-weight:500;color:var(--text3);text-transform:none;letter-spacing:0">Optional — leave blank to skip tracking</span>
+              PROP FIRM RULES
+              <span style="margin-left:auto;font-size:9px;font-weight:500;color:var(--text3);text-transform:none;letter-spacing:0">Auto-loaded from preset</span>
             </div>
-            <div class="jr-row" class="tq-mb-8">
+
+            <!-- PRESET SELECTOR -->
+            <div class="jr-field" style="margin-bottom:12px">
+              <label class="jr-label">PROP FIRM PRESET</label>
+              <select class="jr-select" id="acc-preset" onchange="applyPropFirmPreset(this.value)">
+                <option value="">— Select firm (auto-fills rules below) —</option>
+                <optgroup label="FTMO">
+                  <option value="ftmo_eval_step1">FTMO Evaluation — Step 1</option>
+                  <option value="ftmo_eval_step2">FTMO Verification — Step 2</option>
+                  <option value="ftmo_funded">FTMO Funded</option>
+                </optgroup>
+                <optgroup label="TopStep">
+                  <option value="topstep_xfa">TopStep XFA (Express Funded)</option>
+                  <option value="topstep_funded">TopStep Funded</option>
+                </optgroup>
+                <optgroup label="Apex Trader Funding">
+                  <option value="apex_eval">Apex Evaluation (50K-300K)</option>
+                  <option value="apex_pa">Apex PA (Performance Account)</option>
+                </optgroup>
+                <optgroup label="MyFundedFutures">
+                  <option value="mff_starter">MFF Starter</option>
+                  <option value="mff_expert">MFF Expert</option>
+                  <option value="mff_milestone">MFF Milestone</option>
+                </optgroup>
+                <optgroup label="FundedNext">
+                  <option value="fundednext_eval">FundedNext Evaluation</option>
+                  <option value="fundednext_funded">FundedNext Funded</option>
+                  <option value="fundednext_stellar1step">FundedNext Stellar 1-Step</option>
+                </optgroup>
+                <optgroup label="Custom">
+                  <option value="custom">Custom rules — fill below</option>
+                </optgroup>
+              </select>
+            </div>
+
+            <!-- DRAWDOWN TYPE -->
+            <div class="jr-row" style="margin-bottom:10px">
               <div class="jr-field">
-                <label class="jr-label">DAILY LOSS LIMIT (%)</label>
-                <input class="jr-input" id="acc-daily-loss" type="number" step="0.1" placeholder="e.g. 5">
+                <label class="jr-label">DRAWDOWN TYPE</label>
+                <select class="jr-select" id="acc-dd-type">
+                  <option value="static">Static (from balance high)</option>
+                  <option value="trailing">Trailing (locks at peak)</option>
+                  <option value="trailing_eod">Trailing EOD (end of day)</option>
+                </select>
               </div>
               <div class="jr-field">
-                <label class="jr-label">MAX DRAWDOWN (%)</label>
-                <input class="jr-input" id="acc-max-dd" type="number" step="0.1" placeholder="e.g. 10">
+                <label class="jr-label">DD VALUE TYPE</label>
+                <select class="jr-select" id="acc-dd-mode">
+                  <option value="percent">% of balance</option>
+                  <option value="dollar">$ amount</option>
+                </select>
               </div>
             </div>
-            <div class="jr-row" style="margin-bottom:0">
+
+            <div class="jr-row" style="margin-bottom:10px">
               <div class="jr-field">
-                <label class="jr-label">PROFIT TARGET (%)</label>
-                <input class="jr-input" id="acc-profit-target" type="number" step="0.1" placeholder="e.g. 8">
+                <label class="jr-label">DAILY LOSS LIMIT</label>
+                <input class="jr-input" id="acc-daily-loss" type="number" step="0.01" placeholder="e.g. 5 or 2500">
+              </div>
+              <div class="jr-field">
+                <label class="jr-label">MAX DRAWDOWN</label>
+                <input class="jr-input" id="acc-max-dd" type="number" step="0.01" placeholder="e.g. 10 or 5000">
+              </div>
+            </div>
+
+            <div class="jr-row" style="margin-bottom:10px">
+              <div class="jr-field">
+                <label class="jr-label">PROFIT TARGET</label>
+                <input class="jr-input" id="acc-profit-target" type="number" step="0.01" placeholder="e.g. 8 or 8000">
               </div>
               <div class="jr-field">
                 <label class="jr-label">MIN TRADING DAYS</label>
                 <input class="jr-input" id="acc-min-days" type="number" step="1" placeholder="e.g. 5">
+              </div>
+            </div>
+
+            <div class="jr-row" style="margin-bottom:10px">
+              <div class="jr-field">
+                <label class="jr-label">CONSISTENCY RULE (%)</label>
+                <input class="jr-input" id="acc-consistency" type="number" step="0.1" placeholder="e.g. 40 (max % of best day)">
+              </div>
+              <div class="jr-field">
+                <label class="jr-label">PAYOUT SCHEDULE</label>
+                <select class="jr-select" id="acc-payout">
+                  <option value="">—</option>
+                  <option value="biweekly">Bi-weekly</option>
+                  <option value="monthly">Monthly</option>
+                  <option value="ondemand">On-demand</option>
+                  <option value="14days">Every 14 days</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="jr-field" style="margin-bottom:10px">
+              <label class="jr-label">PROFIT SPLIT (% to trader)</label>
+              <input class="jr-input" id="acc-split" type="number" step="1" min="50" max="100" placeholder="e.g. 80, 90">
+            </div>
+
+            <div class="jr-row" style="margin-bottom:0">
+              <div class="jr-field">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:var(--text2)">
+                  <input type="checkbox" id="acc-news-restrict" style="width:14px;height:14px;cursor:pointer;accent-color:var(--accent)">
+                  <span>News trading restricted</span>
+                </label>
+              </div>
+              <div class="jr-field">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:var(--text2)">
+                  <input type="checkbox" id="acc-weekend-hold" style="width:14px;height:14px;cursor:pointer;accent-color:var(--accent)">
+                  <span>Weekend holding allowed</span>
+                </label>
               </div>
             </div>
           </div>
@@ -8966,6 +9116,66 @@ window.toggleSidebar = function(){
     <div class="page-header">
       <div><div class="page-title">Resources</div><div class="page-sub">Platform guide, links, rules & learning materials</div></div>
       <button class="btn btn-primary" onclick="rsNew()">+ Add Resource</button>
+    </div>
+
+    <!-- EMAIL REPORTS (May 2026) -->
+    <div style="margin-bottom:28px;padding:24px;background:linear-gradient(135deg,rgba(124,90,240,.04),rgba(29,233,182,.02));border:1px solid rgba(124,90,240,.15);border-radius:14px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap">
+        <div style="flex:1;min-width:240px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <span style="font-size:15px;font-weight:600;color:var(--text);font-family:Inter,sans-serif">Weekly Email Report</span>
+            <span class="tq-pill" style="font-size:9px;background:rgba(29,233,182,.12);color:var(--green);padding:2px 8px;border-radius:4px;font-weight:600;letter-spacing:.5px;text-transform:uppercase">New</span>
+          </div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.55;max-width:560px">Get your premium PDF performance report delivered every Sunday morning. Reviewed against last week (Mon-Sun). Perfect for sharing with mentors, prop firm reviewers, or your own accountability ritual.</div>
+        </div>
+        <label class="email-toggle" style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;flex-shrink:0;padding:8px 4px">
+          <input type="checkbox" id="email-reports-toggle" onchange="emailReportsSaveSettings()" style="display:none">
+          <div class="email-toggle-switch" id="email-toggle-switch">
+            <div class="email-toggle-thumb"></div>
+          </div>
+          <span id="email-toggle-label" style="font-size:11px;font-weight:600;color:var(--text3);font-family:Inter,sans-serif;letter-spacing:.4px;text-transform:uppercase">OFF</span>
+        </label>
+      </div>
+
+      <!-- Settings panel (visible when enabled) -->
+      <div id="email-reports-settings" style="display:none;margin-top:18px;padding-top:18px;border-top:1px solid var(--border)">
+        <div class="jr-row" style="gap:16px;align-items:flex-start">
+          <div class="jr-field" style="flex:2">
+            <label class="jr-label">Your Email</label>
+            <input class="jr-input" id="email-reports-email" type="email" placeholder="you@example.com" onchange="emailReportsSaveSettings()">
+            <div style="font-size:10px;color:var(--text3);margin-top:4px">Where your weekly PDF will be sent</div>
+          </div>
+          <div class="jr-field" style="flex:1">
+            <label class="jr-label">Timezone</label>
+            <select class="jr-select" id="email-reports-tz" onchange="emailReportsSaveSettings()">
+              <option value="UTC">UTC (default)</option>
+              <option value="Asia/Tashkent">Asia/Tashkent (UTC+5)</option>
+              <option value="Europe/London">Europe/London</option>
+              <option value="Europe/Madrid">Europe/Madrid</option>
+              <option value="America/New_York">America/New_York</option>
+              <option value="America/Los_Angeles">America/Los_Angeles</option>
+              <option value="Asia/Dubai">Asia/Dubai (UTC+4)</option>
+              <option value="Asia/Tokyo">Asia/Tokyo</option>
+              <option value="Australia/Sydney">Australia/Sydney</option>
+            </select>
+            <div style="font-size:10px;color:var(--text3);margin-top:4px">Sent Sunday 09:00 local</div>
+          </div>
+        </div>
+        <div class="jr-field" style="margin-top:14px">
+          <label class="jr-label">Additional Recipient <span style="color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0">(optional — e.g. mentor or accountability partner)</span></label>
+          <input class="jr-input" id="email-reports-cc" type="email" placeholder="mentor@example.com" onchange="emailReportsSaveSettings()">
+        </div>
+
+        <div style="margin-top:16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-ghost" style="font-size:11px;padding:7px 14px" onclick="emailReportsSendTest()">📨 Send Test Email Now</button>
+          <span id="email-reports-status" style="font-size:11px;color:var(--text3);font-family:Inter,sans-serif"></span>
+        </div>
+
+        <div id="email-reports-last-sent" style="margin-top:14px;padding:10px 14px;background:rgba(124,90,240,.04);border:1px solid rgba(124,90,240,.1);border-radius:8px;font-size:11px;color:var(--text2);display:none">
+          <span style="color:var(--accent3);font-weight:600">Last sent:</span> <span id="email-reports-last-date"></span>
+        </div>
+      </div>
     </div>
 
     <!-- PLATFORM GUIDE -->
@@ -14304,6 +14514,139 @@ window.toggleSidebar = function(){
     }
 
     // ── MODAL: OPEN / CLOSE ──
+    // ═══════════════════════════════════════════════════════════════════
+    // PROP FIRM RULE PRESETS (May 2026 — based on official firm docs)
+    // Source: each firm's published terms, verified via prop firm review sites
+    // ═══════════════════════════════════════════════════════════════════
+    var PROP_FIRM_PRESETS = {
+      // ═══ FTMO ═══
+      ftmo_eval_step1: {
+        propFirm:'FTMO', stage:'Evaluation Step 1',
+        ddType:'static', ddMode:'percent',
+        dailyLossLimit:5, maxDrawdownLimit:10, profitTarget:10,
+        minTradingDays:0, consistencyRule:null, payoutSchedule:null, profitSplit:null,
+        newsRestrict:false, weekendHold:false
+      },
+      ftmo_eval_step2: {
+        propFirm:'FTMO', stage:'Verification Step 2',
+        ddType:'static', ddMode:'percent',
+        dailyLossLimit:5, maxDrawdownLimit:10, profitTarget:5,
+        minTradingDays:0, consistencyRule:null, payoutSchedule:null, profitSplit:null,
+        newsRestrict:false, weekendHold:false
+      },
+      ftmo_funded: {
+        propFirm:'FTMO', stage:'Funded',
+        ddType:'static', ddMode:'percent',
+        dailyLossLimit:5, maxDrawdownLimit:10, profitTarget:null,
+        minTradingDays:0, consistencyRule:null, payoutSchedule:'biweekly', profitSplit:80,
+        newsRestrict:false, weekendHold:false
+      },
+      // ═══ TOPSTEP ═══
+      topstep_xfa: {
+        propFirm:'TopStep', stage:'Express Funded Account',
+        ddType:'trailing_eod', ddMode:'dollar',
+        dailyLossLimit:1000, maxDrawdownLimit:2000, profitTarget:3000,
+        minTradingDays:0, consistencyRule:50, payoutSchedule:'ondemand', profitSplit:90,
+        newsRestrict:false, weekendHold:false
+      },
+      topstep_funded: {
+        propFirm:'TopStep', stage:'Funded',
+        ddType:'trailing_eod', ddMode:'dollar',
+        dailyLossLimit:1000, maxDrawdownLimit:2500, profitTarget:null,
+        minTradingDays:0, consistencyRule:50, payoutSchedule:'ondemand', profitSplit:90,
+        newsRestrict:false, weekendHold:false
+      },
+      // ═══ APEX ═══
+      apex_eval: {
+        propFirm:'Apex Trader Funding', stage:'Evaluation',
+        ddType:'trailing', ddMode:'dollar',
+        dailyLossLimit:null, maxDrawdownLimit:2500, profitTarget:3000,
+        minTradingDays:7, consistencyRule:30, payoutSchedule:null, profitSplit:null,
+        newsRestrict:false, weekendHold:false
+      },
+      apex_pa: {
+        propFirm:'Apex Trader Funding', stage:'PA (Performance Account)',
+        ddType:'trailing', ddMode:'dollar',
+        dailyLossLimit:null, maxDrawdownLimit:2500, profitTarget:null,
+        minTradingDays:10, consistencyRule:30, payoutSchedule:'ondemand', profitSplit:100,
+        newsRestrict:false, weekendHold:false
+      },
+      // ═══ MYFUNDEDFUTURES ═══
+      mff_starter: {
+        propFirm:'MyFundedFutures', stage:'Starter',
+        ddType:'trailing_eod', ddMode:'dollar',
+        dailyLossLimit:null, maxDrawdownLimit:1250, profitTarget:1500,
+        minTradingDays:1, consistencyRule:null, payoutSchedule:'ondemand', profitSplit:90,
+        newsRestrict:false, weekendHold:false
+      },
+      mff_expert: {
+        propFirm:'MyFundedFutures', stage:'Expert',
+        ddType:'trailing_eod', ddMode:'dollar',
+        dailyLossLimit:1000, maxDrawdownLimit:2000, profitTarget:3000,
+        minTradingDays:0, consistencyRule:50, payoutSchedule:'ondemand', profitSplit:90,
+        newsRestrict:false, weekendHold:false
+      },
+      mff_milestone: {
+        propFirm:'MyFundedFutures', stage:'Milestone',
+        ddType:'static', ddMode:'dollar',
+        dailyLossLimit:null, maxDrawdownLimit:2500, profitTarget:6000,
+        minTradingDays:0, consistencyRule:null, payoutSchedule:'ondemand', profitSplit:90,
+        newsRestrict:false, weekendHold:false
+      },
+      // ═══ FUNDEDNEXT ═══
+      fundednext_eval: {
+        propFirm:'FundedNext', stage:'Evaluation (2-Step)',
+        ddType:'static', ddMode:'percent',
+        dailyLossLimit:5, maxDrawdownLimit:10, profitTarget:10,
+        minTradingDays:0, consistencyRule:null, payoutSchedule:null, profitSplit:null,
+        newsRestrict:false, weekendHold:false
+      },
+      fundednext_funded: {
+        propFirm:'FundedNext', stage:'Funded',
+        ddType:'static', ddMode:'percent',
+        dailyLossLimit:5, maxDrawdownLimit:10, profitTarget:null,
+        minTradingDays:0, consistencyRule:null, payoutSchedule:'14days', profitSplit:90,
+        newsRestrict:false, weekendHold:false
+      },
+      fundednext_stellar1step: {
+        propFirm:'FundedNext', stage:'Stellar 1-Step',
+        ddType:'static', ddMode:'percent',
+        dailyLossLimit:3, maxDrawdownLimit:6, profitTarget:9,
+        minTradingDays:5, consistencyRule:null, payoutSchedule:null, profitSplit:null,
+        newsRestrict:false, weekendHold:false
+      },
+      custom: {} // empty — user fills manually
+    };
+    window.PROP_FIRM_PRESETS = PROP_FIRM_PRESETS;
+
+    function applyPropFirmPreset(presetKey){
+      if(!presetKey || presetKey === 'custom'){
+        return;
+      }
+      var p = PROP_FIRM_PRESETS[presetKey];
+      if(!p) return;
+      var setVal = function(id, v){ var el = document.getElementById(id); if(el) el.value = (v == null) ? '' : v; };
+      var setChk = function(id, v){ var el = document.getElementById(id); if(el) el.checked = !!v; };
+      if(p.propFirm) setVal('acc-propfirm', p.propFirm);
+      if(p.ddType) setVal('acc-dd-type', p.ddType);
+      if(p.ddMode) setVal('acc-dd-mode', p.ddMode);
+      setVal('acc-daily-loss', p.dailyLossLimit);
+      setVal('acc-max-dd', p.maxDrawdownLimit);
+      setVal('acc-profit-target', p.profitTarget);
+      setVal('acc-min-days', p.minTradingDays);
+      setVal('acc-consistency', p.consistencyRule);
+      setVal('acc-payout', p.payoutSchedule || '');
+      setVal('acc-split', p.profitSplit);
+      setChk('acc-news-restrict', p.newsRestrict);
+      setChk('acc-weekend-hold', p.weekendHold);
+      var gEl = document.getElementById('acc-group');
+      if(gEl && !gEl.value) gEl.value = 'Prop Firms';
+      var tEl = document.getElementById('acc-type');
+      if(tEl){ tEl.value = 'prop'; _accToggleRulesVisibility(); }
+      if(typeof tqToast === 'function') tqToast('Preset loaded: '+(p.propFirm||'')+' '+(p.stage||''), {type:'success'});
+    }
+    window.applyPropFirmPreset = applyPropFirmPreset;
+
     function openAddAccountModal(){
       EDITING_ID = null;
       var m = document.getElementById('acc-modal');
@@ -14327,6 +14670,15 @@ window.toggleSidebar = function(){
       var __r2=document.getElementById('acc-max-dd'); if(__r2) __r2.value='';
       var __r3=document.getElementById('acc-profit-target'); if(__r3) __r3.value='';
       var __r4=document.getElementById('acc-min-days'); if(__r4) __r4.value='';
+      // Reset extended Prop Suite fields
+      var __p1=document.getElementById('acc-preset'); if(__p1) __p1.value='';
+      var __p2=document.getElementById('acc-dd-type'); if(__p2) __p2.value='static';
+      var __p3=document.getElementById('acc-dd-mode'); if(__p3) __p3.value='percent';
+      var __p4=document.getElementById('acc-consistency'); if(__p4) __p4.value='';
+      var __p5=document.getElementById('acc-payout'); if(__p5) __p5.value='';
+      var __p6=document.getElementById('acc-split'); if(__p6) __p6.value='';
+      var __p7=document.getElementById('acc-news-restrict'); if(__p7) __p7.checked=false;
+      var __p8=document.getElementById('acc-weekend-hold'); if(__p8) __p8.checked=false;
       _accToggleRulesVisibility();
       m.classList.add('open');
       setTimeout(function(){ document.getElementById('acc-name').focus(); }, 50);
@@ -14375,6 +14727,15 @@ window.toggleSidebar = function(){
       var __r2=document.getElementById('acc-max-dd'); if(__r2) __r2.value = a.maxDrawdownLimit || '';
       var __r3=document.getElementById('acc-profit-target'); if(__r3) __r3.value = a.profitTarget || '';
       var __r4=document.getElementById('acc-min-days'); if(__r4) __r4.value = a.minTradingDays || '';
+      // Extended Prop Suite fields
+      var __p1=document.getElementById('acc-preset'); if(__p1) __p1.value = a.presetKey || '';
+      var __p2=document.getElementById('acc-dd-type'); if(__p2) __p2.value = a.ddType || 'static';
+      var __p3=document.getElementById('acc-dd-mode'); if(__p3) __p3.value = a.ddMode || 'percent';
+      var __p4=document.getElementById('acc-consistency'); if(__p4) __p4.value = a.consistencyRule || '';
+      var __p5=document.getElementById('acc-payout'); if(__p5) __p5.value = a.payoutSchedule || '';
+      var __p6=document.getElementById('acc-split'); if(__p6) __p6.value = a.profitSplit || '';
+      var __p7=document.getElementById('acc-news-restrict'); if(__p7) __p7.checked = !!a.newsRestrict;
+      var __p8=document.getElementById('acc-weekend-hold'); if(__p8) __p8.checked = !!a.weekendHold;
       _accToggleRulesVisibility();
       m.classList.add('open');
       setTimeout(function(){ document.getElementById('acc-name').focus(); }, 50);
@@ -14443,6 +14804,21 @@ window.toggleSidebar = function(){
         existing.maxDrawdownLimit = isFinite(__md) && __md > 0 ? __md : null;
         existing.profitTarget    = isFinite(__pt) && __pt > 0 ? __pt : null;
         existing.minTradingDays  = isFinite(__mn) && __mn > 0 ? __mn : null;
+        // Extended Prop Suite fields
+        var __pkU = (document.getElementById('acc-preset')||{}).value || null;
+        var __ddtU = (document.getElementById('acc-dd-type')||{}).value || 'static';
+        var __ddmU = (document.getElementById('acc-dd-mode')||{}).value || 'percent';
+        var __csU = parseFloat((document.getElementById('acc-consistency')||{}).value);
+        var __pyU = (document.getElementById('acc-payout')||{}).value || null;
+        var __spU = parseFloat((document.getElementById('acc-split')||{}).value);
+        existing.presetKey       = __pkU;
+        existing.ddType          = __ddtU;
+        existing.ddMode          = __ddmU;
+        existing.consistencyRule = isFinite(__csU) && __csU > 0 ? __csU : null;
+        existing.payoutSchedule  = __pyU;
+        existing.profitSplit     = isFinite(__spU) && __spU > 0 ? __spU : null;
+        existing.newsRestrict    = !!(document.getElementById('acc-news-restrict')||{}).checked;
+        existing.weekendHold     = !!(document.getElementById('acc-weekend-hold')||{}).checked;
         accs[idx] = existing;
       } else {
         // Create new
@@ -14467,6 +14843,15 @@ window.toggleSidebar = function(){
           maxDrawdownLimit:  isFinite(__md2) && __md2 > 0 ? __md2 : null,
           profitTarget:      isFinite(__pt2) && __pt2 > 0 ? __pt2 : null,
           minTradingDays:    isFinite(__mn2) && __mn2 > 0 ? __mn2 : null,
+          // Extended Prop Suite fields
+          presetKey:         (document.getElementById('acc-preset')||{}).value || null,
+          ddType:            (document.getElementById('acc-dd-type')||{}).value || 'static',
+          ddMode:            (document.getElementById('acc-dd-mode')||{}).value || 'percent',
+          consistencyRule:   (function(){var v=parseFloat((document.getElementById('acc-consistency')||{}).value); return isFinite(v) && v > 0 ? v : null;})(),
+          payoutSchedule:    (document.getElementById('acc-payout')||{}).value || null,
+          profitSplit:       (function(){var v=parseFloat((document.getElementById('acc-split')||{}).value); return isFinite(v) && v > 0 ? v : null;})(),
+          newsRestrict:      !!(document.getElementById('acc-news-restrict')||{}).checked,
+          weekendHold:       !!(document.getElementById('acc-weekend-hold')||{}).checked,
           createdAt: new Date().toISOString()
         };
         accs.push(newAcc);
@@ -14489,10 +14874,12 @@ window.toggleSidebar = function(){
     }
     window.saveAccountModal = saveAccountModal;
 
-    // ── Funded account status helper ──
-    // Returns rule-usage stats for a single account so widgets/badges can render warnings.
-    // Output: { dlPct, ddPct, profitPct, daysTraded, breaches: [...] }
-    // null returned if account has no funded rules configured.
+    // ── Funded account status helper (Prop Suite v1) ──
+    // Returns rule-usage stats for a single account. Now supports:
+    //   - ddType: 'static' / 'trailing' / 'trailing_eod'
+    //   - ddMode: 'percent' / 'dollar'
+    //   - consistencyRule: max % of best day allowed
+    //   - profitSplit, payoutSchedule for payout view
     function tqFundedStatus(account, allTrades){
       if(!account) return null;
       var hasRules = account.dailyLossLimit != null || account.maxDrawdownLimit != null ||
@@ -14501,6 +14888,8 @@ window.toggleSidebar = function(){
 
       var startBal = parseFloat(account.startingBalance || account.balance) || 0;
       if(startBal <= 0) return null;
+      var ddType = account.ddType || 'static';
+      var ddMode = account.ddMode || 'percent';
       var trades = (allTrades || []).filter(function(t){ return t.account === account.id && !t.deleted; });
       var today = new Date().toISOString().slice(0,10);
 
@@ -14508,55 +14897,353 @@ window.toggleSidebar = function(){
       var todayPnl = trades.reduce(function(s,t){
         return s + (t.date === today ? (parseFloat(t.pnl)||0) : 0);
       }, 0);
-      var dailyLossPct = todayPnl < 0 ? Math.abs(todayPnl) / startBal * 100 : 0;
+      // Daily loss as % or $ depending on rule mode
+      var dailyLossAbs = todayPnl < 0 ? Math.abs(todayPnl) : 0;
+      var dailyLossPct = dailyLossAbs / startBal * 100;
+      var dailyLossValue = ddMode === 'dollar' ? dailyLossAbs : dailyLossPct;
 
-      // Cumulative P&L for max-DD calc (peak-to-trough)
+      // Cumulative + per-day P&L, plus daily aggregates for consistency rule
       var sorted = trades.slice().sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); });
+      var byDay = {};
+      sorted.forEach(function(t){
+        if(!t.date) return;
+        byDay[t.date] = (byDay[t.date] || 0) + (parseFloat(t.pnl)||0);
+      });
+      var dayKeys = Object.keys(byDay).sort();
       var running = 0, peak = 0, maxDD = 0;
+      // Build the equity curve for DD calculation, peak chosen by ddType
+      if(ddType === 'static'){
+        // Static: peak = startBal (no balance high tracking — drawdown from initial)
+        peak = 0;
+      }
       sorted.forEach(function(t){
         running += (parseFloat(t.pnl)||0);
-        if(running > peak) peak = running;
+        if(ddType !== 'static' && running > peak) peak = running;
         var dd = peak - running;
         if(dd > maxDD) maxDD = dd;
       });
+      // Current DD (right now, not historical max)
+      var currentDD = peak - running;
+      if(currentDD < 0) currentDD = 0;
       var maxDdPct = maxDD / startBal * 100;
+      var maxDdAbs = maxDD; // $ value
+      var currentDdPct = currentDD / startBal * 100;
+      var currentDdAbs = currentDD;
+      var profitAbs = running;
       var profitPct = running / startBal * 100;
 
+      // Consistency rule: best day must be <= consistencyRule% of total profit
+      var consistencyStatus = null;
+      if(account.consistencyRule != null && profitAbs > 0){
+        var bestDay = Math.max.apply(null, dayKeys.map(function(d){return byDay[d];}).concat([0]));
+        var bestDayPctOfTotal = profitAbs > 0 ? (bestDay / profitAbs * 100) : 0;
+        consistencyStatus = {
+          bestDay: bestDay,
+          bestDayPctOfTotal: bestDayPctOfTotal,
+          rule: account.consistencyRule,
+          violated: bestDayPctOfTotal > account.consistencyRule
+        };
+      }
+
       // Distinct trading days
-      var daysSet = {};
-      trades.forEach(function(t){ if(t.date) daysSet[t.date] = true; });
-      var daysTraded = Object.keys(daysSet).length;
+      var daysTraded = dayKeys.length;
 
       var breaches = [];
       var warnings = [];
+      // Daily loss check (respects $ vs % mode)
       if(account.dailyLossLimit != null){
-        if(dailyLossPct >= account.dailyLossLimit) breaches.push('Daily loss limit exceeded ('+dailyLossPct.toFixed(2)+'% of '+account.dailyLossLimit+'%)');
-        else if(dailyLossPct >= account.dailyLossLimit * 0.8) warnings.push('Approaching daily loss limit');
+        if(dailyLossValue >= account.dailyLossLimit){
+          breaches.push('Daily loss limit exceeded ('+(ddMode==='dollar'?'$'+dailyLossAbs.toFixed(0):dailyLossPct.toFixed(2)+'%')+' of '+(ddMode==='dollar'?'$'+account.dailyLossLimit:account.dailyLossLimit+'%')+')');
+        } else if(dailyLossValue >= account.dailyLossLimit * 0.8){
+          warnings.push('Approaching daily loss limit ('+(ddMode==='dollar'?'$'+dailyLossAbs.toFixed(0):dailyLossPct.toFixed(2)+'%')+' / '+(ddMode==='dollar'?'$'+account.dailyLossLimit:account.dailyLossLimit+'%')+')');
+        }
       }
+      // Max drawdown check (respects $ vs % mode)
       if(account.maxDrawdownLimit != null){
-        if(maxDdPct >= account.maxDrawdownLimit) breaches.push('Max drawdown exceeded ('+maxDdPct.toFixed(2)+'% of '+account.maxDrawdownLimit+'%)');
-        else if(maxDdPct >= account.maxDrawdownLimit * 0.8) warnings.push('Approaching max drawdown');
+        var ddValueNow = ddMode === 'dollar' ? currentDdAbs : currentDdPct;
+        if(ddValueNow >= account.maxDrawdownLimit){
+          breaches.push('Max drawdown exceeded ('+(ddMode==='dollar'?'$'+currentDdAbs.toFixed(0):currentDdPct.toFixed(2)+'%')+' / '+(ddMode==='dollar'?'$'+account.maxDrawdownLimit:account.maxDrawdownLimit+'%')+')');
+        } else if(ddValueNow >= account.maxDrawdownLimit * 0.8){
+          warnings.push('Approaching max drawdown ('+(ddMode==='dollar'?'$'+currentDdAbs.toFixed(0):currentDdPct.toFixed(2)+'%')+')');
+        }
       }
-      var profitMet = (account.profitTarget != null) ? (profitPct >= account.profitTarget) : null;
-      var daysMet   = (account.minTradingDays != null) ? (daysTraded >= account.minTradingDays) : null;
+      // Consistency violation
+      if(consistencyStatus && consistencyStatus.violated){
+        warnings.push('Consistency rule risk: best day '+consistencyStatus.bestDayPctOfTotal.toFixed(0)+'% of total profit (max '+consistencyStatus.rule+'%)');
+      }
+
+      var profitMet = null, daysMet = null;
+      if(account.profitTarget != null){
+        var profitValue = ddMode === 'dollar' ? profitAbs : profitPct;
+        profitMet = profitValue >= account.profitTarget;
+      }
+      if(account.minTradingDays != null){
+        daysMet = daysTraded >= account.minTradingDays;
+      }
+
+      // Health score 0-100 (composite)
+      var health = 100;
+      if(account.dailyLossLimit != null) health -= (dailyLossValue / account.dailyLossLimit) * 25;
+      if(account.maxDrawdownLimit != null){
+        var ddRatio = (ddMode === 'dollar' ? currentDdAbs : currentDdPct) / account.maxDrawdownLimit;
+        health -= ddRatio * 40;
+      }
+      if(breaches.length > 0) health = 0;
+      health = Math.max(0, Math.min(100, Math.round(health)));
 
       return {
+        // Daily loss
         dailyLossPct: dailyLossPct,
-        dailyLossPctOf: account.dailyLossLimit ? (dailyLossPct/account.dailyLossLimit*100) : 0,
+        dailyLossAbs: dailyLossAbs,
+        dailyLossValue: dailyLossValue,
+        dailyLossPctOf: account.dailyLossLimit ? (dailyLossValue/account.dailyLossLimit*100) : 0,
+        // Drawdown
         maxDdPct: maxDdPct,
-        maxDdPctOf: account.maxDrawdownLimit ? (maxDdPct/account.maxDrawdownLimit*100) : 0,
+        maxDdAbs: maxDdAbs,
+        currentDdPct: currentDdPct,
+        currentDdAbs: currentDdAbs,
+        maxDdPctOf: account.maxDrawdownLimit ? ((ddMode==='dollar'?currentDdAbs:currentDdPct)/account.maxDrawdownLimit*100) : 0,
+        // Profit
         profitPct: profitPct,
-        profitPctOf: account.profitTarget ? (profitPct/account.profitTarget*100) : 0,
+        profitAbs: profitAbs,
+        profitPctOf: account.profitTarget ? ((ddMode==='dollar'?profitAbs:profitPct)/account.profitTarget*100) : 0,
+        // Days
         daysTraded: daysTraded,
         daysTradedOf: account.minTradingDays ? (daysTraded/account.minTradingDays*100) : 0,
+        // Composite
         breaches: breaches,
         warnings: warnings,
         profitTargetMet: profitMet,
         daysTargetMet: daysMet,
-        passing: breaches.length === 0
+        consistencyStatus: consistencyStatus,
+        passing: breaches.length === 0,
+        health: health,
+        // Meta
+        ddMode: ddMode,
+        ddType: ddType
       };
     }
     window.tqFundedStatus = tqFundedStatus;
+
+    // ═══════════════════════════════════════════════════════════════════
+    // PRE-TRADE COMPLIANCE CHECK (May 2026 — Prop Suite Block 3)
+    // Called before saving a trade. Analyzes whether the trade would
+    // breach the selected account's rules and returns analysis.
+    // ═══════════════════════════════════════════════════════════════════
+    function tqPreTradeCheck(accountId, proposedPnl, allTrades){
+      if(!accountId) return null;
+      var accs = (typeof accLoad === 'function') ? accLoad() : [];
+      var acc = accs.find(function(a){ return a.id === accountId; });
+      if(!acc) return null;
+      var hasRules = acc.dailyLossLimit != null || acc.maxDrawdownLimit != null;
+      if(!hasRules) return null;
+
+      var startBal = parseFloat(acc.startingBalance || acc.balance) || 0;
+      if(startBal <= 0) return null;
+
+      // Get current status BEFORE this trade
+      var currentSt = tqFundedStatus(acc, allTrades);
+      if(!currentSt) return null;
+
+      // Simulate this trade's impact: only affects daily loss & DD if negative
+      var ddMode = acc.ddMode || 'percent';
+      var simulatedPnl = parseFloat(proposedPnl) || 0;
+      var simulatedTrades = allTrades.slice();
+      // Inject simulated trade
+      simulatedTrades.push({
+        date: new Date().toISOString().slice(0,10),
+        account: accountId,
+        pnl: simulatedPnl,
+        _simulated: true
+      });
+      var afterSt = tqFundedStatus(acc, simulatedTrades);
+
+      var checks = [];
+      var willBreach = false;
+      var willWarn = false;
+
+      // Daily Loss check
+      if(acc.dailyLossLimit != null){
+        var beforeDL = ddMode === 'dollar' ? currentSt.dailyLossAbs : currentSt.dailyLossPct;
+        var afterDL = ddMode === 'dollar' ? afterSt.dailyLossAbs : afterSt.dailyLossPct;
+        var limit = acc.dailyLossLimit;
+        var willBreachDL = afterDL >= limit;
+        var willWarnDL = !willBreachDL && afterDL >= limit * 0.8;
+        if(willBreachDL) willBreach = true;
+        if(willWarnDL) willWarn = true;
+        checks.push({
+          rule: 'Daily Loss Limit',
+          before: beforeDL,
+          after: afterDL,
+          limit: limit,
+          mode: ddMode,
+          unit: ddMode === 'dollar' ? '$' : '%',
+          status: willBreachDL ? 'breach' : willWarnDL ? 'warn' : 'ok',
+          pctOfLimit: limit > 0 ? (afterDL/limit*100) : 0
+        });
+      }
+
+      // Max Drawdown check
+      if(acc.maxDrawdownLimit != null){
+        var beforeDD = ddMode === 'dollar' ? currentSt.currentDdAbs : currentSt.currentDdPct;
+        var afterDD = ddMode === 'dollar' ? afterSt.currentDdAbs : afterSt.currentDdPct;
+        var limit2 = acc.maxDrawdownLimit;
+        var willBreachDD = afterDD >= limit2;
+        var willWarnDD = !willBreachDD && afterDD >= limit2 * 0.8;
+        if(willBreachDD) willBreach = true;
+        if(willWarnDD) willWarn = true;
+        checks.push({
+          rule: 'Max Drawdown',
+          before: beforeDD,
+          after: afterDD,
+          limit: limit2,
+          mode: ddMode,
+          unit: ddMode === 'dollar' ? '$' : '%',
+          status: willBreachDD ? 'breach' : willWarnDD ? 'warn' : 'ok',
+          pctOfLimit: limit2 > 0 ? (afterDD/limit2*100) : 0
+        });
+      }
+
+      // Consistency check (only meaningful if trade is positive)
+      if(acc.consistencyRule != null && simulatedPnl > 0 && afterSt.consistencyStatus){
+        var cs = afterSt.consistencyStatus;
+        if(cs.violated){
+          willWarn = true;
+          checks.push({
+            rule: 'Consistency Rule',
+            before: cs.bestDayPctOfTotal,
+            after: cs.bestDayPctOfTotal,
+            limit: cs.rule,
+            mode: 'percent',
+            unit: '%',
+            status: 'warn',
+            pctOfLimit: cs.bestDayPctOfTotal,
+            extra: 'Best day would be '+cs.bestDayPctOfTotal.toFixed(0)+'% of profit (max '+cs.rule+'%)'
+          });
+        }
+      }
+
+      return {
+        accountName: acc.name,
+        accountFirm: acc.propFirm,
+        proposedPnl: simulatedPnl,
+        checks: checks,
+        willBreach: willBreach,
+        willWarn: willWarn,
+        passing: !willBreach,
+        recommendAction: willBreach ? 'block' : willWarn ? 'warn' : 'ok'
+      };
+    }
+    window.tqPreTradeCheck = tqPreTradeCheck;
+
+    // Compliance modal UI — shown when trade would breach/warn
+    function tqShowComplianceModal(checkResult, onConfirm, onCancel){
+      // Remove existing modal if present
+      var existing = document.getElementById('tq-compliance-modal');
+      if(existing) existing.remove();
+
+      var levelColor = checkResult.willBreach ? 'var(--red)' : '#fbbf24';
+      var levelBg = checkResult.willBreach ? 'rgba(239,68,68,.12)' : 'rgba(251,191,36,.12)';
+      var levelBorder = checkResult.willBreach ? 'rgba(239,68,68,.4)' : 'rgba(251,191,36,.4)';
+      var levelLabel = checkResult.willBreach ? 'RULE VIOLATION DETECTED' : 'COMPLIANCE WARNING';
+      var levelIcon = checkResult.willBreach
+        ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'
+        : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r="1" fill="currentColor"/></svg>';
+
+      var checksHtml = checkResult.checks.map(function(c){
+        var sColor = c.status === 'breach' ? 'var(--red)' : c.status === 'warn' ? '#fbbf24' : 'var(--green)';
+        var sBg = c.status === 'breach' ? 'rgba(239,68,68,.08)' : c.status === 'warn' ? 'rgba(251,191,36,.08)' : 'rgba(29,233,182,.06)';
+        var sBorder = c.status === 'breach' ? 'rgba(239,68,68,.25)' : c.status === 'warn' ? 'rgba(251,191,36,.25)' : 'rgba(29,233,182,.18)';
+        var sLabel = c.status === 'breach' ? 'BREACH' : c.status === 'warn' ? 'AT RISK' : 'OK';
+        var pctClamped = Math.min(100, c.pctOfLimit);
+
+        var formatVal = function(v){
+          if(c.mode === 'dollar') return '$' + v.toFixed(0);
+          return v.toFixed(2) + '%';
+        };
+
+        var barColor = c.status === 'breach' ? 'linear-gradient(90deg,#ef4444,#f87171)' :
+                       c.status === 'warn' ? 'linear-gradient(90deg,#fbbf24,#fcd34d)' :
+                       'linear-gradient(90deg,#1de9b6,#34d399)';
+
+        var changeHtml = '';
+        if(c.before !== c.after){
+          var delta = c.after - c.before;
+          var deltaStr = (delta >= 0 ? '+' : '') + formatVal(Math.abs(delta));
+          changeHtml = '<span style="color:var(--text3);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;margin-left:6px">'+formatVal(c.before)+' → <strong style="color:'+sColor+'">'+formatVal(c.after)+'</strong> ('+(delta>=0?'+':'')+deltaStr+')</span>';
+        }
+
+        return '<div style="margin-bottom:10px;padding:12px 14px;background:'+sBg+';border:1px solid '+sBorder+';border-left:3px solid '+sColor+';border-radius:0 8px 8px 0">'+
+          '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'+
+            '<div style="font-size:12px;font-weight:600;color:var(--text)">'+c.rule+'</div>'+
+            '<span style="font-size:9px;padding:2px 7px;background:'+sColor+';color:#0d0820;border-radius:3px;font-weight:700;letter-spacing:.4px">'+sLabel+'</span>'+
+          '</div>'+
+          '<div style="height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;position:relative;margin-bottom:5px">'+
+            '<div style="position:absolute;top:0;left:0;height:100%;width:'+pctClamped+'%;background:'+barColor+';border-radius:3px"></div>'+
+          '</div>'+
+          '<div style="font-size:11px;color:var(--text2);font-family:ui-monospace,SFMono-Regular,Menlo,monospace">'+
+            'After this trade: '+formatVal(c.after)+' / '+formatVal(c.limit)+' limit · '+pctClamped.toFixed(0)+'% of cap'+changeHtml+
+            (c.extra?'<div style="margin-top:3px;color:'+sColor+';font-size:10px">'+c.extra+'</div>':'')+
+          '</div>'+
+        '</div>';
+      }).join('');
+
+      var modal = document.createElement('div');
+      modal.id = 'tq-compliance-modal';
+      modal.className = 'jr-modal show open';
+      modal.style.zIndex = '9999';
+      modal.innerHTML =
+        '<div class="jr-modal-box" style="max-width:520px">'+
+          '<div class="jr-modal-head" style="background:'+levelBg+';border-bottom:1px solid '+levelBorder+'">'+
+            '<div style="display:flex;align-items:center;gap:10px;color:'+levelColor+'">'+
+              levelIcon +
+              '<div>'+
+                '<div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase">'+levelLabel+'</div>'+
+                '<div style="font-size:13px;color:var(--text);font-weight:600;margin-top:2px">'+escapeHtml(checkResult.accountName)+(checkResult.accountFirm?' · '+escapeHtml(checkResult.accountFirm):'')+'</div>'+
+              '</div>'+
+            '</div>'+
+            '<button class="pb-builder-close" onclick="tqCloseComplianceModal(false)">✕</button>'+
+          '</div>'+
+          '<div class="jr-modal-body" style="padding:18px 20px">'+
+            '<div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.55">'+
+              'This trade ('+(checkResult.proposedPnl>=0?'+':'-')+'$'+Math.abs(checkResult.proposedPnl).toFixed(0)+') will affect the following rules:'+
+            '</div>'+
+            checksHtml +
+            (checkResult.willBreach ?
+              '<div style="margin-top:14px;padding:12px 14px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:8px;font-size:11px;color:var(--text2);line-height:1.55">'+
+                '<strong style="color:var(--red)">⚠ Saving this trade will breach prop firm rules.</strong><br>'+
+                'You can still save it to keep your journal accurate, but be aware this likely violates your funded account agreement.'+
+              '</div>'
+              :
+              '<div style="margin-top:14px;padding:12px 14px;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);border-radius:8px;font-size:11px;color:var(--text2);line-height:1.55">'+
+                '<strong style="color:#fbbf24">⚠ This trade pushes you close to a rule limit.</strong><br>'+
+                'Consider reducing position size or skipping to preserve account safety.'+
+              '</div>'
+            )+
+          '</div>'+
+          '<div class="jr-modal-foot" style="padding:14px 20px">'+
+            '<button class="btn btn-ghost" style="font-size:12px" onclick="tqCloseComplianceModal(false)">Cancel Trade</button>'+
+            '<button class="btn btn-primary" style="font-size:12px;background:'+levelColor+';border-color:'+levelColor+';color:#0d0820;font-weight:700" onclick="tqCloseComplianceModal(true)">'+(checkResult.willBreach?'Save Anyway (Logged)':'Save Trade')+'</button>'+
+          '</div>'+
+        '</div>';
+      document.body.appendChild(modal);
+
+      // Store callbacks
+      window._tqComplianceCallbacks = { onConfirm: onConfirm, onCancel: onCancel };
+    }
+    window.tqShowComplianceModal = tqShowComplianceModal;
+
+    function tqCloseComplianceModal(confirmed){
+      var modal = document.getElementById('tq-compliance-modal');
+      if(modal) modal.remove();
+      var cb = window._tqComplianceCallbacks;
+      if(cb){
+        if(confirmed && cb.onConfirm) cb.onConfirm();
+        else if(!confirmed && cb.onCancel) cb.onCancel();
+        window._tqComplianceCallbacks = null;
+      }
+    }
+    window.tqCloseComplianceModal = tqCloseComplianceModal;
 
     // ── Daily-loss / drawdown breach notifier ──
     // Runs after every trade save. Compares each funded account's current state
@@ -18167,6 +18854,7 @@ window.toggleSidebar = function(){
     if (id === 'progress' && window.ptRender) { setTimeout(ptRender, 100); setTimeout(function(){if(window.aiGenerateDaily)aiGenerateDaily();if(window.aiGenerateWeekly)aiGenerateWeekly();},200); }
     if (id === 'resources' && window.rsRender) setTimeout(rsRender, 100);
     if (id === 'cockpit' && window.ckRender) setTimeout(ckRender, 100);
+    if (id === 'missioncontrol' && window.mcRender) setTimeout(mcRender, 100);
     if (id === 'news' && window.newsLoadWidget && !_newsLoaded) setTimeout(newsLoadWidget, 150);
     if (id === 'aicoach' && window.aiCoachInit){
       // Toggle empty state based on trade count
@@ -18487,7 +19175,7 @@ window.toggleSidebar = function(){
     }
   })();
 
-  ['dashboard','dayview','journal','notebook','reports','playbook','riskmonitor','accounts','trademanager','casestudies','progress','resources','cockpit','news','aicoach','youredge','trash'].forEach(function(id) {
+  ['dashboard','dayview','journal','notebook','reports','playbook','riskmonitor','accounts','trademanager','casestudies','progress','resources','cockpit','missioncontrol','news','aicoach','youredge','trash'].forEach(function(id) {
     var el = $('nav-' + id);
     if (el) el.addEventListener('click', function(){ showPage(id); });
   });
@@ -19258,6 +19946,201 @@ window.toggleSidebar = function(){
     if(m) m.classList.add('show');
   }
   window.openExportModal=openExportModal;
+
+  // ══ EMAIL REPORTS (May 2026) ══
+  // User opts in to weekly PDF email reports via Resend
+  var EMAIL_WORKER_URL = window.TQ_EMAIL_WORKER_URL || 'https://tradequill-email.gaipov-rustam.workers.dev';
+
+  function emailReportsLoadSettings(){
+    try{
+      var sup = window._tqSupa;
+      var user = window._tqUser;
+      if(!sup || !user) return; // wait for auth
+      sup.from('tq_email_settings').select('*').eq('user_id', user.id).maybeSingle().then(function(res){
+        if(res.error){ console.warn('Email settings load error:', res.error); return; }
+        var s = res.data || {};
+        var toggle = document.getElementById('email-reports-toggle');
+        var emailEl = document.getElementById('email-reports-email');
+        var tzEl = document.getElementById('email-reports-tz');
+        var ccEl = document.getElementById('email-reports-cc');
+        var settingsPanel = document.getElementById('email-reports-settings');
+        var toggleLabel = document.getElementById('email-toggle-label');
+
+        if(toggle) toggle.checked = !!s.enabled;
+        if(emailEl) emailEl.value = s.email || user.email || '';
+        if(tzEl && s.timezone) tzEl.value = s.timezone;
+        if(ccEl) ccEl.value = s.cc_email || '';
+
+        if(settingsPanel) settingsPanel.style.display = s.enabled ? 'block' : 'none';
+        if(toggleLabel) toggleLabel.textContent = s.enabled ? 'ON' : 'OFF';
+
+        if(s.last_sent_at){
+          var lastEl = document.getElementById('email-reports-last-sent');
+          var lastDate = document.getElementById('email-reports-last-date');
+          if(lastEl && lastDate){
+            lastEl.style.display = 'block';
+            lastDate.textContent = new Date(s.last_sent_at).toLocaleString();
+          }
+        }
+      });
+    } catch(e){ console.warn('Email settings load failed:', e); }
+  }
+  window.emailReportsLoadSettings = emailReportsLoadSettings;
+
+  function emailReportsSaveSettings(){
+    var sup = window._tqSupa;
+    var user = window._tqUser;
+    if(!sup || !user){
+      if(typeof tqToast === 'function') tqToast('Please sign in to save email settings', {type:'warning'});
+      return;
+    }
+    var toggle = document.getElementById('email-reports-toggle');
+    var emailEl = document.getElementById('email-reports-email');
+    var tzEl = document.getElementById('email-reports-tz');
+    var ccEl = document.getElementById('email-reports-cc');
+    var settingsPanel = document.getElementById('email-reports-settings');
+    var toggleLabel = document.getElementById('email-toggle-label');
+    var statusEl = document.getElementById('email-reports-status');
+
+    var enabled = toggle ? toggle.checked : false;
+    var email = emailEl ? emailEl.value.trim() : '';
+    var tz = tzEl ? tzEl.value : 'UTC';
+    var cc = ccEl ? ccEl.value.trim() : '';
+
+    if(settingsPanel) settingsPanel.style.display = enabled ? 'block' : 'none';
+    if(toggleLabel) toggleLabel.textContent = enabled ? 'ON' : 'OFF';
+
+    // Validate email if enabled
+    if(enabled && !email){
+      if(emailEl) emailEl.value = user.email || '';
+      email = user.email || '';
+    }
+    if(enabled && email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+      if(statusEl){statusEl.textContent='⚠ Invalid email';statusEl.style.color='var(--red)';}
+      return;
+    }
+    if(enabled && cc && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cc)){
+      if(statusEl){statusEl.textContent='⚠ Invalid CC email';statusEl.style.color='var(--red)';}
+      return;
+    }
+
+    var payload = {
+      user_id: user.id,
+      enabled: enabled,
+      email: email,
+      timezone: tz,
+      cc_email: cc || null,
+      updated_at: new Date().toISOString()
+    };
+
+    if(statusEl){statusEl.textContent='Saving…';statusEl.style.color='var(--text3)';}
+    sup.from('tq_email_settings').upsert(payload, {onConflict:'user_id'}).then(function(res){
+      if(res.error){
+        console.error('Email settings save error:', res.error);
+        if(statusEl){statusEl.textContent='✗ Save failed: '+res.error.message;statusEl.style.color='var(--red)';}
+        return;
+      }
+      if(statusEl){
+        statusEl.textContent = enabled ? '✓ Settings saved · Next Sunday 09:00 '+tz : '✓ Disabled';
+        statusEl.style.color = 'var(--green)';
+        setTimeout(function(){statusEl.textContent='';}, 4000);
+      }
+    });
+  }
+  window.emailReportsSaveSettings = emailReportsSaveSettings;
+
+  function emailReportsSendTest(){
+    var user = window._tqUser;
+    var sup = window._tqSupa;
+    if(!user || !sup){
+      if(typeof tqToast === 'function') tqToast('Sign in first', {type:'warning'});
+      return;
+    }
+    var emailEl = document.getElementById('email-reports-email');
+    var email = emailEl ? emailEl.value.trim() : '';
+    if(!email){
+      if(typeof tqToast === 'function') tqToast('Enter email first', {type:'warning'});
+      return;
+    }
+    var statusEl = document.getElementById('email-reports-status');
+    if(statusEl){statusEl.textContent='Sending test…';statusEl.style.color='var(--text3)';}
+
+    // Get user's last 7 days trades (Mon-Sun rolling)
+    var trades = (typeof getTradesArr === 'function') ? getTradesArr().filter(function(t){return !t._demo && !t.deleted;}) : [];
+    var weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    var weekTrades = trades.filter(function(t){
+      if(!t.date) return false;
+      return new Date(t.date) >= weekAgo;
+    });
+
+    if(weekTrades.length === 0){
+      // Send any trades user has — for test
+      weekTrades = trades.slice(-30);
+    }
+
+    // Generate PDF HTML via existing builder
+    var pdfHtml = '';
+    try{
+      pdfHtml = _buildPremiumReportHTML(weekTrades, 'Last 7 days', '');
+    } catch(e){
+      if(statusEl){statusEl.textContent='✗ Report generation failed';statusEl.style.color='var(--red)';}
+      console.error('Report gen error:', e);
+      return;
+    }
+
+    // Send to email worker
+    sup.auth.getSession().then(function(sessRes){
+      var token = sessRes.data.session ? sessRes.data.session.access_token : null;
+      if(!token){
+        if(statusEl){statusEl.textContent='✗ Not authenticated';statusEl.style.color='var(--red)';}
+        return;
+      }
+      fetch(EMAIL_WORKER_URL + '/send-test', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer '+token},
+        body: JSON.stringify({
+          email: email,
+          cc: document.getElementById('email-reports-cc').value.trim() || null,
+          html: pdfHtml,
+          trade_count: weekTrades.length,
+          period: 'Last 7 days (test)'
+        })
+      }).then(function(r){
+        return r.json().then(function(j){return {ok:r.ok, j:j};});
+      }).then(function(out){
+        if(out.ok){
+          if(statusEl){statusEl.textContent='✓ Test email sent — check your inbox in 30 sec';statusEl.style.color='var(--green)';}
+          if(typeof tqToast === 'function') tqToast('✓ Test email queued', {type:'success'});
+        } else {
+          if(statusEl){statusEl.textContent='✗ '+(out.j.error || 'Send failed');statusEl.style.color='var(--red)';}
+        }
+      }).catch(function(e){
+        if(statusEl){statusEl.textContent='✗ Network error: '+e.message;statusEl.style.color='var(--red)';}
+        console.error('Email test error:', e);
+      });
+    });
+  }
+  window.emailReportsSendTest = emailReportsSendTest;
+
+  // Auto-load email settings when Resources page opens
+  document.addEventListener('DOMContentLoaded', function(){
+    // Hook into existing page navigation
+    var origSetActive = window.setActiveSection;
+    if(origSetActive){
+      window.setActiveSection = function(name){
+        origSetActive.apply(this, arguments);
+        if(name === 'resources') setTimeout(emailReportsLoadSettings, 300);
+      };
+    }
+  });
+  // Also try after Supabase auth completes
+  setTimeout(function(){
+    if(window._tqUser && document.getElementById('page-resources')){
+      emailReportsLoadSettings();
+    }
+  }, 2500);
+  // ══ END EMAIL REPORTS ══
 
   function closePdfExportModal(){
     var m = document.getElementById('modal-pdfExport');
@@ -25969,6 +26852,33 @@ window.toggleSidebar = function(){
       }catch(e){ console.warn('Duplicate check failed', e); }
     }
 
+    // ═══ PRE-TRADE COMPLIANCE CHECK (Prop Suite Block 3) ═══
+    // Only on NEW trades, only if account has prop firm rules, and not yet overridden.
+    if(!jrEditId && !window._jrComplianceOverride && typeof tqPreTradeCheck === 'function'){
+      try{
+        var __accForCheck = (document.getElementById('jr-account').value||'').trim();
+        var __pnlForCheck = grossPnl - comm;
+        var __allTrades = JSON.parse(rfxGet('rf_trades')||'[]').filter(function(t){return !t.deleted;});
+        var __checkResult = tqPreTradeCheck(__accForCheck, __pnlForCheck, __allTrades);
+        if(__checkResult && (__checkResult.willBreach || __checkResult.willWarn)){
+          tqShowComplianceModal(
+            __checkResult,
+            function(){ // onConfirm — save anyway
+              window._jrComplianceOverride = true;
+              // Log override to console + telemetry
+              if(__checkResult.willBreach && typeof window.tqTrackEvent === 'function'){
+                try{ window.tqTrackEvent('compliance_override', {account: __accForCheck, breach: true}); }catch(e){}
+              }
+              jrSaveTrade();
+              window._jrComplianceOverride = false;
+            },
+            function(){ /* onCancel — do nothing, trade not saved */ }
+          );
+          return; // halt save until user decides
+        }
+      }catch(e){ console.warn('Compliance check failed', e); }
+    }
+
     var setupSel = document.getElementById('jr-setup');
     var setupId = setupSel.value || '';
     var setupName = setupSel.selectedIndex>0 ? setupSel.options[setupSel.selectedIndex].dataset.name : '';
@@ -27137,8 +28047,99 @@ window.toggleSidebar = function(){
       h2+='</div>';
       list.innerHTML=h2;
     }
+    if(typeof jrRenderRuleBanner === 'function') jrRenderRuleBanner();
   }
   window.renderJournal = renderJournal;
+
+  // ═══ JOURNAL PROP-FIRM RULE BANNER (Block 4) ═══
+  // When an account filter with prop rules is selected, show its live rule status
+  // above the trade list. Compact, color-coded, links to Mission Control.
+  function jrRenderRuleBanner(){
+    var banner = document.getElementById('jr-rule-banner');
+    if(!banner) return;
+    var accFilter = document.getElementById('jr-account-filter');
+    var accName = accFilter ? accFilter.value : '';
+    if(!accName || accName === 'All Accounts'){
+      banner.style.display = 'none';
+      banner.innerHTML = '';
+      return;
+    }
+    // Resolve account by name
+    var accs = (typeof accLoad === 'function') ? accLoad() : [];
+    var acc = accs.find(function(a){ return a.name === accName && !a.deleted; });
+    if(!acc){ banner.style.display='none'; banner.innerHTML=''; return; }
+
+    var trades = (typeof getTradesArr === 'function') ? getTradesArr().filter(function(t){return !t.deleted;}) : [];
+    var st = (typeof tqFundedStatus === 'function') ? tqFundedStatus(acc, trades) : null;
+    if(!st){ banner.style.display='none'; banner.innerHTML=''; return; }
+
+    // Determine overall status
+    var level = st.breaches.length > 0 ? 'critical' : st.warnings.length > 0 ? 'warning' : 'healthy';
+    var accent = level === 'critical' ? 'var(--red)' : level === 'warning' ? '#fbbf24' : 'var(--green)';
+    var bg = level === 'critical' ? 'rgba(239,68,68,.08)' : level === 'warning' ? 'rgba(251,191,36,.08)' : 'rgba(29,233,182,.05)';
+    var border = level === 'critical' ? 'rgba(239,68,68,.25)' : level === 'warning' ? 'rgba(251,191,36,.22)' : 'rgba(29,233,182,.16)';
+    var statusLabel = level === 'critical' ? 'RULE VIOLATION' : level === 'warning' ? 'AT RISK' : 'COMPLIANT';
+
+    // Build compact metric chips
+    var chips = [];
+    var ddMode = acc.ddMode || 'percent';
+    var fmt = function(v, mode){ return (mode === 'dollar') ? '$'+v.toFixed(0) : v.toFixed(1)+'%'; };
+
+    if(acc.dailyLossLimit != null){
+      var dlNow = ddMode==='dollar' ? st.dailyLossAbs : st.dailyLossPct;
+      var dlPct = st.dailyLossPctOf || 0;
+      var dlColor = dlPct >= 100 ? 'var(--red)' : dlPct >= 80 ? '#fbbf24' : 'var(--green)';
+      chips.push({label:'Daily Loss', val:fmt(dlNow,ddMode)+' / '+fmt(acc.dailyLossLimit,ddMode), pct:dlPct, color:dlColor});
+    }
+    if(acc.maxDrawdownLimit != null){
+      var ddNow = ddMode==='dollar' ? st.currentDdAbs : st.currentDdPct;
+      var ddPct = st.maxDdPctOf || 0;
+      var ddColor = ddPct >= 100 ? 'var(--red)' : ddPct >= 80 ? '#fbbf24' : 'var(--green)';
+      chips.push({label:'Max DD', val:fmt(ddNow,ddMode)+' / '+fmt(acc.maxDrawdownLimit,ddMode), pct:ddPct, color:ddColor});
+    }
+    if(acc.profitTarget != null){
+      var ptNow = ddMode==='dollar' ? st.profitAbs : st.profitPct;
+      var ptPct = st.profitPctOf || 0;
+      var ptColor = ptPct >= 100 ? 'var(--green)' : 'var(--accent3)';
+      chips.push({label:'Profit Target', val:fmt(Math.max(0,ptNow),ddMode)+' / '+fmt(acc.profitTarget,ddMode), pct:Math.min(100,ptPct), color:ptColor});
+    }
+    if(acc.minTradingDays != null){
+      var dPct = st.daysTradedOf || 0;
+      chips.push({label:'Trading Days', val:st.daysTraded+' / '+acc.minTradingDays, pct:Math.min(100,dPct), color: dPct>=100?'var(--green)':'var(--accent3)'});
+    }
+
+    var chipsHtml = chips.map(function(c){
+      return '<div style="flex:1;min-width:130px">'+
+        '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">'+
+          '<span style="font-size:9px;color:var(--text3);letter-spacing:.4px;text-transform:uppercase;font-weight:700">'+c.label+'</span>'+
+          '<span style="font-size:10px;color:'+c.color+';font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:600">'+c.val+'</span>'+
+        '</div>'+
+        '<div style="height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;position:relative">'+
+          '<div style="position:absolute;top:0;left:0;height:100%;width:'+Math.min(100,c.pct).toFixed(0)+'%;background:'+c.color+';border-radius:2px;opacity:.85"></div>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+
+    var firmLabel = acc.propFirm ? acc.propFirm : 'Funded Account';
+
+    banner.innerHTML =
+      '<div style="padding:14px 18px;background:'+bg+';border:1px solid '+border+';border-left:3px solid '+accent+';border-radius:0 10px 10px 0">'+
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">'+
+          '<div style="display:flex;align-items:center;gap:8px">'+
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="'+accent+'" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'+
+            '<span style="font-size:12px;font-weight:600;color:var(--text)">'+escapeHtml(firmLabel)+' Rules</span>'+
+            '<span style="font-size:8px;padding:2px 7px;background:'+accent+';color:#0d0820;border-radius:3px;font-weight:700;letter-spacing:.4px">'+statusLabel+'</span>'+
+            '<span style="font-size:10px;color:var(--text3);font-family:ui-monospace,SFMono-Regular,Menlo,monospace">Health '+st.health+'%</span>'+
+          '</div>'+
+          '<a onclick="showPage(\'missioncontrol\')" style="font-size:10px;color:var(--accent3);cursor:pointer;font-weight:600;display:flex;align-items:center;gap:4px">Mission Control →</a>'+
+        '</div>'+
+        '<div style="display:flex;gap:18px;flex-wrap:wrap">'+chipsHtml+'</div>'+
+        (st.breaches.length > 0 ? '<div style="margin-top:10px;font-size:11px;color:var(--red);line-height:1.4">⚠ '+st.breaches.join(' · ')+'</div>' : '')+
+        (st.warnings.length > 0 && st.breaches.length === 0 ? '<div style="margin-top:10px;font-size:11px;color:#fbbf24;line-height:1.4">'+st.warnings.join(' · ')+'</div>' : '')+
+      '</div>';
+    banner.style.display = 'block';
+  }
+  window.jrRenderRuleBanner = jrRenderRuleBanner;
 
   // ── Init on page show ──
   // (handled in showPage)
@@ -30354,6 +31355,420 @@ window.toggleSidebar = function(){
     if(typeof ckRenderChecklist==='function') ckRenderChecklist();
   }
   window.ckRender=ckRender;
+
+  // ═══════════════════════════════════════════════════════════════════
+  // MISSION CONTROL (May 2026 — Prop Suite v1)
+  // Renders unified view of all funded accounts with real-time rule status.
+  // ═══════════════════════════════════════════════════════════════════
+  function mcRender(){
+    var page = document.getElementById('page-missioncontrol');
+    if(!page) return;
+    var accs = (typeof accLoad === 'function') ? accLoad() : [];
+    accs = accs.filter(function(a){ return a && !a.deleted; });
+    var trades = (typeof getTradesArr === 'function') ? getTradesArr().filter(function(t){return !t.deleted;}) : [];
+
+    // Filter to accounts that have funded rules configured (or type === 'prop'/'challenge')
+    var propAccs = accs.filter(function(a){
+      var isFunded = (a.type === 'prop' || a.type === 'challenge');
+      var hasRules = a.dailyLossLimit != null || a.maxDrawdownLimit != null || a.profitTarget != null;
+      return isFunded || hasRules;
+    });
+
+    var emptyEl = document.getElementById('mc-empty');
+    var aggEl = document.getElementById('mc-agg-strip');
+    var warnEl = document.getElementById('mc-warnings-bar');
+    var listEl = document.getElementById('mc-account-cards');
+
+    if(propAccs.length === 0){
+      if(emptyEl) emptyEl.style.display = 'block';
+      if(aggEl) aggEl.innerHTML = '';
+      if(warnEl){ warnEl.style.display = 'none'; warnEl.innerHTML = ''; }
+      if(listEl) listEl.innerHTML = '';
+      document.getElementById('mc-hero-pnl').textContent = '$0';
+      document.getElementById('mc-hero-pnl').style.color = 'var(--text)';
+      document.getElementById('mc-hero-pnl-sub').textContent = 'no funded accounts';
+      document.getElementById('mc-hero-title').textContent = 'No accounts yet';
+      document.getElementById('mc-hero-sub').textContent = 'Add your first funded account to begin';
+      return;
+    }
+    if(emptyEl) emptyEl.style.display = 'none';
+
+    // Compute aggregate stats
+    var totalFunded = 0, totalPnl = 0, totalRisk = 0, criticalCount = 0, warningCount = 0;
+    var healthSum = 0, healthCount = 0;
+    var accountStatuses = []; // {acc, status}
+
+    propAccs.forEach(function(a){
+      var startBal = parseFloat(a.startingBalance || a.balance) || 0;
+      totalFunded += startBal;
+      var accTrades = trades.filter(function(t){ return t.account === a.id; });
+      var accPnl = accTrades.reduce(function(s,t){ return s + (parseFloat(t.pnl)||0); }, 0);
+      totalPnl += accPnl;
+
+      var st = tqFundedStatus(a, trades);
+      if(st){
+        if(st.breaches.length > 0) criticalCount++;
+        else if(st.warnings.length > 0) warningCount++;
+        healthSum += st.health || 0;
+        healthCount++;
+
+        // Risk today = remaining DD allowed (in $) before breach
+        if(a.maxDrawdownLimit != null){
+          var ddRoom;
+          if(a.ddMode === 'dollar'){
+            ddRoom = a.maxDrawdownLimit - st.currentDdAbs;
+          } else {
+            ddRoom = (a.maxDrawdownLimit - st.currentDdPct) / 100 * startBal;
+          }
+          if(ddRoom > 0) totalRisk += ddRoom;
+        }
+      }
+      accountStatuses.push({acc:a, status:st, pnl:accPnl, tradeCount:accTrades.length});
+    });
+
+    // Update hero
+    var heroPnl = document.getElementById('mc-hero-pnl');
+    heroPnl.textContent = (totalPnl >= 0 ? '+' : '-') + '$' + Math.abs(totalPnl).toFixed(0);
+    heroPnl.style.color = totalPnl >= 0 ? 'var(--green)' : 'var(--red)';
+    var heroPnlSub = document.getElementById('mc-hero-pnl-sub');
+    var pnlPct = totalFunded > 0 ? (totalPnl/totalFunded*100) : 0;
+    heroPnlSub.textContent = (pnlPct >= 0 ? '+' : '') + pnlPct.toFixed(2) + '% across ' + propAccs.length + ' accounts';
+    document.getElementById('mc-hero-title').textContent = propAccs.length + ' accounts · $' + totalFunded.toLocaleString() + ' funded';
+    document.getElementById('mc-hero-sub').textContent = 'Real-time rule monitoring across your prop firms';
+
+    // Aggregate strip
+    var avgHealth = healthCount > 0 ? Math.round(healthSum/healthCount) : 0;
+    var healthColor = avgHealth >= 70 ? 'var(--green)' : avgHealth >= 40 ? '#fbbf24' : 'var(--red)';
+    var criticalBg = criticalCount > 0 ? 'rgba(239,68,68,.08)' : 'rgba(255,255,255,.04)';
+    var criticalBorder = criticalCount > 0 ? 'rgba(239,68,68,.2)' : 'rgba(255,255,255,.08)';
+    var criticalColor = criticalCount > 0 ? 'var(--red)' : 'var(--text)';
+
+    aggEl.innerHTML =
+      '<div style="padding:14px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px">'+
+        '<div style="font-size:9px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700">Total Funded</div>'+
+        '<div style="font-size:20px;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums;letter-spacing:-.4px">$'+totalFunded.toLocaleString()+'</div>'+
+      '</div>'+
+      '<div style="padding:14px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px">'+
+        '<div style="font-size:9px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700">DD Room Available</div>'+
+        '<div style="font-size:20px;font-weight:600;margin-top:4px;color:#fbbf24;font-variant-numeric:tabular-nums;letter-spacing:-.4px">$'+totalRisk.toFixed(0)+'</div>'+
+      '</div>'+
+      '<div style="padding:14px 16px;background:'+criticalBg+';border:1px solid '+criticalBorder+';border-radius:10px">'+
+        '<div style="font-size:9px;color:'+(criticalCount>0?'var(--red)':'var(--text3)')+';letter-spacing:.5px;text-transform:uppercase;font-weight:700">Critical Alerts</div>'+
+        '<div style="font-size:20px;font-weight:600;margin-top:4px;color:'+criticalColor+';font-variant-numeric:tabular-nums;letter-spacing:-.4px">'+criticalCount+(warningCount > 0 ? '<span style="font-size:11px;color:#fbbf24;margin-left:6px">+'+warningCount+' warn</span>':'')+'</div>'+
+      '</div>'+
+      '<div style="padding:14px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px">'+
+        '<div style="font-size:9px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700">Avg Health</div>'+
+        '<div style="font-size:20px;font-weight:600;margin-top:4px;color:'+healthColor+';font-variant-numeric:tabular-nums;letter-spacing:-.4px">'+avgHealth+'%</div>'+
+      '</div>';
+
+    // Critical warnings banner
+    var criticalAccs = accountStatuses.filter(function(x){ return x.status && x.status.breaches.length > 0; });
+    if(criticalAccs.length > 0){
+      var warnings = criticalAccs.map(function(x){
+        return '<div style="font-size:11px;color:var(--red);margin-top:3px;line-height:1.4"><strong>'+x.acc.name+':</strong> '+x.status.breaches[0]+'</div>';
+      }).join('');
+      warnEl.innerHTML = '<div style="padding:14px 18px;background:rgba(239,68,68,.10);border:1px solid rgba(239,68,68,.3);border-left:3px solid var(--red);border-radius:0 10px 10px 0">'+
+        '<div style="display:flex;align-items:center;gap:8px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r="1" fill="var(--red)"/></svg><span style="font-size:11px;color:var(--red);font-weight:700;letter-spacing:.8px;text-transform:uppercase">Critical Rule Violations</span></div>'+
+        warnings +
+      '</div>';
+      warnEl.style.display = 'block';
+    } else {
+      warnEl.style.display = 'none';
+    }
+
+    // Sort: critical → warning → healthy
+    accountStatuses.sort(function(a,b){
+      var sa = a.status ? (a.status.breaches.length > 0 ? 0 : a.status.warnings.length > 0 ? 1 : 2) : 3;
+      var sb = b.status ? (b.status.breaches.length > 0 ? 0 : b.status.warnings.length > 0 ? 1 : 2) : 3;
+      if(sa !== sb) return sa - sb;
+      var ha = a.status ? a.status.health : 100;
+      var hb = b.status ? b.status.health : 100;
+      return ha - hb;
+    });
+
+    // Render account cards
+    listEl.innerHTML = accountStatuses.map(function(item){
+      return _mcRenderAccountCard(item.acc, item.status, item.pnl, item.tradeCount);
+    }).join('');
+
+    // Render payout pipeline
+    if(typeof mcRenderPayoutPipeline === 'function') mcRenderPayoutPipeline(accountStatuses);
+  }
+  window.mcRender = mcRender;
+
+  // ═══ PAYOUT PIPELINE (Phase 2) ═══
+  // Tracks payout eligibility + schedule across all funded accounts.
+  var MC_PAYOUT_LOG_KEY = 'tq_payout_log';
+
+  function mcLoadPayoutLog(){
+    try{ return JSON.parse(rfxGet(MC_PAYOUT_LOG_KEY) || '[]'); }catch(e){ return []; }
+  }
+  function mcSavePayoutLog(log){
+    rfxSet(MC_PAYOUT_LOG_KEY, JSON.stringify(log));
+    if(typeof tqPushSettings === 'function') tqPushSettings();
+  }
+
+  // Compute next payout date from schedule
+  function _mcNextPayoutDate(schedule, lastPayoutDate){
+    var now = new Date();
+    var base = lastPayoutDate ? new Date(lastPayoutDate) : now;
+    var next = new Date(base);
+    if(schedule === 'biweekly' || schedule === '14days'){
+      next.setDate(next.getDate() + 14);
+      if(next < now){ // catch up
+        while(next < now) next.setDate(next.getDate() + 14);
+      }
+      return next;
+    } else if(schedule === 'monthly'){
+      next.setMonth(next.getMonth() + 1);
+      if(next < now){ next = new Date(now.getFullYear(), now.getMonth()+1, 1); }
+      return next;
+    } else if(schedule === 'ondemand'){
+      return null; // on-demand = available now if eligible
+    }
+    return null;
+  }
+
+  function mcRenderPayoutPipeline(accountStatuses){
+    var el = document.getElementById('mc-payout-pipeline');
+    if(!el) return;
+
+    // Filter to accounts with payout schedule + positive profit
+    var payoutAccs = accountStatuses.filter(function(item){
+      return item.acc.payoutSchedule && item.pnl > 0;
+    });
+
+    if(payoutAccs.length === 0){
+      el.style.display = 'none';
+      el.innerHTML = '';
+      return;
+    }
+
+    var log = mcLoadPayoutLog();
+    var ytdTotal = log.filter(function(p){
+      return new Date(p.date).getFullYear() === new Date().getFullYear();
+    }).reduce(function(s,p){ return s + (parseFloat(p.amount)||0); }, 0);
+
+    var pendingTotal = 0;
+    var rows = payoutAccs.map(function(item){
+      var acc = item.acc;
+      var split = acc.profitSplit || 100;
+      var eligibleAmount = item.pnl * (split/100);
+      pendingTotal += eligibleAmount;
+
+      var lastPayout = log.filter(function(p){return p.accountId === acc.id;})
+                          .sort(function(a,b){return b.date.localeCompare(a.date);})[0];
+      var nextDate = _mcNextPayoutDate(acc.payoutSchedule, lastPayout ? lastPayout.date : null);
+
+      var schedLabel = acc.payoutSchedule === 'biweekly' ? 'Bi-weekly' :
+                       acc.payoutSchedule === 'monthly' ? 'Monthly' :
+                       acc.payoutSchedule === 'ondemand' ? 'On-demand' :
+                       acc.payoutSchedule === '14days' ? 'Every 14 days' : acc.payoutSchedule;
+
+      var whenLabel, whenColor;
+      if(acc.payoutSchedule === 'ondemand'){
+        whenLabel = 'Available now';
+        whenColor = 'var(--green)';
+      } else if(nextDate){
+        var days = Math.ceil((nextDate - new Date())/(86400*1000));
+        whenLabel = days <= 0 ? 'Eligible now' : 'In '+days+' day'+(days===1?'':'s')+' ('+nextDate.toLocaleDateString('en-US',{month:'short',day:'numeric'})+')';
+        whenColor = days <= 3 ? 'var(--green)' : 'var(--text2)';
+      } else {
+        whenLabel = '—';
+        whenColor = 'var(--text3)';
+      }
+
+      return '<tr style="border-bottom:1px solid var(--border)">'+
+        '<td style="padding:10px 12px;font-weight:600;font-size:12px;color:var(--text)">'+escapeHtml(acc.name)+'</td>'+
+        '<td style="padding:10px 12px;font-size:11px;color:var(--text2)">'+schedLabel+'</td>'+
+        '<td style="padding:10px 12px;font-size:11px;color:var(--text2);font-family:ui-monospace,SFMono-Regular,Menlo,monospace">'+(split)+'%</td>'+
+        '<td style="padding:10px 12px;text-align:right;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--green);font-weight:600">$'+eligibleAmount.toFixed(0)+'</td>'+
+        '<td style="padding:10px 12px;font-size:11px;color:'+whenColor+';white-space:nowrap">'+whenLabel+'</td>'+
+        '<td style="padding:10px 12px;text-align:right"><button onclick="mcLogPayout(\''+acc.id+'\','+eligibleAmount.toFixed(0)+')" style="font-size:10px;padding:4px 10px;background:rgba(124,90,240,.12);border:1px solid rgba(124,90,240,.25);color:var(--accent3);border-radius:5px;cursor:pointer;font-weight:600">Log Payout</button></td>'+
+      '</tr>';
+    }).join('');
+
+    el.innerHTML =
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">'+
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent3)" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg>'+
+        '<span style="font-size:13px;font-weight:600;color:var(--text)">Payout Pipeline</span>'+
+        '<div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(124,90,240,.2),transparent)"></div>'+
+        '<span style="font-size:10px;color:var(--text3)">YTD: <strong style="color:var(--green)">$'+ytdTotal.toFixed(0)+'</strong> · Pending: <strong style="color:var(--accent3)">$'+pendingTotal.toFixed(0)+'</strong></span>'+
+      '</div>'+
+      '<div style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:10px;overflow:hidden">'+
+        '<table style="width:100%;border-collapse:collapse">'+
+          '<thead><tr style="background:rgba(255,255,255,.04)">'+
+            '<th style="text-align:left;padding:9px 12px;font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:700">Account</th>'+
+            '<th style="text-align:left;padding:9px 12px;font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:700">Schedule</th>'+
+            '<th style="text-align:left;padding:9px 12px;font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:700">Split</th>'+
+            '<th style="text-align:right;padding:9px 12px;font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:700">Eligible</th>'+
+            '<th style="text-align:left;padding:9px 12px;font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:700">Next Payout</th>'+
+            '<th style="padding:9px 12px"></th>'+
+          '</tr></thead>'+
+          '<tbody>'+rows+'</tbody>'+
+        '</table>'+
+      '</div>'+
+      '<div style="font-size:10px;color:var(--text3);margin-top:8px;line-height:1.5">Eligible = current profit × split %. "Log Payout" records a withdrawal and resets the next cycle. YTD tracks all logged payouts this year.</div>';
+    el.style.display = 'block';
+  }
+  window.mcRenderPayoutPipeline = mcRenderPayoutPipeline;
+
+  function mcLogPayout(accountId, amount){
+    var accs = (typeof accLoad === 'function') ? accLoad() : [];
+    var acc = accs.find(function(a){ return a.id === accountId; });
+    if(!acc) return;
+    tqConfirm(
+      'Log a payout of $'+Number(amount).toFixed(0)+' from '+acc.name+'?\n\nThis records the withdrawal for YTD tracking and resets the payout cycle.',
+      {title:'Log Payout', okLabel:'Log $'+Number(amount).toFixed(0), cancelLabel:'Cancel'}
+    ).then(function(ok){
+      if(!ok) return;
+      var log = mcLoadPayoutLog();
+      log.push({
+        id: 'po_'+Date.now(),
+        accountId: accountId,
+        accountName: acc.name,
+        amount: Number(amount),
+        date: new Date().toISOString().slice(0,10),
+        createdAt: new Date().toISOString()
+      });
+      mcSavePayoutLog(log);
+      if(typeof tqToast === 'function') tqToast('Payout logged: $'+Number(amount).toFixed(0), {type:'success'});
+      mcRender();
+    });
+  }
+  window.mcLogPayout = mcLogPayout;
+
+  function _mcRenderAccountCard(acc, st, pnl, tradeCount){
+    var startBal = parseFloat(acc.startingBalance || acc.balance) || 0;
+
+    // Determine status
+    var statusLevel = 'healthy';
+    var statusLabel = 'HEALTHY';
+    var accent = 'var(--green)';
+    var bgGrad = 'linear-gradient(90deg,rgba(29,233,182,.06),rgba(255,255,255,.02))';
+    var borderColor = 'rgba(29,233,182,.18)';
+    var pillBg = 'rgba(29,233,182,.15)';
+    var pillColor = 'var(--green)';
+
+    if(st && st.breaches.length > 0){
+      statusLevel = 'critical';
+      statusLabel = 'CRITICAL';
+      accent = 'var(--red)';
+      bgGrad = 'linear-gradient(90deg,rgba(239,68,68,.10),rgba(255,255,255,.02))';
+      borderColor = 'rgba(239,68,68,.25)';
+      pillBg = 'rgba(239,68,68,.2)';
+      pillColor = 'var(--red)';
+    } else if(st && st.warnings.length > 0){
+      statusLevel = 'warning';
+      statusLabel = 'WARNING';
+      accent = '#fbbf24';
+      bgGrad = 'linear-gradient(90deg,rgba(251,191,36,.10),rgba(255,255,255,.02))';
+      borderColor = 'rgba(251,191,36,.25)';
+      pillBg = 'rgba(251,191,36,.18)';
+      pillColor = '#fbbf24';
+    } else if(!st){
+      statusLevel = 'norules';
+      statusLabel = 'NO RULES';
+      accent = 'var(--text3)';
+      bgGrad = 'linear-gradient(90deg,rgba(255,255,255,.04),rgba(255,255,255,.02))';
+      borderColor = 'rgba(255,255,255,.1)';
+      pillBg = 'rgba(255,255,255,.08)';
+      pillColor = 'var(--text3)';
+    }
+
+    // Firm badge (first 2-4 chars of propFirm name)
+    var firmName = acc.propFirm || acc.name || '?';
+    var firmAbbr = firmName.replace(/[^A-Z]/g, '').slice(0,4);
+    if(!firmAbbr) firmAbbr = firmName.slice(0,3).toUpperCase();
+    if(firmName.toLowerCase().includes('ftmo')) firmAbbr = 'FTMO';
+    if(firmName.toLowerCase().includes('topstep')) firmAbbr = 'TS';
+    if(firmName.toLowerCase().includes('apex')) firmAbbr = 'APEX';
+    if(firmName.toLowerCase().includes('myfunded') || firmName.toLowerCase().includes('mff')) firmAbbr = 'MFF';
+    if(firmName.toLowerCase().includes('fundednext')) firmAbbr = 'FN';
+    if(firmName.toLowerCase().includes('5ers')) firmAbbr = '5ERS';
+
+    // Rules meta line
+    var rulesMeta = [];
+    if(acc.ddType){
+      var ddLabel = acc.ddType === 'static' ? 'Static' : acc.ddType === 'trailing' ? 'Trailing' : 'Trailing EOD';
+      rulesMeta.push(ddLabel);
+    }
+    if(acc.dailyLossLimit){
+      rulesMeta.push('Daily '+(acc.ddMode==='dollar'?'$':'')+acc.dailyLossLimit+(acc.ddMode!=='dollar'?'%':''));
+    }
+    if(acc.maxDrawdownLimit){
+      rulesMeta.push('Max '+(acc.ddMode==='dollar'?'$':'')+acc.maxDrawdownLimit+(acc.ddMode!=='dollar'?'%':''));
+    }
+    if(acc.consistencyRule){
+      rulesMeta.push('Consistency '+acc.consistencyRule+'%');
+    }
+    if(acc.profitSplit){
+      rulesMeta.push(acc.profitSplit+'/'+(100-acc.profitSplit)+' split');
+    }
+    var rulesMetaStr = rulesMeta.join(' · ') || 'No rules set';
+
+    // DD progress bar (if maxDrawdownLimit exists)
+    var ddBar = '';
+    var ddInsight = '';
+    if(st && acc.maxDrawdownLimit){
+      var ddPctOfLimit = st.maxDdPctOf || 0;
+      var barColor = ddPctOfLimit >= 80 ? 'linear-gradient(90deg,#ef4444,#f87171)' :
+                     ddPctOfLimit >= 60 ? 'linear-gradient(90deg,#fbbf24,#fcd34d)' :
+                     'linear-gradient(90deg,#1de9b6,#34d399)';
+      ddBar = '<div style="height:4px;background:rgba(255,255,255,.08);border-radius:2px;margin-top:7px;overflow:hidden;position:relative">'+
+              '<div style="position:absolute;top:0;left:0;height:100%;width:'+Math.min(100,ddPctOfLimit).toFixed(1)+'%;background:'+barColor+';border-radius:2px"></div>'+
+              '</div>';
+      var ddCur = acc.ddMode === 'dollar' ? '$'+st.currentDdAbs.toFixed(0) : st.currentDdPct.toFixed(2)+'%';
+      var ddMax = acc.ddMode === 'dollar' ? '$'+acc.maxDrawdownLimit : acc.maxDrawdownLimit+'%';
+      var insightColor = ddPctOfLimit >= 80 ? 'var(--red)' : ddPctOfLimit >= 60 ? '#fbbf24' : 'var(--green)';
+      var extraInsight = '';
+      if(st.breaches.length > 0){
+        extraInsight = ' · <strong>' + st.breaches[0] + '</strong>';
+      } else if(st.warnings.length > 0){
+        extraInsight = ' · ' + st.warnings[0];
+      } else if(st.profitTargetMet){
+        extraInsight = ' · Target met ✓';
+      } else if(acc.profitTarget && st.profitPctOf > 0){
+        extraInsight = ' · Profit ' + st.profitPctOf.toFixed(0) + '% to target';
+      }
+      ddInsight = '<div style="font-size:9px;color:'+insightColor+';margin-top:3px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace">DD: '+ddCur+' / '+ddMax+' ('+ddPctOfLimit.toFixed(0)+'%)'+extraInsight+'</div>';
+    }
+
+    // Status pill row (status + optional payout pill)
+    var pills = '<span style="font-size:8px;padding:2px 6px;background:'+pillBg+';color:'+pillColor+';border-radius:3px;font-weight:700;letter-spacing:.4px">'+statusLabel+'</span>';
+    // Profit eligibility pill (if profit target met or near met)
+    if(st && st.profitTargetMet){
+      pills += '<span style="font-size:8px;padding:2px 6px;background:rgba(124,90,240,.18);color:var(--accent3);border-radius:3px;font-weight:700;letter-spacing:.4px;margin-left:4px">TARGET MET</span>';
+    }
+
+    var pnlColor = pnl >= 0 ? 'var(--green)' : 'var(--red)';
+    var pnlStr = (pnl >= 0 ? '+' : '-') + '$' + Math.abs(pnl).toFixed(0);
+    var healthStr = st ? (st.health + '%') : '—';
+    var healthColor2 = st ? (st.health >= 70 ? 'var(--green)' : st.health >= 40 ? '#fbbf24' : 'var(--red)') : 'var(--text3)';
+
+    return '<div style="padding:14px 18px;background:'+bgGrad+';border:1px solid '+borderColor+';border-left:3px solid '+accent+';border-radius:0 10px 10px 0;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;cursor:pointer;transition:transform .15s" '+
+      'onmouseover="this.style.transform=\'translateX(2px)\'" onmouseout="this.style.transform=\'\'" '+
+      'onclick="showPage(\'accounts\');setTimeout(function(){if(window.openEditAccountModal)openEditAccountModal(\''+acc.id+'\');},150)" '+
+      'title="Click to edit account">'+
+      // Firm badge
+      '<div style="width:44px;height:44px;background:'+pillBg+';border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:'+accent+';letter-spacing:.5px">'+firmAbbr+'</div>'+
+      // Content
+      '<div style="min-width:0">'+
+        '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'+
+          '<span style="font-size:13px;font-weight:600;color:var(--text)">'+escapeHtml(acc.name)+'</span>'+
+          pills +
+        '</div>'+
+        '<div style="font-size:10px;color:var(--text3);margin-top:3px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+rulesMetaStr+' · '+tradeCount+' trades</div>'+
+        ddBar +
+        ddInsight +
+      '</div>'+
+      // P&L + Health
+      '<div style="text-align:right;white-space:nowrap">'+
+        '<div style="font-size:18px;font-weight:600;color:'+pnlColor+';font-variant-numeric:tabular-nums;line-height:1;letter-spacing:-.3px">'+pnlStr+'</div>'+
+        '<div style="font-size:9px;color:'+healthColor2+';margin-top:3px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:600">Health '+healthStr+'</div>'+
+      '</div>'+
+    '</div>';
+  }
 
   // ── Pre-Trade Readiness Checklist ──
   // 6 items the trader should verify BEFORE entering a position. Score is auto-derived
