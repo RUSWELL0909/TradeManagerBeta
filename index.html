@@ -5443,6 +5443,9 @@ window.toggleSidebar = function(){
     <!-- PAYOUT PIPELINE (Phase 2) -->
     <div id="mc-payout-pipeline" style="display:none;margin-top:22px"></div>
 
+    <!-- AGGREGATED ANALYTICS (Phase 2) -->
+    <div id="mc-analytics" style="display:none;margin-top:22px"></div>
+
     <!-- EMPTY STATE -->
     <div id="mc-empty" style="display:none;padding:60px 24px;text-align:center;background:rgba(124,90,240,.03);border:1px dashed rgba(124,90,240,.2);border-radius:14px">
       <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent3)" stroke-width="1.5" style="opacity:.5;margin-bottom:14px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -31493,6 +31496,8 @@ window.toggleSidebar = function(){
 
     // Render payout pipeline
     if(typeof mcRenderPayoutPipeline === 'function') mcRenderPayoutPipeline(accountStatuses);
+    // Render aggregated analytics
+    if(typeof mcRenderAnalytics === 'function') mcRenderAnalytics(accountStatuses, trades);
   }
   window.mcRender = mcRender;
 
@@ -31637,6 +31642,138 @@ window.toggleSidebar = function(){
     });
   }
   window.mcLogPayout = mcLogPayout;
+
+  // ═══ AGGREGATED ANALYTICS (Phase 2) ═══
+  // Cross-firm strategy performance — which setup works best on which firm.
+  function mcRenderAnalytics(accountStatuses, allTrades){
+    var el = document.getElementById('mc-analytics');
+    if(!el) return;
+    if(accountStatuses.length < 1){ el.style.display='none'; el.innerHTML=''; return; }
+
+    var propAccIds = accountStatuses.map(function(x){ return x.acc.id; });
+    var accById = {};
+    accountStatuses.forEach(function(x){ accById[x.acc.id] = x.acc; });
+
+    // Filter trades belonging to prop accounts
+    var propTrades = allTrades.filter(function(t){ return propAccIds.indexOf(t.account) >= 0; });
+    if(propTrades.length < 3){ el.style.display='none'; el.innerHTML=''; return; }
+
+    // ── 1. Best setup across all firms ──
+    var bySetup = {};
+    propTrades.forEach(function(t){
+      var s = t.setup || 'Untagged';
+      if(!bySetup[s]) bySetup[s] = {pnl:0, count:0, wins:0};
+      bySetup[s].pnl += (parseFloat(t.pnl)||0);
+      bySetup[s].count++;
+      if((parseFloat(t.pnl)||0) > 0) bySetup[s].wins++;
+    });
+    var setupRanked = Object.keys(bySetup).filter(function(s){return bySetup[s].count >= 2;})
+      .sort(function(a,b){return bySetup[b].pnl - bySetup[a].pnl;});
+
+    // ── 2. Per-firm performance ──
+    var byFirm = {};
+    propTrades.forEach(function(t){
+      var acc = accById[t.account];
+      var firm = (acc && acc.propFirm) ? acc.propFirm : (acc ? acc.name : 'Unknown');
+      if(!byFirm[firm]) byFirm[firm] = {pnl:0, count:0, wins:0};
+      byFirm[firm].pnl += (parseFloat(t.pnl)||0);
+      byFirm[firm].count++;
+      if((parseFloat(t.pnl)||0) > 0) byFirm[firm].wins++;
+    });
+    var firmRanked = Object.keys(byFirm).sort(function(a,b){return byFirm[b].pnl - byFirm[a].pnl;});
+
+    // ── 3. Setup × Firm matrix (find best combos) ──
+    var matrix = {};
+    propTrades.forEach(function(t){
+      var acc = accById[t.account];
+      var firm = (acc && acc.propFirm) ? acc.propFirm : (acc ? acc.name : 'Unknown');
+      var setup = t.setup || 'Untagged';
+      var key = setup + '|||' + firm;
+      if(!matrix[key]) matrix[key] = {setup:setup, firm:firm, pnl:0, count:0, wins:0};
+      matrix[key].pnl += (parseFloat(t.pnl)||0);
+      matrix[key].count++;
+      if((parseFloat(t.pnl)||0) > 0) matrix[key].wins++;
+    });
+    var combos = Object.keys(matrix).map(function(k){return matrix[k];}).filter(function(c){return c.count >= 2;});
+    var bestCombo = combos.slice().sort(function(a,b){return b.pnl - a.pnl;})[0];
+    var worstCombo = combos.slice().sort(function(a,b){return a.pnl - b.pnl;})[0];
+
+    // Build setup rows (top 5)
+    var setupRows = setupRanked.slice(0,5).map(function(s){
+      var d = bySetup[s];
+      var wr = d.count > 0 ? (d.wins/d.count*100) : 0;
+      var pnlColor = d.pnl >= 0 ? 'var(--green)' : 'var(--red)';
+      return '<tr style="border-bottom:1px solid var(--border)">'+
+        '<td style="padding:8px 12px;font-size:12px;font-weight:600;color:var(--text)">'+escapeHtml(s)+'</td>'+
+        '<td style="padding:8px 12px;text-align:right;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--text2)">'+d.count+'</td>'+
+        '<td style="padding:8px 12px;text-align:right;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:'+(wr>=50?'var(--green)':'var(--red)')+'">'+wr.toFixed(0)+'%</td>'+
+        '<td style="padding:8px 12px;text-align:right;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:'+pnlColor+';font-weight:600">'+(d.pnl>=0?'+':'-')+'$'+Math.abs(d.pnl).toFixed(0)+'</td>'+
+      '</tr>';
+    }).join('');
+
+    // Build firm rows
+    var firmRows = firmRanked.map(function(f){
+      var d = byFirm[f];
+      var wr = d.count > 0 ? (d.wins/d.count*100) : 0;
+      var pnlColor = d.pnl >= 0 ? 'var(--green)' : 'var(--red)';
+      return '<tr style="border-bottom:1px solid var(--border)">'+
+        '<td style="padding:8px 12px;font-size:12px;font-weight:600;color:var(--text)">'+escapeHtml(f)+'</td>'+
+        '<td style="padding:8px 12px;text-align:right;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--text2)">'+d.count+'</td>'+
+        '<td style="padding:8px 12px;text-align:right;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:'+(wr>=50?'var(--green)':'var(--red)')+'">'+wr.toFixed(0)+'%</td>'+
+        '<td style="padding:8px 12px;text-align:right;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:'+pnlColor+';font-weight:600">'+(d.pnl>=0?'+':'-')+'$'+Math.abs(d.pnl).toFixed(0)+'</td>'+
+      '</tr>';
+    }).join('');
+
+    // Insight callout
+    var insightHtml = '';
+    if(bestCombo && bestCombo.pnl > 0){
+      var bwr = bestCombo.count > 0 ? (bestCombo.wins/bestCombo.count*100) : 0;
+      insightHtml += '<div style="flex:1;min-width:240px;padding:14px 16px;background:rgba(29,233,182,.06);border:1px solid rgba(29,233,182,.18);border-left:3px solid var(--green);border-radius:0 8px 8px 0">'+
+        '<div style="font-size:9px;color:var(--green);font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:5px">Best Combo</div>'+
+        '<div style="font-size:13px;color:var(--text);font-weight:600">'+escapeHtml(bestCombo.setup)+' on '+escapeHtml(bestCombo.firm)+'</div>'+
+        '<div style="font-size:11px;color:var(--text2);margin-top:3px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace">+$'+bestCombo.pnl.toFixed(0)+' · '+bwr.toFixed(0)+'% WR · '+bestCombo.count+' trades</div>'+
+      '</div>';
+    }
+    if(worstCombo && worstCombo.pnl < 0 && worstCombo !== bestCombo){
+      var wwr = worstCombo.count > 0 ? (worstCombo.wins/worstCombo.count*100) : 0;
+      insightHtml += '<div style="flex:1;min-width:240px;padding:14px 16px;background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.18);border-left:3px solid var(--red);border-radius:0 8px 8px 0">'+
+        '<div style="font-size:9px;color:var(--red);font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:5px">Biggest Leak</div>'+
+        '<div style="font-size:13px;color:var(--text);font-weight:600">'+escapeHtml(worstCombo.setup)+' on '+escapeHtml(worstCombo.firm)+'</div>'+
+        '<div style="font-size:11px;color:var(--text2);margin-top:3px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace">-$'+Math.abs(worstCombo.pnl).toFixed(0)+' · '+wwr.toFixed(0)+'% WR · '+worstCombo.count+' trades</div>'+
+      '</div>';
+    }
+
+    el.innerHTML =
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">'+
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent3)" stroke-width="1.8"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>'+
+        '<span style="font-size:13px;font-weight:600;color:var(--text)">Cross-Firm Analytics</span>'+
+        '<div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(124,90,240,.2),transparent)"></div>'+
+        '<span style="font-size:10px;color:var(--text3)">'+propTrades.length+' trades across '+firmRanked.length+' firm'+(firmRanked.length===1?'':'s')+'</span>'+
+      '</div>'+
+      (insightHtml ? '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">'+insightHtml+'</div>' : '')+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'+
+        '<div>'+
+          '<div style="font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px">Best Strategies (all firms)</div>'+
+          '<div style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:8px;overflow:hidden">'+
+            '<table style="width:100%;border-collapse:collapse">'+
+              '<thead><tr style="background:rgba(255,255,255,.04)"><th style="text-align:left;padding:7px 12px;font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;font-weight:700">Setup</th><th style="text-align:right;padding:7px 12px;font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;font-weight:700">N</th><th style="text-align:right;padding:7px 12px;font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;font-weight:700">WR</th><th style="text-align:right;padding:7px 12px;font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;font-weight:700">P&amp;L</th></tr></thead>'+
+              '<tbody>'+(setupRows||'<tr><td colspan="4" style="padding:14px;text-align:center;font-size:11px;color:var(--text3)">Tag setups to see analysis</td></tr>')+'</tbody>'+
+            '</table>'+
+          '</div>'+
+        '</div>'+
+        '<div>'+
+          '<div style="font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px">Performance by Firm</div>'+
+          '<div style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:8px;overflow:hidden">'+
+            '<table style="width:100%;border-collapse:collapse">'+
+              '<thead><tr style="background:rgba(255,255,255,.04)"><th style="text-align:left;padding:7px 12px;font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;font-weight:700">Firm</th><th style="text-align:right;padding:7px 12px;font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;font-weight:700">N</th><th style="text-align:right;padding:7px 12px;font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;font-weight:700">WR</th><th style="text-align:right;padding:7px 12px;font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;font-weight:700">P&amp;L</th></tr></thead>'+
+              '<tbody>'+firmRows+'</tbody>'+
+            '</table>'+
+          '</div>'+
+        '</div>'+
+      '</div>';
+    el.style.display = 'block';
+  }
+  window.mcRenderAnalytics = mcRenderAnalytics;
 
   function _mcRenderAccountCard(acc, st, pnl, tradeCount){
     var startBal = parseFloat(acc.startingBalance || acc.balance) || 0;
