@@ -4705,6 +4705,11 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
 
 /* Email Reports toggle switch (May 2026) */
 .email-toggle-switch{position:relative;width:42px;height:24px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;transition:all .2s;flex-shrink:0}
+
+/* View Mode toggle (May 28 2026 — Prop Suite) */
+.vm-btn:hover{background:rgba(255,255,255,.04);color:var(--text)}
+.vm-btn.active{background:var(--accent);color:#fff;box-shadow:0 1px 4px rgba(124,90,240,.4)}
+.vm-btn.active:hover{background:var(--accent);color:#fff}
 .email-toggle-thumb{position:absolute;top:2px;left:2px;width:18px;height:18px;background:var(--text3);border-radius:50%;transition:all .25s cubic-bezier(.4,0,.2,1)}
 .email-toggle input:checked + .email-toggle-switch{background:rgba(124,90,240,.18);border-color:rgba(124,90,240,.4)}
 .email-toggle input:checked + .email-toggle-switch .email-toggle-thumb{transform:translateX(18px);background:var(--accent);box-shadow:0 0 8px rgba(124,90,240,.5)}
@@ -5167,9 +5172,20 @@ const _tqSupabaseLoad = (async () => {
 
 <!-- ══ SUPABASE AUTH OVERLAY ══ -->
 <style>
-#tq-auth-overlay{position:fixed;inset:0;z-index:99999;background:var(--bg);display:flex;align-items:center;justify-content:center;opacity:1;transition:opacity .4s}
+#tq-auth-overlay{position:fixed;inset:0;z-index:99999;background:var(--bg);display:flex;align-items:center;justify-content:center;opacity:1;transition:opacity .4s;overflow:hidden}
 #tq-auth-overlay.hidden{opacity:0;pointer-events:none}
-.tq-auth-box{width:380px;max-width:92vw;padding:40px 32px;border-radius:20px;background:var(--card);border:1px solid var(--border);text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+
+/* Login background video (May 28 2026) */
+#tq-login-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0;transition:opacity 1.2s ease-out}
+#tq-login-video.loaded{opacity:1}
+#tq-login-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(135deg,rgba(13,8,32,.72) 0%,rgba(26,19,48,.78) 50%,rgba(36,25,71,.85) 100%);pointer-events:none}
+#tq-login-vignette{position:absolute;inset:0;z-index:1;background:radial-gradient(ellipse at center,transparent 30%,rgba(13,8,32,.6) 100%);pointer-events:none}
+
+.tq-auth-box{position:relative;z-index:2;width:380px;max-width:92vw;padding:40px 32px;border-radius:20px;background:rgba(20,15,40,.55);border:1px solid rgba(255,255,255,.12);text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 0 1px rgba(124,90,240,.08);backdrop-filter:blur(20px) saturate(140%);-webkit-backdrop-filter:blur(20px) saturate(140%)}
+
+/* Light theme fallback (less blur) */
+[data-theme="light"] .tq-auth-box{background:rgba(255,255,255,.7);border-color:rgba(0,0,0,.08);color:#0f172a}
+[data-theme="light"] #tq-login-overlay{background:linear-gradient(135deg,rgba(255,255,255,.4) 0%,rgba(240,235,255,.5) 100%)}
 .tq-auth-logo{margin-bottom:24px}
 .tq-auth-title{font-family:Inter,sans-serif;font-size:22px;font-weight:600;color:var(--text);margin-bottom:6px}
 .tq-auth-sub{font-size:12px;color:var(--text3);margin-bottom:28px;font-family:Inter,sans-serif}
@@ -5214,6 +5230,13 @@ const _tqSupabaseLoad = (async () => {
 </style>
 
 <div id="tq-auth-overlay">
+  <!-- Premium cinematic background video (May 28, 2026) -->
+  <video id="tq-login-video" autoplay muted loop playsinline preload="auto" oncanplay="this.classList.add('loaded')">
+    <source src="LogInBg.mp4" type="video/mp4">
+  </video>
+  <div id="tq-login-overlay"></div>
+  <div id="tq-login-vignette"></div>
+
   <div class="tq-auth-box">
     <div class="tq-auth-logo">
       <svg viewBox="251 270 522 367" width="80" height="80">
@@ -5272,6 +5295,17 @@ const _tqSupabaseLoad = (async () => {
     </div>
   </div>
   <div class="nav-section">
+    <!-- VIEW MODE TOGGLE (May 28, 2026 — Prop Suite) -->
+    <div id="tq-viewmode-toggle" style="margin:6px 8px 12px;padding:6px;background:rgba(124,90,240,.06);border:1px solid rgba(124,90,240,.15);border-radius:8px">
+      <div style="font-size:8px;font-weight:700;color:var(--text3);letter-spacing:.7px;text-transform:uppercase;margin-bottom:5px;padding:0 4px">View Mode</div>
+      <div style="display:flex;gap:2px;background:rgba(0,0,0,.15);padding:2px;border-radius:5px">
+        <button class="vm-btn" data-vm="all" onclick="tqSetViewMode('all')" style="flex:1;padding:5px 4px;background:transparent;border:none;color:var(--text2);font-size:9px;font-weight:600;letter-spacing:.3px;cursor:pointer;border-radius:3px;transition:all .15s">All</button>
+        <button class="vm-btn" data-vm="personal" onclick="tqSetViewMode('personal')" style="flex:1;padding:5px 4px;background:transparent;border:none;color:var(--text2);font-size:9px;font-weight:600;letter-spacing:.3px;cursor:pointer;border-radius:3px;transition:all .15s">Personal</button>
+        <button class="vm-btn" data-vm="prop" onclick="tqSetViewMode('prop')" style="flex:1;padding:5px 4px;background:transparent;border:none;color:var(--text2);font-size:9px;font-weight:600;letter-spacing:.3px;cursor:pointer;border-radius:3px;transition:all .15s">Prop</button>
+      </div>
+      <div id="tq-viewmode-hint" style="font-size:8px;color:var(--text3);margin-top:5px;padding:0 4px;line-height:1.4">Showing all accounts</div>
+    </div>
+
     <div class="nav-label">Workspace</div>
     <div class="nav-item" id="nav-cockpit">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>
@@ -13135,7 +13169,10 @@ window.toggleSidebar = function(){
       dashView:rfxGet('rf_dash_view')||'',
       dashWidgets:rfxGet('rf_dash_widgets')||'',
       newsCcy:rfxGet('rf_news_ccy')||'',
-      newsFilter:rfxGet('rf_news_filter')||''
+      newsFilter:rfxGet('rf_news_filter')||'',
+      // Prop Suite additions
+      viewMode:rfxGet('tq_view_mode')||'all',
+      payoutLog:rfxGet('tq_payout_log')||'[]'
     };
     _tqSupa.from('profiles').upsert({
       id:_tqUser.id,
@@ -13156,6 +13193,13 @@ window.toggleSidebar = function(){
       if(s.theme){rfxSet('rf_theme',s.theme);if(typeof setTheme==='function')setTheme(s.theme);}
       if(s.customTags)rfxSet('rf_custom_tags',JSON.stringify(s.customTags));
       if(s.timezone)rfxSet('rossfx-tz',s.timezone);
+      // Prop Suite settings restore
+      if(s.viewMode){
+        rfxSet('tq_view_mode',s.viewMode);
+        window.TQ_VIEW_MODE = s.viewMode;
+        if(typeof _tqUpdateViewModeUI === 'function') _tqUpdateViewModeUI();
+      }
+      if(s.payoutLog)rfxSet('tq_payout_log',s.payoutLog);
       console.log('TradeQuill: Settings pulled from cloud');
     });
   }
@@ -15027,6 +15071,119 @@ window.toggleSidebar = function(){
       };
     }
     window.tqFundedStatus = tqFundedStatus;
+
+    // ═══════════════════════════════════════════════════════════════════
+    // VIEW MODE (May 28 2026 — global filter Personal/Prop/All)
+    // Toggle in sidebar. Filters trades + accounts in:
+    //   Dashboard, Journal, Day View, Reports, Calendar, Risk Monitor
+    // Mission Control + My Accounts ignore (always show what they need)
+    // ═══════════════════════════════════════════════════════════════════
+    var TQ_VIEW_MODE_KEY = 'tq_view_mode';
+    var TQ_VIEW_MODE = (function(){
+      try{ return localStorage.getItem(TQ_VIEW_MODE_KEY) || 'all'; }catch(e){ return 'all'; }
+    })();
+    window.TQ_VIEW_MODE = TQ_VIEW_MODE;
+
+    // Detect if an account is "prop" (has rules or is type prop/challenge)
+    function tqIsProp(account){
+      if(!account) return false;
+      if(account.type === 'prop' || account.type === 'challenge') return true;
+      if(account.dailyLossLimit != null || account.maxDrawdownLimit != null ||
+         account.profitTarget != null || account.presetKey) return true;
+      return false;
+    }
+    window.tqIsProp = tqIsProp;
+
+    // Filter accounts based on current view mode
+    function tqFilterAccountsByMode(accounts, mode){
+      mode = mode || window.TQ_VIEW_MODE || 'all';
+      if(mode === 'all') return accounts;
+      if(mode === 'prop')     return accounts.filter(tqIsProp);
+      if(mode === 'personal') return accounts.filter(function(a){ return !tqIsProp(a); });
+      return accounts;
+    }
+    window.tqFilterAccountsByMode = tqFilterAccountsByMode;
+
+    // Filter trades based on current view mode
+    function tqFilterTradesByMode(trades, mode){
+      mode = mode || window.TQ_VIEW_MODE || 'all';
+      if(mode === 'all') return trades;
+      var accs = (typeof accLoad === 'function') ? accLoad() : [];
+      // Build set of account IDs that match the mode
+      var allowedIds = {};
+      accs.forEach(function(a){
+        var isP = tqIsProp(a);
+        if((mode === 'prop' && isP) || (mode === 'personal' && !isP)){
+          allowedIds[a.id] = true;
+        }
+      });
+      // Include trades with no account if personal mode (orphans = personal by default)
+      return trades.filter(function(t){
+        if(!t.account){
+          return mode === 'personal'; // orphan trades only in personal mode
+        }
+        return !!allowedIds[t.account];
+      });
+    }
+    window.tqFilterTradesByMode = tqFilterTradesByMode;
+
+    function tqSetViewMode(mode){
+      if(mode !== 'all' && mode !== 'personal' && mode !== 'prop') return;
+      window.TQ_VIEW_MODE = mode;
+      try{ localStorage.setItem(TQ_VIEW_MODE_KEY, mode); }catch(e){}
+      // Persist to Supabase user settings
+      if(typeof tqPushSettings === 'function') tqPushSettings();
+      _tqUpdateViewModeUI();
+      _tqRerenderAllForMode();
+    }
+    window.tqSetViewMode = tqSetViewMode;
+
+    function _tqUpdateViewModeUI(){
+      var mode = window.TQ_VIEW_MODE || 'all';
+      document.querySelectorAll('.vm-btn').forEach(function(b){
+        if(b.getAttribute('data-vm') === mode) b.classList.add('active');
+        else b.classList.remove('active');
+      });
+      var hint = document.getElementById('tq-viewmode-hint');
+      if(hint){
+        if(mode === 'all')      hint.textContent = 'Showing all accounts';
+        else if(mode === 'prop')     hint.textContent = 'Prop firms only · Personal hidden';
+        else if(mode === 'personal') hint.textContent = 'Personal only · Prop hidden';
+      }
+      // Add body class for any CSS targeting
+      document.body.setAttribute('data-view-mode', mode);
+    }
+    window._tqUpdateViewModeUI = _tqUpdateViewModeUI;
+
+    // Re-render visible pages that respect view mode
+    function _tqRerenderAllForMode(){
+      try{
+        // Dashboard
+        if(typeof renderDashboard === 'function') renderDashboard();
+        // Journal
+        if(typeof renderJournal === 'function') renderJournal();
+        // Day View
+        if(typeof window.dvRender === 'function') window.dvRender();
+        // Reports
+        if(typeof updateReports === 'function') updateReports();
+        else if(typeof window.updateReports === 'function') window.updateReports();
+        // Risk Monitor
+        if(typeof window.rmRender === 'function') window.rmRender();
+        // Mission Control (still rerenders but it's prop-only inherently)
+        if(typeof mcRender === 'function') mcRender();
+        // Edge page (Your Edge)
+        if(typeof window.yeRender === 'function') window.yeRender();
+        // Progress
+        if(typeof window.pgRender === 'function') window.pgRender();
+      }catch(e){ console.warn('View mode rerender error:', e); }
+    }
+
+    // Initialize UI on load
+    document.addEventListener('DOMContentLoaded', function(){
+      setTimeout(_tqUpdateViewModeUI, 100);
+    });
+    // Also try immediately for already-loaded scripts
+    setTimeout(_tqUpdateViewModeUI, 50);
 
     // ═══════════════════════════════════════════════════════════════════
     // PRE-TRADE COMPLIANCE CHECK (May 2026 — Prop Suite Block 3)
@@ -23924,18 +24081,36 @@ window.toggleSidebar = function(){
       if(!raw) raw = '[]';
       // Cache hit: same string → return cached active list
       if(_gtCache.raw === raw && _gtCache.active){
-        return _gtCache.active;
+        return _applyViewModeFilter(_gtCache.active);
       }
       var parsed = JSON.parse(raw);
       if(!Array.isArray(parsed)) return [];
       parsed.forEach(autoDetectSession);
       var active = parsed.filter(function(t){return !t.deleted;});
       _gtCache = { ts: Date.now(), all: parsed, active: active, raw: raw };
-      return active;
+      return _applyViewModeFilter(active);
     } catch(e){
       return [];
     }
   }
+  // Apply global View Mode filter to trade arrays in read-side contexts
+  function _applyViewModeFilter(trades){
+    var mode = window.TQ_VIEW_MODE || 'all';
+    // Bypass for CRUD/sync flows that set this flag
+    if(window._tqBypassViewMode || mode === 'all') return trades;
+    if(typeof tqFilterTradesByMode === 'function'){
+      return tqFilterTradesByMode(trades, mode);
+    }
+    return trades;
+  }
+  // Raw unfiltered accessor (for save/sync/delete flows)
+  function getTradesArrRaw(){
+    window._tqBypassViewMode = true;
+    var t = getTradesArr();
+    window._tqBypassViewMode = false;
+    return t;
+  }
+  window.getTradesArrRaw = getTradesArrRaw;
   window.getTradesArr = getTradesArr;
   // Expose cache invalidator (called on any trade write)
   window._invalidateTradesCache = function(){
@@ -31368,7 +31543,11 @@ window.toggleSidebar = function(){
     if(!page) return;
     var accs = (typeof accLoad === 'function') ? accLoad() : [];
     accs = accs.filter(function(a){ return a && !a.deleted; });
-    var trades = (typeof getTradesArr === 'function') ? getTradesArr().filter(function(t){return !t.deleted;}) : [];
+    // Bypass View Mode — Mission Control always works on full data,
+    // then filters to prop accounts itself.
+    var trades = [];
+    if(typeof getTradesArrRaw === 'function') trades = getTradesArrRaw().filter(function(t){return !t.deleted;});
+    else if(typeof getTradesArr === 'function') trades = getTradesArr().filter(function(t){return !t.deleted;});
 
     // Filter to accounts that have funded rules configured (or type === 'prop'/'challenge')
     var propAccs = accs.filter(function(a){
