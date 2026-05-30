@@ -5471,6 +5471,9 @@ window.toggleSidebar = function(){
     <!-- WARNINGS BAR (if any breaches) -->
     <div id="mc-warnings-bar" style="display:none;margin-bottom:18px"></div>
 
+    <!-- SMART INSIGHTS AI CARD (Phase 3) -->
+    <div id="mc-insights-card" style="margin-bottom:18px;display:none"></div>
+
     <!-- ACCOUNT CARDS LIST -->
     <div id="mc-account-cards" style="display:flex;flex-direction:column;gap:8px"></div>
 
@@ -31677,6 +31680,8 @@ window.toggleSidebar = function(){
     if(typeof mcRenderPayoutPipeline === 'function') mcRenderPayoutPipeline(accountStatuses);
     // Render aggregated analytics
     if(typeof mcRenderAnalytics === 'function') mcRenderAnalytics(accountStatuses, trades);
+    // Render smart insights (AI Risk Officer)
+    if(typeof mcRenderInsights === 'function') mcRenderInsights();
   }
   window.mcRender = mcRender;
 
@@ -31953,6 +31958,262 @@ window.toggleSidebar = function(){
     el.style.display = 'block';
   }
   window.mcRenderAnalytics = mcRenderAnalytics;
+
+  // ═══ SMART INSIGHTS (AI Risk Officer Phase 3 — minimalist version) ═══
+  // One card. 3-5 insights. Manual refresh. Cached 1 hour.
+  var MC_INSIGHTS_CACHE_KEY = 'tq_mc_insights_cache';
+  var MC_INSIGHTS_CACHE_TTL = 60 * 60 * 1000; // 1 hour
+
+  function mcRenderInsights(){
+    var card = document.getElementById('mc-insights-card');
+    if(!card) return;
+
+    // Check cache first
+    var cached = null;
+    try{
+      var cacheRaw = rfxGet(MC_INSIGHTS_CACHE_KEY);
+      if(cacheRaw){
+        cached = JSON.parse(cacheRaw);
+        if(Date.now() - cached.ts > MC_INSIGHTS_CACHE_TTL){ cached = null; }
+      }
+    }catch(e){ cached = null; }
+
+    if(cached && cached.insights && cached.insights.length > 0){
+      _mcRenderInsightsHtml(cached.insights, cached.ts);
+    } else {
+      // Show placeholder, user clicks Generate
+      _mcRenderInsightsPlaceholder();
+    }
+  }
+  window.mcRenderInsights = mcRenderInsights;
+
+  function _mcRenderInsightsPlaceholder(){
+    var card = document.getElementById('mc-insights-card');
+    if(!card) return;
+    card.style.display = 'block';
+    card.innerHTML =
+      '<div style="padding:18px 22px;background:linear-gradient(135deg,rgba(124,90,240,.06),rgba(29,233,182,.03));border:1px solid rgba(124,90,240,.18);border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap">'+
+        '<div style="display:flex;align-items:center;gap:10px">'+
+          '<div style="width:34px;height:34px;background:rgba(124,90,240,.15);border-radius:8px;display:flex;align-items:center;justify-content:center">'+
+            '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent3)" stroke-width="1.8"><path d="M9 18h6M10 22h4M12 2v3M5.5 7.5l-2-2M18.5 7.5l2-2M2 14h3M19 14h3M7 14a5 5 0 1 1 10 0c0 3-3 4-3 6h-4c0-2-3-3-3-6z"/></svg>'+
+          '</div>'+
+          '<div>'+
+            '<div style="font-size:13px;font-weight:600;color:var(--text)">Smart Insights</div>'+
+            '<div style="font-size:11px;color:var(--text2);margin-top:2px">AI analysis of your accounts &amp; patterns</div>'+
+          '</div>'+
+        '</div>'+
+        '<button onclick="mcGenerateInsights()" id="mc-insights-generate-btn" style="font-size:11px;padding:8px 16px;background:var(--accent);border:none;color:#fff;border-radius:7px;cursor:pointer;font-weight:600;letter-spacing:.3px;box-shadow:0 1px 4px rgba(124,90,240,.4)">Generate Insights</button>'+
+      '</div>';
+  }
+
+  function _mcRenderInsightsHtml(insights, ts){
+    var card = document.getElementById('mc-insights-card');
+    if(!card) return;
+    card.style.display = 'block';
+    var ageMin = Math.round((Date.now() - ts) / 60000);
+    var ageStr = ageMin < 1 ? 'just now' : ageMin === 1 ? '1 min ago' : ageMin + ' min ago';
+
+    var iconMap = { warn:'⚠', good:'✓', info:'📊', tip:'🎯', risk:'🚨' };
+    var colorMap = {
+      warn: 'var(--red)',
+      good: 'var(--green)',
+      info: 'var(--accent3)',
+      tip: '#fbbf24',
+      risk: 'var(--red)'
+    };
+    var bgMap = {
+      warn: 'rgba(239,68,68,.05)',
+      good: 'rgba(29,233,182,.05)',
+      info: 'rgba(124,90,240,.05)',
+      tip:  'rgba(251,191,36,.05)',
+      risk: 'rgba(239,68,68,.08)'
+    };
+
+    var listHtml = insights.map(function(ins){
+      var t = (ins.type||'info').toLowerCase();
+      var ic = iconMap[t] || '📊';
+      var col = colorMap[t] || 'var(--accent3)';
+      var bg = bgMap[t] || 'rgba(255,255,255,.03)';
+      return '<div style="padding:10px 14px;background:'+bg+';border-radius:8px;display:flex;gap:10px;align-items:flex-start">'+
+        '<span style="font-size:14px;line-height:1.3;flex-shrink:0">'+ic+'</span>'+
+        '<div style="font-size:12px;color:var(--text);line-height:1.55;flex:1">'+escapeHtml(ins.text||'')+'</div>'+
+      '</div>';
+    }).join('');
+
+    card.innerHTML =
+      '<div style="padding:18px 22px;background:linear-gradient(135deg,rgba(124,90,240,.06),rgba(29,233,182,.03));border:1px solid rgba(124,90,240,.18);border-radius:12px">'+
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">'+
+          '<div style="display:flex;align-items:center;gap:10px">'+
+            '<div style="width:30px;height:30px;background:rgba(124,90,240,.15);border-radius:7px;display:flex;align-items:center;justify-content:center">'+
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent3)" stroke-width="1.8"><path d="M9 18h6M10 22h4M12 2v3M5.5 7.5l-2-2M18.5 7.5l2-2M2 14h3M19 14h3M7 14a5 5 0 1 1 10 0c0 3-3 4-3 6h-4c0-2-3-3-3-6z"/></svg>'+
+            '</div>'+
+            '<div>'+
+              '<div style="font-size:12px;font-weight:600;color:var(--text)">Smart Insights</div>'+
+              '<div style="font-size:9px;color:var(--text3);margin-top:2px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace">Updated '+ageStr+' · AI analysis</div>'+
+            '</div>'+
+          '</div>'+
+          '<button onclick="mcGenerateInsights(true)" id="mc-insights-refresh-btn" style="font-size:10px;padding:5px 12px;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text2);border-radius:6px;cursor:pointer;font-weight:600;letter-spacing:.3px;display:flex;align-items:center;gap:5px">'+
+            '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>'+
+            'Refresh'+
+          '</button>'+
+        '</div>'+
+        '<div style="display:flex;flex-direction:column;gap:6px">'+listHtml+'</div>'+
+      '</div>';
+  }
+
+  // Generate insights via AI Worker
+  function mcGenerateInsights(forceRefresh){
+    var btn = document.getElementById('mc-insights-generate-btn') || document.getElementById('mc-insights-refresh-btn');
+    var card = document.getElementById('mc-insights-card');
+    if(!card) return;
+
+    // Gather context — funded accounts only with their status
+    var accs = (typeof accLoad === 'function') ? accLoad().filter(function(a){return !a.deleted;}) : [];
+    var allTrades = (typeof getTradesArrRaw === 'function') ? getTradesArrRaw().filter(function(t){return !t.deleted;}) : [];
+    var propAccs = accs.filter(function(a){
+      if(typeof tqIsProp === 'function') return tqIsProp(a);
+      return a.type === 'prop' || a.dailyLossLimit != null;
+    });
+
+    if(propAccs.length === 0){
+      if(typeof tqToast === 'function') tqToast('Add at least one prop account to generate insights', {type:'warning'});
+      return;
+    }
+
+    // Set loading state
+    if(btn){
+      btn.disabled = true;
+      btn.textContent = 'Analyzing…';
+      btn.style.opacity = '0.6';
+    }
+
+    // Build context payload (concise — keep tokens low)
+    var accountContext = propAccs.map(function(a){
+      var st = (typeof tqFundedStatus === 'function') ? tqFundedStatus(a, allTrades) : null;
+      var ctx = {
+        name: a.name,
+        firm: a.propFirm || 'Unknown',
+        balance: a.startingBalance,
+        ddType: a.ddType,
+        ddMode: a.ddMode,
+        rules: {
+          dailyLoss: a.dailyLossLimit,
+          maxDD: a.maxDrawdownLimit,
+          profitTarget: a.profitTarget,
+          minDays: a.minTradingDays,
+          consistency: a.consistencyRule
+        }
+      };
+      if(st){
+        ctx.status = {
+          currentDD: a.ddMode === 'dollar' ? st.currentDdAbs : st.currentDdPct,
+          ddPctOfLimit: Math.round(st.maxDdPctOf),
+          dailyLoss: a.ddMode === 'dollar' ? st.dailyLossAbs : st.dailyLossPct,
+          profit: a.ddMode === 'dollar' ? st.profitAbs : st.profitPct,
+          profitPctOfTarget: Math.round(st.profitPctOf),
+          health: st.health,
+          breaches: st.breaches.length,
+          warnings: st.warnings.length,
+          daysTraded: st.daysTraded
+        };
+      }
+      return ctx;
+    });
+
+    // Trade pattern summary (last 30 days, on prop accounts)
+    var thirtyDaysAgo = new Date(Date.now() - 30*86400000).toISOString().slice(0,10);
+    var propAccIds = propAccs.map(function(a){return a.id;});
+    var recentTrades = allTrades.filter(function(t){
+      return propAccIds.indexOf(t.account) >= 0 && (t.date||'') >= thirtyDaysAgo;
+    });
+    // By setup
+    var setupStats = {};
+    recentTrades.forEach(function(t){
+      var s = t.setup || 'Untagged';
+      if(!setupStats[s]) setupStats[s] = {count:0, wins:0, pnl:0};
+      setupStats[s].count++;
+      setupStats[s].pnl += (parseFloat(t.pnl)||0);
+      if((parseFloat(t.pnl)||0) > 0) setupStats[s].wins++;
+    });
+    // By day of week
+    var dowStats = [0,0,0,0,0,0,0].map(function(){return {count:0,wins:0,pnl:0};});
+    recentTrades.forEach(function(t){
+      if(!t.date) return;
+      var d = new Date(t.date).getDay();
+      dowStats[d].count++;
+      dowStats[d].pnl += (parseFloat(t.pnl)||0);
+      if((parseFloat(t.pnl)||0) > 0) dowStats[d].wins++;
+    });
+
+    var prompt = 'You are a Risk Officer for a prop firm trader. Analyze the following data and generate 3-5 concise, actionable insights.\n\n' +
+      'ACCOUNT STATUS:\n' + JSON.stringify(accountContext, null, 2) + '\n\n' +
+      'RECENT 30-DAY TRADES: ' + recentTrades.length + ' trades\n' +
+      'By Setup: ' + JSON.stringify(setupStats) + '\n' +
+      'By DayOfWeek (Sun-Sat): ' + JSON.stringify(dowStats) + '\n\n' +
+      'RULES:\n' +
+      '1. Return ONLY a JSON array. No markdown, no preamble.\n' +
+      '2. Each item: {"type": "warn|good|info|tip|risk", "text": "concise insight under 140 chars"}\n' +
+      '3. Prioritize: critical risks first, then opportunities, then patterns.\n' +
+      '4. Reference SPECIFIC numbers (e.g. "78% of max DD", "FTMO at $1,720").\n' +
+      '5. Action-oriented — say what to DO, not just observe.\n' +
+      '6. Max 5 insights. Min 3.\n\n' +
+      'Example output:\n' +
+      '[{"type":"risk","text":"MFF at 78% of max DD ($1,560/$2,000). Two avg-loss trades = breach. Pause until next reset."},' +
+      '{"type":"good","text":"FTMO 60% to profit target. Stay disciplined - 3 more green days unlocks payout."},' +
+      '{"type":"info","text":"Tuesday WR is 73% vs your 56% avg. Lean into Tues sessions."}]\n\n' +
+      'Output JSON array now:';
+
+    fetch(AI_WORKER_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        messages: [{role:'user', content: prompt}],
+        max_tokens: 600,
+        temperature: 0.4
+      })
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      // Parse response — try to extract JSON array
+      var text = '';
+      if(data && data.content && Array.isArray(data.content)){
+        text = data.content.filter(function(c){return c.type==='text';}).map(function(c){return c.text;}).join('');
+      } else if(typeof data === 'string'){
+        text = data;
+      } else if(data && data.text){
+        text = data.text;
+      }
+
+      var insights = [];
+      try{
+        var match = text.match(/\[[\s\S]*\]/);
+        if(match){
+          insights = JSON.parse(match[0]);
+        }
+      }catch(e){
+        console.warn('Insights parse error:', e, text);
+      }
+
+      if(!Array.isArray(insights) || insights.length === 0){
+        if(typeof tqToast === 'function') tqToast('AI returned unexpected response. Try again.', {type:'warning'});
+        if(btn){ btn.disabled = false; btn.textContent = 'Generate Insights'; btn.style.opacity = '1'; }
+        return;
+      }
+
+      // Cache
+      var cachePayload = { ts: Date.now(), insights: insights };
+      rfxSet(MC_INSIGHTS_CACHE_KEY, JSON.stringify(cachePayload));
+
+      // Render
+      _mcRenderInsightsHtml(insights, cachePayload.ts);
+    })
+    .catch(function(e){
+      console.error('Insights fetch error:', e);
+      if(typeof tqToast === 'function') tqToast('Could not generate insights — check connection', {type:'error'});
+      if(btn){ btn.disabled = false; btn.textContent = 'Generate Insights'; btn.style.opacity = '1'; }
+    });
+  }
+  window.mcGenerateInsights = mcGenerateInsights;
 
   function _mcRenderAccountCard(acc, st, pnl, tradeCount){
     var startBal = parseFloat(acc.startingBalance || acc.balance) || 0;
