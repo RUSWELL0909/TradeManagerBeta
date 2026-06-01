@@ -142,6 +142,38 @@
   --nav-active-border:#7c5af0;
   --section-label:rgba(255,255,255,.28);
   --topbar-bg:rgba(13,10,26,.95);
+
+  /* ═══ DESIGN SYSTEM TOKENS (May 28 2026 — Fix #3) ═══ */
+  /* Semantic status colors (use with --status-*-bg, --status-*-border) */
+  --status-critical: var(--red);
+  --status-critical-bg: rgba(239,68,68,.08);
+  --status-critical-bg-strong: rgba(239,68,68,.12);
+  --status-critical-border: rgba(239,68,68,.25);
+  --status-warning: #fbbf24;
+  --status-warning-bg: rgba(251,191,36,.08);
+  --status-warning-border: rgba(251,191,36,.22);
+  --status-healthy: var(--green);
+  --status-healthy-bg: rgba(29,233,182,.06);
+  --status-healthy-border: rgba(29,233,182,.18);
+  --status-info: var(--accent3);
+  --status-info-bg: rgba(124,90,240,.06);
+  --status-info-border: rgba(124,90,240,.18);
+
+  /* Spacing scale */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 18px;
+  --space-xl: 24px;
+
+  /* Radius scale */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+
+  /* Mono font stack — used everywhere for numerics */
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
 }
 
 /* ════════════════════════════════════════════════════════════ */
@@ -4569,6 +4601,43 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
   .tq-voice-btn svg{width:14px!important;height:14px!important}
   /* Bigger close × buttons */
   .pb-builder-close,.modal-close{min-width:44px;min-height:44px;font-size:20px!important}
+
+  /* ═══ PROP SUITE MOBILE (May 28 2026 — Fix #4) ═══ */
+  /* Mission Control hero header */
+  #page-missioncontrol > div:first-child{padding:18px 16px!important}
+  #page-missioncontrol > div:first-child > div{flex-direction:column;align-items:flex-start!important}
+  #page-missioncontrol > div:first-child > div > div:last-child{text-align:left!important;margin-top:8px}
+
+  /* Aggregate KPI strip — 2 columns on phone */
+  #mc-agg-strip{grid-template-columns:repeat(2,1fr)!important;gap:6px!important}
+  #mc-agg-strip > div{padding:10px 12px!important}
+  #mc-agg-strip > div > div:last-child{font-size:16px!important}
+
+  /* Account cards — tighter, hide rules meta line */
+  #mc-account-cards > div{padding:12px 14px!important;grid-template-columns:auto 1fr auto!important;gap:10px!important}
+  #mc-account-cards > div > div:first-child{width:32px!important;height:32px!important;font-size:9px!important}
+  #mc-account-cards > div > div:nth-child(2) > div:nth-child(2){display:none!important}
+  #mc-account-cards > div > div:last-child > div:first-child{font-size:15px!important}
+
+  /* Smart Insights card */
+  #mc-insights-card > div{padding:14px 16px!important;flex-direction:column;align-items:stretch!important;gap:10px!important}
+  #mc-insights-card button{width:100%}
+
+  /* Payout Pipeline — horizontal scroll */
+  #mc-payout-pipeline > div:last-of-type{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  #mc-payout-pipeline table{min-width:600px}
+
+  /* Cross-Firm Analytics — single column */
+  #mc-analytics > div:last-of-type{grid-template-columns:1fr!important;gap:14px!important}
+
+  /* Compliance modal — fit on screen */
+  #tq-compliance-modal .jr-modal-box{max-width:calc(100vw - 32px)!important;margin:0 16px}
+
+  /* View Mode toggle */
+  #tq-viewmode-toggle{margin:6px 10px 8px!important}
+
+  /* Login video card — full width on phone */
+  .tq-auth-box{padding:32px 22px!important;width:calc(100vw - 32px)!important;max-width:380px}
 }
 
 /* ══ FORM VALIDATION + DRAFT (TradeZella-style) ══ */
@@ -4710,6 +4779,48 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
 .vm-btn:hover{background:rgba(255,255,255,.04);color:var(--text)}
 .vm-btn.active{background:var(--accent);color:#fff;box-shadow:0 1px 4px rgba(124,90,240,.4)}
 .vm-btn.active:hover{background:var(--accent);color:#fff}
+
+/* ═══ UTILITY CLASSES (May 28 2026 — Fix #3 Design System) ═══ */
+/* KPI card — uniform across Mission Control, Dashboard, etc */
+.tq-kpi-card{padding:14px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-lg)}
+.tq-kpi-card.tq-critical{background:var(--status-critical-bg);border-color:var(--status-critical-border)}
+.tq-kpi-card.tq-warning{background:var(--status-warning-bg);border-color:var(--status-warning-border)}
+.tq-kpi-label{font-size:9px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700}
+.tq-kpi-value{font-size:20px;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums;letter-spacing:-.4px}
+.tq-kpi-value.tq-green{color:var(--green)}
+.tq-kpi-value.tq-red{color:var(--red)}
+.tq-kpi-value.tq-warning{color:var(--status-warning)}
+
+/* Status pills — used everywhere for state labels */
+.tq-pill{font-size:8px;padding:2px 6px;border-radius:3px;font-weight:700;letter-spacing:.4px;display:inline-block}
+.tq-pill.tq-critical{background:rgba(239,68,68,.2);color:var(--red)}
+.tq-pill.tq-warning{background:var(--status-warning-bg);color:var(--status-warning)}
+.tq-pill.tq-healthy{background:rgba(29,233,182,.15);color:var(--green)}
+.tq-pill.tq-info{background:rgba(124,90,240,.18);color:var(--accent3)}
+
+/* Progress bar — DD bar, profit target, etc */
+.tq-progress{height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;position:relative}
+.tq-progress-fill{position:absolute;top:0;left:0;height:100%;border-radius:2px;transition:width .3s}
+.tq-progress-fill.tq-critical{background:linear-gradient(90deg,#ef4444,#f87171)}
+.tq-progress-fill.tq-warning{background:linear-gradient(90deg,#fbbf24,#fcd34d)}
+.tq-progress-fill.tq-healthy{background:linear-gradient(90deg,#1de9b6,#34d399)}
+
+/* Severity card — used for Mission Control account rows + similar */
+.tq-severity-card{padding:14px 18px;border:1px solid;border-left:3px solid;border-radius:0 var(--radius-lg) var(--radius-lg) 0;transition:transform .15s}
+.tq-severity-card.tq-critical{background:linear-gradient(90deg,rgba(239,68,68,.10),rgba(255,255,255,.02));border-color:var(--status-critical-border);border-left-color:var(--red)}
+.tq-severity-card.tq-warning{background:linear-gradient(90deg,rgba(251,191,36,.10),rgba(255,255,255,.02));border-color:var(--status-warning-border);border-left-color:var(--status-warning)}
+.tq-severity-card.tq-healthy{background:linear-gradient(90deg,rgba(29,233,182,.06),rgba(255,255,255,.02));border-color:var(--status-healthy-border);border-left-color:var(--green)}
+.tq-severity-card.tq-clickable{cursor:pointer}
+.tq-severity-card.tq-clickable:hover{transform:translateX(2px)}
+
+/* Numeric / mono text */
+.tq-mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.tq-num{font-variant-numeric:tabular-nums}
+.tq-pnl-positive{color:var(--green)}
+.tq-pnl-negative{color:var(--red)}
+
+/* Section labels — consistent across pages */
+.tq-section-label{font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
 .email-toggle-thumb{position:absolute;top:2px;left:2px;width:18px;height:18px;background:var(--text3);border-radius:50%;transition:all .25s cubic-bezier(.4,0,.2,1)}
 .email-toggle input:checked + .email-toggle-switch{background:rgba(124,90,240,.18);border-color:rgba(124,90,240,.4)}
 .email-toggle input:checked + .email-toggle-switch .email-toggle-thumb{transform:translateX(18px);background:var(--accent);box-shadow:0 0 8px rgba(124,90,240,.5)}
@@ -5457,10 +5568,16 @@ window.toggleSidebar = function(){
           <div style="font-size:24px;font-weight:600;letter-spacing:-.5px;color:var(--text)" id="mc-hero-title">All accounts at a glance</div>
           <div style="font-size:12px;color:var(--text2);margin-top:4px" id="mc-hero-sub">Real-time rule monitoring across your prop firms</div>
         </div>
-        <div style="text-align:right">
-          <div style="font-size:10px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700">Aggregate P&amp;L</div>
-          <div id="mc-hero-pnl" style="font-size:30px;font-weight:600;color:var(--green);letter-spacing:-.8px;font-variant-numeric:tabular-nums;line-height:1;margin-top:3px">$0</div>
-          <div id="mc-hero-pnl-sub" style="font-size:10px;color:var(--text3);margin-top:4px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace">across all accounts</div>
+        <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+          <div>
+            <div style="font-size:10px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700">Aggregate P&amp;L</div>
+            <div id="mc-hero-pnl" style="font-size:30px;font-weight:600;color:var(--green);letter-spacing:-.8px;font-variant-numeric:tabular-nums;line-height:1;margin-top:3px">$0</div>
+            <div id="mc-hero-pnl-sub" style="font-size:10px;color:var(--text3);margin-top:4px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace">across all accounts</div>
+          </div>
+          <button onclick="mcOpenAddPropAccount()" style="font-size:11px;padding:8px 14px;background:var(--accent);border:none;color:#fff;border-radius:7px;cursor:pointer;font-weight:600;letter-spacing:.3px;box-shadow:0 1px 4px rgba(124,90,240,.4);display:flex;align-items:center;gap:6px">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Prop Account
+          </button>
         </div>
       </div>
     </div>
@@ -10868,6 +10985,7 @@ window.toggleSidebar = function(){
           tqHideAuth();
           tqShowUserBar();
           tqCheckAdmin();
+          if(typeof tqMarkReady === 'function') tqMarkReady('auth');
         } else {
           _tqUser = null;
           window._tqUser = null;
@@ -10880,6 +10998,11 @@ window.toggleSidebar = function(){
       console.warn('TradeQuill: Supabase JS not loaded, running offline');
       // Hide auth overlay if Supabase not available
       tqHideAuth();
+      // Mark as ready in offline mode so pages can still init
+      if(typeof tqMarkReady === 'function'){
+        tqMarkReady('auth');
+        tqMarkReady('data');
+      }
     }
   }
 
@@ -11163,6 +11286,11 @@ window.toggleSidebar = function(){
       }
     }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
     tqHideAuth();
+    // Mark ready in offline mode so all pages can init normally
+    if(typeof tqMarkReady === 'function'){
+      tqMarkReady('auth');
+      tqMarkReady('data');
+    }
   }
   window.tqSkipAuth = tqSkipAuth;
 
@@ -11395,6 +11523,124 @@ window.toggleSidebar = function(){
   }
 
   // ══ SYNC: Push single trade to Supabase ══
+  // ═══ SYNC RELIABILITY (May 28 2026 — Fix #1) ═══
+  // Retry helper: retries an async fn with exponential backoff.
+  // Returns promise that resolves on success or rejects after final attempt.
+  function tqSyncWithRetry(asyncFn, maxAttempts, delays){
+    maxAttempts = maxAttempts || 3;
+    delays = delays || [0, 2000, 5000];
+    return new Promise(function(resolve, reject){
+      var attempt = 0;
+      function tryOnce(){
+        var delay = delays[attempt] != null ? delays[attempt] : 5000;
+        setTimeout(function(){
+          asyncFn()
+            .then(resolve)
+            .catch(function(err){
+              attempt++;
+              if(attempt >= maxAttempts){
+                reject(err);
+              } else {
+                console.warn('[Sync retry] attempt', attempt, 'failed, retrying...', err && err.message);
+                tryOnce();
+              }
+            });
+        }, delay);
+      }
+      tryOnce();
+    });
+  }
+  window.tqSyncWithRetry = tqSyncWithRetry;
+
+  // ═══ PENDING SYNC QUEUE ═══
+  // When push fails, item is queued in localStorage. On reconnect/load, queue is flushed.
+  var TQ_PENDING_SYNC_KEY = 'tq_pending_sync';
+
+  function tqLoadPendingSync(){
+    try{
+      var raw = rfxGet(TQ_PENDING_SYNC_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }catch(e){ return []; }
+  }
+  function tqSavePendingSync(queue){
+    try{ rfxSet(TQ_PENDING_SYNC_KEY, JSON.stringify(queue)); }catch(e){}
+  }
+  function tqQueuePendingSync(type, payload){
+    var queue = tqLoadPendingSync();
+    // Dedupe: replace existing entry for same id
+    var id = payload && payload.id;
+    if(id){
+      queue = queue.filter(function(item){ return !(item.type === type && item.payload && item.payload.id === id); });
+    }
+    queue.push({type: type, payload: payload, queuedAt: Date.now(), attempts: 0});
+    // Cap queue at 100 items to prevent unbounded growth
+    if(queue.length > 100) queue = queue.slice(-100);
+    tqSavePendingSync(queue);
+    _tqUpdatePendingSyncBadge();
+  }
+  window.tqQueuePendingSync = tqQueuePendingSync;
+
+  function _tqUpdatePendingSyncBadge(){
+    var queue = tqLoadPendingSync();
+    var el = document.getElementById('tq-sync-status');
+    if(!el) return;
+    if(queue.length > 0){
+      tqSetSyncStatus('warn', queue.length + ' pending');
+    }
+  }
+
+  function tqFlushPendingSync(){
+    var queue = tqLoadPendingSync();
+    if(queue.length === 0) return Promise.resolve();
+    if(!_tqSupa || !_tqUser) return Promise.resolve();
+
+    console.log('[Sync] Flushing', queue.length, 'pending items');
+    if(typeof tqToast === 'function' && queue.length > 0){
+      tqToast('Reconnected — syncing ' + queue.length + ' pending changes...', {type:'info', duration:3000});
+    }
+
+    var promises = queue.map(function(item){
+      if(item.type === 'trade' && typeof tqPushTrade === 'function'){
+        return tqPushTrade(item.payload);
+      }
+      // Future: handle other types (accounts, settings, etc)
+      return Promise.resolve();
+    });
+
+    return Promise.allSettled(promises).then(function(results){
+      var failed = results.filter(function(r){return r.status === 'rejected';}).length;
+      var succeeded = results.length - failed;
+      if(succeeded > 0){
+        // Clear successful items — for now clear all (push already re-queues failures)
+        tqSavePendingSync([]);
+      }
+      if(typeof tqToast === 'function'){
+        if(failed === 0){
+          tqToast('All ' + succeeded + ' pending changes synced ✓', {type:'success', duration:3000});
+        } else {
+          tqToast(succeeded + ' synced, ' + failed + ' still failing', {type:'warning', duration:4000});
+        }
+      }
+    });
+  }
+  window.tqFlushPendingSync = tqFlushPendingSync;
+
+  // Auto-flush pending queue on:
+  //  1. Page load (after auth)
+  //  2. Network reconnect (online event)
+  //  3. Periodic check (every 60s if items pending)
+  window.addEventListener('online', function(){
+    console.log('[Sync] Network reconnected');
+    setTimeout(tqFlushPendingSync, 1000);
+  });
+  setInterval(function(){
+    var queue = tqLoadPendingSync();
+    if(queue.length > 0 && navigator.onLine && _tqSupa && _tqUser){
+      tqFlushPendingSync();
+    }
+  }, 60000);
+  // Also flush on init after auth — handled by existing tqPullAll() flow
+
   function tqPushTrade(trade){
     if(!_tqSupa || !_tqUser) return Promise.resolve();
     // Skip tombstoned trades — they were permanently deleted, never push back (May 2026 fix)
@@ -11412,22 +11658,30 @@ window.toggleSidebar = function(){
     }
     var row = tqTradeToRow(trade);
     row.user_id = _tqUser.id;
+    // Add version timestamp for conflict detection
+    row.updated_at = new Date().toISOString();
     tqSetSyncStatus('syncing','Syncing...');
 
-    // Upsert by external_id
-    return _tqSupa.from('trades')
-      .upsert(row, {onConflict:'user_id,external_id'})
-      .then(function(res){
-        if(res.error){
-          console.error('TradeQuill sync push error:', res.error);
-          tqSetSyncStatus('error','Sync error');
-        } else {
-          tqSetSyncStatus('ok','Synced');
-        }
-      }).catch(function(e){
-        console.error('TradeQuill sync error:', e);
-        tqSetSyncStatus('error','Sync error');
-      });
+    // Retry with exponential backoff: 0s, 2s, 5s
+    return tqSyncWithRetry(function(){
+      return _tqSupa.from('trades')
+        .upsert(row, {onConflict:'user_id,external_id'})
+        .then(function(res){
+          if(res.error) throw res.error;
+          return res;
+        });
+    }, 3, [0, 2000, 5000]).then(function(){
+      tqSetSyncStatus('ok','Synced');
+    }).catch(function(e){
+      console.error('TradeQuill sync push FAILED after retries:', e);
+      tqSetSyncStatus('error','Sync error');
+      // Add to pending queue for retry later
+      tqQueuePendingSync('trade', trade);
+      // Show visible toast — not silent
+      if(typeof tqToast === 'function'){
+        tqToast('Trade saved locally — cloud sync failed. Will retry automatically.', {type:'warning', duration:5000});
+      }
+    });
   }
   window.tqPushTrade = tqPushTrade;
 
@@ -13177,13 +13431,22 @@ window.toggleSidebar = function(){
       viewMode:rfxGet('tq_view_mode')||'all',
       payoutLog:rfxGet('tq_payout_log')||'[]'
     };
-    _tqSupa.from('profiles').upsert({
-      id:_tqUser.id,
-      data:settings,
-      updated_at:new Date().toISOString()
-    },{onConflict:'id'}).then(function(r){
-      if(r.error)console.error('Settings push error:',r.error);
-      else console.log('TradeQuill: Settings synced');
+    tqSyncWithRetry(function(){
+      return _tqSupa.from('profiles').upsert({
+        id:_tqUser.id,
+        data:settings,
+        updated_at:new Date().toISOString()
+      },{onConflict:'id'}).then(function(r){
+        if(r.error) throw r.error;
+        return r;
+      });
+    }, 3, [0, 2000, 5000]).then(function(){
+      console.log('TradeQuill: Settings synced');
+    }).catch(function(e){
+      console.error('Settings push FAILED after retries:', e);
+      if(typeof tqToast === 'function'){
+        tqToast('Settings sync failed — will retry on next reconnect', {type:'warning', duration:4000});
+      }
     });
   }
   window.tqPushSettings=tqPushSettings;
@@ -13237,6 +13500,10 @@ window.toggleSidebar = function(){
     setTimeout(tqSubscribeRealtime, 3000);
     setTimeout(function(){ if(typeof tqSubscribeAIRealtime==='function') tqSubscribeAIRealtime(); }, 3500);
     setTimeout(tqPullCaseStudies, 3000);
+    // Flush any pending sync items from previous offline session
+    setTimeout(function(){ if(typeof tqFlushPendingSync === 'function') tqFlushPendingSync(); }, 4000);
+    // Mark data ready after all pulls have had time to complete (5s window)
+    setTimeout(function(){ if(typeof tqMarkReady === 'function') tqMarkReady('data'); }, 4500);
     if(typeof tqInitAccountEnforcement === 'function') tqInitAccountEnforcement();
   }
 
@@ -13248,6 +13515,47 @@ window.toggleSidebar = function(){
   window.tqPullCockpit=tqPullCockpit;
   window.tqPullCaseStudies=tqPullCaseStudies;
   window.tqPullAll=tqPullAll;
+
+  // ═══ GLOBAL READINESS SYSTEM (May 28 2026 — Fix #2) ═══
+  // Tracks app initialization state and fires events when components are ready.
+  // Replaces fragile setTimeout(N) patterns with explicit event listeners.
+  window.TQ_READY_STATE = window.TQ_READY_STATE || {
+    auth: false,        // Supabase auth complete (or offline mode)
+    data: false,        // Initial data pull complete
+    ui: false,          // DOM + main page rendered
+    realtime: false     // Realtime subscriptions established
+  };
+
+  window.tqMarkReady = function(component){
+    if(!window.TQ_READY_STATE.hasOwnProperty(component)) return;
+    if(window.TQ_READY_STATE[component]) return; // already ready, no double-fire
+    window.TQ_READY_STATE[component] = true;
+    console.log('[tqReady]', component);
+    try{
+      document.dispatchEvent(new CustomEvent('tq:ready:' + component));
+      // Fire 'tq:ready' when all components done
+      var all = window.TQ_READY_STATE;
+      if(all.auth && all.data && all.ui){
+        document.dispatchEvent(new CustomEvent('tq:ready'));
+      }
+    }catch(e){ console.warn('tqMarkReady dispatch error', e); }
+  };
+
+  window.tqWhenReady = function(component, callback){
+    if(window.TQ_READY_STATE[component]){
+      // Already ready — call immediately on next tick to keep async semantics
+      Promise.resolve().then(callback);
+      return;
+    }
+    document.addEventListener('tq:ready:' + component, callback, {once:true});
+  };
+
+  // Mark UI ready once DOMContentLoaded fires
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){ window.tqMarkReady('ui'); });
+  } else {
+    window.tqMarkReady('ui');
+  }
 
   // ══════════════════════════════════════════════════════════════
   // ██  ACCOUNT ENFORCEMENT — TradeZella-style: trades MUST have an account
@@ -14426,9 +14734,36 @@ window.toggleSidebar = function(){
       var empty = document.getElementById('accounts-empty');
       if(!body) return;
 
-      var accs = accLoad().filter(function(a){ return !a.deleted; }); // hide soft-deleted (in Trash)
+      var accsAll = accLoad().filter(function(a){ return !a.deleted; }); // hide soft-deleted (in Trash)
+      // Apply View Mode filter (Personal/Prop/All) — if mode is set
+      var viewMode = window.TQ_VIEW_MODE || 'all';
+      var accs = accsAll;
+      if(viewMode !== 'all' && typeof tqIsProp === 'function'){
+        accs = accsAll.filter(function(a){
+          var isP = tqIsProp(a);
+          return (viewMode === 'prop' && isP) || (viewMode === 'personal' && !isP);
+        });
+      }
       var trades = [];
       try{ trades = JSON.parse(rfxGet('rf_trades')||'[]'); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
+
+      // Show "filter active" badge in the empty space if filter hides accounts
+      var filterNoticeEl = document.getElementById('accounts-filter-notice');
+      if(!filterNoticeEl){
+        filterNoticeEl = document.createElement('div');
+        filterNoticeEl.id = 'accounts-filter-notice';
+        filterNoticeEl.style.cssText = 'display:none;margin:0 0 12px;padding:10px 14px;background:rgba(124,90,240,.06);border:1px solid rgba(124,90,240,.18);border-radius:8px;font-size:11px;color:var(--text2);display:flex;align-items:center;justify-content:space-between;gap:8px';
+        body.parentNode.insertBefore(filterNoticeEl, body);
+      }
+      if(viewMode !== 'all' && accsAll.length > accs.length){
+        var hiddenCount = accsAll.length - accs.length;
+        filterNoticeEl.innerHTML =
+          '<span><strong style="color:var(--accent3)">View Mode: '+viewMode.toUpperCase()+'</strong> · '+hiddenCount+' account'+(hiddenCount===1?'':'s')+' hidden by filter</span>'+
+          '<a onclick="tqSetViewMode(\'all\')" style="color:var(--accent3);cursor:pointer;font-weight:600">Show all →</a>';
+        filterNoticeEl.style.display = 'flex';
+      } else {
+        filterNoticeEl.style.display = 'none';
+      }
 
       if(!accs.length){
         body.innerHTML = '';
@@ -14914,6 +15249,10 @@ window.toggleSidebar = function(){
 
       // Refresh other parts of the app that depend on accounts
       if(typeof updateDashboard === 'function') try{ updateDashboard(); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
+      // Refresh Mission Control if user has it open or will navigate to it
+      if(typeof mcRender === 'function') try{ mcRender(); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
+      // Update View Mode UI (account counts may have shifted)
+      if(typeof _tqUpdateViewModeUI === 'function') try{ _tqUpdateViewModeUI(); }catch(e){}
 
       // After creating first account, re-prompt orphan migration if needed
       if(typeof tqDetectOrphans === 'function' && typeof tqShowOrphanModal === 'function'){
@@ -15178,6 +15517,8 @@ window.toggleSidebar = function(){
         if(typeof window.yeRender === 'function') window.yeRender();
         // Progress
         if(typeof window.pgRender === 'function') window.pgRender();
+        // My Accounts now respects View Mode (Fix #3)
+        if(typeof renderAccountsPage === 'function') renderAccountsPage();
       }catch(e){ console.warn('View mode rerender error:', e); }
     }
 
@@ -15538,6 +15879,17 @@ window.toggleSidebar = function(){
           if(typeof updateDashboard === 'function') try{ updateDashboard(); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
           if(typeof renderJournal === 'function') try{ renderJournal(); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
           if(typeof updateReports === 'function') try{ updateReports(); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
+          // Refresh Mission Control + payout (account no longer counts)
+          if(typeof mcRender === 'function') try{ mcRender(); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
+          // Cleanup payout log entries for deleted account
+          try{
+            var pLog = JSON.parse(rfxGet('tq_payout_log')||'[]');
+            var filtered = pLog.filter(function(p){return p.accountId !== id;});
+            if(filtered.length !== pLog.length){
+              rfxSet('tq_payout_log', JSON.stringify(filtered));
+              if(typeof tqPushSettings === 'function') tqPushSettings();
+            }
+          }catch(e){}
 
           // Success toast (was missing — May 2026 fix)
           if(typeof tqToast === 'function'){
@@ -19005,20 +19357,36 @@ window.toggleSidebar = function(){
       window._reportsDirty = false;
       setTimeout(updateReports, 100);
     }
-    if (id === 'playbook') setTimeout(renderPbCards, 100);
-    if (id === 'journal') setTimeout(renderJournal, 100);
+    // Race-condition-safe render hooks (May 28 2026 — Fix #2)
+    // requestAnimationFrame guarantees DOM is painted before render runs.
+    // Falls back to setTimeout(50) for very old browsers.
+    var _tqRenderAfterPaint = function(fn){
+      if(typeof requestAnimationFrame === 'function'){
+        requestAnimationFrame(function(){ requestAnimationFrame(fn); });
+      } else {
+        setTimeout(fn, 50);
+      }
+    };
+    if (id === 'playbook') _tqRenderAfterPaint(renderPbCards);
+    if (id === 'journal') _tqRenderAfterPaint(renderJournal);
     if (id === 'dayview'){
       window._dvDirty = false;
-      setTimeout(dvInit, 100);
+      _tqRenderAfterPaint(dvInit);
     }
-    if (id === 'riskmonitor' && window.rmCalc) setTimeout(rmCalc, 100);
-    if (id === 'notebook' && window.nbRender) setTimeout(nbRender, 100);
-    if (id === 'trademanager' && window.gbCalc) setTimeout(gbCalc, 100);
-    if (id === 'progress' && window.ptRender) { setTimeout(ptRender, 100); setTimeout(function(){if(window.aiGenerateDaily)aiGenerateDaily();if(window.aiGenerateWeekly)aiGenerateWeekly();},200); }
-    if (id === 'resources' && window.rsRender) setTimeout(rsRender, 100);
-    if (id === 'cockpit' && window.ckRender) setTimeout(ckRender, 100);
-    if (id === 'missioncontrol' && window.mcRender) setTimeout(mcRender, 100);
-    if (id === 'news' && window.newsLoadWidget && !_newsLoaded) setTimeout(newsLoadWidget, 150);
+    if (id === 'riskmonitor' && window.rmCalc) _tqRenderAfterPaint(rmCalc);
+    if (id === 'notebook' && window.nbRender) _tqRenderAfterPaint(nbRender);
+    if (id === 'trademanager' && window.gbCalc) _tqRenderAfterPaint(gbCalc);
+    if (id === 'progress' && window.ptRender) {
+      _tqRenderAfterPaint(ptRender);
+      _tqRenderAfterPaint(function(){
+        if(window.aiGenerateDaily)aiGenerateDaily();
+        if(window.aiGenerateWeekly)aiGenerateWeekly();
+      });
+    }
+    if (id === 'resources' && window.rsRender) _tqRenderAfterPaint(rsRender);
+    if (id === 'cockpit' && window.ckRender) _tqRenderAfterPaint(ckRender);
+    if (id === 'missioncontrol' && window.mcRender) _tqRenderAfterPaint(mcRender);
+    if (id === 'news' && window.newsLoadWidget && !_newsLoaded) _tqRenderAfterPaint(newsLoadWidget);
     if (id === 'aicoach' && window.aiCoachInit){
       // Toggle empty state based on trade count
       var aiTrades = (typeof getActiveTrades === 'function') ? getActiveTrades() : [];
@@ -19030,12 +19398,12 @@ window.toggleSidebar = function(){
       } else {
         if(aiEmpty) aiEmpty.style.display = 'none';
         if(aiContent) aiContent.style.display = 'block';
-        setTimeout(aiCoachInit, 150);
+        _tqRenderAfterPaint(aiCoachInit);
       }
     }
-    if (id === 'youredge' && window.yeRender) setTimeout(yeRender, 100);
-    if (id === 'trash' && window.trRender) setTimeout(trRender, 50);
-    if (id === 'admin' && window.adminInit) setTimeout(adminInit, 50);
+    if (id === 'youredge' && window.yeRender) _tqRenderAfterPaint(yeRender);
+    if (id === 'trash' && window.trRender) _tqRenderAfterPaint(trRender);
+    if (id === 'admin' && window.adminInit) _tqRenderAfterPaint(adminInit);
     // Telemetry: track page navigation (silent — no-op if telemetry disabled)
     if(typeof window.tqTrackEvent === 'function'){
       try{ window.tqTrackEvent('page_view', {page: id, prev: prevPage}); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
@@ -31685,6 +32053,37 @@ window.toggleSidebar = function(){
   }
   window.mcRender = mcRender;
 
+  // ═══ QUICK ADD PROP ACCOUNT (May 28 2026 — UX fix) ═══
+  // From Mission Control "Add Prop Account" button — opens modal pre-configured for prop.
+  function mcOpenAddPropAccount(){
+    // Navigate to accounts page first (the modal lives there)
+    if(typeof showPage === 'function') showPage('accounts');
+    setTimeout(function(){
+      if(typeof openAddAccountModal === 'function'){
+        openAddAccountModal();
+        // Preselect Prop / Funded type
+        setTimeout(function(){
+          var typeSel = document.getElementById('acc-type');
+          if(typeSel){
+            typeSel.value = 'prop';
+            // Trigger change so rules section becomes visible
+            if(typeof _accToggleRulesVisibility === 'function'){
+              _accToggleRulesVisibility();
+            } else {
+              // Manual fallback
+              var rulesWrap = document.getElementById('acc-rules-wrap');
+              if(rulesWrap) rulesWrap.style.display = 'block';
+            }
+          }
+          // Focus on name field
+          var nameInput = document.getElementById('acc-name');
+          if(nameInput) nameInput.focus();
+        }, 150);
+      }
+    }, 200);
+  }
+  window.mcOpenAddPropAccount = mcOpenAddPropAccount;
+
   // ═══ PAYOUT PIPELINE (Phase 2) ═══
   // Tracks payout eligibility + schedule across all funded accounts.
   var MC_PAYOUT_LOG_KEY = 'tq_payout_log';
@@ -31742,7 +32141,12 @@ window.toggleSidebar = function(){
     var rows = payoutAccs.map(function(item){
       var acc = item.acc;
       var split = acc.profitSplit || 100;
-      var eligibleAmount = item.pnl * (split/100);
+      // Total profit eligible (after split)
+      var grossEligible = item.pnl * (split/100);
+      // Subtract already-logged payouts for this account (running total) — only positive remainder counts
+      var paidOutForAcc = log.filter(function(p){return p.accountId === acc.id;})
+                              .reduce(function(s,p){return s + (parseFloat(p.amount)||0);}, 0);
+      var eligibleAmount = Math.max(0, grossEligible - paidOutForAcc);
       pendingTotal += eligibleAmount;
 
       var lastPayout = log.filter(function(p){return p.accountId === acc.id;})
@@ -32080,11 +32484,45 @@ window.toggleSidebar = function(){
       return;
     }
 
-    // Set loading state
+    // Set loading state — show inline loading card so user sees progress
     if(btn){
       btn.disabled = true;
       btn.textContent = 'Analyzing…';
       btn.style.opacity = '0.6';
+      btn.style.cursor = 'wait';
+    }
+    // Show full-card loading state (replaces placeholder/cached card)
+    card.style.display = 'block';
+    var loadingHtml =
+      '<div style="padding:18px 22px;background:linear-gradient(135deg,rgba(124,90,240,.06),rgba(29,233,182,.03));border:1px solid rgba(124,90,240,.18);border-radius:12px">'+
+        '<div style="display:flex;align-items:center;gap:12px">'+
+          '<div style="width:30px;height:30px;background:rgba(124,90,240,.15);border-radius:7px;display:flex;align-items:center;justify-content:center">'+
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent3)" stroke-width="2" style="animation:tqSpin 1s linear infinite"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>'+
+          '</div>'+
+          '<div style="flex:1">'+
+            '<div style="font-size:12px;font-weight:600;color:var(--text)">Analyzing accounts…</div>'+
+            '<div style="font-size:10px;color:var(--text3);margin-top:3px">AI is reviewing your rules, drawdown, and trade patterns</div>'+
+          '</div>'+
+        '</div>'+
+        '<div style="margin-top:14px;display:flex;flex-direction:column;gap:8px">'+
+          '<div style="height:10px;background:rgba(255,255,255,.04);border-radius:4px;overflow:hidden;position:relative">'+
+            '<div style="position:absolute;top:0;left:-30%;width:30%;height:100%;background:linear-gradient(90deg,transparent,rgba(124,90,240,.5),transparent);animation:tqShimmer 1.4s linear infinite"></div>'+
+          '</div>'+
+          '<div style="height:10px;background:rgba(255,255,255,.04);border-radius:4px;overflow:hidden;position:relative">'+
+            '<div style="position:absolute;top:0;left:-30%;width:30%;height:100%;background:linear-gradient(90deg,transparent,rgba(124,90,240,.5),transparent);animation:tqShimmer 1.4s linear infinite .2s"></div>'+
+          '</div>'+
+          '<div style="height:10px;background:rgba(255,255,255,.04);border-radius:4px;overflow:hidden;position:relative;width:60%">'+
+            '<div style="position:absolute;top:0;left:-30%;width:30%;height:100%;background:linear-gradient(90deg,transparent,rgba(124,90,240,.5),transparent);animation:tqShimmer 1.4s linear infinite .4s"></div>'+
+          '</div>'+
+        '</div>'+
+      '</div>';
+    card.innerHTML = loadingHtml;
+    // Inject animations once
+    if(!document.getElementById('tq-insights-anim')){
+      var st = document.createElement('style');
+      st.id = 'tq-insights-anim';
+      st.textContent = '@keyframes tqSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}@keyframes tqShimmer{0%{left:-30%}100%{left:130%}}';
+      document.head.appendChild(st);
     }
 
     // Build context payload (concise — keep tokens low)
@@ -32196,7 +32634,8 @@ window.toggleSidebar = function(){
 
       if(!Array.isArray(insights) || insights.length === 0){
         if(typeof tqToast === 'function') tqToast('AI returned unexpected response. Try again.', {type:'warning'});
-        if(btn){ btn.disabled = false; btn.textContent = 'Generate Insights'; btn.style.opacity = '1'; }
+        // Restore placeholder state so user can retry
+        _mcRenderInsightsPlaceholder();
         return;
       }
 
@@ -32210,7 +32649,8 @@ window.toggleSidebar = function(){
     .catch(function(e){
       console.error('Insights fetch error:', e);
       if(typeof tqToast === 'function') tqToast('Could not generate insights — check connection', {type:'error'});
-      if(btn){ btn.disabled = false; btn.textContent = 'Generate Insights'; btn.style.opacity = '1'; }
+      // Restore placeholder so user can retry
+      _mcRenderInsightsPlaceholder();
     });
   }
   window.mcGenerateInsights = mcGenerateInsights;
