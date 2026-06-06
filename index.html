@@ -14882,7 +14882,8 @@ window.toggleSidebar = function(){
         var color = p >= 100 ? '#ff505f' : p >= 80 ? '#f0b429' : '#2ecc8a';
         var bgRgba = p >= 100 ? 'rgba(255,80,95,.12)' : p >= 80 ? 'rgba(240,180,41,.12)' : 'rgba(29,233,182,.12)';
         return '<div style="flex:1;min-width:150px">' +
-          '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;letter-spacing:.3px;text-transform:uppercase"><span style="font-size:11px;color:var(--text3);font-weight:600">'+label+'</span><span style="font-size:15px;font-weight:700;color:'+color+';font-family:DM Mono,monospace;letter-spacing:-.3px">'+format+'</span></div>' +
+          '<div style="font-size:10px;color:var(--text2);font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:4px">'+label+'</div>' +
+          '<div style="font-size:16px;font-weight:700;color:'+color+';font-family:DM Mono,monospace;letter-spacing:-.3px;margin-bottom:6px">'+format+'</div>' +
           '<div style="height:5px;background:'+bgRgba+';border-radius:3px;overflow:hidden"><div style="width:'+p.toFixed(0)+'%;height:100%;background:'+color+';transition:width .3s"></div></div>' +
         '</div>';
       }
