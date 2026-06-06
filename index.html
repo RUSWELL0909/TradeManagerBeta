@@ -14854,15 +14854,15 @@ window.toggleSidebar = function(){
       return [
         '<div class="acc-row'+archivedClass+'" data-id="'+escapeHtml(a.id)+'" style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 100px 130px;padding:14px 20px;border-bottom:1px solid var(--border);align-items:center;transition:background .15s" onmouseover="this.style.background=\'var(--bg3)\'" onmouseout="this.style.background=\'transparent\'">',
         '  <div class="acc-name-cell" style="min-width:0">',
-        '    <div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(a.name||'(unnamed)')+'</div>',
-        a.accountNumber ? '    <div style="font-size:10px;color:var(--text3);font-family:DM Mono,monospace;margin-top:2px">#'+escapeHtml(a.accountNumber)+'</div>' : '',
+        '    <div style="font-size:15px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(a.name||'(unnamed)')+'</div>',
+        a.accountNumber ? '    <div style="font-size:13px;color:var(--text3);font-family:DM Mono,monospace;margin-top:3px">#'+escapeHtml(a.accountNumber)+'</div>' : '',
         '  </div>',
-        '  <div style="font-size:12px;color:var(--text2)">'+escapeHtml(brokerStr)+(a.platform?'<div style="font-size:10px;color:var(--text3);margin-top:2px">'+escapeHtml(a.platform)+'</div>':'')+'</div>',
+        '  <div style="font-size:14px;color:var(--text)">'+escapeHtml(brokerStr)+(a.platform?'<div style="font-size:12px;color:var(--text3);margin-top:3px">'+escapeHtml(a.platform)+'</div>':'')+'</div>',
         '  <div>',
-        '    <div style="font-size:13px;font-weight:600;color:var(--text);font-family:DM Mono,monospace">'+accFmtCcy(liveBalance, a.currency)+'</div>',
-        '    <div style="font-size:10px;color:'+deltaColor+';margin-top:2px;font-family:DM Mono,monospace">'+deltaSign+deltaPct.toFixed(2)+'%</div>',
+        '    <div style="font-size:18px;font-weight:700;color:#ffffff;letter-spacing:-.5px">'+accFmtCcy(liveBalance, a.currency)+'</div>',
+        '    <div style="font-size:13px;font-weight:600;color:'+deltaColor+';margin-top:3px;font-family:DM Mono,monospace">'+deltaSign+deltaPct.toFixed(2)+'%</div>',
         '  </div>',
-        '  <div><span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;'+accTypeBadgeStyle(a.type)+'">'+accTypeLabel(a.type)+'</span></div>',
+        '  <div><span style="display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;'+accTypeBadgeStyle(a.type)+'">'+accTypeLabel(a.type)+'</span></div>',
         '  <div>'+statusCol+'</div>',
         '  <div style="display:flex;justify-content:flex-end;gap:4px">'+actionBtns+'</div>',
         '</div>',
@@ -14881,9 +14881,9 @@ window.toggleSidebar = function(){
         var p = Math.max(0, Math.min(100, pct));
         var color = p >= 100 ? '#ff505f' : p >= 80 ? '#f0b429' : '#2ecc8a';
         var bgRgba = p >= 100 ? 'rgba(255,80,95,.12)' : p >= 80 ? 'rgba(240,180,41,.12)' : 'rgba(29,233,182,.12)';
-        return '<div style="flex:1;min-width:130px">' +
-          '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:3px;letter-spacing:.4px;text-transform:uppercase"><span>'+label+'</span><span style="color:'+color+';font-family:DM Mono,monospace">'+format+'</span></div>' +
-          '<div style="height:4px;background:'+bgRgba+';border-radius:2px;overflow:hidden"><div style="width:'+p.toFixed(0)+'%;height:100%;background:'+color+';transition:width .3s"></div></div>' +
+        return '<div style="flex:1;min-width:150px">' +
+          '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;letter-spacing:.3px;text-transform:uppercase"><span style="font-size:11px;color:var(--text3);font-weight:600">'+label+'</span><span style="font-size:15px;font-weight:700;color:'+color+';font-family:DM Mono,monospace;letter-spacing:-.3px">'+format+'</span></div>' +
+          '<div style="height:5px;background:'+bgRgba+';border-radius:3px;overflow:hidden"><div style="width:'+p.toFixed(0)+'%;height:100%;background:'+color+';transition:width .3s"></div></div>' +
         '</div>';
       }
       var bars = [];
@@ -14894,16 +14894,16 @@ window.toggleSidebar = function(){
       if(!bars.length) return '';
       var statusBadge = '';
       if(st.breaches.length > 0){
-        statusBadge = '<span style="font-size:9px;font-weight:600;color:#ff505f;background:rgba(255,80,95,.12);padding:2px 8px;border-radius:10px;text-transform:uppercase;letter-spacing:.5px">⛔ Breach</span>';
+        statusBadge = '<span style="font-size:12px;font-weight:700;color:#ff505f;background:rgba(255,80,95,.12);padding:4px 12px;border-radius:10px;text-transform:uppercase;letter-spacing:.5px">⛔ Breach</span>';
       } else if(st.warnings.length > 0){
-        statusBadge = '<span style="font-size:9px;font-weight:600;color:#f0b429;background:rgba(240,180,41,.12);padding:2px 8px;border-radius:10px;text-transform:uppercase;letter-spacing:.5px">⚠ Warning</span>';
+        statusBadge = '<span style="font-size:12px;font-weight:700;color:#f0b429;background:rgba(240,180,41,.12);padding:4px 12px;border-radius:10px;text-transform:uppercase;letter-spacing:.5px">⚠ Warning</span>';
       } else if(st.profitTargetMet){
-        statusBadge = '<span style="font-size:9px;font-weight:600;color:#2ecc8a;background:rgba(29,233,182,.12);padding:2px 8px;border-radius:10px;text-transform:uppercase;letter-spacing:.5px">✓ Target Met</span>';
+        statusBadge = '<span style="font-size:12px;font-weight:700;color:#2ecc8a;background:rgba(29,233,182,.12);padding:4px 12px;border-radius:10px;text-transform:uppercase;letter-spacing:.5px">✓ Target Met</span>';
       } else {
-        statusBadge = '<span style="font-size:9px;font-weight:600;color:#2ecc8a;background:rgba(29,233,182,.12);padding:2px 8px;border-radius:10px;text-transform:uppercase;letter-spacing:.5px">● Passing</span>';
+        statusBadge = '<span style="font-size:12px;font-weight:700;color:#2ecc8a;background:rgba(29,233,182,.12);padding:4px 12px;border-radius:10px;text-transform:uppercase;letter-spacing:.5px">● Passing</span>';
       }
       return '<div style="grid-column:1/-1;padding:10px 20px 14px 20px;border-bottom:1px solid var(--border);background:rgba(124,90,240,.02);display:flex;align-items:center;gap:14px;flex-wrap:wrap">' +
-        '<div style="font-size:9px;font-weight:600;color:var(--accent3);letter-spacing:.6px;text-transform:uppercase;display:flex;align-items:center;gap:6px;flex-shrink:0">' +
+        '<div style="font-size:12px;font-weight:700;color:var(--accent3);letter-spacing:.6px;text-transform:uppercase;display:flex;align-items:center;gap:6px;flex-shrink:0">' +
           '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>' +
           'Funded Rules' +
         '</div>' +
@@ -14983,8 +14983,8 @@ window.toggleSidebar = function(){
             '<div style="font-size:11px;color:var(--text3);font-weight:500">·  '+accountsInGroup.length+' account'+(accountsInGroup.length===1?'':'s')+' · '+tradeCount+' trade'+(tradeCount===1?'':'s')+'</div>' +
           '</div>' +
           '<div style="display:flex;align-items:center;gap:18px;font-family:DM Mono,monospace">' +
-            '<div style="text-align:right"><div style="font-size:9px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase">Total Balance</div><div style="font-size:14px;font-weight:600;color:var(--text)">'+sym+Math.round(totalBal).toLocaleString()+'</div></div>' +
-            '<div style="text-align:right"><div style="font-size:9px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase">Group P&amp;L</div><div style="font-size:14px;font-weight:600;color:'+pnlColor+'">'+pnlSign+sym+Math.round(totalPnl).toLocaleString()+'</div></div>' +
+            '<div style="text-align:right"><div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Total Balance</div><div style="font-size:20px;font-weight:700;color:#ffffff;letter-spacing:-.5px">'+sym+Math.round(totalBal).toLocaleString()+'</div></div>' +
+            '<div style="text-align:right"><div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Group P&amp;L</div><div style="font-size:20px;font-weight:700;color:'+pnlColor+';letter-spacing:-.5px">'+pnlSign+sym+Math.round(totalPnl).toLocaleString()+'</div></div>' +
           '</div>' +
         '</div>';
       }
