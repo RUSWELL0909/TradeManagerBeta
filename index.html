@@ -4603,6 +4603,9 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
   .pb-builder-close,.modal-close{min-width:44px;min-height:44px;font-size:20px!important}
 
   /* ═══ PROP SUITE MOBILE (May 28 2026 — Fix #4) ═══ */
+  /* On mobile: always show edit icons (hover doesn't work on touch) */
+  .mc-card-edit{opacity:1 !important}
+  
   /* Mission Control hero header */
   #page-missioncontrol > div:first-child{padding:18px 16px!important}
   #page-missioncontrol > div:first-child > div{flex-direction:column;align-items:flex-start!important}
@@ -5580,6 +5583,16 @@ window.toggleSidebar = function(){
           </button>
         </div>
       </div>
+    </div>
+
+    <!-- TIME PERIOD FILTER (Phase 3 polish) -->
+    <div id="mc-time-filter" style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+      <span style="font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-right:4px">Period:</span>
+      <button class="mc-tf-btn active" data-period="all" onclick="mcSetTimePeriod('all')" style="font-size:10px;padding:5px 12px;background:var(--accent);border:none;color:#fff;border-radius:5px;cursor:pointer;font-weight:600;letter-spacing:.3px">All time</button>
+      <button class="mc-tf-btn" data-period="today" onclick="mcSetTimePeriod('today')" style="font-size:10px;padding:5px 12px;background:transparent;border:1px solid var(--border);color:var(--text2);border-radius:5px;cursor:pointer;font-weight:600;letter-spacing:.3px">Today</button>
+      <button class="mc-tf-btn" data-period="week" onclick="mcSetTimePeriod('week')" style="font-size:10px;padding:5px 12px;background:transparent;border:1px solid var(--border);color:var(--text2);border-radius:5px;cursor:pointer;font-weight:600;letter-spacing:.3px">This week</button>
+      <button class="mc-tf-btn" data-period="month" onclick="mcSetTimePeriod('month')" style="font-size:10px;padding:5px 12px;background:transparent;border:1px solid var(--border);color:var(--text2);border-radius:5px;cursor:pointer;font-weight:600;letter-spacing:.3px">This month</button>
+      <span id="mc-tf-info" style="margin-left:8px;font-size:10px;color:var(--text3);font-family:ui-monospace,SFMono-Regular,Menlo,monospace"></span>
     </div>
 
     <!-- AGGREGATE KPI STRIP -->
@@ -9319,8 +9332,8 @@ window.toggleSidebar = function(){
       <button class="btn btn-primary" onclick="rsNew()">+ Add Resource</button>
     </div>
 
-    <!-- EMAIL REPORTS (May 2026) -->
-    <div style="margin-bottom:28px;padding:24px;background:linear-gradient(135deg,rgba(124,90,240,.04),rgba(29,233,182,.02));border:1px solid rgba(124,90,240,.15);border-radius:14px">
+    <!-- EMAIL REPORTS (May 2026 — HIDDEN until backend deployed) -->
+    <div style="display:none;margin-bottom:28px;padding:24px;background:linear-gradient(135deg,rgba(124,90,240,.04),rgba(29,233,182,.02));border:1px solid rgba(124,90,240,.15);border-radius:14px" data-email-reports-section>
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap">
         <div style="flex:1;min-width:240px">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
@@ -13273,10 +13286,30 @@ window.toggleSidebar = function(){
     });
     if(pushable.length === 0) return;
     var rows=pushable.map(function(a){var r=tqAccToRow(a);r.user_id=_tqUser.id;return r;});
-    _tqSupa.from('accounts').upsert(rows,{onConflict:'user_id,external_id'}).then(function(r){
-      if(r.error)console.error('Accounts push error:',r.error);
-      else console.log('TradeQuill: Pushed',pushable.length,'accounts to cloud (skipped',accs.length-pushable.length,'deleted)');
-    });
+    tqSetSyncStatus('syncing','Syncing accounts...');
+    // Use retry with backoff for reliability
+    if(typeof tqSyncWithRetry === 'function'){
+      tqSyncWithRetry(function(){
+        return _tqSupa.from('accounts').upsert(rows,{onConflict:'user_id,external_id'}).then(function(r){
+          if(r.error) throw r.error;
+          return r;
+        });
+      }, 3, [0, 2000, 5000]).then(function(){
+        tqSetSyncStatus('ok','Synced');
+        console.log('TradeQuill: Pushed',pushable.length,'accounts to cloud');
+      }).catch(function(e){
+        console.error('Accounts push FAILED after retries:',e);
+        tqSetSyncStatus('error','Account sync failed');
+        if(typeof tqToast === 'function'){
+          tqToast('Account sync failed — saved locally. Will retry automatically.', {type:'warning', duration:5000});
+        }
+      });
+    } else {
+      _tqSupa.from('accounts').upsert(rows,{onConflict:'user_id,external_id'}).then(function(r){
+        if(r.error)console.error('Accounts push error:',r.error);
+        else console.log('TradeQuill: Pushed',pushable.length,'accounts to cloud');
+      });
+    }
   }
   window.tqPushAccounts=tqPushAccounts;
 
@@ -15924,6 +15957,19 @@ window.toggleSidebar = function(){
         '</div>';
       document.body.appendChild(modal);
 
+      // ESC key closes modal (cancels trade save)
+      var _complianceEscHandler = function(e){
+        if(e.key === 'Escape'){
+          tqCloseComplianceModal(false);
+          document.removeEventListener('keydown', _complianceEscHandler);
+        }
+      };
+      document.addEventListener('keydown', _complianceEscHandler);
+      // Click outside modal box also cancels
+      modal.addEventListener('click', function(e){
+        if(e.target === modal){ tqCloseComplianceModal(false); }
+      });
+
       // Store callbacks
       window._tqComplianceCallbacks = { onConfirm: onConfirm, onCancel: onCancel };
     }
@@ -17976,11 +18022,21 @@ window.toggleSidebar = function(){
       window.addEventListener('scroll', fn, true);
     }
 
-    // Init
-    setTimeout(function(){
-      _wireRepositioning();
-      obCheckFirstRun();
-    }, 1500);
+    // Init — use readiness event instead of fragile timer (May 28 2026)
+    // Wait until auth resolved (logged in OR offline mode) before checking first-run.
+    if(typeof window.tqWhenReady === 'function'){
+      window.tqWhenReady('auth', function(){
+        _wireRepositioning();
+        // Small grace period для UI to settle after auth state change
+        setTimeout(obCheckFirstRun, 400);
+      });
+    } else {
+      // Fallback for older init order
+      setTimeout(function(){
+        _wireRepositioning();
+        obCheckFirstRun();
+      }, 1500);
+    }
 
   })();
   // ══ END ONBOARDING MODULE ══
@@ -20864,7 +20920,7 @@ window.toggleSidebar = function(){
     var accSel=document.getElementById('pdf-account');
     if(accSel){
       var accs=JSON.parse(rfxGet('rf_accounts')||'[]').filter(function(a){return !a.deleted;});
-      accSel.innerHTML='<option value="">All Accounts</option>'+accs.map(function(a){return '<option value="'+a.id+'">'+a.name+(a.archived?' (archived)':'')+'</option>';}).join('');
+      accSel.innerHTML='<option value="">All Accounts</option>'+accs.map(function(a){return '<option value="'+escapeHtml(a.id)+'">'+escapeHtml(a.name)+(a.archived?' (archived)':'')+'</option>';}).join('');
     }
     // Populate setup dropdown
     var setupSel=document.getElementById('pdf-setup');
@@ -27832,8 +27888,12 @@ window.toggleSidebar = function(){
               if(__checkResult.willBreach && typeof window.tqTrackEvent === 'function'){
                 try{ window.tqTrackEvent('compliance_override', {account: __accForCheck, breach: true}); }catch(e){}
               }
-              jrSaveTrade();
-              window._jrComplianceOverride = false;
+              try{
+                jrSaveTrade();
+              } finally {
+                // Always reset flag, even if save throws
+                window._jrComplianceOverride = false;
+              }
             },
             function(){ /* onCancel — do nothing, trade not saved */ }
           );
@@ -32319,6 +32379,66 @@ window.toggleSidebar = function(){
   }
   window.ckRender=ckRender;
 
+  // ═══ MISSION CONTROL TIME PERIOD FILTER (May 28 2026 — Polish) ═══
+  // Filters trades shown in MC stats (aggregate P&L, account P&L, analytics).
+  // Rule status (DD, daily loss) is ALWAYS computed on all-time for accuracy —
+  // only the "trade view" / P&L stats respond to period.
+  var MC_TIME_PERIOD = 'all';
+
+  function mcSetTimePeriod(period){
+    if(['all','today','week','month'].indexOf(period) < 0) return;
+    MC_TIME_PERIOD = period;
+    window.MC_TIME_PERIOD = period;
+    // Update button visual states
+    document.querySelectorAll('.mc-tf-btn').forEach(function(b){
+      if(b.getAttribute('data-period') === period){
+        b.style.background = 'var(--accent)';
+        b.style.borderColor = 'var(--accent)';
+        b.style.color = '#fff';
+        b.classList.add('active');
+      } else {
+        b.style.background = 'transparent';
+        b.style.borderColor = 'var(--border)';
+        b.style.color = 'var(--text2)';
+        b.classList.remove('active');
+      }
+    });
+    // Update info label
+    var info = document.getElementById('mc-tf-info');
+    if(info){
+      var labels = {
+        all: '',
+        today: 'showing today\'s trades only',
+        week: 'showing last 7 days',
+        month: 'showing last 30 days'
+      };
+      info.textContent = labels[period] || '';
+    }
+    // Re-render Mission Control
+    if(typeof mcRender === 'function') mcRender();
+  }
+  window.mcSetTimePeriod = mcSetTimePeriod;
+
+  // Helper: filter trades by current period
+  function _mcFilterTradesByPeriod(trades){
+    var period = MC_TIME_PERIOD;
+    if(period === 'all') return trades;
+    var now = new Date();
+    var cutoff;
+    if(period === 'today'){
+      cutoff = now.toISOString().slice(0,10);
+      return trades.filter(function(t){ return (t.date||'') >= cutoff; });
+    } else if(period === 'week'){
+      var weekAgo = new Date(now.getTime() - 7*86400000).toISOString().slice(0,10);
+      return trades.filter(function(t){ return (t.date||'') >= weekAgo; });
+    } else if(period === 'month'){
+      var monthAgo = new Date(now.getTime() - 30*86400000).toISOString().slice(0,10);
+      return trades.filter(function(t){ return (t.date||'') >= monthAgo; });
+    }
+    return trades;
+  }
+  window._mcFilterTradesByPeriod = _mcFilterTradesByPeriod;
+
   // ═══════════════════════════════════════════════════════════════════
   // MISSION CONTROL (May 2026 — Prop Suite v1)
   // Renders unified view of all funded accounts with real-time rule status.
@@ -32351,6 +32471,19 @@ window.toggleSidebar = function(){
       if(aggEl) aggEl.innerHTML = '';
       if(warnEl){ warnEl.style.display = 'none'; warnEl.innerHTML = ''; }
       if(listEl) listEl.innerHTML = '';
+      // Hide time period filter (no data to filter)
+      var tfEl = document.getElementById('mc-time-filter');
+      if(tfEl) tfEl.style.display = 'none';
+      // Hide payout/analytics/insights sections (no data)
+      var ppEl = document.getElementById('mc-payout-pipeline');
+      if(ppEl){ ppEl.style.display = 'none'; ppEl.innerHTML = ''; }
+      var anEl = document.getElementById('mc-analytics');
+      if(anEl){ anEl.style.display = 'none'; anEl.innerHTML = ''; }
+      var inEl = document.getElementById('mc-insights-card');
+      if(inEl){ inEl.style.display = 'none'; inEl.innerHTML = ''; }
+      // Hide view mode hint (irrelevant on empty)
+      var vmEl = document.getElementById('mc-viewmode-hint');
+      if(vmEl) vmEl.style.display = 'none';
       document.getElementById('mc-hero-pnl').textContent = '$0';
       document.getElementById('mc-hero-pnl').style.color = 'var(--text)';
       document.getElementById('mc-hero-pnl-sub').textContent = 'no funded accounts';
@@ -32359,19 +32492,27 @@ window.toggleSidebar = function(){
       return;
     }
     if(emptyEl) emptyEl.style.display = 'none';
+    // Restore visible state for time filter when accounts exist
+    var tfElShow = document.getElementById('mc-time-filter');
+    if(tfElShow) tfElShow.style.display = 'flex';
 
     // Compute aggregate stats
     var totalFunded = 0, totalPnl = 0, totalRisk = 0, criticalCount = 0, warningCount = 0;
     var healthSum = 0, healthCount = 0;
     var accountStatuses = []; // {acc, status}
 
+    // Filter trades by time period for P&L stats (rule status uses all-time)
+    var tradesForPnl = (typeof _mcFilterTradesByPeriod === 'function') ? _mcFilterTradesByPeriod(trades) : trades;
+
     propAccs.forEach(function(a){
       var startBal = parseFloat(a.startingBalance || a.balance) || 0;
       totalFunded += startBal;
-      var accTrades = trades.filter(function(t){ return t.account === a.id; });
-      var accPnl = accTrades.reduce(function(s,t){ return s + (parseFloat(t.pnl)||0); }, 0);
+      // P&L respects time period filter
+      var accTradesPeriod = tradesForPnl.filter(function(t){ return t.account === a.id; });
+      var accPnl = accTradesPeriod.reduce(function(s,t){ return s + (parseFloat(t.pnl)||0); }, 0);
       totalPnl += accPnl;
 
+      // Rule status ALWAYS uses all-time data (DD is cumulative, not period-based)
       var st = tqFundedStatus(a, trades);
       if(st){
         if(st.breaches.length > 0) criticalCount++;
@@ -32390,7 +32531,8 @@ window.toggleSidebar = function(){
           if(ddRoom > 0) totalRisk += ddRoom;
         }
       }
-      accountStatuses.push({acc:a, status:st, pnl:accPnl, tradeCount:accTrades.length});
+      // Period-specific trade count
+      accountStatuses.push({acc:a, status:st, pnl:accPnl, tradeCount:accTradesPeriod.length});
     });
 
     // Update hero
@@ -32480,8 +32622,8 @@ window.toggleSidebar = function(){
 
     // Render payout pipeline
     if(typeof mcRenderPayoutPipeline === 'function') mcRenderPayoutPipeline(accountStatuses);
-    // Render aggregated analytics
-    if(typeof mcRenderAnalytics === 'function') mcRenderAnalytics(accountStatuses, trades);
+    // Render aggregated analytics — use period-filtered trades
+    if(typeof mcRenderAnalytics === 'function') mcRenderAnalytics(accountStatuses, tradesForPnl);
     // Render smart insights (AI Risk Officer)
     if(typeof mcRenderInsights === 'function') mcRenderInsights();
   }
@@ -32517,6 +32659,45 @@ window.toggleSidebar = function(){
     }, 200);
   }
   window.mcOpenAddPropAccount = mcOpenAddPropAccount;
+
+  // ═══ ACCOUNT DRILL-DOWN (May 28 2026 — Per-account focused view) ═══
+  // Click on Mission Control account card → navigates to Journal with this account selected,
+  // showing only its trades + rule banner up top. Cleanest UX without building new page.
+  function mcDrillDown(accountId){
+    var accs = (typeof accLoad === 'function') ? accLoad() : [];
+    var acc = accs.find(function(a){ return a.id === accountId; });
+    if(!acc) return;
+
+    // Navigate to Journal
+    if(typeof showPage === 'function') showPage('journal');
+
+    // Wait for journal render, then apply account filter
+    setTimeout(function(){
+      var accFilter = document.getElementById('jr-account-filter');
+      if(accFilter){
+        // Look for option by account name (filter uses name, not id)
+        var found = false;
+        for(var i = 0; i < accFilter.options.length; i++){
+          if(accFilter.options[i].value === acc.name){
+            accFilter.value = acc.name;
+            found = true;
+            break;
+          }
+        }
+        if(found){
+          // Trigger re-render with filter applied
+          if(typeof renderJournal === 'function') renderJournal();
+          // Toast feedback
+          if(typeof tqToast === 'function'){
+            tqToast('Showing trades for ' + acc.name, {type:'info', duration:2500});
+          }
+        }
+      }
+      // Scroll to top of page
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    }, 250);
+  }
+  window.mcDrillDown = mcDrillDown;
 
   // ═══ PAYOUT PIPELINE (Phase 2) ═══
   // Tracks payout eligibility + schedule across all funded accounts.
@@ -33210,10 +33391,15 @@ window.toggleSidebar = function(){
     var healthStr = st ? (st.health + '%') : '—';
     var healthColor2 = st ? (st.health >= 70 ? 'var(--green)' : st.health >= 40 ? '#fbbf24' : 'var(--red)') : 'var(--text3)';
 
-    return '<div style="padding:14px 18px;background:'+bgGrad+';border:1px solid '+borderColor+';border-left:3px solid '+accent+';border-radius:0 10px 10px 0;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;cursor:pointer;transition:transform .15s" '+
-      'onmouseover="this.style.transform=\'translateX(2px)\'" onmouseout="this.style.transform=\'\'" '+
-      'onclick="showPage(\'accounts\');setTimeout(function(){if(window.openEditAccountModal)openEditAccountModal(\''+acc.id+'\');},150)" '+
-      'title="Click to edit account">'+
+    return '<div style="padding:14px 18px;background:'+bgGrad+';border:1px solid '+borderColor+';border-left:3px solid '+accent+';border-radius:0 10px 10px 0;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;cursor:pointer;transition:transform .15s;position:relative" '+
+      'onmouseover="this.style.transform=\'translateX(2px)\';var ed=this.querySelector(\'.mc-card-edit\');if(ed)ed.style.opacity=\'1\';" onmouseout="this.style.transform=\'\';var ed=this.querySelector(\'.mc-card-edit\');if(ed)ed.style.opacity=\'0\';" '+
+      'onclick="mcDrillDown(\''+acc.id+'\')" '+
+      'title="Click to view this account\'s trades &amp; performance">'+
+      // Edit icon (top-right, fades in on hover)
+      '<button class="mc-card-edit" onclick="event.stopPropagation();showPage(\'accounts\');setTimeout(function(){if(window.openEditAccountModal)openEditAccountModal(\''+acc.id+'\');},150)" title="Edit account rules" '+
+        'style="position:absolute;top:8px;right:8px;width:24px;height:24px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3);opacity:0;transition:opacity .15s;z-index:2">'+
+        '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>'+
+      '</button>'+
       // Firm badge
       '<div style="width:44px;height:44px;background:'+pillBg+';border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:'+accent+';letter-spacing:.5px">'+firmAbbr+'</div>'+
       // Content
