@@ -5248,6 +5248,7 @@ body.tq-scrolled .topbar-wrap{box-shadow:0 1px 12px rgba(0,0,0,.04)}
 .sv-card-btn:hover{background:rgba(124,90,240,.14);border-color:var(--accent3);color:var(--accent3)}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 // ── localStorage shim for sandboxed environments ──
 (function(){
@@ -6495,7 +6496,7 @@ window.toggleSidebar = function(){
       <button class="pb-btn pb-btn-ghost" style="padding:6px 16px;font-size:10px" onclick="tqBackupExport()">↓ Backup JSON</button>
       <button class="pb-btn pb-btn-ghost" style="padding:6px 16px;font-size:10px" onclick="jrExportCSV()">↓ Export CSV</button>
       <label class="pb-btn pb-btn-ghost" style="padding:6px 16px;font-size:10px;cursor:pointer;display:inline-flex;align-items:center;gap:6px">↑ Import CSV
-        <input type="file" id="jr-csv-input" accept=".csv" style="display:none" onchange="jrCsvPreImport(this)">
+        <input type="file" id="jr-csv-input" accept=".csv,.xlsx,.xls" style="display:none" onchange="jrCsvPreImport(this)">
       </label>
     </div>
   </div>
@@ -7453,13 +7454,13 @@ window.toggleSidebar = function(){
           </div>
         </div>
         <button class="btn btn-primary" style="font-size:13px;padding:10px 24px" onclick="openAddAccountModal()">+ Create your first account</button>
-        <div style="margin-top:16px;font-size:11px;color:var(--text3)">Supported: MT4/MT5, TradeZella, or any CSV with Date + Pair + P&L columns</div>
+        <div style="margin-top:16px;font-size:11px;color:var(--text3)">Supported: MT4/MT5 CSV or Excel (.xlsx), TradeZella, or any CSV with Date + Pair + P&L columns</div>
       </div>
     </div>
 
     <!-- Minimal danger zone -->
     <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:12px;align-items:center">
-      <span style="font-size:10px;color:var(--text3)">Supported imports: MT4/MT5, TradeZella, or any CSV with Date + Pair + P&L</span>
+      <span style="font-size:10px;color:var(--text3)">Supported imports: MT4/MT5 CSV or Excel (.xlsx), TradeZella, or any CSV with Date + Pair + P&L</span>
       <button style="background:none;border:none;color:var(--red);font-size:10px;cursor:pointer;opacity:.5;font-family:Inter,sans-serif" onclick="tqDeleteAllTrades()">Delete all trades</button>
     </div>
   </div>
@@ -27453,13 +27454,103 @@ window.toggleSidebar = function(){
   }
   window.rfxUpdateBackupStatus = rfxUpdateBackupStatus;
 
-  // ── Import CSV ──
+  // ── Import CSV / Excel ──
   function jrImportCSV(){document.getElementById('jr-csv-input').click();}
   window.jrImportCSV = jrImportCSV;
+
+  // Convert SheetJS rows (array-of-arrays) to the same format as parseCSV output
+  // Handles MT5 Russian Excel: skips header rows, finds column row, returns [headers, ...data]
+  function _xlsxToCsvRows(wb){
+    var ws = wb.Sheets[wb.SheetNames[0]];
+    var raw = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+    // Find the header row — MT5 has Russian headers like 'Время','Символ' etc
+    // or English: 'Time','Symbol','Profit'
+    var headerRowIdx = -1;
+    var MT5_RU_HEADERS = ['время','символ','тип','объем','прибыль','позиция'];
+    var MT5_EN_HEADERS = ['time','symbol','type','volume','profit','position'];
+    for(var i=0;i<Math.min(raw.length,15);i++){
+      var cells = raw[i].map(function(c){return String(c||'').toLowerCase().trim();});
+      var ruMatches = MT5_RU_HEADERS.filter(function(h){return cells.indexOf(h)>=0;}).length;
+      var enMatches = MT5_EN_HEADERS.filter(function(h){return cells.indexOf(h)>=0;}).length;
+      if(ruMatches>=3 || enMatches>=3){headerRowIdx=i;break;}
+    }
+    if(headerRowIdx<0){
+      // Fallback: first non-empty row with >3 cells
+      for(var j=0;j<Math.min(raw.length,10);j++){
+        if(raw[j].filter(function(c){return c!=='';}).length>3){headerRowIdx=j;break;}
+      }
+    }
+    if(headerRowIdx<0) return null;
+
+    // Translate Russian MT5 headers to English equivalents our parser understands
+    var RU_TO_EN = {
+      'время':'open time','позиция':'position','символ':'symbol','тип':'type',
+      'объем':'volume','цена':'price','s / l':'s/l','t / p':'t/p',
+      'комиссия':'commission','своп':'swap','прибыль':'profit',
+      'время закрытия':'close time','цена закрытия':'close price'
+    };
+    var headers = raw[headerRowIdx].map(function(h,i){
+      var lower = String(h||'').toLowerCase().trim();
+      // Second 'время' column (index > first occurrence) = close time
+      if(lower==='время'){
+        var firstTimeIdx = raw[headerRowIdx].findIndex(function(c){return String(c||'').toLowerCase().trim()==='время';});
+        if(i !== firstTimeIdx) return 'close time';
+      }
+      // Second 'цена' column = close price
+      if(lower==='цена'){
+        var firstPriceIdx = raw[headerRowIdx].findIndex(function(c){return String(c||'').toLowerCase().trim()==='цена';});
+        if(i !== firstPriceIdx) return 'close price';
+      }
+      return RU_TO_EN[lower] || lower;
+    });
+
+    // Data rows — skip summary/stats rows at bottom (they have < 5 non-empty cells)
+    var dataRows = [];
+    for(var k=headerRowIdx+1;k<raw.length;k++){
+      var row = raw[k];
+      var nonEmpty = row.filter(function(c){return c!==''&&c!==null&&c!==undefined;}).length;
+      if(nonEmpty < 4) continue; // skip stats footer rows
+      // Convert date objects to string
+      var strRow = row.map(function(c){
+        if(c instanceof Date){
+          var pad=function(n){return n<10?'0'+n:n;};
+          return c.getFullYear()+'.'+pad(c.getMonth()+1)+'.'+pad(c.getDate())+' '+pad(c.getHours())+':'+pad(c.getMinutes())+':'+pad(c.getSeconds());
+        }
+        return String(c===null||c===undefined?'':c);
+      });
+      dataRows.push(strRow);
+    }
+    return [headers].concat(dataRows);
+  }
+
   function jrProcessCSV(input, forcedAccount){
     if(!input.files||!input.files[0]) return;
+    var file = input.files[0];
+    var isExcel = /\.(xlsx|xls)$/i.test(file.name);
+
     var reader=new FileReader();
     reader.onload=function(e){
+      var parsed;
+
+      // ── Excel path ──
+      if(isExcel){
+        if(typeof XLSX === 'undefined'){
+          if(typeof tqAlert==='function') tqAlert('Excel library not loaded yet — try again in a moment.', {type:'error'});
+          return;
+        }
+        try{
+          var wb = XLSX.read(new Uint8Array(e.target.result), {type:'array', cellDates:true});
+          parsed = _xlsxToCsvRows(wb);
+          if(!parsed){
+            if(typeof tqAlert==='function') tqAlert('Could not find trade data in this Excel file. Make sure it\'s a standard MT4/MT5 history export.', {type:'error'});
+            return;
+          }
+        } catch(err){
+          if(typeof tqAlert==='function') tqAlert('Failed to read Excel file: '+err.message, {type:'error'});
+          return;
+        }
+      } else {
+        // ── CSV path (existing) ──
       var raw=e.target.result;
       // Strip BOM and normalize line endings
       raw=raw.replace(/^\ufeff/,'').replace(/\r\n/g,'\n').replace(/\r/g,'\n');
@@ -27489,13 +27580,15 @@ window.toggleSidebar = function(){
       }
 
       var parsed=parseCSV(raw);
-      if(parsed.length<2){
-        if(typeof tqAlert === 'function') tqAlert('CSV is empty', {type:'error'});
-        else alert('CSV is empty');
+      } // end else (CSV path)
+
+      if(!parsed || parsed.length<2){
+        if(typeof tqAlert === 'function') tqAlert('File is empty or unreadable', {type:'error'});
+        else alert('File is empty or unreadable');
         return;
       }
-      var headers=parsed[0].map(function(h){return h.trim().toLowerCase().replace(/[^\x20-\x7e]/g,'');});
-      console.log('CSV Import: '+parsed.length+' rows, headers:',headers);
+      var headers=parsed[0].map(function(h){return String(h||'').trim().toLowerCase().replace(/[^\x20-\x7e]/g,'');});
+      console.log('Import: '+parsed.length+' rows, headers:',headers);
 
       // ── Smart header detection ──
       // Supports the most common broker / journal CSV exports out of the box:
@@ -27735,7 +27828,11 @@ window.toggleSidebar = function(){
         }, 800);
       }
     };
-    reader.readAsText(input.files[0]);
+    if(isExcel){
+      reader.readAsArrayBuffer(file);
+    } else {
+      reader.readAsText(file);
+    }
     input.value='';
   }
   window.jrProcessCSV = jrProcessCSV;
