@@ -4602,44 +4602,76 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
   /* Bigger close × buttons */
   .pb-builder-close,.modal-close{min-width:44px;min-height:44px;font-size:20px!important}
 
-  /* ═══ PROP SUITE MOBILE (May 28 2026 — Fix #4) ═══ */
-  /* On mobile: always show edit icons (hover doesn't work on touch) */
-  .mc-card-edit{opacity:1 !important}
-  
-  /* Mission Control hero header */
-  #page-missioncontrol > div:first-child{padding:18px 16px!important}
-  #page-missioncontrol > div:first-child > div{flex-direction:column;align-items:flex-start!important}
-  #page-missioncontrol > div:first-child > div > div:last-child{text-align:left!important;margin-top:8px}
+  /* ═══ PROP SUITE MOBILE (Jun 2026 — Full overhaul) ═══ */
+  /* On mobile: always show edit icons */
+  .mc-card-edit{opacity:1!important;width:32px!important;height:32px!important;top:10px!important;right:10px!important}
 
-  /* Aggregate KPI strip — 2 columns on phone */
-  #mc-agg-strip{grid-template-columns:repeat(2,1fr)!important;gap:6px!important}
-  #mc-agg-strip > div{padding:10px 12px!important}
-  #mc-agg-strip > div > div:last-child{font-size:16px!important}
+  /* Hero header */
+  #page-missioncontrol > div:first-child{padding:16px!important}
+  #page-missioncontrol > div:first-child > div{flex-direction:column;align-items:flex-start!important;gap:10px!important}
+  #page-missioncontrol > div:first-child > div > div:last-child{text-align:left!important}
+  #mc-hero-title{font-size:18px!important}
+  #mc-hero-sub{font-size:12px!important}
+  #mc-hero-pnl{font-size:26px!important}
+  #mc-hero-pnl-sub{font-size:11px!important}
 
-  /* Account cards — tighter, hide rules meta line */
-  #mc-account-cards > div{padding:12px 14px!important;grid-template-columns:auto 1fr auto!important;gap:10px!important}
-  #mc-account-cards > div > div:first-child{width:32px!important;height:32px!important;font-size:9px!important}
-  #mc-account-cards > div > div:nth-child(2) > div:nth-child(2){display:none!important}
-  #mc-account-cards > div > div:last-child > div:first-child{font-size:15px!important}
+  /* Time filter — bigger tap targets */
+  #mc-time-filter{gap:6px!important;margin-bottom:12px!important;flex-wrap:wrap!important}
+  .mc-tf-btn{font-size:12px!important;padding:8px 14px!important;min-height:36px!important}
 
-  /* Smart Insights card */
-  #mc-insights-card > div{padding:14px 16px!important;flex-direction:column;align-items:stretch!important;gap:10px!important}
-  #mc-insights-card button{width:100%}
+  /* KPI strip — 2x2 */
+  #mc-agg-strip{grid-template-columns:repeat(2,1fr)!important;gap:8px!important;margin-bottom:14px!important}
+  #mc-agg-strip > div{padding:12px 14px!important}
+  #mc-agg-strip > div > div:first-child{font-size:10px!important}
+  #mc-agg-strip > div > div:last-child{font-size:20px!important;margin-top:5px!important}
 
-  /* Payout Pipeline — horizontal scroll */
-  #mc-payout-pipeline > div:last-of-type{overflow-x:auto;-webkit-overflow-scrolling:touch}
-  #mc-payout-pipeline table{min-width:600px}
+  /* Account cards — 2-col grid, P&L moves to bottom row */
+  #mc-account-cards > div{
+    padding:14px!important;
+    padding-right:50px!important;
+    grid-template-columns:auto 1fr!important;
+    grid-template-rows:auto auto!important;
+    gap:10px 12px!important
+  }
+  #mc-account-cards > div > div:first-child{width:38px!important;height:38px!important;font-size:10px!important}
+  #mc-account-cards > div > div:nth-child(2) > div:first-child{font-size:14px!important}
+  #mc-account-cards > div > div:nth-child(2) > div:nth-child(2){font-size:11px!important;white-space:normal!important;display:block!important}
+  /* P&L + Health — full width bottom row */
+  #mc-account-cards > div > div:last-child{
+    grid-column:1/-1!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+    text-align:left!important;
+    border-top:1px solid rgba(255,255,255,.07)!important;
+    padding-top:10px!important
+  }
+  #mc-account-cards > div > div:last-child > div:first-child{font-size:22px!important}
+  #mc-account-cards > div > div:last-child > div:last-child{font-size:12px!important;margin-top:0!important}
 
-  /* Cross-Firm Analytics — single column */
-  #mc-analytics > div:last-of-type{grid-template-columns:1fr!important;gap:14px!important}
+  /* Warnings banner */
+  #mc-warnings-bar > div{padding:12px 14px!important}
 
-  /* Compliance modal — fit on screen */
-  #tq-compliance-modal .jr-modal-box{max-width:calc(100vw - 32px)!important;margin:0 16px}
+  /* Smart Insights */
+  #mc-insights-card > div{padding:14px!important;flex-direction:column!important;align-items:stretch!important;gap:10px!important}
+  #mc-insights-card button{width:100%!important;padding:10px!important}
 
-  /* View Mode toggle */
+  /* Payout Pipeline */
+  #mc-payout-pipeline > div:last-of-type{overflow-x:auto!important;-webkit-overflow-scrolling:touch!important}
+  #mc-payout-pipeline table{min-width:580px!important}
+  #mc-payout-pipeline > div:first-child{padding:12px 14px!important;flex-direction:column!important;align-items:flex-start!important;gap:8px!important}
+
+  /* Analytics — single column */
+  #mc-analytics > div:last-of-type{grid-template-columns:1fr!important;gap:12px!important}
+
+  /* Compliance modal */
+  #tq-compliance-modal .jr-modal-box{max-width:calc(100vw - 32px)!important;margin:0 16px!important}
+
+  /* View Mode */
   #tq-viewmode-toggle{margin:6px 10px 8px!important}
+  #mc-viewmode-hint{font-size:12px!important;padding:10px 14px!important;flex-direction:column!important;gap:6px!important;align-items:flex-start!important}
 
-  /* Login video card — full width on phone */
+  /* Login card */
   .tq-auth-box{padding:32px 22px!important;width:calc(100vw - 32px)!important;max-width:380px}
 }
 
@@ -32575,19 +32607,19 @@ window.toggleSidebar = function(){
 
     aggEl.innerHTML =
       '<div style="padding:14px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px">'+
-        '<div style="font-size:9px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700">Total Funded</div>'+
+        '<div style="font-size:11px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700">Total Funded</div>'+
         '<div style="font-size:20px;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums;letter-spacing:-.4px">$'+totalFunded.toLocaleString()+'</div>'+
       '</div>'+
       '<div style="padding:14px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px">'+
-        '<div style="font-size:9px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700">DD Room Available</div>'+
+        '<div style="font-size:11px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700">DD Room Available</div>'+
         '<div style="font-size:20px;font-weight:600;margin-top:4px;color:#fbbf24;font-variant-numeric:tabular-nums;letter-spacing:-.4px">$'+totalRisk.toFixed(0)+'</div>'+
       '</div>'+
       '<div style="padding:14px 16px;background:'+criticalBg+';border:1px solid '+criticalBorder+';border-radius:10px">'+
-        '<div style="font-size:9px;color:'+(criticalCount>0?'var(--red)':'var(--text3)')+';letter-spacing:.5px;text-transform:uppercase;font-weight:700">Critical Alerts</div>'+
+        '<div style="font-size:11px;color:'+(criticalCount>0?'var(--red)':'var(--text3)')+';letter-spacing:.5px;text-transform:uppercase;font-weight:700">Critical Alerts</div>'+
         '<div style="font-size:20px;font-weight:600;margin-top:4px;color:'+criticalColor+';font-variant-numeric:tabular-nums;letter-spacing:-.4px">'+criticalCount+(warningCount > 0 ? '<span style="font-size:11px;color:#fbbf24;margin-left:6px">+'+warningCount+' warn</span>':'')+'</div>'+
       '</div>'+
       '<div style="padding:14px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px">'+
-        '<div style="font-size:9px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700">Avg Health</div>'+
+        '<div style="font-size:11px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700">Avg Health</div>'+
         '<div style="font-size:20px;font-weight:600;margin-top:4px;color:'+healthColor+';font-variant-numeric:tabular-nums;letter-spacing:-.4px">'+avgHealth+'%</div>'+
       '</div>';
 
@@ -33377,14 +33409,14 @@ window.toggleSidebar = function(){
       } else if(acc.profitTarget && st.profitPctOf > 0){
         extraInsight = ' · Profit ' + st.profitPctOf.toFixed(0) + '% to target';
       }
-      ddInsight = '<div style="font-size:9px;color:'+insightColor+';margin-top:3px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace">DD: '+ddCur+' / '+ddMax+' ('+ddPctOfLimit.toFixed(0)+'%)'+extraInsight+'</div>';
+      ddInsight = '<div style="font-size:12px;color:'+insightColor+';margin-top:4px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace">DD: '+ddCur+' / '+ddMax+' ('+ddPctOfLimit.toFixed(0)+'%)'+extraInsight+'</div>';
     }
 
     // Status pill row (status + optional payout pill)
-    var pills = '<span style="font-size:8px;padding:2px 6px;background:'+pillBg+';color:'+pillColor+';border-radius:3px;font-weight:700;letter-spacing:.4px">'+statusLabel+'</span>';
+    var pills = '<span style="font-size:11px;padding:3px 8px;background:'+pillBg+';color:'+pillColor+';border-radius:4px;font-weight:700;letter-spacing:.4px">'+statusLabel+'</span>';
     // Profit eligibility pill (if profit target met or near met)
     if(st && st.profitTargetMet){
-      pills += '<span style="font-size:8px;padding:2px 6px;background:rgba(124,90,240,.18);color:var(--accent3);border-radius:3px;font-weight:700;letter-spacing:.4px;margin-left:4px">TARGET MET</span>';
+      pills += '<span style="font-size:11px;padding:3px 8px;background:rgba(124,90,240,.18);color:var(--accent3);border-radius:4px;font-weight:700;letter-spacing:.4px;margin-left:4px">TARGET MET</span>';
     }
 
     var pnlColor = pnl >= 0 ? 'var(--green)' : 'var(--red)';
