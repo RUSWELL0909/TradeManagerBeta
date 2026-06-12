@@ -14891,7 +14891,7 @@ window.toggleSidebar = function(){
         '  <div style="font-size:14px;color:var(--text)">'+escapeHtml(brokerStr)+(a.platform?'<div style="font-size:12px;color:var(--text3);margin-top:3px">'+escapeHtml(a.platform)+'</div>':'')+'</div>',
         '  <div>',
         '    <div style="font-size:18px;font-weight:700;color:#ffffff;letter-spacing:-.5px">'+accFmtCcy(liveBalance, a.currency)+'</div>',
-        '    <div style="font-size:13px;font-weight:600;color:'+deltaColor+';margin-top:3px;font-family:DM Mono,monospace">'+deltaSign+deltaPct.toFixed(2)+'%</div>',
+        '    <div style="font-size:13px;font-weight:600;color:'+deltaColor+';margin-top:3px;font-family:Inter,sans-serif">'+deltaSign+deltaPct.toFixed(2)+'%</div>',
         '  </div>',
         '  <div><span style="display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;'+accTypeBadgeStyle(a.type)+'">'+accTypeLabel(a.type)+'</span></div>',
         '  <div>'+statusCol+'</div>',
@@ -14914,7 +14914,7 @@ window.toggleSidebar = function(){
         var bgRgba = p >= 100 ? 'rgba(255,80,95,.12)' : p >= 80 ? 'rgba(240,180,41,.12)' : 'rgba(29,233,182,.12)';
         return '<div style="flex:1;min-width:150px">' +
           '<div style="font-size:10px;color:var(--text2);font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:4px">'+label+'</div>' +
-          '<div style="font-size:16px;font-weight:700;color:'+color+';font-family:DM Mono,monospace;letter-spacing:-.3px;margin-bottom:6px">'+format+'</div>' +
+          '<div style="font-size:16px;font-weight:700;color:'+color+';font-family:Inter,sans-serif;letter-spacing:-.3px;margin-bottom:6px">'+format+'</div>' +
           '<div style="height:5px;background:'+bgRgba+';border-radius:3px;overflow:hidden"><div style="width:'+p.toFixed(0)+'%;height:100%;background:'+color+';transition:width .3s"></div></div>' +
         '</div>';
       }
@@ -33408,7 +33408,7 @@ window.toggleSidebar = function(){
       } else if(acc.profitTarget && st.profitPctOf > 0){
         extraInsight = ' · Profit ' + st.profitPctOf.toFixed(0) + '% to target';
       }
-      ddInsight = '<div style="font-size:12px;color:'+insightColor+';margin-top:4px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace">DD: '+ddCur+' / '+ddMax+' ('+ddPctOfLimit.toFixed(0)+'%)'+extraInsight+'</div>';
+      ddInsight = '<div style="font-size:12px;color:'+insightColor+';margin-top:4px;font-family:Inter,sans-serif">DD: '+ddCur+' / '+ddMax+' ('+ddPctOfLimit.toFixed(0)+'%)'+extraInsight+'</div>';
     }
 
     // Status pill row (status + optional payout pill)
@@ -33447,7 +33447,7 @@ window.toggleSidebar = function(){
       // P&L + Health
       '<div style="text-align:right;white-space:nowrap">'+
         '<div style="font-size:18px;font-weight:600;color:'+pnlColor+';font-variant-numeric:tabular-nums;line-height:1;letter-spacing:-.3px">'+pnlStr+'</div>'+
-        '<div style="font-size:9px;color:'+healthColor2+';margin-top:3px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:600">Health '+healthStr+'</div>'+
+        '<div style="font-size:12px;color:'+healthColor2+';margin-top:3px;font-family:Inter,sans-serif;font-weight:600">Health '+healthStr+'</div>'+
       '</div>'+
     '</div>';
   }
