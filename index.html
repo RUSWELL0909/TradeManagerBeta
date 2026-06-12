@@ -27505,11 +27505,18 @@ window.toggleSidebar = function(){
     });
 
     // Data rows — skip summary/stats rows at bottom (they have < 5 non-empty cells)
+    // Also skip any row where first cell looks like a header (text, not a date)
     var dataRows = [];
     for(var k=headerRowIdx+1;k<raw.length;k++){
       var row = raw[k];
       var nonEmpty = row.filter(function(c){return c!==''&&c!==null&&c!==undefined;}).length;
       if(nonEmpty < 4) continue; // skip stats footer rows
+      // Skip rows where first cell is text that looks like a header or section label (not a date)
+      var firstCell = String(row[0]||'').trim().toLowerCase();
+      if(firstCell==='время' || firstCell==='time' || firstCell==='open time' ||
+         firstCell==='позиции' || firstCell==='positions' || firstCell==='deals' || firstCell==='сделки') continue;
+      // Skip rows where first cell has no digits (can't be a date/timestamp)
+      if(!(row[0] instanceof Date) && !/\d/.test(String(row[0]||''))) continue;
       // Convert date objects to string
       var strRow = row.map(function(c){
         if(c instanceof Date){
@@ -27587,7 +27594,12 @@ window.toggleSidebar = function(){
         else alert('File is empty or unreadable');
         return;
       }
-      var headers=parsed[0].map(function(h){return String(h||'').trim().toLowerCase().replace(/[^\x20-\x7e]/g,'');});
+      var headers=parsed[0].map(function(h){
+        var s = String(h||'').trim().toLowerCase();
+        // For CSV: strip non-ASCII control chars but keep unicode (Russian etc handled below)
+        // Don't strip Cyrillic — we handle it via aliases
+        return s.replace(/[\x00-\x1f]/g,'');
+      });
       console.log('Import: '+parsed.length+' rows, headers:',headers);
 
       // ── Smart header detection ──
@@ -27606,9 +27618,9 @@ window.toggleSidebar = function(){
         return -1;
       }
 
-      var DATE_ALIASES = ['date','open time','opened','date opened','close time','closed','date closed','trade date','entry date','entry time','time'];
-      var PAIR_ALIASES = ['symbol','pair','ticker','instrument','market','asset'];
-      var PNL_ALIASES  = ['profit','net p&l','net p/l','net pnl','pnl','p&l','p/l','realized profit','realised profit','profit & loss','net profit','gain','realized p&l'];
+      var DATE_ALIASES = ['date','open time','opened','date opened','close time','closed','date closed','trade date','entry date','entry time','time','время'];
+      var PAIR_ALIASES = ['symbol','pair','ticker','instrument','market','asset','символ'];
+      var PNL_ALIASES  = ['profit','net p&l','net p/l','net pnl','pnl','p&l','p/l','realized profit','realised profit','profit & loss','net profit','gain','realized p&l','прибыль'];
 
       var dateIdx = findHeader(DATE_ALIASES);
       var pairIdx = findHeader(PAIR_ALIASES);
