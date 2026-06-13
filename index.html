@@ -11896,13 +11896,23 @@ window.toggleSidebar = function(){
       return r;
     });
     tqSetSyncStatus('syncing','Syncing '+rows.length+'...');
-    return _tqSupa.from('trades').upsert(rows, {onConflict:'user_id,external_id'}).then(function(res){
+    // Filter out rows with invalid open_time (e.g. "Время" header row that slipped through import)
+    var validRows = rows.filter(function(r){
+      if(!r.open_time) return false;
+      var d = new Date(r.open_time);
+      return !isNaN(d.getTime()) && d.getFullYear() > 2000;
+    });
+    if(validRows.length < rows.length){
+      console.warn('tqPushTradesBatch: filtered out '+(rows.length-validRows.length)+' rows with invalid dates', rows.filter(function(r){var d=new Date(r.open_time);return isNaN(d.getTime())||d.getFullYear()<=2000;}));
+    }
+    if(!validRows.length) return Promise.resolve();
+    return _tqSupa.from('trades').upsert(validRows, {onConflict:'user_id,external_id'}).then(function(res){
       if(res.error){
         console.error('Batch push error:', res.error);
         tqSetSyncStatus('error','Sync error');
-        if(typeof tqToast==='function') tqToast('⚠ Failed to sync '+rows.length+' trades: '+(res.error.message||res.error.code||'unknown'), {type:'error', duration:6000});
+        if(typeof tqToast==='function') tqToast('⚠ Failed to sync '+validRows.length+' trades: '+(res.error.message||res.error.code||'unknown'), {type:'error', duration:6000});
       } else {
-        tqSetSyncStatus('ok','Synced '+rows.length);
+        tqSetSyncStatus('ok','Synced '+validRows.length);
       }
     }).catch(function(e){
       console.error('Batch push threw:', e);
@@ -12997,7 +13007,12 @@ window.toggleSidebar = function(){
         return r;
       });
       tqSetSyncStatus('syncing','Batch '+(idx+1)+'/'+chunks.length+' ('+chunk.length+' trades)...');
-      _tqSupa.from('trades').upsert(rows, {onConflict:'user_id,external_id'}).then(function(res){
+      var validRows2 = rows.filter(function(r){
+        if(!r.open_time) return false;
+        var d = new Date(r.open_time);
+        return !isNaN(d.getTime()) && d.getFullYear() > 2000;
+      });
+      _tqSupa.from('trades').upsert(validRows2, {onConflict:'user_id,external_id'}).then(function(res){
         if(res.error){
           console.error('Batch '+(idx+1)+' push error:', res.error);
           tqSetSyncStatus('error','Batch '+(idx+1)+' failed: '+(res.error.message||res.error.code||'unknown'));
@@ -27504,18 +27519,21 @@ window.toggleSidebar = function(){
       return RU_TO_EN[lower] || lower;
     });
 
-    // Data rows — skip summary/stats rows at bottom (they have < 5 non-empty cells)
-    // Also skip any row where first cell looks like a header (text, not a date)
+    // Data rows — only first section (Позиции/Positions), stop at next section header
+    // MT5 exports 3 sections: Позиции, Ордера, Сделки — all same trades, take only first
+    var SECTION_STOPS = ['ордера','orders','сделки','deals','открытые позиции','open positions','результаты','results'];
     var dataRows = [];
     for(var k=headerRowIdx+1;k<raw.length;k++){
       var row = raw[k];
-      var nonEmpty = row.filter(function(c){return c!==''&&c!==null&&c!==undefined;}).length;
-      if(nonEmpty < 4) continue; // skip stats footer rows
-      // Skip rows where first cell is text that looks like a header or section label (not a date)
       var firstCell = String(row[0]||'').trim().toLowerCase();
-      if(firstCell==='время' || firstCell==='time' || firstCell==='open time' ||
-         firstCell==='позиции' || firstCell==='positions' || firstCell==='deals' || firstCell==='сделки') continue;
-      // Skip rows where first cell has no digits (can't be a date/timestamp)
+
+      // Stop if we hit a new section header
+      if(SECTION_STOPS.indexOf(firstCell) >= 0) break;
+
+      var nonEmpty = row.filter(function(c){return c!==''&&c!==null&&c!==undefined;}).length;
+      if(nonEmpty < 4) continue;
+
+      // Skip rows where first cell is a label (no digits, not a Date)
       if(!(row[0] instanceof Date) && !/\d/.test(String(row[0]||''))) continue;
       // Convert date objects to string
       var strRow = row.map(function(c){
