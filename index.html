@@ -37105,10 +37105,23 @@ window.toggleSidebar = function(){
       render: function(t, ccy, sym, mode){
         var pnl = 0;
         t.forEach(function(x){ pnl += (typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0); });
+        // Calculate account balance = starting balance + net P&L
+        var accBal = null;
+        try{
+          var accs = JSON.parse(rfxGet('rf_accounts')||'[]').filter(function(a){return !a.deleted;});
+          if(accs.length > 0){
+            var totalStart = accs.reduce(function(s,a){return s+(parseFloat(a.startingBalance||a.balance)||0);},0);
+            if(totalStart > 0) accBal = totalStart + pnl;
+          }
+        }catch(e){}
+        var balLine = accBal !== null
+          ? '<span style="display:block;font-size:10px;color:var(--text3);margin-top:2px">Balance: '+sym+Math.round(accBal).toLocaleString()+'</span>'
+          : '';
         return {
           value: _fmtAmt(pnl, mode||'dollar', sym, {trades:t}),
           valueColor: pnl>=0?'green':'red',
-          foot: t.length+' trade'+(t.length===1?'':'s')
+          foot: t.length+' trade'+(t.length===1?'':'s'),
+          footExtra: balLine
         };
       }
     },
@@ -37499,7 +37512,7 @@ window.toggleSidebar = function(){
         '<div class="kpi-tile-value'+(valueColor?' '+valueColor:'')+'">'+data.value+'</div>' +
         miniHtml +
         badgeHtml +
-        '<div class="kpi-tile-foot'+(footClass?' '+footClass:'')+'">'+foot+'</div>' +
+        '<div class="kpi-tile-foot'+(footClass?' '+footClass:'')+'">'+foot+(data.footExtra||'')+'</div>' +
       '</div>';
   }
 
