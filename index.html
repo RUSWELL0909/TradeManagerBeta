@@ -11042,12 +11042,13 @@ window.toggleSidebar = function(){
       // Falls back to raw t.pnl if currency module not yet loaded.
       var p = (typeof tqConvertTradePnl === 'function') ? tqConvertTradePnl(t) : (parseFloat(t.pnl) || 0);
       netPnl += p;
-      if(p > 0){
+      var BE_THRESHOLD = 1.0; // trades within ±$1 counted as breakeven
+      if(p > BE_THRESHOLD){
         wins.push(t); grossWin += p;
         if(p > maxWin) maxWin = p;
         curWinStreak++; curLossStreak = 0;
         if(curWinStreak > longestWinStreak) longestWinStreak = curWinStreak;
-      } else if(p < 0){
+      } else if(p < -BE_THRESHOLD){
         losses.push(t); grossLoss += Math.abs(p);
         if(p < maxLoss) maxLoss = p;
         curLossStreak++; curWinStreak = 0;
@@ -14825,14 +14826,34 @@ window.toggleSidebar = function(){
       return sym + n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
     }
 
+    function accNetAdjustments(acc){
+      var adjs = acc.adjustments || [];
+      return adjs.reduce(function(s,a){
+        var amt = parseFloat(a.amount)||0;
+        return s + (a.type==='deposit' ? amt : -amt);
+      }, 0);
+    }
+
+    function accGetStartingPoint(acc){
+      // If account has resets, find the latest reset before today
+      // and use that as the starting balance + date for P&L calculation
+      var resets = (acc.resets||[]).slice().sort(function(a,b){ return a.date > b.date ? 1 : -1; });
+      if(!resets.length) return {balance: parseFloat(acc.startingBalance||acc.balance)||0, since: null};
+      var latest = resets[resets.length-1];
+      return {balance: parseFloat(latest.newBalance)||0, since: latest.date};
+    }
+
     function accBalanceWithPnL(acc, trades){
+      var sp = accGetStartingPoint(acc);
       var pnl = 0;
-      // Skip deleted/trashed trades from balance — they should not affect live balance (May 2026 fix)
       (trades||[]).forEach(function(t){
         if(t.deleted) return;
-        if(t.account === acc.id) pnl += (parseFloat(t.pnl)||0);
+        if(t.account !== acc.id) return;
+        // If there's a reset, only count trades AFTER the latest reset date
+        if(sp.since && (t.date||'') < sp.since) return;
+        pnl += (typeof tqConvertTradePnl==='function' ? tqConvertTradePnl(t) : (parseFloat(t.pnl)||0));
       });
-      return (parseFloat(acc.startingBalance||acc.balance)||0) + pnl;
+      return sp.balance + accNetAdjustments(acc) + pnl;
     }
 
     function accTypeLabel(t){
@@ -14874,6 +14895,9 @@ window.toggleSidebar = function(){
         ].join('');
       } else {
         actionBtns = [
+          '    <button data-acc-action="editbalance" data-acc-id="'+escapeHtml(a.id)+'" title="Deposit / Withdrawal" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:6px;border-radius:6px;transition:all .15s" onmouseover="this.style.background=\'rgba(29,233,182,.1)\';this.style.color=\'#2ecc8a\'" onmouseout="this.style.background=\'none\';this.style.color=\'var(--text3)\'">',
+          '      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>',
+          '    </button>',
           '    <button data-acc-action="edit" data-acc-id="'+escapeHtml(a.id)+'" title="Edit" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:6px;border-radius:6px;transition:all .15s" onmouseover="this.style.background=\'var(--bg3)\';this.style.color=\'var(--accent3)\'" onmouseout="this.style.background=\'none\';this.style.color=\'var(--text3)\'">',
           '      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
           '    </button>',
@@ -16258,12 +16282,175 @@ window.toggleSidebar = function(){
       e.preventDefault();
       e.stopPropagation();
       if(action === 'edit' && typeof openEditAccountModal === 'function') openEditAccountModal(id);
+      else if(action === 'editbalance') openEditBalanceModal(id);
       else if(action === 'archive' && typeof archiveAccount === 'function') archiveAccount(id);
       else if(action === 'unarchive' && typeof unarchiveAccount === 'function') unarchiveAccount(id);
       else if(action === 'clear' && typeof clearAccountTrades === 'function') clearAccountTrades(id);
       else if(action === 'delete' && typeof deleteAccount === 'function') deleteAccount(id);
       else console.warn('Unknown account action:', action);
     });
+
+    // ── EDIT BALANCE MODAL (Deposit / Withdrawal) ──
+    function openEditBalanceModal(accId){
+      var accs = accLoad();
+      var acc = accs.find(function(a){ return a.id === accId; });
+      if(!acc) return;
+      var adjs = acc.adjustments || [];
+      var resets = (acc.resets||[]).slice().sort(function(a,b){ return a.date > b.date ? -1 : 1; });
+
+      function adjListHTML(){
+        var items = [];
+        // Show resets
+        resets.forEach(function(r, i){
+          items.push('<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">' +
+            '<span style="font-size:10px;font-weight:700;background:rgba(124,90,240,.15);color:var(--accent3);padding:2px 7px;border-radius:4px;letter-spacing:.5px">RESET</span>' +
+            '<span style="font-size:12px;color:var(--text3);min-width:80px">' + (r.date||'') + '</span>' +
+            '<span style="font-size:13px;font-weight:600;color:#fff">→ $' + parseFloat(r.newBalance||0).toLocaleString() + '</span>' +
+            '<span style="font-size:12px;color:var(--text3);flex:1">' + (r.note||'') + '</span>' +
+            '<button onclick="accRemoveReset(\''+accId+'\',\''+r.id+'\')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:4px;font-size:16px" title="Remove">×</button>' +
+          '</div>');
+        });
+        // Show deposits/withdrawals
+        adjs.forEach(function(adj, i){
+          var color = adj.type === 'deposit' ? '#2ecc8a' : '#ff505f';
+          var sign = adj.type === 'deposit' ? '+' : '-';
+          items.push('<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">' +
+            '<span style="font-size:12px;color:var(--text3);min-width:80px">' + (adj.date||'') + '</span>' +
+            '<span style="font-size:13px;font-weight:600;color:'+color+';min-width:80px">' + sign + '$' + Math.abs(parseFloat(adj.amount)||0).toFixed(2) + '</span>' +
+            '<span style="font-size:12px;color:var(--text2);flex:1">' + (adj.type==='deposit'?'Deposit':'Withdrawal') + (adj.note?' — '+adj.note:'') + '</span>' +
+            '<button onclick="accRemoveAdjustment(\''+accId+'\','+i+')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:4px;font-size:16px" title="Remove">×</button>' +
+          '</div>');
+        });
+        if(!items.length) return '<div style="color:var(--text3);font-size:12px;padding:8px 0">No adjustments yet</div>';
+        return items.join('');
+      }
+
+      var today = new Date().toISOString().slice(0,10);
+      var startBal = parseFloat(acc.startingBalance||acc.balance)||0;
+
+      var html = '<div style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center" id="tq-editbal-overlay" onclick="if(event.target===this)this.remove()">' +
+        '<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;width:500px;max-width:calc(100vw - 32px);max-height:85vh;overflow-y:auto">' +
+          '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">' +
+            '<div>' +
+              '<div style="font-size:16px;font-weight:700;color:var(--text)">Edit Balance</div>' +
+              '<div style="font-size:12px;color:var(--text3);margin-top:2px">' + escapeHtml(acc.name||'Account') + ' · Starting: $' + startBal.toLocaleString() + '</div>' +
+            '</div>' +
+            '<button onclick="document.getElementById(\'tq-editbal-overlay\').remove()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:20px;padding:4px">×</button>' +
+          '</div>' +
+
+          // Type selector
+          '<div style="display:flex;gap:6px;margin-bottom:16px">' +
+            '<button id="tq-adj-btn-reset" onclick="tqAdjSetType(\'reset\')" style="flex:1;padding:8px;border-radius:8px;border:2px solid var(--accent3);background:rgba(124,90,240,.1);color:var(--accent3);font-size:12px;font-weight:700;cursor:pointer">↺ Reset</button>' +
+            '<button id="tq-adj-btn-deposit" onclick="tqAdjSetType(\'deposit\')" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);background:none;color:var(--text3);font-size:12px;font-weight:700;cursor:pointer">+ Deposit</button>' +
+            '<button id="tq-adj-btn-withdrawal" onclick="tqAdjSetType(\'withdrawal\')" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);background:none;color:var(--text3);font-size:12px;font-weight:700;cursor:pointer">− Withdrawal</button>' +
+          '</div>' +
+          '<input type="hidden" id="tq-adj-type" value="reset">' +
+
+          // Form fields
+          '<div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:20px">' +
+            // Reset fields
+            '<div id="tq-adj-reset-fields">' +
+              '<div style="font-size:11px;color:var(--text3);margin-bottom:10px;line-height:1.5">Prop firm reset your account. Set the new balance and date — only trades <strong style="color:var(--text)">after</strong> this date will count toward your current balance.</div>' +
+              '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">' +
+                '<div><label style="font-size:11px;color:var(--text3);display:block;margin-bottom:4px">New Balance ($)</label><input id="tq-adj-newbal" type="number" step="0.01" min="0" placeholder="'+startBal+'" value="'+startBal+'" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;box-sizing:border-box"></div>' +
+                '<div><label style="font-size:11px;color:var(--text3);display:block;margin-bottom:4px">Reset Date</label><input id="tq-adj-reset-date" type="date" value="'+today+'" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;box-sizing:border-box"></div>' +
+              '</div>' +
+              '<input id="tq-adj-reset-note" type="text" placeholder="Note (e.g. Reset #2)" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;box-sizing:border-box;margin-bottom:10px">' +
+              '<button onclick="accAddReset(\''+accId+'\')" style="width:100%;padding:10px;border-radius:8px;background:var(--accent3);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer">Save Reset</button>' +
+            '</div>' +
+            // Deposit/Withdrawal fields
+            '<div id="tq-adj-depwd-fields" style="display:none">' +
+              '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">' +
+                '<div><label style="font-size:11px;color:var(--text3);display:block;margin-bottom:4px">Amount ($)</label><input id="tq-adj-amount" type="number" step="0.01" min="0" placeholder="0.00" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;box-sizing:border-box"></div>' +
+                '<div><label style="font-size:11px;color:var(--text3);display:block;margin-bottom:4px">Date</label><input id="tq-adj-date" type="date" value="'+today+'" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;box-sizing:border-box"></div>' +
+              '</div>' +
+              '<input id="tq-adj-note" type="text" placeholder="Description (optional)" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;box-sizing:border-box;margin-bottom:10px">' +
+              '<button onclick="accAddAdjustment(\''+accId+'\')" style="width:100%;padding:10px;border-radius:8px;background:var(--accent);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer">Save</button>' +
+            '</div>' +
+          '</div>' +
+
+          // History
+          '<div style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px">History</div>' +
+          '<div id="tq-adj-list">' + adjListHTML() + '</div>' +
+        '</div>' +
+      '</div>';
+
+      var existing = document.getElementById('tq-editbal-overlay');
+      if(existing) existing.remove();
+      document.body.insertAdjacentHTML('beforeend', html);
+    }
+    window.openEditBalanceModal = openEditBalanceModal;
+
+    window.tqAdjSetType = function(type){
+      document.getElementById('tq-adj-type').value = type;
+      var btns = {reset:'tq-adj-btn-reset', deposit:'tq-adj-btn-deposit', withdrawal:'tq-adj-btn-withdrawal'};
+      var colors = {reset:['2px solid var(--accent3)','rgba(124,90,240,.1)','var(--accent3)'], deposit:['2px solid #2ecc8a','rgba(29,233,182,.1)','#2ecc8a'], withdrawal:['2px solid #ff505f','rgba(255,80,95,.1)','#ff505f']};
+      Object.keys(btns).forEach(function(t){
+        var btn = document.getElementById(btns[t]);
+        if(!btn) return;
+        if(t === type){ btn.style.border=colors[t][0]; btn.style.background=colors[t][1]; btn.style.color=colors[t][2]; }
+        else { btn.style.border='1px solid var(--border)'; btn.style.background='none'; btn.style.color='var(--text3)'; }
+      });
+      var resetFields = document.getElementById('tq-adj-reset-fields');
+      var depwdFields = document.getElementById('tq-adj-depwd-fields');
+      if(resetFields) resetFields.style.display = type==='reset' ? 'block' : 'none';
+      if(depwdFields) depwdFields.style.display = type!=='reset' ? 'block' : 'none';
+    };
+
+    window.accAddReset = function(accId){
+      var newBal = parseFloat(document.getElementById('tq-adj-newbal').value);
+      var date = document.getElementById('tq-adj-reset-date').value;
+      var note = document.getElementById('tq-adj-reset-note').value.trim();
+      if(!newBal || newBal <= 0 || !date){ if(typeof tqToast==='function') tqToast('Enter valid balance and date', {type:'error'}); return; }
+      var accs = accLoad();
+      var idx = accs.findIndex(function(a){ return a.id === accId; });
+      if(idx < 0) return;
+      if(!accs[idx].resets) accs[idx].resets = [];
+      accs[idx].resets.push({newBalance: newBal, date: date, note: note, id: 'rst_'+Date.now()});
+      accSave(accs);
+      renderAccountsPage();
+      openEditBalanceModal(accId);
+      if(typeof tqToast==='function') tqToast('Reset saved — balance restarts from '+date, {type:'success'});
+    };
+
+    window.accAddAdjustment = function(accId){
+      var type = document.getElementById('tq-adj-type').value;
+      var amount = parseFloat(document.getElementById('tq-adj-amount').value);
+      var date = document.getElementById('tq-adj-date').value;
+      var note = document.getElementById('tq-adj-note').value.trim();
+      if(!amount || amount <= 0){ if(typeof tqToast==='function') tqToast('Enter a valid amount', {type:'error'}); return; }
+      var accs = accLoad();
+      var idx = accs.findIndex(function(a){ return a.id === accId; });
+      if(idx < 0) return;
+      if(!accs[idx].adjustments) accs[idx].adjustments = [];
+      accs[idx].adjustments.push({type:type, amount:amount, date:date, note:note, id:'adj_'+Date.now()});
+      accSave(accs);
+      renderAccountsPage();
+      openEditBalanceModal(accId);
+      if(typeof tqToast==='function') tqToast((type==='deposit'?'Deposit':'Withdrawal')+' saved', {type:'success'});
+    };
+
+    window.accRemoveReset = function(accId, resetId){
+      var accs = accLoad();
+      var idx = accs.findIndex(function(a){ return a.id === accId; });
+      if(idx < 0) return;
+      accs[idx].resets = (accs[idx].resets||[]).filter(function(r){ return r.id !== resetId; });
+      accSave(accs);
+      renderAccountsPage();
+      openEditBalanceModal(accId);
+      if(typeof tqToast==='function') tqToast('Reset removed', {type:'success'});
+    };
+
+    window.accRemoveAdjustment = function(accId, adjIdx){
+      var accs = accLoad();
+      var idx = accs.findIndex(function(a){ return a.id === accId; });
+      if(idx < 0) return;
+      accs[idx].adjustments = (accs[idx].adjustments||[]).filter(function(_,i){ return i !== adjIdx; });
+      accSave(accs);
+      renderAccountsPage();
+      openEditBalanceModal(accId);
+      if(typeof tqToast==='function') tqToast('Adjustment removed', {type:'success'});
+    };
 
     // ── TOGGLE ACTIVE ──
     function accToggleActive(id, on){
