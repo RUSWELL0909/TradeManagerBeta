@@ -10990,13 +10990,17 @@ window.toggleSidebar = function(){
   function tqConvertTradePnl(t){
     if(!t) return 0;
     var raw = parseFloat(t.pnl) || 0;
-    if(!raw) return 0;
+    // Include swap and commission in net P&L
+    var swap = parseFloat(t.swap) || 0;
+    var commission = parseFloat(t.commission) || 0;
+    var net = raw + swap + commission;
+    if(!net && net !== 0) return 0;
     try{
       var fromCcy = (t.currency || tqGetAccountCurrency(t.account) || 'USD').toUpperCase();
       var toCcy = tqGetDisplayCurrency();
-      if(fromCcy === toCcy) return raw;
-      return tqConvert(raw, fromCcy, toCcy);
-    }catch(e){ return raw; }
+      if(fromCcy === toCcy) return net;
+      return tqConvert(net, fromCcy, toCcy);
+    }catch(e){ return net; }
   }
   window.tqConvertTradePnl = tqConvertTradePnl;
 
@@ -24378,7 +24382,20 @@ window.toggleSidebar = function(){
     t.forEach(function(x){
       var d = new Date(x.date||x.closeDate||'2025-01-01');
       var dn = dowMap[d.getDay()];
-      var hr = x.entryHour || x.hr || 12;
+      // Parse hour from date string directly (handles "2026.06.12 20:12:38" format)
+      var hr = x.entryHour;
+      if(hr === undefined || hr === null){
+        // Try to get from date object
+        if(!isNaN(d.getTime())) {
+          hr = d.getHours();
+        } else {
+          // Try to parse "2026.06.12 20:12:38" manually
+          var dateStr = String(x.date||'');
+          var timeMatch = dateStr.match(/(\d{1,2}):(\d{2})/);
+          hr = timeMatch ? parseInt(timeMatch[1]) : 12;
+        }
+      }
+      hr = parseInt(hr) || 0;
       if(dn && grid[dn+'-'+hr]!==undefined){
         grid[dn+'-'+hr].pnl += tqConvertTradePnl(x);
         grid[dn+'-'+hr].count++;
@@ -27778,6 +27795,14 @@ window.toggleSidebar = function(){
             var ot = String(cols[dateIdx]||'').trim();
             var tm = ot.match(/(\d{2}:\d{2}(?::\d{2})?)/);
             return col('entry time') || (tm ? tm[1].slice(0,5) : '');
+          })(),
+          entryHour: (function(){
+            var ot = String(cols[dateIdx]||'').trim();
+            var tm = ot.match(/(\d{1,2}):\d{2}/);
+            if(tm) return parseInt(tm[1]);
+            var et = col('entry time');
+            if(et){ var m = et.match(/^(\d{1,2}):/); if(m) return parseInt(m[1]); }
+            return null;
           })(),
           exitTime: (function(){
             var ctIdx = headers.indexOf('close time');
@@ -39100,10 +39125,12 @@ window.toggleSidebar = function(){
     // Auto-jump to most recent month with data (unless user navigated manually)
     if (!window._dashCalUserNav && byDay && Object.keys(byDay).length > 0) {
       var latestKey = Object.keys(byDay).sort().pop(); // e.g. "2025-08-25"
-      var parts = latestKey.split('-');
-      window._dashCalDate = new Date(parseInt(parts[0]), parseInt(parts[1])-1, 1);
+      var parts = latestKey ? latestKey.split('-') : null;
+      if(parts && parts.length >= 2 && !isNaN(parseInt(parts[0])) && !isNaN(parseInt(parts[1]))){
+        window._dashCalDate = new Date(parseInt(parts[0]), parseInt(parts[1])-1, 1);
+      }
     }
-    var now = window._dashCalDate || new Date();
+    var now = (window._dashCalDate && !isNaN(window._dashCalDate.getTime())) ? window._dashCalDate : new Date();
     var year = now.getFullYear();
     var month = now.getMonth();
     var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
