@@ -14840,8 +14840,11 @@ window.toggleSidebar = function(){
       var resets = (acc.resets||[]).slice().sort(function(a,b){ return a.date > b.date ? 1 : -1; });
       if(!resets.length) return {balance: parseFloat(acc.startingBalance||acc.balance)||0, since: null};
       var latest = resets[resets.length-1];
-      return {balance: parseFloat(latest.newBalance)||0, since: latest.date};
+      // Use full datetime if available for precise filtering
+      var since = latest.since || (latest.date + 'T' + (latest.time||'00:00'));
+      return {balance: parseFloat(latest.newBalance)||0, since: since};
     }
+    window.accGetStartingPoint = accGetStartingPoint;
 
     function accBalanceWithPnL(acc, trades){
       var sp = accGetStartingPoint(acc);
@@ -14850,7 +14853,11 @@ window.toggleSidebar = function(){
         if(t.deleted) return;
         if(t.account !== acc.id) return;
         // If there's a reset, only count trades AFTER the latest reset date
-        if(sp.since && (t.date||'') < sp.since) return;
+        if(sp.since){
+          // Compare using full datetime: trade date + entryTime vs reset datetime
+          var tradeDateTime = (t.date||'') + 'T' + (t.entryTime||'00:00');
+          if(tradeDateTime < sp.since) return;
+        }
         pnl += (typeof tqConvertTradePnl==='function' ? tqConvertTradePnl(t) : (parseFloat(t.pnl)||0));
       });
       return sp.balance + accNetAdjustments(acc) + pnl;
@@ -16304,7 +16311,7 @@ window.toggleSidebar = function(){
         resets.forEach(function(r, i){
           items.push('<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">' +
             '<span style="font-size:10px;font-weight:700;background:rgba(124,90,240,.15);color:var(--accent3);padding:2px 7px;border-radius:4px;letter-spacing:.5px">RESET</span>' +
-            '<span style="font-size:12px;color:var(--text3);min-width:80px">' + (r.date||'') + '</span>' +
+            '<span style="font-size:12px;color:var(--text3);min-width:80px">' + (r.date||'') + (r.time?' '+r.time:'') + '</span>' +
             '<span style="font-size:13px;font-weight:600;color:#fff">→ $' + parseFloat(r.newBalance||0).toLocaleString() + '</span>' +
             '<span style="font-size:12px;color:var(--text3);flex:1">' + (r.note||'') + '</span>' +
             '<button onclick="accRemoveReset(\''+accId+'\',\''+r.id+'\')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:4px;font-size:16px" title="Remove">×</button>' +
@@ -16354,6 +16361,7 @@ window.toggleSidebar = function(){
               '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">' +
                 '<div><label style="font-size:11px;color:var(--text3);display:block;margin-bottom:4px">New Balance ($)</label><input id="tq-adj-newbal" type="number" step="0.01" min="0" placeholder="'+startBal+'" value="'+startBal+'" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;box-sizing:border-box"></div>' +
                 '<div><label style="font-size:11px;color:var(--text3);display:block;margin-bottom:4px">Reset Date</label><input id="tq-adj-reset-date" type="date" value="'+today+'" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;box-sizing:border-box"></div>' +
+              '<div><label style="font-size:11px;color:var(--text3);display:block;margin-bottom:4px">Reset Time</label><input id="tq-adj-reset-time" type="time" value="00:00" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;box-sizing:border-box"></div>' +
               '</div>' +
               '<input id="tq-adj-reset-note" type="text" placeholder="Note (e.g. Reset #2)" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;box-sizing:border-box;margin-bottom:10px">' +
               '<button onclick="accAddReset(\''+accId+'\')" style="width:100%;padding:10px;border-radius:8px;background:var(--accent3);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer">Save Reset</button>' +
@@ -16400,13 +16408,14 @@ window.toggleSidebar = function(){
     window.accAddReset = function(accId){
       var newBal = parseFloat(document.getElementById('tq-adj-newbal').value);
       var date = document.getElementById('tq-adj-reset-date').value;
+      var time = (document.getElementById('tq-adj-reset-time')||{}).value || '00:00';
       var note = document.getElementById('tq-adj-reset-note').value.trim();
       if(!newBal || newBal <= 0 || !date){ if(typeof tqToast==='function') tqToast('Enter valid balance and date', {type:'error'}); return; }
       var accs = accLoad();
       var idx = accs.findIndex(function(a){ return a.id === accId; });
       if(idx < 0) return;
       if(!accs[idx].resets) accs[idx].resets = [];
-      accs[idx].resets.push({newBalance: newBal, date: date, note: note, id: 'rst_'+Date.now()});
+      accs[idx].resets.push({newBalance: newBal, date: date, time: time, since: date+'T'+time, note: note, id: 'rst_'+Date.now()});
       accSave(accs);
       renderAccountsPage();
       openEditBalanceModal(accId);
@@ -37713,6 +37722,23 @@ window.toggleSidebar = function(){
       var accFilter = document.getElementById('dash-account-filter');
       var accId = accFilter ? accFilter.value : 'all';
       trades = (accId==='all') ? raw : raw.filter(function(t){return t.account===accId;});
+      // Apply reset date filter — only show trades after the latest reset per account
+      try{
+        var accs = JSON.parse(rfxGet('rf_accounts')||'[]');
+        var resetMap = {};
+        accs.forEach(function(a){
+          var sp = (typeof accGetStartingPoint==='function') ? accGetStartingPoint(a) : null;
+          if(sp && sp.since) resetMap[a.id] = sp.since;
+        });
+        if(Object.keys(resetMap).length){
+          trades = trades.filter(function(t){
+            var since = resetMap[t.account];
+            if(!since) return true;
+            var tradeDateTime = (t.date||'') + 'T' + (t.entryTime||'00:00');
+            return tradeDateTime >= since;
+          });
+        }
+      }catch(e){}
     }catch(e){ trades = []; }
     var ccy = (typeof tqGetDisplayCurrency==='function') ? tqGetDisplayCurrency() : 'USD';
     var sym = {USD:'$',EUR:'€',GBP:'£',JPY:'¥',CHF:'CHF ',CAD:'C$',AUD:'A$',NZD:'NZ$'}[ccy] || '$';
