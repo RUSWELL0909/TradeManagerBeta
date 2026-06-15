@@ -15066,8 +15066,8 @@ window.toggleSidebar = function(){
             '<div style="font-size:11px;color:var(--text3);font-weight:500">·  '+accountsInGroup.length+' account'+(accountsInGroup.length===1?'':'s')+' · '+tradeCount+' trade'+(tradeCount===1?'':'s')+'</div>' +
           '</div>' +
           '<div style="display:flex;align-items:center;gap:18px;font-family:DM Mono,monospace">' +
-            '<div style="text-align:right"><div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Total Balance</div><div style="font-size:20px;font-weight:700;color:#ffffff;letter-spacing:-.5px">'+sym+Math.round(totalBal).toLocaleString()+'</div></div>' +
-            '<div style="text-align:right"><div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Group P&amp;L</div><div style="font-size:20px;font-weight:700;color:'+pnlColor+';letter-spacing:-.5px">'+pnlSign+sym+Math.round(totalPnl).toLocaleString()+'</div></div>' +
+            '<div style="text-align:right"><div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Total Balance</div><div style="font-size:20px;font-weight:700;color:#ffffff;letter-spacing:-.5px;font-family:Inter,sans-serif">'+sym+Math.round(totalBal).toLocaleString()+'</div></div>' +
+            '<div style="text-align:right"><div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Group P&amp;L</div><div style="font-size:20px;font-weight:700;color:'+pnlColor+';letter-spacing:-.5px;font-family:Inter,sans-serif">'+pnlSign+sym+Math.round(totalPnl).toLocaleString()+'</div></div>' +
           '</div>' +
         '</div>';
       }
@@ -15546,7 +15546,20 @@ window.toggleSidebar = function(){
       if(startBal <= 0) return null;
       var ddType = account.ddType || 'static';
       var ddMode = account.ddMode || 'percent';
-      var trades = (allTrades || []).filter(function(t){ return t.account === account.id && !t.deleted; });
+
+      // Get reset point — funded rules only count trades after latest reset
+      var sp = (typeof accGetStartingPoint==='function') ? accGetStartingPoint(account) : null;
+      if(sp && sp.balance > 0) startBal = sp.balance;
+
+      var trades = (allTrades || []).filter(function(t){
+        if(t.account !== account.id || t.deleted) return false;
+        // Only count trades after the latest reset
+        if(sp && sp.since){
+          var tradeDateTime = (t.date||'') + 'T' + (t.entryTime||'00:00');
+          if(tradeDateTime < sp.since) return false;
+        }
+        return true;
+      });
       var today = new Date().toISOString().slice(0,10);
 
       // Daily P&L (today only)
