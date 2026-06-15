@@ -30066,6 +30066,25 @@ window.toggleSidebar = function(){
     var allTrades=rmGetTrades();
     // Filter by account if selected
     var trades=accountFilter?allTrades.filter(function(t){return t.account===accountFilter;}):allTrades;
+
+    // Apply reset filter — only count trades after latest reset for the selected account
+    if(accountFilter){
+      try{
+        var accs = JSON.parse(rfxGet('rf_accounts')||'[]');
+        var acc = accs.find(function(a){ return a.id === accountFilter; });
+        if(acc && typeof accGetStartingPoint === 'function'){
+          var sp = accGetStartingPoint(acc);
+          if(sp && sp.since){
+            trades = trades.filter(function(t){
+              var tradeDateTime = (t.date||'') + 'T' + (t.entryTime||'00:00');
+              return tradeDateTime >= sp.since;
+            });
+            // Also use reset balance as starting balance
+            if(sp.balance > 0) bal = sp.balance;
+          }
+        }
+      }catch(e){}
+    }
     var targetBal=bal*(1+targetPct);
     var failBal=bal*(1-maxDDPct);
     var dailyLimit=bal*dailyPct;
