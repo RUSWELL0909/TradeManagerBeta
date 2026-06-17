@@ -3749,6 +3749,8 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(124,90,240,.15);outlin
 .ck-btn.on-red{background:var(--red);color:white;border-color:var(--red)}
 .ck-btn.on-green{background:var(--green);color:white;border-color:var(--green)}
 .ck-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px 28px;position:relative;overflow:hidden;transition:border-color .2s}
+/* Cockpit appeared zoomed-out vs other pages — scale the whole page up ~6% uniformly */
+#page-cockpit{zoom:1.06}
 .ck-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.1}
 .ck-pair-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px 22px;margin-bottom:14px;position:relative;overflow:hidden;transition:border-color .2s}
 .ck-pair-title{font-size:18px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:10px}
@@ -32531,6 +32533,8 @@ window.toggleSidebar = function(){
       var entryEl=card.querySelector('.ck-entry-lvl'); if(entryEl) p.entryLevel=entryEl.value||'';
       var slEl=card.querySelector('.ck-sl-lvl'); if(slEl) p.slLevel=slEl.value||'';
       var tpEl=card.querySelector('.ck-tp-lvl'); if(tpEl) p.tpLevel=tpEl.value||'';
+      var riskEl=card.querySelector('.ck-risk-pct'); if(riskEl) p.riskPct=riskEl.value||'';
+      var balEl=card.querySelector('.ck-acct-bal'); if(balEl) p.acctBalOverride=balEl.value||'';
       var hasSimpleConf=card.querySelector('.ck-simpleconf-pill');
       if(hasSimpleConf) p.confluences=ckGetPillsOn(card,'ck-simpleconf-');
       ckData.pairs[pair]=p;
@@ -32548,25 +32552,79 @@ window.toggleSidebar = function(){
   function ckUpdateSimpleRR(){
     document.querySelectorAll('.ck-pair-card').forEach(function(card){
       var pair=card.getAttribute('data-pair'); if(!pair) return;
-      var rrEl=document.getElementById('ck-rr-'+pair); if(!rrEl) return;
+      var rrEl=document.getElementById('ck-rr-'+pair);
       var entry=parseFloat((card.querySelector('.ck-entry-lvl')||{}).value);
       var sl=parseFloat((card.querySelector('.ck-sl-lvl')||{}).value);
       var tp=parseFloat((card.querySelector('.ck-tp-lvl')||{}).value);
-      if(!isFinite(entry)||!isFinite(sl)||!isFinite(tp)||entry===sl){
-        rrEl.textContent='R:R will calculate from Entry / SL / TP';
-        rrEl.style.color='var(--text3)';
-        return;
+      if(rrEl){
+        if(!isFinite(entry)||!isFinite(sl)||!isFinite(tp)||entry===sl){
+          rrEl.textContent='R:R will calculate from Entry / SL / TP';
+          rrEl.style.color='var(--text3)';
+        } else {
+          var risk=Math.abs(entry-sl);
+          var reward=Math.abs(tp-entry);
+          if(risk<=0){ rrEl.textContent='Check your levels'; rrEl.style.color='var(--text3)'; }
+          else {
+            var rr=reward/risk;
+            var quality = rr>=2 ? 'var(--green)' : rr>=1.5 ? '#f0b429' : 'var(--red)';
+            rrEl.innerHTML='Risk:Reward = <strong style="color:'+quality+'">1 : '+rr.toFixed(2)+'</strong>'+(rr<1.5?' · below 1.5, reconsider':rr>=2?' · solid':'');
+            rrEl.style.color='var(--text2)';
+          }
+        }
       }
-      var risk=Math.abs(entry-sl);
-      var reward=Math.abs(tp-entry);
-      if(risk<=0){ rrEl.textContent='Check your levels'; rrEl.style.color='var(--text3)'; return; }
-      var rr=reward/risk;
-      var quality = rr>=2 ? 'var(--green)' : rr>=1.5 ? '#f0b429' : 'var(--red)';
-      rrEl.innerHTML='Risk:Reward = <strong style="color:'+quality+'">1 : '+rr.toFixed(2)+'</strong>'+(rr<1.5?' · below 1.5, reconsider':rr>=2?' · solid':'');
-      rrEl.style.color='var(--text2)';
+      // Position size
+      var psEl=document.getElementById('ck-possize-'+pair);
+      if(psEl){
+        var riskPct=parseFloat((card.querySelector('.ck-risk-pct')||{}).value);
+        var balOverride=parseFloat((card.querySelector('.ck-acct-bal')||{}).value);
+        var bal=isFinite(balOverride)&&balOverride>0 ? balOverride : ckGetAccountBalanceForSizing();
+        if(isFinite(entry)&&isFinite(sl)&&entry!==sl&&isFinite(riskPct)&&riskPct>0&&bal>0){
+          var posInfo=ckCalcPositionSize(pair, entry, sl, riskPct, bal);
+          if(posInfo){
+            psEl.innerHTML='Position size: <strong style="color:var(--accent)">'+posInfo.lots+' lots</strong> · risking <strong>$'+posInfo.riskDollar.toFixed(0)+'</strong> ('+riskPct+'%) · '+posInfo.slPips+' '+posInfo.unit+' SL';
+            psEl.style.color='var(--text2)';
+          } else {
+            psEl.innerHTML='<span style="color:var(--text3)">Add Risk % to size this trade</span>';
+          }
+        } else {
+          psEl.innerHTML='<span style="color:var(--text3)">Enter Entry, SL & Risk % for auto position size</span>';
+        }
+      }
     });
   }
   window.ckUpdateSimpleRR=ckUpdateSimpleRR;
+
+  // Get account balance for position sizing — use first active account's live balance
+  function ckGetAccountBalanceForSizing(){
+    try{
+      var accs=JSON.parse(rfxGet('rf_accounts')||'[]').filter(function(a){return a&&!a.deleted&&!a.archived;});
+      if(!accs.length) return 0;
+      var trades=(typeof getActiveTrades==='function')?getActiveTrades():[];
+      // Prefer the account selected in dashboard filter, else first active
+      var acc=accs[0];
+      if(typeof accBalanceWithPnL==='function') return accBalanceWithPnL(acc, trades);
+      return parseFloat(acc.startingBalance||acc.balance)||0;
+    }catch(e){ return 0; }
+  }
+
+  // Calculate position size in lots. Returns {lots, riskDollar, slPips, unit} or null.
+  function ckCalcPositionSize(pair, entry, sl, riskPct, balance){
+    var key=(pair||'').toLowerCase();
+    var pipSize=(typeof pipSizes!=='undefined' && pipSizes[key]) ? pipSizes[key] : 0.0001;
+    var pipVal=(typeof pipValues!=='undefined' && pipValues[key]) ? pipValues[key] : 10;
+    var riskDollar=balance*(riskPct/100);
+    var slDistance=Math.abs(entry-sl);
+    if(slDistance<=0||pipSize<=0||pipVal<=0) return null;
+    var slPips=slDistance/pipSize;
+    if(slPips<=0) return null;
+    var lots=riskDollar/(slPips*pipVal);
+    if(!isFinite(lots)||lots<=0) return null;
+    // Round to 2 decimals (micro lot precision)
+    var lotsR=Math.round(lots*100)/100;
+    var unit=(pipSize===1)?'pts':(pipSize===0.01 && key.indexOf('jpy')<0 && key!=='xauusd')?'pips':(key.indexOf('jpy')>=0||key==='xauusd')?'pips':'pips';
+    return {lots:lotsR.toFixed(2), riskDollar:riskDollar, slPips:Math.round(slPips), unit:unit};
+  }
+  window.ckCalcPositionSize=ckCalcPositionSize;
 
   function ckGetActiveBtn(rowId){
     var row=document.getElementById(rowId);if(!row)return'';
@@ -32802,8 +32860,14 @@ window.toggleSidebar = function(){
     h += '<div><div class="ck-mini-label">Stop Loss</div><input class="ck-input ck-sl-lvl" placeholder="0.00000" value="'+(p.slLevel||'')+'" oninput="ckAutoSave()"></div>';
     h += '<div><div class="ck-mini-label">Take Profit</div><input class="ck-input ck-tp-lvl" placeholder="0.00000" value="'+(p.tpLevel||'')+'" oninput="ckAutoSave()"></div>';
     h += '</div>';
-    // Auto R:R display
+    // Risk % for position sizing
+    h += '<div class="ck-grid-2" style="margin-top:8px">';
+    h += '<div><div class="ck-mini-label">Risk % <span style="color:var(--text3);font-weight:400">of account</span></div><input class="ck-input ck-risk-pct" type="number" step="0.1" min="0" placeholder="1.0" value="'+(p.riskPct||'')+'" oninput="ckAutoSave()"></div>';
+    h += '<div><div class="ck-mini-label">Account Balance</div><input class="ck-input ck-acct-bal" type="number" step="1" min="0" placeholder="auto" value="'+(p.acctBalOverride||'')+'" oninput="ckAutoSave()"></div>';
+    h += '</div>';
+    // Auto R:R + position size display
     h += '<div id="ck-rr-'+pair+'" style="font-size:11px;color:var(--text3);margin-top:8px">R:R will calculate from Entry / SL / TP</div>';
+    h += '<div id="ck-possize-'+pair+'" style="font-size:11px;color:var(--text3);margin-top:6px"></div>';
     h += '</div>';
 
     // Confluences — editable pills
@@ -34430,7 +34494,90 @@ window.toggleSidebar = function(){
   }
   window.ckUpdateChecklist=ckUpdateChecklist;
 
+  function ckShowTiltPause(pair, tiltTags, remainingMs){
+    var existing = document.getElementById('tq-tilt-pause-modal');
+    if(existing) existing.remove();
+    var secs = Math.ceil(remainingMs/1000);
+    var tagStr = tiltTags.join(', ');
+    var html =
+      '<div id="tq-tilt-pause-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px">' +
+        '<div style="background:var(--bg2);border:1px solid rgba(239,68,68,.3);border-radius:16px;max-width:420px;width:100%;padding:32px;text-align:center">' +
+          '<div style="font-size:40px;margin-bottom:8px">&#9888;&#65039;</div>' +
+          '<div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px">Pause. You flagged: '+escapeHtml(tagStr)+'</div>' +
+          '<div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px">Trades taken in this state lose more often. Take a breath and let the timer run. If you still want the trade after, the button will unlock.</div>' +
+          '<div style="font-size:48px;font-weight:700;color:var(--red);font-family:DM Mono,monospace;margin-bottom:6px" id="tq-tilt-countdown">'+secs+'</div>' +
+          '<div style="font-size:11px;color:var(--text3);margin-bottom:22px">seconds</div>' +
+          '<div style="display:flex;gap:8px;justify-content:center">' +
+            '<button id="tq-tilt-walk" style="background:var(--green);color:#fff;border:none;padding:11px 22px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer">Walk away (good choice)</button>' +
+            '<button id="tq-tilt-wait" disabled style="background:var(--bg3);color:var(--text3);border:1px solid var(--border);padding:11px 22px;border-radius:9px;font-size:13px;font-weight:600;cursor:not-allowed;opacity:.6">Wait...</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    var w = document.createElement('div');
+    w.innerHTML = html;
+    document.body.appendChild(w.firstElementChild);
+
+    document.getElementById('tq-tilt-walk').onclick = function(){
+      var m = document.getElementById('tq-tilt-pause-modal'); if(m) m.remove();
+      if(typeof tqToast==='function') tqToast('Smart. Protecting your capital.', {type:'success'});
+    };
+
+    var remaining = secs;
+    var cd = document.getElementById('tq-tilt-countdown');
+    var waitBtn = document.getElementById('tq-tilt-wait');
+    var timer = setInterval(function(){
+      remaining--;
+      if(cd) cd.textContent = remaining > 0 ? remaining : 0;
+      if(remaining <= 0){
+        clearInterval(timer);
+        if(cd){ cd.textContent='0'; cd.style.color='var(--green)'; }
+        if(waitBtn){
+          waitBtn.disabled = false;
+          waitBtn.textContent = 'Proceed anyway';
+          waitBtn.style.cursor = 'pointer';
+          waitBtn.style.opacity = '1';
+          waitBtn.style.background = 'var(--bg3)';
+          waitBtn.style.color = 'var(--text)';
+          waitBtn.onclick = function(){
+            var m = document.getElementById('tq-tilt-pause-modal'); if(m) m.remove();
+            // Mark cooldown as satisfied so ckTakeTrade proceeds
+            try{ sessionStorage.setItem('ck_tilt_cooldown_'+pair, String(Date.now() - 61000)); }catch(e){}
+            ckTakeTrade(pair);
+          };
+        }
+      }
+    }, 1000);
+  }
+  window.ckShowTiltPause = ckShowTiltPause;
+
   function ckTakeTrade(pair){
+    // ── Tilt guard — block trade entry when in a compromised emotional state ──
+    // Psychology tags that indicate tilt; if any selected, enforce a 60s cooldown.
+    try{
+      var p0 = (ckData && ckData.pairs) ? (ckData.pairs[pair]||{}) : {};
+      var tiltTags = ['Revenge','FOMO','Frustrated','Tired','Anxious'];
+      var activeTilt = (p0.prePsych||[]).filter(function(t){ return tiltTags.indexOf(t) >= 0; });
+      if(activeTilt.length > 0){
+        var cooldownKey = 'ck_tilt_cooldown_'+pair;
+        var startedAt = parseInt(sessionStorage.getItem(cooldownKey)||'0', 10);
+        var now = Date.now();
+        var COOLDOWN_MS = 60000;
+        if(!startedAt || (now - startedAt) > COOLDOWN_MS*2){
+          // First press while tilted — start cooldown, block
+          sessionStorage.setItem(cooldownKey, String(now));
+          ckShowTiltPause(pair, activeTilt, COOLDOWN_MS);
+          return;
+        }
+        var elapsed = now - startedAt;
+        if(elapsed < COOLDOWN_MS){
+          ckShowTiltPause(pair, activeTilt, COOLDOWN_MS - elapsed);
+          return;
+        }
+        // Cooldown passed — allow through, clear it
+        sessionStorage.removeItem(cooldownKey);
+      }
+    }catch(e){}
+
     // TradeZella architecture: block plan/take trade if no accounts exist
     var __ckAccs = [];
     try{ __ckAccs = JSON.parse(rfxGet('rf_accounts')||'[]'); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
