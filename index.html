@@ -5782,6 +5782,21 @@ window.toggleSidebar = function(){
       <div id="ck-checklist-banner" style="margin-top:10px;display:none"></div>
     </div>
 
+    <!-- METHODOLOGY PRESET SELECTOR -->
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 18px;margin-bottom:14px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:10px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--text);font-family:Inter,sans-serif">Analysis Style</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:1px">Pick the layout that matches how you trade</div>
+        </div>
+      </div>
+      <select id="ck-preset-select" class="ck-input" style="max-width:240px" onchange="ckSetPreset(this.value)">
+        <option value="wwa">WWA / SMC — full ICT analysis</option>
+        <option value="simple">Simple — bias, levels, R:R, confluences</option>
+      </select>
+    </div>
+
     <!-- SESSION + PAIR SELECTOR -->
     <div class="ck-top-bar">
       <div class="ck-top-section">
@@ -10700,6 +10715,23 @@ window.toggleSidebar = function(){
   window.rfxGet=rfxGet; window.rfxSet=rfxSet; window.rfxRemove=rfxRemove;
   window.rfxStorageBytes=rfxStorageBytes;
 
+  // Safe JSON parse from storage. Returns `fallback` (default []) on corrupt/missing data
+  // instead of throwing — corrupt localStorage (quota truncation, sync glitch, tampering)
+  // would otherwise crash whatever render/sync path called the raw JSON.parse.
+  function rfxGetJSON(key, fallback){
+    if(fallback === undefined) fallback = [];
+    try{
+      var raw = rfxGet(key);
+      if(raw === null || raw === undefined || raw === '') return fallback;
+      var parsed = JSON.parse(raw);
+      return parsed;
+    }catch(e){
+      console.error('TradeQuill: corrupt JSON in storage key "'+key+'" — using fallback. ', e && e.message);
+      return fallback;
+    }
+  }
+  window.rfxGetJSON = rfxGetJSON;
+
   // ── Universal metric helpers — used everywhere to keep numbers consistent ──
   // Profit Factor: returns null when undefined (no losses), so callers can render
   // "—" or "∞" instead of inconsistent 0/999 fallbacks across the app.
@@ -11009,7 +11041,8 @@ window.toggleSidebar = function(){
     var symbols = {USD:'$',EUR:'€',GBP:'£',JPY:'¥',CHF:'CHF ',CAD:'C$',AUD:'A$',NZD:'NZ$'};
     ccy = (ccy||tqGetDisplayCurrency()).toUpperCase();
     var sym = symbols[ccy] || '';
-    var n = parseFloat(amount)||0;
+    var n = parseFloat(amount);
+    if(!isFinite(n)) n = 0;
     var sign = n < 0 ? '-' : '';
     var abs = Math.abs(n);
     var str = abs.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
@@ -11981,7 +12014,7 @@ window.toggleSidebar = function(){
         // Merge strategy: cloud wins for conflicts, keep local-only trades.
         // EXCEPTION: if local has deleted:true but cloud row lacks it (legacy row pushed
         // before the field round-tripped), preserve local state and re-push to fix cloud.
-        var localTrades = JSON.parse(rfxGet('rf_trades')||'[]');
+        var localTrades = rfxGetJSON('rf_trades', []);
         var cloudMap = {};
         cloudTrades.forEach(function(row){
           if(row.external_id) cloudMap[row.external_id] = row;
@@ -13287,6 +13320,10 @@ window.toggleSidebar = function(){
         if(a.maxDrawdownLimit != null) meta.mdLimit = a.maxDrawdownLimit;
         if(a.profitTarget != null) meta.profitTgt = a.profitTarget;
         if(a.minTradingDays != null) meta.minDays = a.minTradingDays;
+        // Resets and balance adjustments (deposit/withdrawal) — must round-trip through sync
+        // or the account silently reverts to all-time balance on next device/reload (Jun 2026 fix)
+        if(a.resets && a.resets.length) meta.resets = a.resets;
+        if(a.adjustments && a.adjustments.length) meta.adjustments = a.adjustments;
         // If only prop_firm is present and nothing fancy, stay backwards-compatible (plain string)
         var keys = Object.keys(meta).filter(function(k){return k!=='pf';});
         if(keys.length === 0) return a.propFirm || null;
@@ -13321,6 +13358,8 @@ window.toggleSidebar = function(){
       if(meta.mdLimit != null) out.maxDrawdownLimit = meta.mdLimit;
       if(meta.profitTgt != null) out.profitTarget = meta.profitTgt;
       if(meta.minDays != null) out.minTradingDays = meta.minDays;
+      if(meta.resets) out.resets = meta.resets;
+      if(meta.adjustments) out.adjustments = meta.adjustments;
     }
     return out;
   }
@@ -13376,7 +13415,7 @@ window.toggleSidebar = function(){
     return _tqSupa.from('accounts').select('*').eq('user_id',_tqUser.id).then(function(res){
       if(res.error){ console.error('Pull error:', res.error); return; }
       var cloud = res.data || [];
-      var local = JSON.parse(rfxGet('rf_accounts')||'[]');
+      var local = rfxGetJSON('rf_accounts', []);
       var localIds = {};
       local.forEach(function(a){ if(a.id) localIds[a.id] = true; });
       var zombies = cloud.filter(function(r){ return !localIds[r.external_id]; });
@@ -13479,7 +13518,7 @@ window.toggleSidebar = function(){
     _tqSupa.from('accounts').select('*').eq('user_id',_tqUser.id).then(function(res){
       if(res.error){console.error('Accounts pull error:',res.error);return;}
       var cloud=res.data||[];
-      var local=JSON.parse(rfxGet('rf_accounts')||'[]');
+      var local=rfxGetJSON('rf_accounts', []);
       if(cloud.length===0&&local.length>0){tqPushAccounts();return;}
       // Honor tombstones — accounts hard-deleted from Trash should NOT resurrect (May 2026 fix)
       var tombstones = (typeof window.trGetTombstones === 'function') ? window.trGetTombstones('account') : {};
@@ -13506,6 +13545,10 @@ window.toggleSidebar = function(){
           if(localT.archived) converted.archived = true;
           if(localT.deletedAt) converted.deletedAt = localT.deletedAt;
           if(localT._cascadeId) converted._cascadeId = localT._cascadeId;
+          // Resets/adjustments: prefer whichever side has more entries — guards against
+          // losing a just-added local reset if cloud pull races ahead of the push (Jun 2026 fix)
+          if(localT.resets && localT.resets.length > (converted.resets||[]).length) converted.resets = localT.resets;
+          if(localT.adjustments && localT.adjustments.length > (converted.adjustments||[]).length) converted.adjustments = localT.adjustments;
         }
         merged.push(converted);
       });
@@ -14821,9 +14864,12 @@ window.toggleSidebar = function(){
     function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
 
     function accFmtCcy(amount, ccy){
-      var n = Number(amount)||0;
+      var n = Number(amount);
+      if(!isFinite(n)) n = 0; // guard NaN/Infinity → 0
       var sym = {USD:'$',EUR:'€',GBP:'£',JPY:'¥',CHF:'CHF ',CAD:'C$',AUD:'A$'}[ccy||'USD'] || '';
-      return sym + n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+      var sign = n < 0 ? '-' : '';
+      var abs = Math.abs(n);
+      return sign + sym + abs.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
     }
 
     function accNetAdjustments(acc){
@@ -14835,9 +14881,13 @@ window.toggleSidebar = function(){
     }
 
     function accGetStartingPoint(acc){
-      // If account has resets, find the latest reset before today
+      // If account has resets, find the latest reset (by full date+time)
       // and use that as the starting balance + date for P&L calculation
-      var resets = (acc.resets||[]).slice().sort(function(a,b){ return a.date > b.date ? 1 : -1; });
+      var resets = (acc.resets||[]).slice().sort(function(a,b){
+        var aKey = a.since || (a.date + 'T' + (a.time||'00:00'));
+        var bKey = b.since || (b.date + 'T' + (b.time||'00:00'));
+        return aKey > bKey ? 1 : aKey < bKey ? -1 : 0;
+      });
       if(!resets.length) return {balance: parseFloat(acc.startingBalance||acc.balance)||0, since: null};
       var latest = resets[resets.length-1];
       // Use full datetime if available for precise filtering
@@ -14879,10 +14929,14 @@ window.toggleSidebar = function(){
     // ── Helper: build one row HTML (extracted for reuse in active+archived sections) ──
     function _buildAccRow(a, trades){
       var liveBalance = accBalanceWithPnL(a, trades);
-      var startBal = parseFloat(a.startingBalance||a.balance)||0;
+      var sp = (typeof accGetStartingPoint==='function') ? accGetStartingPoint(a) : null;
+      // Use reset-adjusted starting balance for delta% so the percentage reflects
+      // performance since the last reset, not since account creation (Jun 2026 fix)
+      var startBal = (sp && sp.balance > 0) ? sp.balance : (parseFloat(a.startingBalance||a.balance)||0);
       var deltaPct = startBal > 0 ? ((liveBalance - startBal)/startBal*100) : 0;
       var deltaColor = deltaPct >= 0 ? '#2ecc8a' : '#ff505f';
       var deltaSign = deltaPct >= 0 ? '+' : '';
+      var hasActiveReset = !!(sp && sp.since);
       var brokerStr = a.broker || (a.propFirm ? a.propFirm : '—');
       if(a.broker && a.propFirm) brokerStr = a.broker + ' · ' + a.propFirm;
       var statusOn = a.active !== false;
@@ -14938,6 +14992,7 @@ window.toggleSidebar = function(){
         '  <div class="acc-name-cell" style="min-width:0">',
         '    <div style="font-size:15px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(a.name||'(unnamed)')+'</div>',
         a.accountNumber ? '    <div style="font-size:13px;color:var(--text3);font-family:DM Mono,monospace;margin-top:3px">#'+escapeHtml(a.accountNumber)+'</div>' : '',
+        hasActiveReset ? '    <div style="font-size:11px;color:var(--accent3);margin-top:3px;display:flex;align-items:center;gap:4px"><span>↺</span> Since reset · '+escapeHtml((sp.since||'').slice(0,10))+'</div>' : '',
         '  </div>',
         '  <div style="font-size:14px;color:var(--text)">'+escapeHtml(brokerStr)+(a.platform?'<div style="font-size:12px;color:var(--text3);margin-top:3px">'+escapeHtml(a.platform)+'</div>':'')+'</div>',
         '  <div>',
@@ -15048,9 +15103,17 @@ window.toggleSidebar = function(){
       function _buildGroupHeader(label, accountsInGroup, trades){
         var totalBal = 0, totalPnl = 0, tradeCount = 0;
         accountsInGroup.forEach(function(a){
-          var sb = parseFloat(a.startingBalance || a.balance || 0) || 0;
-          var accTrades = trades.filter(function(t){ return t.account === a.id && !t.deleted; });
-          var accPnl = accTrades.reduce(function(s,t){ return s + (parseFloat(t.pnl)||0); }, 0);
+          var sp = (typeof accGetStartingPoint==='function') ? accGetStartingPoint(a) : null;
+          var sb = (sp && sp.balance > 0) ? sp.balance : (parseFloat(a.startingBalance || a.balance || 0) || 0);
+          var accTrades = trades.filter(function(t){
+            if(t.account !== a.id || t.deleted) return false;
+            if(sp && sp.since){
+              var tdt = (t.date||'') + 'T' + (t.entryTime||'00:00');
+              if(tdt < sp.since) return false;
+            }
+            return true;
+          });
+          var accPnl = accTrades.reduce(function(s,t){ return s + (typeof tqConvertTradePnl==='function'?tqConvertTradePnl(t):(parseFloat(t.pnl)||0)); }, 0);
           totalBal += sb + accPnl;
           totalPnl += accPnl;
           tradeCount += accTrades.length;
@@ -15564,7 +15627,7 @@ window.toggleSidebar = function(){
 
       // Daily P&L (today only)
       var todayPnl = trades.reduce(function(s,t){
-        return s + (t.date === today ? (parseFloat(t.pnl)||0) : 0);
+        return s + (t.date === today ? (typeof tqConvertTradePnl==='function'?tqConvertTradePnl(t):(parseFloat(t.pnl)||0)) : 0);
       }, 0);
       // Daily loss as % or $ depending on rule mode
       var dailyLossAbs = todayPnl < 0 ? Math.abs(todayPnl) : 0;
@@ -15576,7 +15639,7 @@ window.toggleSidebar = function(){
       var byDay = {};
       sorted.forEach(function(t){
         if(!t.date) return;
-        byDay[t.date] = (byDay[t.date] || 0) + (parseFloat(t.pnl)||0);
+        byDay[t.date] = (byDay[t.date] || 0) + (typeof tqConvertTradePnl==='function'?tqConvertTradePnl(t):(parseFloat(t.pnl)||0));
       });
       var dayKeys = Object.keys(byDay).sort();
       var running = 0, peak = 0, maxDD = 0;
@@ -15586,7 +15649,7 @@ window.toggleSidebar = function(){
         peak = 0;
       }
       sorted.forEach(function(t){
-        running += (parseFloat(t.pnl)||0);
+        running += (typeof tqConvertTradePnl==='function'?tqConvertTradePnl(t):(parseFloat(t.pnl)||0));
         if(ddType !== 'static' && running > peak) peak = running;
         var dd = peak - running;
         if(dd > maxDD) maxDD = dd;
@@ -16316,7 +16379,11 @@ window.toggleSidebar = function(){
       var acc = accs.find(function(a){ return a.id === accId; });
       if(!acc) return;
       var adjs = acc.adjustments || [];
-      var resets = (acc.resets||[]).slice().sort(function(a,b){ return a.date > b.date ? -1 : 1; });
+      var resets = (acc.resets||[]).slice().sort(function(a,b){
+        var aKey = a.since || (a.date + 'T' + (a.time||'00:00'));
+        var bKey = b.since || (b.date + 'T' + (b.time||'00:00'));
+        return aKey > bKey ? -1 : aKey < bKey ? 1 : 0;
+      });
 
       function adjListHTML(){
         var items = [];
@@ -16347,13 +16414,16 @@ window.toggleSidebar = function(){
 
       var today = new Date().toISOString().slice(0,10);
       var startBal = parseFloat(acc.startingBalance||acc.balance)||0;
+      // Pre-fill suggestion: if a reset is already active, suggest its balance (most users reset to the same target each time)
+      var spForModal = (typeof accGetStartingPoint==='function') ? accGetStartingPoint(acc) : null;
+      var prefillBal = (spForModal && spForModal.balance > 0) ? spForModal.balance : startBal;
 
       var html = '<div style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center" id="tq-editbal-overlay" onclick="if(event.target===this)this.remove()">' +
         '<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;width:500px;max-width:calc(100vw - 32px);max-height:85vh;overflow-y:auto">' +
           '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">' +
             '<div>' +
               '<div style="font-size:16px;font-weight:700;color:var(--text)">Edit Balance</div>' +
-              '<div style="font-size:12px;color:var(--text3);margin-top:2px">' + escapeHtml(acc.name||'Account') + ' · Starting: $' + startBal.toLocaleString() + '</div>' +
+              '<div style="font-size:12px;color:var(--text3);margin-top:2px">' + escapeHtml(acc.name||'Account') + (spForModal && spForModal.since ? ' · Current cycle: $'+prefillBal.toLocaleString()+' (since '+spForModal.since.slice(0,10)+')' : ' · Starting: $'+startBal.toLocaleString()) + '</div>' +
             '</div>' +
             '<button onclick="document.getElementById(\'tq-editbal-overlay\').remove()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:20px;padding:4px">×</button>' +
           '</div>' +
@@ -16372,7 +16442,7 @@ window.toggleSidebar = function(){
             '<div id="tq-adj-reset-fields">' +
               '<div style="font-size:11px;color:var(--text3);margin-bottom:10px;line-height:1.5">Prop firm reset your account. Set the new balance, date and time — only trades <strong style="color:var(--text)">after</strong> this point will count toward your current balance.<br><span style="color:var(--text3);opacity:.7">💡 Use the time shown in MT5 History (broker server time)</span></div>' +
               '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">' +
-                '<div><label style="font-size:11px;color:var(--text3);display:block;margin-bottom:4px">New Balance ($)</label><input id="tq-adj-newbal" type="number" step="0.01" min="0" placeholder="'+startBal+'" value="'+startBal+'" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;box-sizing:border-box"></div>' +
+                '<div><label style="font-size:11px;color:var(--text3);display:block;margin-bottom:4px">New Balance ($)</label><input id="tq-adj-newbal" type="number" step="0.01" min="0" placeholder="'+prefillBal+'" value="'+prefillBal+'" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;box-sizing:border-box"></div>' +
                 '<div><label style="font-size:11px;color:var(--text3);display:block;margin-bottom:4px">Reset Date</label><input id="tq-adj-reset-date" type="date" value="'+today+'" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;box-sizing:border-box"></div>' +
               '<div><label style="font-size:11px;color:var(--text3);display:block;margin-bottom:4px">Reset Time</label><input id="tq-adj-reset-time" type="time" value="00:00" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;box-sizing:border-box"></div>' +
               '</div>' +
@@ -22178,9 +22248,10 @@ window.toggleSidebar = function(){
       if(el('rpt-trade-count')) el('rpt-trade-count').textContent = '0 of ' + allTrades.length;
       return;
     }
-    var wins = t.filter(function(x){ return tqConvertTradePnl(x) > 0; });
-    var losses = t.filter(function(x){ return tqConvertTradePnl(x) < 0; });
-    var beT = t.filter(function(x){ return Math.abs(tqConvertTradePnl(x)) < 0.01; });
+    var BE_THRESH = 1.0; // must match tqMetrics() BE_THRESHOLD for consistency across pages
+    var wins = t.filter(function(x){ return tqConvertTradePnl(x) > BE_THRESH; });
+    var losses = t.filter(function(x){ return tqConvertTradePnl(x) < -BE_THRESH; });
+    var beT = t.filter(function(x){ return Math.abs(tqConvertTradePnl(x)) <= BE_THRESH; });
     // Expose for Cross Analysis tab
     window._rptFilteredTrades = t;
     // Auto-refresh cross/tags tabs if visible
@@ -22453,8 +22524,8 @@ window.toggleSidebar = function(){
               return all.indexOf(cf) < 0;
             });
             if(present.length < 2 || absent.length < 2) return null; // need both sides
-            var wrPresent = present.filter(function(x){return tqConvertTradePnl(x) > 0;}).length / present.length * 100;
-            var wrAbsent  = absent.filter(function(x){return tqConvertTradePnl(x) > 0;}).length / absent.length * 100;
+            var wrPresent = present.filter(function(x){return tqConvertTradePnl(x) > 1;}).length / present.length * 100;
+            var wrAbsent  = absent.filter(function(x){return tqConvertTradePnl(x) > 1;}).length / absent.length * 100;
             var delta = wrPresent - wrAbsent;
             var pnlPresent = present.reduce(function(a,x){return a + tqConvertTradePnl(x);}, 0);
             var pnlAbsent  = absent.reduce(function(a,x){return a + tqConvertTradePnl(x);}, 0);
@@ -22487,7 +22558,7 @@ window.toggleSidebar = function(){
           }).join('');
 
           var safeName = String(sname).replace(/</g,'&lt;');
-          var setupWR = setupTrades.filter(function(x){return tqConvertTradePnl(x) > 0;}).length / setupTrades.length * 100;
+          var setupWR = setupTrades.filter(function(x){return tqConvertTradePnl(x) > 1;}).length / setupTrades.length * 100;
           return '<div style="margin-bottom:18px">'+
                    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)">'+
                      '<div style="font-size:12px;font-weight:600;color:var(--text)">'+safeName+'</div>'+
@@ -22880,9 +22951,9 @@ window.toggleSidebar = function(){
     if(el('rpt-pair-cards')){
       el('rpt-pair-cards').innerHTML = pairArr.map(function(p){
         var pairT = t.filter(function(x){return x.pair===p[0];});
-        var pWins2 = pairT.filter(function(x){return tqConvertTradePnl(x)>0;});
-        var pLoss2 = pairT.filter(function(x){return tqConvertTradePnl(x)<0;});
-        var pBE = pairT.filter(function(x){return Math.abs(tqConvertTradePnl(x))<0.01;});
+        var pWins2 = pairT.filter(function(x){return tqConvertTradePnl(x)>1;});
+        var pLoss2 = pairT.filter(function(x){return tqConvertTradePnl(x)<-1;});
+        var pBE = pairT.filter(function(x){return Math.abs(tqConvertTradePnl(x))<=1;});
         var gpW4 = pWins2.reduce(function(s,x){return s+tqConvertTradePnl(x);},0);
         var gpL4 = Math.abs(pLoss2.reduce(function(s,x){return s+tqConvertTradePnl(x);},0));
         var pairPF = gpL4>0?(gpW4/gpL4).toFixed(2):'\u221e';
@@ -23435,7 +23506,7 @@ window.toggleSidebar = function(){
 
       function setStats(arr){
         if(arr.length === 0) return null;
-        var wins = arr.filter(function(x){return tqConvertTradePnl(x) > 0;}).length;
+        var wins = arr.filter(function(x){return tqConvertTradePnl(x) > 1;}).length;
         var pnl = arr.reduce(function(a,x){return a + tqConvertTradePnl(x);}, 0);
         var avgPnl = pnl / arr.length;
         return {n: arr.length, wr: wins/arr.length*100, pnl: pnl, avgPnl: avgPnl};
@@ -23970,7 +24041,7 @@ window.toggleSidebar = function(){
           if(rr >= buckets[i].min && rr < buckets[i].max){
             buckets[i].count++;
             buckets[i].wPnl += tqConvertTradePnl(x);
-            if(tqConvertTradePnl(x) > 0) buckets[i].wins++;
+            if(tqConvertTradePnl(x) > 1) buckets[i].wins++;
             counted++;
             break;
           }
@@ -24167,7 +24238,7 @@ window.toggleSidebar = function(){
         // Dedup
         var seen = {}; var out = [];
         tags.forEach(function(tg){ if(tg && !seen[tg]){ seen[tg]=1; out.push(tg); } });
-        return {tags: out, pnl: tqConvertTradePnl(x), win: tqConvertTradePnl(x) > 0};
+        return {tags: out, pnl: tqConvertTradePnl(x), win: tqConvertTradePnl(x) > 1};
       }).filter(function(rec){ return rec.tags.length >= 2; });
 
       if(tagged.length < 5){
@@ -27897,7 +27968,7 @@ window.toggleSidebar = function(){
       // Remove demo trades on import
       trades=trades.filter(function(t){return !t._demo;});
       var added=0;var dupes=0;var skipped=0;
-      var existingIds={};trades.forEach(function(t){existingIds[t.date+'_'+t.pair+'_'+t.pnl]=true;});
+      var existingIds={};trades.forEach(function(t){existingIds[t.date+'_'+(t.entryTime||'')+'_'+t.pair+'_'+t.pnl]=true;});
 
       for(var i=1;i<parsed.length;i++){
         var cols=parsed[i];
@@ -27927,10 +27998,13 @@ window.toggleSidebar = function(){
         var pnlVal=parseFloat(pnlClean)||0;
 
         // Normalize date to YYYY-MM-DD
+        var rawTimeStr = ''; // captured for dedup key precision
         if(dateVal){
           var dateStr = String(dateVal).trim();
           // Strip time portion if present (after space or 'T')
-          var dateOnly = dateStr.split(/[\sT]/)[0];
+          var dateParts = dateStr.split(/[\sT]/);
+          var dateOnly = dateParts[0];
+          rawTimeStr = dateParts[1] || '';
           if(/^\d{4}-\d{2}-\d{2}$/.test(dateOnly)){
             dateVal = dateOnly;
           } else {
@@ -27951,8 +28025,11 @@ window.toggleSidebar = function(){
 
         if(!dateVal || !pairVal){ skipped++; continue; }
 
-        // Duplicate check
-        var dupeKey=dateVal+'_'+pairVal+'_'+pnlVal;
+        // Duplicate check — include time when available so two same-day, same-pair,
+        // same-P&L trades (common with small consistent lot sizes) aren't merged into one.
+        // Normalize to HH:MM (5 chars) to match how entryTime is stored on saved trades.
+        var dupeTimeKey = rawTimeStr ? rawTimeStr.slice(0,5) : '';
+        var dupeKey=dateVal+'_'+dupeTimeKey+'_'+pairVal+'_'+pnlVal;
         if(existingIds[dupeKey]){dupes++;continue;}
         existingIds[dupeKey]=true;
 
@@ -28685,7 +28762,7 @@ window.toggleSidebar = function(){
       current = trades.reduce(function(s,t){ return s + tqConvertTradePnl(t); }, 0);
       label = sym + Math.round(current).toLocaleString() + ' / ' + sym + Math.round(target).toLocaleString();
     } else if(goal.type === 'win_rate'){
-      var wins = trades.filter(function(t){ return tqConvertTradePnl(t) > 0; }).length;
+      var wins = trades.filter(function(t){ return tqConvertTradePnl(t) > 1; }).length;
       current = trades.length > 0 ? (wins / trades.length * 100) : 0;
       label = current.toFixed(0) + '% / ' + target.toFixed(0) + '%';
     } else if(goal.type === 'trades'){
@@ -32450,14 +32527,45 @@ window.toggleSidebar = function(){
       p.psychNote=(card.querySelector('.ck-psych-ta')||{}).value||'';
       // Invalidations
       p.invFlags=ckGetPillsWarn(card,'ck-inv-');
+      // Simple-board fields (only present in simple preset, harmless otherwise)
+      var entryEl=card.querySelector('.ck-entry-lvl'); if(entryEl) p.entryLevel=entryEl.value||'';
+      var slEl=card.querySelector('.ck-sl-lvl'); if(slEl) p.slLevel=slEl.value||'';
+      var tpEl=card.querySelector('.ck-tp-lvl'); if(tpEl) p.tpLevel=tpEl.value||'';
+      var confEl=card.querySelector('.ck-conf-free'); if(confEl) p.confluencesFree=confEl.value||'';
       ckData.pairs[pair]=p;
     });
     rfxSet(CK_KEY,JSON.stringify(ckData));
+    // Update R:R displays for simple-board cards
+    if(typeof ckUpdateSimpleRR === 'function') ckUpdateSimpleRR();
     // Debounced Supabase sync (5s delay to avoid spam)
     clearTimeout(window._ckSyncTimer);
     window._ckSyncTimer=setTimeout(function(){if(typeof tqPushCockpit==='function')tqPushCockpit();},5000);
   }
   window.ckAutoSave=ckAutoSave;
+
+  // Compute and display R:R from Entry/SL/TP on simple-board cards
+  function ckUpdateSimpleRR(){
+    document.querySelectorAll('.ck-pair-card').forEach(function(card){
+      var pair=card.getAttribute('data-pair'); if(!pair) return;
+      var rrEl=document.getElementById('ck-rr-'+pair); if(!rrEl) return;
+      var entry=parseFloat((card.querySelector('.ck-entry-lvl')||{}).value);
+      var sl=parseFloat((card.querySelector('.ck-sl-lvl')||{}).value);
+      var tp=parseFloat((card.querySelector('.ck-tp-lvl')||{}).value);
+      if(!isFinite(entry)||!isFinite(sl)||!isFinite(tp)||entry===sl){
+        rrEl.textContent='R:R will calculate from Entry / SL / TP';
+        rrEl.style.color='var(--text3)';
+        return;
+      }
+      var risk=Math.abs(entry-sl);
+      var reward=Math.abs(tp-entry);
+      if(risk<=0){ rrEl.textContent='Check your levels'; rrEl.style.color='var(--text3)'; return; }
+      var rr=reward/risk;
+      var quality = rr>=2 ? 'var(--green)' : rr>=1.5 ? '#f0b429' : 'var(--red)';
+      rrEl.innerHTML='Risk:Reward = <strong style="color:'+quality+'">1 : '+rr.toFixed(2)+'</strong>'+(rr<1.5?' · below 1.5, reconsider':rr>=2?' · solid':'');
+      rrEl.style.color='var(--text2)';
+    });
+  }
+  window.ckUpdateSimpleRR=ckUpdateSimpleRR;
 
   function ckGetActiveBtn(rowId){
     var row=document.getElementById(rowId);if(!row)return'';
@@ -32586,17 +32694,107 @@ window.toggleSidebar = function(){
     return (ckData&&ckData.selectedPairs)||[];
   }
 
+  // ── Cockpit methodology preset ──
+  // 'wwa' = full WWA/SMC analysis board (default for WWA community)
+  // 'simple' = lightweight board for any trader (bias, entry/SL/TP, R:R, free-form confluences, psychology)
+  var CK_PRESET_KEY = 'tq_ck_preset';
+  function ckGetPreset(){
+    try{ return rfxGet(CK_PRESET_KEY) || 'wwa'; }catch(e){ return 'wwa'; }
+  }
+  function ckSetPreset(preset){
+    try{ rfxSet(CK_PRESET_KEY, preset); }catch(e){}
+    ckRenderBoards();
+    var sel = document.getElementById('ck-preset-select');
+    if(sel) sel.value = preset;
+  }
+  window.ckGetPreset = ckGetPreset;
+  window.ckSetPreset = ckSetPreset;
+
   function ckRenderBoards(){
     var container=document.getElementById('ck-boards');if(!container)return;
     var pairs=ckGetSelectedPairs();
     if(!ckData)ckData=ckLoad()||{date:new Date().toISOString().slice(0,10),session:'',notes:'',pairs:{},roadmaps:[]};
     if(pairs.length===0){container.innerHTML='<div class="ck-card" style="text-align:center;padding:40px;color:var(--text3)">Select pairs above to start your analysis</div>';return;}
 
-    var poiItems=['Extreme','Decisional','S2D','D2S','Consumed POI','POI structural relevance','POI ran previous liquidity'];
-    var liqItems=['SMT Block','Trendline Liquidity','Asia Sweep','Equal H/L','Imbalance','Inducement'];
-    var invItems=['EPB met','2LP too steep/flat','Outside KTW','No SMT reaction Hi/Lo','SMT POI imbalances not filled','No LTFC','Reached opposing block','Against HTF bias'];
+    var preset = ckGetPreset();
+    if(preset === 'simple'){
+      container.innerHTML = pairs.map(function(pair){ return _ckSimpleBoard(pair); }).join('');
+      if(typeof ckUpdateSimpleRR === 'function') ckUpdateSimpleRR();
+      return;
+    }
+    // Default: full WWA/SMC board
+    container.innerHTML = pairs.map(function(pair){ return _ckWwaBoard(pair, pairs); }).join('');
+  }
 
-    container.innerHTML=pairs.map(function(pair){
+  // ── Simple board — methodology-agnostic, for non-WWA traders ──
+  function _ckSimpleBoard(pair){
+    var p = ckData.pairs[pair] || {};
+    var h = '<div class="ck-pair-card ck-card-enter" data-pair="'+pair+'">';
+    h += '<div class="ck-pair-title"><span class="ck-pair-dot"></span>'+pair+'</div>';
+
+    // Bias + Trend
+    h += '<div class="ck-section"><div class="ck-sec-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>BIAS</div>';
+    h += '<div class="ck-grid-2">';
+    h += '<div><div class="ck-mini-label">Direction</div><div class="tq-row-gap-6">';
+    h += '<button class="ck-btn-sm ck-bias-btn'+(p.dailyBias==='Bullish'?' on-green':'')+'" data-val="Bullish" onclick="ckTogSm(this)">&#9650; Long</button>';
+    h += '<button class="ck-btn-sm ck-bias-btn'+(p.dailyBias==='Bearish'?' on-red':'')+'" data-val="Bearish" onclick="ckTogSm(this)">&#9660; Short</button>';
+    h += '<button class="ck-btn-sm ck-bias-btn'+(p.dailyBias==='Neutral'?' on':'')+'" data-val="Neutral" onclick="ckTogSm(this)">Neutral</button>';
+    h += '</div></div>';
+    h += '<div><div class="ck-mini-label">Trend Alignment</div><div class="tq-row-gap-6">';
+    h += '<button class="ck-btn-sm ck-ta-btn'+(p.trendAlign==='Pro Trend'?' on-green':'')+'" data-val="Pro Trend" onclick="ckTogSm(this)">With Trend</button>';
+    h += '<button class="ck-btn-sm ck-ta-btn'+(p.trendAlign==='Counter Trend'?' on-red':'')+'" data-val="Counter Trend" onclick="ckTogSm(this)">Counter</button>';
+    h += '</div></div>';
+    h += '</div></div>';
+
+    // Trade levels
+    h += '<div class="ck-section"><div class="ck-sec-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/></svg>TRADE LEVELS</div>';
+    h += '<div class="ck-grid-3">';
+    h += '<div><div class="ck-mini-label">Entry</div><input class="ck-input ck-entry-lvl" placeholder="0.00000" value="'+(p.entryLevel||'')+'" oninput="ckAutoSave()"></div>';
+    h += '<div><div class="ck-mini-label">Stop Loss</div><input class="ck-input ck-sl-lvl" placeholder="0.00000" value="'+(p.slLevel||'')+'" oninput="ckAutoSave()"></div>';
+    h += '<div><div class="ck-mini-label">Take Profit</div><input class="ck-input ck-tp-lvl" placeholder="0.00000" value="'+(p.tpLevel||'')+'" oninput="ckAutoSave()"></div>';
+    h += '</div>';
+    // Auto R:R display
+    h += '<div id="ck-rr-'+pair+'" style="font-size:11px;color:var(--text3);margin-top:8px">R:R will calculate from Entry / SL / TP</div>';
+    h += '</div>';
+
+    // Confluences — free-form, comma separated
+    h += '<div class="ck-section"><div class="ck-sec-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>CONFLUENCES <span style="font-weight:400;color:var(--text3);text-transform:none;font-size:10px">— what lines up for this trade</span></div>';
+    h += '<textarea class="ck-ta ck-conf-free" placeholder="e.g. Support level, bullish divergence, trendline retest, RSI oversold..." style="min-height:50px" oninput="ckAutoSave()">'+(p.confluencesFree||'')+'</textarea>';
+    h += '</div>';
+
+    // Setup decision + Psychology
+    h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">';
+    h += '<div class="ck-section"><div class="ck-sec-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>DECISION</div>';
+    h += '<div style="display:flex;gap:6px">';
+    h += '<button class="ck-btn-sm ck-setup-btn'+(p.setupType==='Take'?' on-green':'')+'" data-val="Take" onclick="ckTogSm(this)" style="flex:1">&#10003; Take</button>';
+    h += '<button class="ck-btn-sm ck-setup-btn'+(p.setupType==='Watch'?' on':'')+'" data-val="Watch" onclick="ckTogSm(this)" style="flex:1">&#128064; Watch</button>';
+    h += '<button class="ck-btn-sm ck-setup-btn'+(p.setupType==='No Trade'?' on-red':'')+'" data-val="No Trade" onclick="ckTogSm(this)" style="flex:1">&#10005; Skip</button>';
+    h += '</div></div>';
+    var psychItems=['Calm','Focused','Confident','Anxious','FOMO','Revenge','Frustrated','Tired'];
+    h += '<div class="ck-section"><div class="ck-sec-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>PSYCHOLOGY</div>';
+    h += '<div style="display:flex;flex-wrap:wrap;gap:4px">';
+    psychItems.forEach(function(v){var on=p.prePsych&&p.prePsych.indexOf(v)>=0;h+='<button class="ck-pill ck-psych-pill'+(on?' on':'')+'" data-val="'+v+'" onclick="ckTogPill(this)">'+v+'</button>';});
+    h += '</div></div>';
+    h += '</div>';
+
+    // Narrative
+    h += '<div class="ck-section" style="margin-top:12px"><div class="ck-sec-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>PLAN / NARRATIVE</div>';
+    h += '<textarea class="ck-ta ck-narr-ta" placeholder="Describe your plan: why this trade, where you enter, what invalidates it..." style="min-height:50px" oninput="ckAutoSave()">'+(p.narrative||'')+'</textarea>';
+    h += '</div>';
+
+    // Take trade
+    h += '<div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border);display:flex;justify-content:flex-end">';
+    h += '<button class="ck-take-trade-btn" onclick="ckTakeTrade(\''+pair+'\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Take Trade on '+pair+'</button>';
+    h += '</div>';
+
+    h += '</div>';
+    return h;
+  }
+
+  function _ckWwaBoard(pair, pairs){
+      var poiItems=['Extreme','Decisional','S2D','D2S','Consumed POI','POI structural relevance','POI ran previous liquidity'];
+      var liqItems=['SMT Block','Trendline Liquidity','Asia Sweep','Equal H/L','Imbalance','Inducement'];
+      var invItems=['EPB met','2LP too steep/flat','Outside KTW','No SMT reaction Hi/Lo','SMT POI imbalances not filled','No LTFC','Reached opposing block','Against HTF bias'];
       var p=ckData.pairs[pair]||{};
       var h='<div class="ck-pair-card ck-card-enter" data-pair="'+pair+'" style="animation-delay:'+(pairs.indexOf(pair)*0.08)+'s">';
       h+='<div class="ck-pair-title"><span class="ck-pair-dot"></span>'+pair+'</div>';
@@ -32747,7 +32945,6 @@ window.toggleSidebar = function(){
 
       h+='</div>';
       return h;
-    }).join('');
   }
 
   function ckRender(){
@@ -32788,6 +32985,9 @@ window.toggleSidebar = function(){
     if(typeof apRender==='function') apRender();
     // Render pre-trade checklist
     if(typeof ckRenderChecklist==='function') ckRenderChecklist();
+    // Sync methodology preset selector to saved value
+    var presetSel = document.getElementById('ck-preset-select');
+    if(presetSel && typeof ckGetPreset==='function') presetSel.value = ckGetPreset();
   }
   window.ckRender=ckRender;
 
@@ -32917,11 +33117,19 @@ window.toggleSidebar = function(){
     var tradesForPnl = (typeof _mcFilterTradesByPeriod === 'function') ? _mcFilterTradesByPeriod(trades) : trades;
 
     propAccs.forEach(function(a){
-      var startBal = parseFloat(a.startingBalance || a.balance) || 0;
+      var sp = (typeof accGetStartingPoint==='function') ? accGetStartingPoint(a) : null;
+      var startBal = (sp && sp.balance > 0) ? sp.balance : (parseFloat(a.startingBalance || a.balance) || 0);
       totalFunded += startBal;
-      // P&L respects time period filter
-      var accTradesPeriod = tradesForPnl.filter(function(t){ return t.account === a.id; });
-      var accPnl = accTradesPeriod.reduce(function(s,t){ return s + (parseFloat(t.pnl)||0); }, 0);
+      // P&L respects time period filter AND reset date
+      var accTradesPeriod = tradesForPnl.filter(function(t){
+        if(t.account !== a.id) return false;
+        if(sp && sp.since){
+          var tdt = (t.date||'') + 'T' + (t.entryTime||'00:00');
+          if(tdt < sp.since) return false;
+        }
+        return true;
+      });
+      var accPnl = accTradesPeriod.reduce(function(s,t){ return s + (typeof tqConvertTradePnl==='function'?tqConvertTradePnl(t):(parseFloat(t.pnl)||0)); }, 0);
       totalPnl += accPnl;
 
       // Rule status ALWAYS uses all-time data (DD is cumulative, not period-based)
@@ -33278,9 +33486,10 @@ window.toggleSidebar = function(){
     propTrades.forEach(function(t){
       var s = t.setup || 'Untagged';
       if(!bySetup[s]) bySetup[s] = {pnl:0, count:0, wins:0};
-      bySetup[s].pnl += (parseFloat(t.pnl)||0);
+      var _p1=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(t):(parseFloat(t.pnl)||0);
+      bySetup[s].pnl += _p1;
       bySetup[s].count++;
-      if((parseFloat(t.pnl)||0) > 0) bySetup[s].wins++;
+      if(_p1 > 0) bySetup[s].wins++;
     });
     var setupRanked = Object.keys(bySetup).filter(function(s){return bySetup[s].count >= 2;})
       .sort(function(a,b){return bySetup[b].pnl - bySetup[a].pnl;});
@@ -33291,9 +33500,10 @@ window.toggleSidebar = function(){
       var acc = accById[t.account];
       var firm = (acc && acc.propFirm) ? acc.propFirm : (acc ? acc.name : 'Unknown');
       if(!byFirm[firm]) byFirm[firm] = {pnl:0, count:0, wins:0};
-      byFirm[firm].pnl += (parseFloat(t.pnl)||0);
+      var _p2=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(t):(parseFloat(t.pnl)||0);
+      byFirm[firm].pnl += _p2;
       byFirm[firm].count++;
-      if((parseFloat(t.pnl)||0) > 0) byFirm[firm].wins++;
+      if(_p2 > 0) byFirm[firm].wins++;
     });
     var firmRanked = Object.keys(byFirm).sort(function(a,b){return byFirm[b].pnl - byFirm[a].pnl;});
 
@@ -33305,9 +33515,10 @@ window.toggleSidebar = function(){
       var setup = t.setup || 'Untagged';
       var key = setup + '|||' + firm;
       if(!matrix[key]) matrix[key] = {setup:setup, firm:firm, pnl:0, count:0, wins:0};
-      matrix[key].pnl += (parseFloat(t.pnl)||0);
+      var _p3=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(t):(parseFloat(t.pnl)||0);
+      matrix[key].pnl += _p3;
       matrix[key].count++;
-      if((parseFloat(t.pnl)||0) > 0) matrix[key].wins++;
+      if(_p3 > 0) matrix[key].wins++;
     });
     var combos = Object.keys(matrix).map(function(k){return matrix[k];}).filter(function(c){return c.count >= 2;});
     var bestCombo = combos.slice().sort(function(a,b){return b.pnl - a.pnl;})[0];
@@ -33596,18 +33807,20 @@ window.toggleSidebar = function(){
     recentTrades.forEach(function(t){
       var s = t.setup || 'Untagged';
       if(!setupStats[s]) setupStats[s] = {count:0, wins:0, pnl:0};
+      var _p4=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(t):(parseFloat(t.pnl)||0);
       setupStats[s].count++;
-      setupStats[s].pnl += (parseFloat(t.pnl)||0);
-      if((parseFloat(t.pnl)||0) > 0) setupStats[s].wins++;
+      setupStats[s].pnl += _p4;
+      if(_p4 > 0) setupStats[s].wins++;
     });
     // By day of week
     var dowStats = [0,0,0,0,0,0,0].map(function(){return {count:0,wins:0,pnl:0};});
     recentTrades.forEach(function(t){
       if(!t.date) return;
       var d = new Date(t.date).getDay();
+      var _p5=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(t):(parseFloat(t.pnl)||0);
       dowStats[d].count++;
-      dowStats[d].pnl += (parseFloat(t.pnl)||0);
-      if((parseFloat(t.pnl)||0) > 0) dowStats[d].wins++;
+      dowStats[d].pnl += _p5;
+      if(_p5 > 0) dowStats[d].wins++;
     });
 
     var prompt = 'You are a Risk Officer for a prop firm trader. Analyze the following data and generate 3-5 concise, actionable insights.\n\n' +
@@ -34515,7 +34728,7 @@ window.toggleSidebar = function(){
         wrEl.textContent = '—';
         wrEl.className = 'ck-perf-stat-val';
       } else {
-        var wins = trades.filter(function(t) { return tqConvertTradePnl(t) > 0; }).length;
+        var wins = trades.filter(function(t) { return tqConvertTradePnl(t) > 1; }).length;
         var wr = Math.round(wins / trades.length * 100);
         wrEl.textContent = wr + '%';
         wrEl.className = 'ck-perf-stat-val';
@@ -36157,6 +36370,24 @@ window.toggleSidebar = function(){
     var selAcc = filter ? filter.value : 'all';
     var filtered = selAcc === 'all' ? all : all.filter(function(t){ return t.account === selAcc; });
 
+    // Apply reset filter — same logic as dashRenderTiles, keeps all dashboard widgets in sync
+    try{
+      var _accsForReset = JSON.parse(rfxGet('rf_accounts')||'[]');
+      var _resetMap = {};
+      _accsForReset.forEach(function(a){
+        var sp = (typeof accGetStartingPoint==='function') ? accGetStartingPoint(a) : null;
+        if(sp && sp.since) _resetMap[a.id] = sp.since;
+      });
+      if(Object.keys(_resetMap).length){
+        filtered = filtered.filter(function(t){
+          var since = _resetMap[t.account];
+          if(!since) return true;
+          var tdt = (t.date||'') + 'T' + (t.entryTime||'00:00');
+          return tdt >= since;
+        });
+      }
+    }catch(e){}
+
     // Period filter
     var trades = filterByPeriod(filtered, _dashPeriod);
 
@@ -36172,9 +36403,9 @@ window.toggleSidebar = function(){
       return;
     }
 
-    // Core stats
-    var wins = trades.filter(function(t){ return t.pnl > 0; });
-    var losses = trades.filter(function(t){ return t.pnl < 0; });
+    // Core stats — use converted P&L (commission+swap) with $1 BE threshold, matching Journal/tqMetrics
+    var wins = trades.filter(function(t){ return tqConvertTradePnl(t) > 1; });
+    var losses = trades.filter(function(t){ return tqConvertTradePnl(t) < -1; });
     var netPnl = trades.reduce(function(s,t){return s+tqConvertTradePnl(t);}, 0);
     var grossWin = wins.reduce(function(s,t){return s+tqConvertTradePnl(t);}, 0);
     var grossLoss = Math.abs(losses.reduce(function(s,t){return s+tqConvertTradePnl(t);}, 0));
@@ -36191,7 +36422,7 @@ window.toggleSidebar = function(){
       var d = t.date||t.closeDate||'';
       if (!d) return;
       if (!byDay[d]) byDay[d] = 0;
-      byDay[d] += t.pnl||0;
+      byDay[d] += (typeof tqConvertTradePnl==='function')?tqConvertTradePnl(t):(t.pnl||0);
       tradesByDay[d] = (tradesByDay[d] || 0) + 1;
     });
     var days = Object.values(byDay);
@@ -36201,7 +36432,7 @@ window.toggleSidebar = function(){
     var dayWR = days.length > 0 ? winDays/days.length*100 : 0;
 
     // Extra stats
-    var be = trades.filter(function(t){ return Math.abs(tqConvertTradePnl(t)) < 0.01; }).length;
+    var be = trades.filter(function(t){ return Math.abs(tqConvertTradePnl(t)) <= 1; }).length;
     var realWins = wins.length; var realLosses = losses.length;
     var totalLots = trades.reduce(function(s,t){ return s+(t.lots||0); },0);
     var tradingDays = Object.keys(byDay).length;
@@ -36624,8 +36855,8 @@ window.toggleSidebar = function(){
       recentEl.innerHTML = recent.map(function(t) {
         // Use currency-converted P&L for accuracy across multi-currency accounts (May 2026 fix)
         var pn = (typeof tqConvertTradePnl==='function') ? tqConvertTradePnl(t) : (parseFloat(t.pnl)||0);
-        var isWin = pn > 0;
-        var isBe = Math.abs(pn) < 0.01;
+        var isWin = pn > 1;
+        var isBe = Math.abs(pn) <= 1;
         var tag = isBe ? '<span style="font-size:10px;padding:1px 6px;background:rgba(255,255,255,.08);color:var(--text3);border-radius:4px;font-family:Inter,sans-serif">BE</span>'
                 : isWin ? '<span style="font-size:10px;padding:1px 6px;background:rgba(29,233,182,.15);color:var(--green);border-radius:4px;font-family:Inter,sans-serif">WIN</span>'
                 : '<span style="font-size:10px;padding:1px 6px;background:rgba(239,68,68,.15);color:var(--red);border-radius:4px;font-family:Inter,sans-serif">LOSS</span>';
@@ -37284,7 +37515,11 @@ window.toggleSidebar = function(){
   function _dashStartingBalance(){
     try{
       var accs = JSON.parse(rfxGet('rf_accounts')||'[]').filter(function(a){return a&&!a.deleted;});
-      var sb=0; accs.forEach(function(a){ sb+=parseFloat(a.startingBalance||a.balance)||0; });
+      var sb=0; accs.forEach(function(a){
+        // Use reset-adjusted starting balance when a reset is active (Jun 2026)
+        var sp = (typeof accGetStartingPoint==='function') ? accGetStartingPoint(a) : null;
+        sb += (sp && sp.balance > 0) ? sp.balance : (parseFloat(a.startingBalance||a.balance)||0);
+      });
       return sb || 10000;
     }catch(e){ return 10000; }
   }
@@ -37360,7 +37595,7 @@ window.toggleSidebar = function(){
         var w=0,l=0,b=0;
         t.forEach(function(x){
           var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0);
-          if(Math.abs(p)<.01)b++;else if(p>0)w++;else l++;
+          if(Math.abs(p)<=1)b++;else if(p>1)w++;else l++;
         });
         var pct=t.length?(w/t.length*100):0;
         var ratio = (w+l)>0 ? Math.round(w/(w+l)*10) : 0;
@@ -37387,7 +37622,7 @@ window.toggleSidebar = function(){
         var gw=0,gl=0;
         t.forEach(function(x){
           var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0);
-          if(p>0)gw+=p;else if(p<0)gl+=Math.abs(p);
+          if(p>1)gw+=p;else if(p<-1)gl+=Math.abs(p);
         });
         var pf=gl>0?gw/gl:(gw>0?Infinity:0);
         var badge = null;
@@ -37488,8 +37723,8 @@ window.toggleSidebar = function(){
         var streak=0,type=null;
         for(var i=0;i<sorted.length;i++){
           var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(sorted[i]):(parseFloat(sorted[i].pnl)||0);
-          if(Math.abs(p)<.01) continue;
-          var ty=p>0?'W':'L';
+          if(Math.abs(p)<=1) continue;
+          var ty=p>1?'W':'L';
           if(type===null){type=ty;streak=1;}
           else if(ty===type)streak++;
           else break;
@@ -37576,7 +37811,7 @@ window.toggleSidebar = function(){
         var wins=[],ls=[];
         t.forEach(function(x){
           var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0);
-          if(p>0)wins.push(p); else if(p<0)ls.push(Math.abs(p));
+          if(p>1)wins.push(p); else if(p<-1)ls.push(Math.abs(p));
         });
         if(!wins.length||!ls.length) return {value:'—', foot:'need W and L'};
         var aw=wins.reduce(function(a,b){return a+b;},0)/wins.length;
@@ -38975,8 +39210,8 @@ window.toggleSidebar = function(){
         trades.forEach(function(t){
           var p = _pnlOf(t);
           net += p;
-          if(Math.abs(p)<0.01) bes++;
-          else if(p>0) wins++;
+          if(Math.abs(p)<=1) bes++;
+          else if(p>1) wins++;
           else losses++;
         });
         var total = trades.length;
@@ -39494,7 +39729,7 @@ window.toggleSidebar = function(){
       var d = (t.date||'').replace(/\./g,'-');
       if (!d) return;
       if (!pnlMap[d]) pnlMap[d] = 0;
-      pnlMap[d] += parseFloat(t.pnl)||0;
+      pnlMap[d] += (typeof tqConvertTradePnl==='function')?tqConvertTradePnl(t):(parseFloat(t.pnl)||0);
     });
 
     var firstDay = new Date(year, month, 1).getDay();
