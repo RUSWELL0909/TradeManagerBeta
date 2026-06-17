@@ -5791,9 +5791,9 @@ window.toggleSidebar = function(){
           <div style="font-size:10px;color:var(--text3);margin-top:1px">Pick the layout that matches how you trade</div>
         </div>
       </div>
-      <select id="ck-preset-select" class="ck-input" style="max-width:240px" onchange="ckSetPreset(this.value)">
-        <option value="wwa">WWA / SMC — full ICT analysis</option>
-        <option value="simple">Simple — bias, levels, R:R, confluences</option>
+      <select id="ck-preset-select" class="ck-input" style="max-width:170px;font-size:12px" onchange="ckSetPreset(this.value)">
+        <option value="wwa">WWA / SMC</option>
+        <option value="simple">Simple</option>
       </select>
     </div>
 
@@ -32531,7 +32531,8 @@ window.toggleSidebar = function(){
       var entryEl=card.querySelector('.ck-entry-lvl'); if(entryEl) p.entryLevel=entryEl.value||'';
       var slEl=card.querySelector('.ck-sl-lvl'); if(slEl) p.slLevel=slEl.value||'';
       var tpEl=card.querySelector('.ck-tp-lvl'); if(tpEl) p.tpLevel=tpEl.value||'';
-      var confEl=card.querySelector('.ck-conf-free'); if(confEl) p.confluencesFree=confEl.value||'';
+      var hasSimpleConf=card.querySelector('.ck-simpleconf-pill');
+      if(hasSimpleConf) p.confluences=ckGetPillsOn(card,'ck-simpleconf-');
       ckData.pairs[pair]=p;
     });
     rfxSet(CK_KEY,JSON.stringify(ckData));
@@ -32710,6 +32711,54 @@ window.toggleSidebar = function(){
   window.ckGetPreset = ckGetPreset;
   window.ckSetPreset = ckSetPreset;
 
+  // ── Editable pill lists for Simple board (user can add/remove their own tags) ──
+  var CK_SIMPLE_CONF_KEY = 'tq_ck_simple_confluences';
+  var CK_SIMPLE_PSYCH_KEY = 'tq_ck_simple_psych';
+  var CK_DEFAULT_CONFLUENCES = ['Support/Resistance','Trendline','Supply/Demand','Fibonacci','Moving Average','RSI Divergence','Volume Spike','Breakout','Retest','Round Number'];
+  var CK_DEFAULT_PSYCH = ['Calm','Focused','Confident','Anxious','FOMO','Revenge','Frustrated','Tired'];
+
+  function ckGetSimpleList(which){
+    var key = which==='psych' ? CK_SIMPLE_PSYCH_KEY : CK_SIMPLE_CONF_KEY;
+    var def = which==='psych' ? CK_DEFAULT_PSYCH : CK_DEFAULT_CONFLUENCES;
+    var stored = rfxGetJSON(key, null);
+    if(stored && Array.isArray(stored)) return stored;
+    return def.slice();
+  }
+  function ckSaveSimpleList(which, list){
+    var key = which==='psych' ? CK_SIMPLE_PSYCH_KEY : CK_SIMPLE_CONF_KEY;
+    rfxSet(key, JSON.stringify(list));
+    if(typeof tqPushCockpit==='function') try{ tqPushCockpit(); }catch(e){}
+  }
+  window.ckGetSimpleList = ckGetSimpleList;
+
+  window.ckAddSimpleTag = function(which){
+    var inputId = which==='psych' ? 'ck-add-psych-input' : 'ck-add-conf-input';
+    var input = document.getElementById(inputId);
+    if(!input) return;
+    var val = (input.value||'').trim();
+    if(!val) return;
+    var list = ckGetSimpleList(which);
+    if(list.indexOf(val) >= 0){ if(typeof tqToast==='function') tqToast('Already in list', {type:'info', duration:1500}); return; }
+    if(val.length > 30){ if(typeof tqToast==='function') tqToast('Tag too long (max 30 chars)', {type:'error'}); return; }
+    list.push(val);
+    ckSaveSimpleList(which, list);
+    input.value = '';
+    ckRenderBoards();
+  };
+
+  window.ckRemoveSimpleTag = function(which, tag){
+    var list = ckGetSimpleList(which).filter(function(t){ return t !== tag; });
+    ckSaveSimpleList(which, list);
+    ckRenderBoards();
+  };
+
+  // Toggle edit mode for pill lists (shows × on each pill + add input)
+  window._ckEditMode = window._ckEditMode || {conf:false, psych:false};
+  window.ckToggleEditPills = function(which){
+    window._ckEditMode[which] = !window._ckEditMode[which];
+    ckRenderBoards();
+  };
+
   function ckRenderBoards(){
     var container=document.getElementById('ck-boards');if(!container)return;
     var pairs=ckGetSelectedPairs();
@@ -32757,9 +32806,21 @@ window.toggleSidebar = function(){
     h += '<div id="ck-rr-'+pair+'" style="font-size:11px;color:var(--text3);margin-top:8px">R:R will calculate from Entry / SL / TP</div>';
     h += '</div>';
 
-    // Confluences — free-form, comma separated
-    h += '<div class="ck-section"><div class="ck-sec-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>CONFLUENCES <span style="font-weight:400;color:var(--text3);text-transform:none;font-size:10px">— what lines up for this trade</span></div>';
-    h += '<textarea class="ck-ta ck-conf-free" placeholder="e.g. Support level, bullish divergence, trendline retest, RSI oversold..." style="min-height:50px" oninput="ckAutoSave()">'+(p.confluencesFree||'')+'</textarea>';
+    // Confluences — editable pills
+    var confList = ckGetSimpleList('conf');
+    var confEdit = window._ckEditMode && window._ckEditMode.conf;
+    h += '<div class="ck-section"><div class="ck-sec-title" style="display:flex;align-items:center;justify-content:space-between"><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg> CONFLUENCES <span style="font-weight:400;color:var(--text3);text-transform:none;font-size:10px">— what lines up</span></span>';
+    h += '<button onclick="ckToggleEditPills(\'conf\')" style="background:none;border:none;color:'+(confEdit?'var(--accent)':'var(--text3)')+';cursor:pointer;font-size:14px;padding:2px 6px" title="Edit confluence tags"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>';
+    h += '</div>';
+    h += '<div style="display:flex;flex-wrap:wrap;gap:4px">';
+    confList.forEach(function(v){
+      var on = p.confluences && p.confluences.indexOf(v) >= 0;
+      h += '<button class="ck-pill ck-simpleconf-pill'+(on?' on':'')+'" data-val="'+v.replace(/"/g,'&quot;')+'" onclick="'+(confEdit?'':'ckTogPill(this)')+'" style="'+(confEdit?'cursor:default':'')+'">'+v+(confEdit?' <span onclick="event.stopPropagation();ckRemoveSimpleTag(\'conf\',\''+v.replace(/'/g,"\\'")+'\')" style="color:var(--red);margin-left:4px;cursor:pointer;font-weight:700">×</span>':'')+'</button>';
+    });
+    h += '</div>';
+    if(confEdit){
+      h += '<div style="display:flex;gap:6px;margin-top:8px"><input id="ck-add-conf-input" class="ck-input" placeholder="Add your own confluence..." style="flex:1;font-size:12px" onkeydown="if(event.key===\'Enter\'){event.preventDefault();ckAddSimpleTag(\'conf\');}"><button onclick="ckAddSimpleTag(\'conf\')" class="ck-btn-sm on" style="white-space:nowrap">+ Add</button></div>';
+    }
     h += '</div>';
 
     // Setup decision + Psychology
@@ -32770,11 +32831,21 @@ window.toggleSidebar = function(){
     h += '<button class="ck-btn-sm ck-setup-btn'+(p.setupType==='Watch'?' on':'')+'" data-val="Watch" onclick="ckTogSm(this)" style="flex:1">&#128064; Watch</button>';
     h += '<button class="ck-btn-sm ck-setup-btn'+(p.setupType==='No Trade'?' on-red':'')+'" data-val="No Trade" onclick="ckTogSm(this)" style="flex:1">&#10005; Skip</button>';
     h += '</div></div>';
-    var psychItems=['Calm','Focused','Confident','Anxious','FOMO','Revenge','Frustrated','Tired'];
-    h += '<div class="ck-section"><div class="ck-sec-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>PSYCHOLOGY</div>';
+    var psychList = ckGetSimpleList('psych');
+    var psychEdit = window._ckEditMode && window._ckEditMode.psych;
+    h += '<div class="ck-section"><div class="ck-sec-title" style="display:flex;align-items:center;justify-content:space-between"><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg> PSYCHOLOGY</span>';
+    h += '<button onclick="ckToggleEditPills(\'psych\')" style="background:none;border:none;color:'+(psychEdit?'var(--accent)':'var(--text3)')+';cursor:pointer;font-size:14px;padding:2px 6px" title="Edit psychology tags"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>';
+    h += '</div>';
     h += '<div style="display:flex;flex-wrap:wrap;gap:4px">';
-    psychItems.forEach(function(v){var on=p.prePsych&&p.prePsych.indexOf(v)>=0;h+='<button class="ck-pill ck-psych-pill'+(on?' on':'')+'" data-val="'+v+'" onclick="ckTogPill(this)">'+v+'</button>';});
-    h += '</div></div>';
+    psychList.forEach(function(v){
+      var on = p.prePsych && p.prePsych.indexOf(v) >= 0;
+      h += '<button class="ck-pill ck-psych-pill'+(on?' on':'')+'" data-val="'+v.replace(/"/g,'&quot;')+'" onclick="'+(psychEdit?'':'ckTogPill(this)')+'" style="'+(psychEdit?'cursor:default':'')+'">'+v+(psychEdit?' <span onclick="event.stopPropagation();ckRemoveSimpleTag(\'psych\',\''+v.replace(/'/g,"\\'")+'\')" style="color:var(--red);margin-left:4px;cursor:pointer;font-weight:700">×</span>':'')+'</button>';
+    });
+    h += '</div>';
+    if(psychEdit){
+      h += '<div style="display:flex;gap:6px;margin-top:8px"><input id="ck-add-psych-input" class="ck-input" placeholder="Add tag..." style="flex:1;font-size:12px" onkeydown="if(event.key===\'Enter\'){event.preventDefault();ckAddSimpleTag(\'psych\');}"><button onclick="ckAddSimpleTag(\'psych\')" class="ck-btn-sm on" style="white-space:nowrap">+ Add</button></div>';
+    }
+    h += '</div>';
     h += '</div>';
 
     // Narrative
