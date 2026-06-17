@@ -3739,6 +3739,8 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(124,90,240,.15);outlin
 .ck-take-trade-btn{display:flex;align-items:center;gap:6px;padding:10px 22px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--accent),rgba(124,90,240,.8));color:white;font-size:13px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;transition:all .2s cubic-bezier(.22,1,.36,1);box-shadow:0 4px 16px rgba(124,90,240,.15)}
 .ck-take-trade-btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(124,90,240,.25)}
 .ck-take-trade-btn:active{transform:scale(.97)}
+.ck-take-trade-btn.ck-pulse{animation:ckPulse 1.6s ease-in-out infinite;box-shadow:0 0 0 0 rgba(29,233,182,.5)}
+@keyframes ckPulse{0%{box-shadow:0 0 0 0 rgba(29,233,182,.45)}70%{box-shadow:0 0 0 10px rgba(29,233,182,0)}100%{box-shadow:0 0 0 0 rgba(29,233,182,0)}}
 .ck-top-bar{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:10px;display:flex;gap:16px;flex-wrap:wrap}
 .ck-top-section{flex:1;min-width:180px}
 .ck-label{font-size:9px;font-weight:600;color:var(--text3);letter-spacing:1px;margin-bottom:6px}
@@ -32521,8 +32523,11 @@ window.toggleSidebar = function(){
         else if(el.classList.contains('not-taken'))sw[lv]='not-taken';
       });
       p.sweeps=sw;
-      // Setup
-      p.setupType=ckGetActiveBtnIn(card,'ck-setup-');
+      // Setup — only collect from WWA board (which has ck-setup- buttons);
+      // Simple board manages setupType via ckSetDecision, don't blank it here
+      if(card.querySelector('[class*="ck-setup-"]')){
+        p.setupType=ckGetActiveBtnIn(card,'ck-setup-');
+      }
       p.narrative=(card.querySelector('.ck-narr-ta')||{}).value||'';
       // Psychology
       p.prePsych=ckGetPillsOn(card,'ck-psych-');
@@ -32537,6 +32542,7 @@ window.toggleSidebar = function(){
       var balEl=card.querySelector('.ck-acct-bal'); if(balEl) p.acctBalOverride=balEl.value||'';
       var hasSimpleConf=card.querySelector('.ck-simpleconf-pill');
       if(hasSimpleConf) p.confluences=ckGetPillsOn(card,'ck-simpleconf-');
+      var skipEl=card.querySelector('.ck-skip-note'); if(skipEl) p.skipNote=skipEl.value||'';
       ckData.pairs[pair]=p;
     });
     rfxSet(CK_KEY,JSON.stringify(ckData));
@@ -32836,8 +32842,33 @@ window.toggleSidebar = function(){
   // ── Simple board — methodology-agnostic, for non-WWA traders ──
   function _ckSimpleBoard(pair){
     var p = ckData.pairs[pair] || {};
-    var h = '<div class="ck-pair-card ck-card-enter" data-pair="'+pair+'">';
-    h += '<div class="ck-pair-title"><span class="ck-pair-dot"></span>'+pair+'</div>';
+    var decision = p.setupType || '';
+
+    // SKIPPED → collapsed compact row (with expand-back + "what if" note)
+    if(decision === 'No Trade'){
+      var h0 = '<div class="ck-pair-card ck-card-enter" data-pair="'+pair+'" style="padding:14px 20px;opacity:.65;border-style:dashed">';
+      h0 += '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px">';
+      h0 += '<div style="display:flex;align-items:center;gap:10px">';
+      h0 += '<span class="ck-pair-dot" style="background:var(--text3)"></span>';
+      h0 += '<span style="font-size:15px;font-weight:600;color:var(--text2)">'+pair+'</span>';
+      h0 += '<span style="font-size:10px;font-weight:700;background:rgba(239,68,68,.12);color:var(--red);padding:2px 8px;border-radius:5px;letter-spacing:.5px">SKIPPED</span>';
+      h0 += '</div>';
+      h0 += '<button onclick="ckSetDecision(\''+pair+'\',\'\')" style="background:none;border:1px solid var(--border);color:var(--text3);font-size:11px;padding:5px 12px;border-radius:7px;cursor:pointer">Reconsider</button>';
+      h0 += '</div>';
+      // Optional: log what the skipped setup was about (missed-trade tracking)
+      h0 += '<div style="margin-top:8px"><input class="ck-input ck-skip-note" placeholder="Why skip? (optional — track if it would have worked)" value="'+(p.skipNote||'').replace(/"/g,'&quot;')+'" oninput="ckAutoSave()" style="font-size:11px"></div>';
+      h0 += '</div>';
+      return h0;
+    }
+
+    var watching = decision === 'Watch';
+    var taking = decision === 'Take';
+    var cardBorder = watching ? 'border-color:rgba(240,180,41,.4)' : taking ? 'border-color:rgba(29,233,182,.4)' : '';
+    var h = '<div class="ck-pair-card ck-card-enter" data-pair="'+pair+'" style="'+cardBorder+'">';
+    h += '<div class="ck-pair-title" style="justify-content:space-between"><span style="display:flex;align-items:center;gap:10px"><span class="ck-pair-dot"></span>'+pair+'</span>';
+    if(watching) h += '<span style="font-size:10px;font-weight:700;background:rgba(240,180,41,.12);color:#f0b429;padding:3px 10px;border-radius:6px;letter-spacing:.5px">&#128064; WATCHING</span>';
+    else if(taking) h += '<span style="font-size:10px;font-weight:700;background:rgba(29,233,182,.12);color:var(--green);padding:3px 10px;border-radius:6px;letter-spacing:.5px">&#10003; READY TO TAKE</span>';
+    h += '</div>';
 
     // Bias + Trend
     h += '<div class="ck-section"><div class="ck-sec-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>BIAS</div>';
@@ -32891,9 +32922,9 @@ window.toggleSidebar = function(){
     h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">';
     h += '<div class="ck-section"><div class="ck-sec-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>DECISION</div>';
     h += '<div style="display:flex;gap:6px">';
-    h += '<button class="ck-btn-sm ck-setup-btn'+(p.setupType==='Take'?' on-green':'')+'" data-val="Take" onclick="ckTogSm(this)" style="flex:1">&#10003; Take</button>';
-    h += '<button class="ck-btn-sm ck-setup-btn'+(p.setupType==='Watch'?' on':'')+'" data-val="Watch" onclick="ckTogSm(this)" style="flex:1">&#128064; Watch</button>';
-    h += '<button class="ck-btn-sm ck-setup-btn'+(p.setupType==='No Trade'?' on-red':'')+'" data-val="No Trade" onclick="ckTogSm(this)" style="flex:1">&#10005; Skip</button>';
+    h += '<button class="ck-btn-sm'+(p.setupType==='Take'?' on-green':'')+'" onclick="ckSetDecision(\''+pair+'\',\'Take\')" style="flex:1">&#10003; Take</button>';
+    h += '<button class="ck-btn-sm'+(p.setupType==='Watch'?' on':'')+'" onclick="ckSetDecision(\''+pair+'\',\'Watch\')" style="flex:1">&#128064; Watch</button>';
+    h += '<button class="ck-btn-sm'+(p.setupType==='No Trade'?' on-red':'')+'" onclick="ckSetDecision(\''+pair+'\',\'No Trade\')" style="flex:1">&#10005; Skip</button>';
     h += '</div></div>';
     var psychList = ckGetSimpleList('psych');
     var psychEdit = window._ckEditMode && window._ckEditMode.psych;
@@ -32918,13 +32949,25 @@ window.toggleSidebar = function(){
     h += '</div>';
 
     // Take trade
-    h += '<div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border);display:flex;justify-content:flex-end">';
-    h += '<button class="ck-take-trade-btn" onclick="ckTakeTrade(\''+pair+'\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Take Trade on '+pair+'</button>';
+    h += '<div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;align-items:center;gap:10px">';
+    if(taking) h += '<span style="font-size:11px;color:var(--green)">&#8594; You marked this Take — log it</span>';
+    h += '<button class="ck-take-trade-btn'+(taking?' ck-pulse':'')+'" onclick="ckTakeTrade(\''+pair+'\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Take Trade on '+pair+'</button>';
     h += '</div>';
 
     h += '</div>';
     return h;
   }
+
+  // Set decision + re-render (handles collapse/expand for skip)
+  window.ckSetDecision = function(pair, val){
+    if(!ckData) ckData = ckLoad() || {date:new Date().toISOString().slice(0,10),session:'',notes:'',pairs:{},roadmaps:[]};
+    if(!ckData.pairs[pair]) ckData.pairs[pair] = {};
+    // Toggle off if same value clicked again
+    ckData.pairs[pair].setupType = (ckData.pairs[pair].setupType === val) ? '' : val;
+    rfxSet(CK_KEY, JSON.stringify(ckData));
+    ckRenderBoards();
+    if(typeof tqPushCockpit==='function'){ clearTimeout(window._ckSyncTimer); window._ckSyncTimer=setTimeout(function(){tqPushCockpit();},3000); }
+  };
 
   function _ckWwaBoard(pair, pairs){
       var poiItems=['Extreme','Decisional','S2D','D2S','Consumed POI','POI structural relevance','POI ran previous liquidity'];
