@@ -10741,6 +10741,35 @@ window.toggleSidebar = function(){
   }
   window.rfxGetJSON = rfxGetJSON;
 
+  // ── Universal date normalizer ──
+  // Trade dates can arrive as "2026.05.18", "2026/05/18", "18.05.2026", "2026-05-18 14:30"
+  // etc. (MT5/CSV imports vary). The calendar and day-grouping build keys as YYYY-MM-DD,
+  // so any non-dash format silently fails to match. Normalize everything to YYYY-MM-DD.
+  function tqNormalizeDate(d){
+    if(!d) return '';
+    var s = String(d).trim();
+    // Strip time portion (after space or T)
+    s = s.split(/[\sT]/)[0];
+    // Already YYYY-MM-DD
+    if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+    // YYYY.MM.DD or YYYY/MM/DD
+    var ymd = s.match(/^(\d{4})[./](\d{1,2})[./](\d{1,2})$/);
+    if(ymd){ return ymd[1] + '-' + (ymd[2].length<2?'0':'')+ymd[2] + '-' + (ymd[3].length<2?'0':'')+ymd[3]; }
+    // DD.MM.YYYY or DD/MM/YYYY or DD-MM-YYYY
+    var dmy = s.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/);
+    if(dmy){
+      var d1=parseInt(dmy[1]), d2=parseInt(dmy[2]), yr=dmy[3];
+      var day, mon;
+      if(d1>12){ day=d1; mon=d2; } else if(d2>12){ mon=d1; day=d2; } else { day=d1; mon=d2; }
+      return yr + '-' + (mon<10?'0':'')+mon + '-' + (day<10?'0':'')+day;
+    }
+    // Fallback: let Date try, else return original
+    var dt = new Date(s);
+    if(!isNaN(dt.getTime())) return dt.toISOString().slice(0,10);
+    return s;
+  }
+  window.tqNormalizeDate = tqNormalizeDate;
+
   // ── Universal metric helpers — used everywhere to keep numbers consistent ──
   // Profit Factor: returns null when undefined (no losses), so callers can render
   // "—" or "∞" instead of inconsistent 0/999 fallbacks across the app.
@@ -19929,7 +19958,7 @@ window.toggleSidebar = function(){
   // ══ END SNAPSHOT VIEWER MODULE ══
 
   // ── VERSION RESET: Clear stale data from previous versions ──
-  var _TQ_VERSION = 'v16';
+  var _TQ_VERSION = 'v17';
   if(rfxGet('tq_version') !== _TQ_VERSION){
     try{
       var _mTrades = JSON.parse(rfxGet('rf_trades')||'[]');
@@ -19937,18 +19966,14 @@ window.toggleSidebar = function(){
       _mTrades.forEach(function(t){
         if(t.time && !t.entryTime){ t.entryTime = t.time; _migrated = true; }
         if(t.symbol && !t.pair){ t.pair = t.symbol; _migrated = true; }
-        // Fix DD-MM-YYYY dates → YYYY-MM-DD
-        if(t.date){
-          var p=t.date.split('-');
-          if(p.length===3 && p[0].length<=2 && p[2].length===4){
-            t.date=p[2]+'-'+p[1]+'-'+p[0]; _migrated=true;
-          }
+        // Normalize any date format (dots, slashes, DD-MM-YYYY) → YYYY-MM-DD
+        if(t.date && typeof tqNormalizeDate==='function'){
+          var nd = tqNormalizeDate(t.date);
+          if(nd && nd !== t.date){ t.date = nd; _migrated = true; }
         }
-        if(t.closeDate){
-          var p2=t.closeDate.split('-');
-          if(p2.length===3 && p2[0].length<=2 && p2[2].length===4){
-            t.closeDate=p2[2]+'-'+p2[1]+'-'+p2[0]; _migrated=true;
-          }
+        if(t.closeDate && typeof tqNormalizeDate==='function'){
+          var ncd = tqNormalizeDate(t.closeDate);
+          if(ncd && ncd !== t.closeDate){ t.closeDate = ncd; _migrated = true; }
         }
       });
       if(_migrated) rfxSet('rf_trades', JSON.stringify(_mTrades));
@@ -28059,7 +28084,7 @@ window.toggleSidebar = function(){
 
         trades.push({
           id:'tr_imp_'+Date.now()+'_'+i+'_'+Math.random().toString(36).slice(2,5),
-          date:dateVal,
+          date:(typeof tqNormalizeDate==='function'?tqNormalizeDate(dateVal):dateVal),
           pair:pairVal,
           account: forcedAccount || col('account'),
           // Snapshot account currency at import — historical record stays correct
@@ -36803,7 +36828,7 @@ window.toggleSidebar = function(){
     var byDay = {};
     var tradesByDay = {};
     trades.forEach(function(t){
-      var d = t.date||t.closeDate||'';
+      var d = tqNormalizeDate(t.date||t.closeDate||'');
       if (!d) return;
       if (!byDay[d]) byDay[d] = 0;
       byDay[d] += (typeof tqConvertTradePnl==='function')?tqConvertTradePnl(t):(t.pnl||0);
