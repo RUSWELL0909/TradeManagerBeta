@@ -5795,10 +5795,15 @@ window.toggleSidebar = function(){
           <div style="font-size:10px;color:var(--text3);margin-top:1px">Pick the layout that matches how you trade</div>
         </div>
       </div>
-      <select id="ck-preset-select" class="ck-input" style="max-width:170px;font-size:12px" onchange="ckSetPreset(this.value)">
-        <option value="wwa">WWA / SMC</option>
-        <option value="simple">Simple</option>
-      </select>
+      <div style="display:flex;align-items:center;gap:8px">
+        <select id="ck-preset-select" class="ck-input" style="max-width:170px;font-size:12px" onchange="ckSetPreset(this.value)">
+          <option value="wwa">WWA / SMC</option>
+          <option value="simple">Simple</option>
+          <option value="__new__">+ New preset…</option>
+        </select>
+        <button id="ck-preset-rename" onclick="var cp=ckActiveCustomPreset();if(cp)ckRenameCustomPreset(cp.id);" title="Rename this preset" style="display:none;background:none;border:1px solid var(--border);color:var(--text3);padding:6px 8px;border-radius:7px;cursor:pointer"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        <button id="ck-preset-delete" onclick="var cp=ckActiveCustomPreset();if(cp&&confirm('Delete preset \''+cp.name+'\'? Your trades are not affected.'))ckDeleteCustomPreset(cp.id);" title="Delete this preset" style="display:none;background:none;border:1px solid var(--border);color:var(--text3);padding:6px 8px;border-radius:7px;cursor:pointer"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button>
+      </div>
     </div>
 
     <!-- SESSION + PAIR SELECTOR -->
@@ -6641,7 +6646,7 @@ window.toggleSidebar = function(){
         </div>
 
         <!-- DIRECTION & STRUCTURE -->
-        <div class="jr-group">
+        <div class="jr-group" id="jr-direction-group">
           <div class="jr-group-title">Direction</div>
           <div class="jr-row" style="margin-bottom:10px">
             <div class="jr-field"><label class="jr-label">DAILY BIAS <span style="color:var(--text3);font-weight:400;text-transform:none">Previous Daily Candle Close</span></label>
@@ -25525,9 +25530,10 @@ window.toggleSidebar = function(){
       document.getElementById('jr-date').value = new Date().toISOString().slice(0,10);
       jrSetDir('buy');
     }
+    // Reset Direction group visibility (Cockpit-simple path may hide it later)
+    var _dirGrp = document.getElementById('jr-direction-group');
+    if(_dirGrp) _dirGrp.style.display = '';
     document.getElementById('jr-modal').classList.add('open');
-    // Render custom tags
-    if(!jrEditId) jrRenderCustomTags([]);
     // Render tag categories
     if(!jrEditId && typeof jrRenderTagCats === 'function') jrRenderTagCats({});
     // Apply current methodology preset to LTF/POI/Models grids (May 2026)
@@ -32760,20 +32766,107 @@ window.toggleSidebar = function(){
   }
 
   // ── Cockpit methodology preset ──
-  // 'wwa' = full WWA/SMC analysis board (default for WWA community)
-  // 'simple' = lightweight board for any trader (bias, entry/SL/TP, R:R, free-form confluences, psychology)
+  // Built-in: 'wwa' (full WWA/SMC board), 'simple' (lightweight board).
+  // Custom presets are simple-board-based with their own confluence/psych tag sets.
   var CK_PRESET_KEY = 'tq_ck_preset';
+  var CK_CUSTOM_PRESETS_KEY = 'tq_ck_custom_presets';
+
+  function ckGetCustomPresets(){
+    var arr = rfxGetJSON(CK_CUSTOM_PRESETS_KEY, []);
+    return Array.isArray(arr) ? arr : [];
+  }
+  function ckSaveCustomPresets(arr){
+    rfxSet(CK_CUSTOM_PRESETS_KEY, JSON.stringify(arr));
+    if(typeof tqPushCockpit==='function') try{ tqPushCockpit(); }catch(e){}
+  }
+  window.ckGetCustomPresets = ckGetCustomPresets;
+
   function ckGetPreset(){
     try{ return rfxGet(CK_PRESET_KEY) || 'wwa'; }catch(e){ return 'wwa'; }
   }
   function ckSetPreset(preset){
+    if(preset === '__new__'){ ckCreateCustomPreset(); return; }
     try{ rfxSet(CK_PRESET_KEY, preset); }catch(e){}
     ckRenderBoards();
-    var sel = document.getElementById('ck-preset-select');
-    if(sel) sel.value = preset;
+    ckRefreshPresetSelector();
   }
   window.ckGetPreset = ckGetPreset;
   window.ckSetPreset = ckSetPreset;
+
+  // Is the active preset a custom one? Returns the preset object or null.
+  function ckActiveCustomPreset(){
+    var id = ckGetPreset();
+    if(id === 'wwa' || id === 'simple') return null;
+    return ckGetCustomPresets().find(function(p){ return p.id === id; }) || null;
+  }
+  window.ckActiveCustomPreset = ckActiveCustomPreset;
+
+  // Rebuild the preset <select> options (built-ins + custom + "New")
+  function ckRefreshPresetSelector(){
+    var sel = document.getElementById('ck-preset-select');
+    if(!sel) return;
+    var active = ckGetPreset();
+    var custom = ckGetCustomPresets();
+    var opts = '<option value="wwa">WWA / SMC</option><option value="simple">Simple</option>';
+    custom.forEach(function(p){
+      opts += '<option value="'+p.id+'">'+String(p.name||'Custom').replace(/</g,'&lt;')+'</option>';
+    });
+    opts += '<option value="__new__">+ New preset…</option>';
+    sel.innerHTML = opts;
+    sel.value = (active==='__new__') ? 'wwa' : active;
+    // Show rename/delete only for custom presets
+    var isCustom = active !== 'wwa' && active !== 'simple';
+    var renameBtn = document.getElementById('ck-preset-rename');
+    var deleteBtn = document.getElementById('ck-preset-delete');
+    if(renameBtn) renameBtn.style.display = isCustom ? '' : 'none';
+    if(deleteBtn) deleteBtn.style.display = isCustom ? '' : 'none';
+  }
+  window.ckRefreshPresetSelector = ckRefreshPresetSelector;
+
+  function ckCreateCustomPreset(){
+    var name = prompt('Name your preset (e.g. "Scalping", "Swing"):', '');
+    if(name === null){ ckRefreshPresetSelector(); return; } // cancelled — restore selector
+    name = name.trim();
+    if(!name){ ckRefreshPresetSelector(); return; }
+    var id = 'ckp_' + Date.now();
+    var presets = ckGetCustomPresets();
+    // Seed with the default Simple tag sets so it's usable immediately
+    presets.push({
+      id: id,
+      name: name.slice(0,30),
+      confluences: CK_DEFAULT_CONFLUENCES.slice(),
+      psych: CK_DEFAULT_PSYCH.slice()
+    });
+    ckSaveCustomPresets(presets);
+    try{ rfxSet(CK_PRESET_KEY, id); }catch(e){}
+    ckRefreshPresetSelector();
+    ckRenderBoards();
+    if(typeof tqToast==='function') tqToast('Preset "'+name+'" created', {type:'success'});
+  }
+  window.ckCreateCustomPreset = ckCreateCustomPreset;
+
+  window.ckDeleteCustomPreset = function(id){
+    var presets = ckGetCustomPresets().filter(function(p){ return p.id !== id; });
+    ckSaveCustomPresets(presets);
+    if(ckGetPreset() === id){ try{ rfxSet(CK_PRESET_KEY, 'simple'); }catch(e){} }
+    ckRefreshPresetSelector();
+    ckRenderBoards();
+    if(typeof tqToast==='function') tqToast('Preset deleted', {type:'info', duration:1500});
+  };
+
+  window.ckRenameCustomPreset = function(id){
+    var presets = ckGetCustomPresets();
+    var p = presets.find(function(x){ return x.id === id; });
+    if(!p) return;
+    var name = prompt('Rename preset:', p.name||'');
+    if(name === null) return;
+    name = name.trim();
+    if(!name) return;
+    p.name = name.slice(0,30);
+    ckSaveCustomPresets(presets);
+    ckRefreshPresetSelector();
+    ckRenderBoards();
+  };
 
   // ── Editable pill lists for Simple board (user can add/remove their own tags) ──
   var CK_SIMPLE_CONF_KEY = 'tq_ck_simple_confluences';
@@ -32782,6 +32875,12 @@ window.toggleSidebar = function(){
   var CK_DEFAULT_PSYCH = ['Calm','Focused','Confident','Anxious','FOMO','Revenge','Frustrated','Tired'];
 
   function ckGetSimpleList(which){
+    // If a custom preset is active, use its own tag set
+    var cp = (typeof ckActiveCustomPreset==='function') ? ckActiveCustomPreset() : null;
+    if(cp){
+      var list = which==='psych' ? cp.psych : cp.confluences;
+      if(Array.isArray(list)) return list;
+    }
     var key = which==='psych' ? CK_SIMPLE_PSYCH_KEY : CK_SIMPLE_CONF_KEY;
     var def = which==='psych' ? CK_DEFAULT_PSYCH : CK_DEFAULT_CONFLUENCES;
     var stored = rfxGetJSON(key, null);
@@ -32789,6 +32888,17 @@ window.toggleSidebar = function(){
     return def.slice();
   }
   function ckSaveSimpleList(which, list){
+    // Save into the active custom preset if one is active, else the global Simple list
+    var cp = (typeof ckActiveCustomPreset==='function') ? ckActiveCustomPreset() : null;
+    if(cp){
+      var presets = ckGetCustomPresets();
+      var target = presets.find(function(p){ return p.id === cp.id; });
+      if(target){
+        if(which==='psych') target.psych = list; else target.confluences = list;
+        ckSaveCustomPresets(presets);
+        return;
+      }
+    }
     var key = which==='psych' ? CK_SIMPLE_PSYCH_KEY : CK_SIMPLE_CONF_KEY;
     rfxSet(key, JSON.stringify(list));
     if(typeof tqPushCockpit==='function') try{ tqPushCockpit(); }catch(e){}
@@ -32830,7 +32940,8 @@ window.toggleSidebar = function(){
     if(pairs.length===0){container.innerHTML='<div class="ck-card" style="text-align:center;padding:40px;color:var(--text3)">Select pairs above to start your analysis</div>';return;}
 
     var preset = ckGetPreset();
-    if(preset === 'simple'){
+    if(preset !== 'wwa'){
+      // 'simple' and all custom presets use the simple board layout
       container.innerHTML = pairs.map(function(pair){ return _ckSimpleBoard(pair); }).join('');
       if(typeof ckUpdateSimpleRR === 'function') ckUpdateSimpleRR();
       return;
@@ -33163,9 +33274,8 @@ window.toggleSidebar = function(){
     if(typeof apRender==='function') apRender();
     // Render pre-trade checklist
     if(typeof ckRenderChecklist==='function') ckRenderChecklist();
-    // Sync methodology preset selector to saved value
-    var presetSel = document.getElementById('ck-preset-select');
-    if(presetSel && typeof ckGetPreset==='function') presetSel.value = ckGetPreset();
+    // Sync methodology preset selector (rebuilds options incl. custom presets)
+    if(typeof ckRefreshPresetSelector==='function') ckRefreshPresetSelector();
   }
   window.ckRender=ckRender;
 
@@ -34719,6 +34829,15 @@ window.toggleSidebar = function(){
 
         // Change modal title
         document.getElementById('jr-modal-title').textContent='Add Trade · from Cockpit';
+
+        // In Simple preset, hide the WWA-specific Direction section (Daily Bias / HTF / Market Phase)
+        try{
+          var dirGroup = document.getElementById('jr-direction-group');
+          if(dirGroup){
+            var isSimpleLike = (typeof ckGetPreset==='function') && ckGetPreset() !== 'wwa';
+            dirGroup.style.display = isSimpleLike ? 'none' : '';
+          }
+        }catch(e){}
 
         // Show prefill banner with details
         var banner=document.getElementById('ck-prefill-banner');
