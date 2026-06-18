@@ -29697,6 +29697,23 @@ window.toggleSidebar = function(){
   }
   function dvGetTrades(){
     var raw = (typeof getActiveTrades === 'function') ? getActiveTrades() : JSON.parse(rfxGet('rf_trades')||'[]').filter(function(t){return !t.deleted;});
+    // Apply reset filter — keep Day View consistent with Dashboard/Risk Monitor (current cycle only)
+    try{
+      var accs = JSON.parse(rfxGet('rf_accounts')||'[]');
+      var resetMap = {};
+      accs.forEach(function(a){
+        var sp = (typeof accGetStartingPoint==='function') ? accGetStartingPoint(a) : null;
+        if(sp && sp.since && /^\d{4}-\d{2}-\d{2}T\d{1,2}:\d{2}/.test(sp.since)) resetMap[a.id] = sp.since;
+      });
+      if(Object.keys(resetMap).length){
+        raw = raw.filter(function(t){
+          var since = resetMap[t.account];
+          if(!since) return true;
+          var td = (t.date||''); if(!td) return true;
+          return (td + 'T' + (t.entryTime||'00:00')) >= since;
+        });
+      }
+    }catch(e){}
     raw.forEach(autoDetectSession);
     return raw;
   }
