@@ -26144,6 +26144,7 @@ window.toggleSidebar = function(){
     document.getElementById('jr-modal').classList.remove('open');
     jrEditId = null;
     jrDraft = {};
+    window._ckOriginPair = null;
     // Reset all inputs
     ['jr-date','jr-entry','jr-sl','jr-tp','jr-exit','jr-lots','jr-pnl-input','jr-comm','jr-entry-time','jr-exit-time','jr-rr','jr-rr-achieved','jr-duration','jr-notes','jr-tv-link','jr-tv-image','jr-pips','jr-mfe','jr-mae','jr-risk-pct','jr-psych-note'].forEach(function(id){
       var el=document.getElementById(id); if(el) el.value='';
@@ -28541,8 +28542,14 @@ window.toggleSidebar = function(){
         }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'screenshot_persist'});}
       });
     }
+    // Capture cockpit origin before closeJrModal resets it (cancel path also clears it)
+    var _ckOriginForClear = (!jrEditId && window._ckOriginPair) ? window._ckOriginPair : null;
     closeJrModal();
     renderJournal();
+    // If this trade originated from the Cockpit, clear that pair's board now that it's logged
+    if(_ckOriginForClear && typeof ckClearPairAfterTrade === 'function'){
+      try{ ckClearPairAfterTrade(_ckOriginForClear); }catch(e){}
+    }
     // Haptic feedback on successful save (mobile)
     if(typeof tqHaptic === 'function') tqHaptic(15);
     // Level 4: Run tilt detection after new trade (not on edit)
@@ -29446,7 +29453,7 @@ window.toggleSidebar = function(){
       pbSetups.forEach(function(s){setupColorMap[s.name]=s.color;setupColorMap[s.id]=s.color;});
 
       var sortArrow=function(col){var cur=sort;if(cur.indexOf(col)===0)return cur.indexOf('-desc')>0?' &#9660;':' &#9650;';return '';};
-      var h='<div class="jr-table-wrap"><table class="jr-table"><thead><tr><th style="width:30px"><input type="checkbox" class="jr-bulk-cb" onchange="jrBulkAll(this.checked)"></th><th onclick="jrColSort(\'date\')" style="cursor:pointer">Date'+sortArrow('date')+'</th><th onclick="jrColSort(\'pair\')" style="cursor:pointer">Pair'+sortArrow('pair')+'</th><th>Dir</th><th>Setup</th><th onclick="jrColSort(\'grade\')" style="cursor:pointer">Grade'+sortArrow('grade')+'</th><th>Emotion</th><th onclick="jrColSort(\'rr\')" style="cursor:pointer">R:R'+sortArrow('rr')+'</th><th onclick="jrColSort(\'pnl\')" style="cursor:pointer">P&L'+sortArrow('pnl')+'</th><th>Running</th><th>Result</th><th></th></tr></thead><tbody>';
+      var h='<div class="jr-table-wrap"><table class="jr-table"><thead><tr><th style="width:30px"><input type="checkbox" class="jr-bulk-cb" onchange="jrBulkAll(this.checked)"></th><th onclick="jrColSort(\'date\')" style="cursor:pointer">Date'+sortArrow('date')+'</th><th onclick="jrColSort(\'pair\')" style="cursor:pointer">Pair'+sortArrow('pair')+'</th><th>Dir</th><th>Setup</th><th onclick="jrColSort(\'grade\')" style="cursor:pointer">Grade'+sortArrow('grade')+'</th><th>Emotion</th><th onclick="jrColSort(\'rr\')" style="cursor:pointer">R:R'+sortArrow('rr')+'</th><th onclick="jrColSort(\'pnl\')" style="cursor:pointer">P&L'+sortArrow('pnl')+'</th><th>Cumulative</th><th>Result</th><th></th></tr></thead><tbody>';
       // Running P&L calc (date asc)
       var runningPnl=0;
       var tSorted=t.slice().sort(function(a,b){return (a.date||'').localeCompare(b.date||'');});
@@ -34728,6 +34735,28 @@ window.toggleSidebar = function(){
   }
   window.ckShowTiltPause = ckShowTiltPause;
 
+  // Clear a single pair's board after its trade has been logged, so the Cockpit
+  // doesn't stay filled with stale analysis + screenshots from a completed trade.
+  function ckClearPairAfterTrade(pair){
+    try{
+      if(!ckData) ckData = ckLoad() || {};
+      if(ckData.pairs && ckData.pairs[pair]) delete ckData.pairs[pair];
+      if(Array.isArray(ckData.selectedPairs)){
+        var idx = ckData.selectedPairs.indexOf(pair);
+        if(idx >= 0) ckData.selectedPairs.splice(idx, 1);
+      }
+      // Drop any roadmap screenshots tied to this pair
+      if(Array.isArray(ckData.roadmaps)){
+        ckData.roadmaps = ckData.roadmaps.filter(function(r){ return !r || r.pair !== pair; });
+      }
+      rfxSet(CK_KEY, JSON.stringify(ckData));
+      if(typeof ckRenderPairChips === 'function') ckRenderPairChips();
+      if(typeof ckRenderBoards === 'function') ckRenderBoards();
+      if(typeof tqPushCockpit === 'function'){ clearTimeout(window._ckSyncTimer); window._ckSyncTimer = setTimeout(function(){ tqPushCockpit(); }, 2000); }
+    }catch(e){}
+  }
+  window.ckClearPairAfterTrade = ckClearPairAfterTrade;
+
   function ckTakeTrade(pair){
     // ── Tilt guard — block trade entry when in a compromised emotional state ──
     // Psychology tags that indicate tilt; if any selected, enforce a 60s cooldown.
@@ -34838,6 +34867,8 @@ window.toggleSidebar = function(){
 
     // Store prefill in window so Journal can pick it up
     window._ckPrefill=prefill;
+    // Remember which pair came from Cockpit so we can clear its board after the trade saves
+    window._ckOriginPair = pair;
 
     // Show toast notification
     var toast=document.getElementById('ck-toast');
