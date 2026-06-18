@@ -36756,13 +36756,17 @@ window.toggleSidebar = function(){
       var _resetMap = {};
       _accsForReset.forEach(function(a){
         var sp = (typeof accGetStartingPoint==='function') ? accGetStartingPoint(a) : null;
-        if(sp && sp.since) _resetMap[a.id] = sp.since;
+        // Only honor a reset with a well-formed datetime since (YYYY-MM-DDTHH:MM),
+        // otherwise a malformed value could wrongly exclude every trade
+        if(sp && sp.since && /^\d{4}-\d{2}-\d{2}T\d{1,2}:\d{2}/.test(sp.since)) _resetMap[a.id] = sp.since;
       });
       if(Object.keys(_resetMap).length){
         filtered = filtered.filter(function(t){
           var since = _resetMap[t.account];
           if(!since) return true;
-          var tdt = (t.date||'') + 'T' + (t.entryTime||'00:00');
+          var td = (t.date||'');
+          if(!td) return true; // no date — don't exclude
+          var tdt = td + 'T' + (t.entryTime||'00:00');
           return tdt >= since;
         });
       }
