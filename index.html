@@ -7715,6 +7715,7 @@ window.toggleSidebar = function(){
     <div class="page-header">
       <div><div class="page-title">Day View</div><div class="page-sub">Calendar · Day Explore · Yearly Heatmap</div></div>
       <div style="display:flex;gap:8px;align-items:center">
+        <select id="dv-account-filter" class="form-select" style="font-size:12px;padding:6px 14px;min-width:150px"><option value="all">All accounts</option></select>
         <button class="dv-toggle" id="dv-r-mode" onclick="dvToggleR()">R mode</button>
         <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);cursor:pointer"><input type="checkbox" id="dv-weekends" onchange="dvRender()" style="accent-color:var(--accent)"> Weekends</label>
       </div>
@@ -10769,6 +10770,27 @@ window.toggleSidebar = function(){
     return s;
   }
   window.tqNormalizeDate = tqNormalizeDate;
+
+  // ── Global active-account filter ──
+  // Shared across Dashboard, Day View (and any future page) so picking an account
+  // on one page applies everywhere. 'all' = combined view.
+  function tqGetActiveAccount(){
+    try{ return rfxGet('tq_active_account') || 'all'; }catch(e){ return 'all'; }
+  }
+  function tqSetActiveAccount(id){
+    try{ rfxSet('tq_active_account', id || 'all'); }catch(e){}
+    // Re-render whichever filtered pages are currently in the DOM
+    try{ if(typeof updateDashboard==='function') updateDashboard(); }catch(e){}
+    try{ if(typeof window.dashRenderTiles==='function') window.dashRenderTiles(); }catch(e){}
+    try{ if(typeof window.dvRender==='function') window.dvRender(); }catch(e){}
+    // Keep both dropdowns in sync
+    try{
+      var d1=document.getElementById('dash-account-filter'); if(d1 && d1.value!==id) d1.value=id;
+      var d2=document.getElementById('dv-account-filter'); if(d2 && d2.value!==id) d2.value=id;
+    }catch(e){}
+  }
+  window.tqGetActiveAccount = tqGetActiveAccount;
+  window.tqSetActiveAccount = tqSetActiveAccount;
 
   // ── Universal metric helpers — used everywhere to keep numbers consistent ──
   // Profit Factor: returns null when undefined (no losses), so callers can render
@@ -29697,6 +29719,11 @@ window.toggleSidebar = function(){
   }
   function dvGetTrades(){
     var raw = (typeof getActiveTrades === 'function') ? getActiveTrades() : JSON.parse(rfxGet('rf_trades')||'[]').filter(function(t){return !t.deleted;});
+    // Global active-account filter (shared with Dashboard)
+    try{
+      var act = (typeof tqGetActiveAccount==='function') ? tqGetActiveAccount() : 'all';
+      if(act && act !== 'all') raw = raw.filter(function(t){ return t.account === act; });
+    }catch(e){}
     // Apply reset filter — keep Day View consistent with Dashboard/Risk Monitor (current cycle only)
     try{
       var accs = JSON.parse(rfxGet('rf_accounts')||'[]');
@@ -29748,6 +29775,24 @@ window.toggleSidebar = function(){
       return;
     }
     window._dvDirty = false;
+    // Populate + sync the account dropdown (shared global with Dashboard)
+    var dvAcc = document.getElementById('dv-account-filter');
+    if(dvAcc){
+      var dvAccounts = (typeof getVisibleAccounts === 'function') ? getVisibleAccounts() : [];
+      var dvActive = (typeof tqGetActiveAccount==='function') ? tqGetActiveAccount() : 'all';
+      dvAcc.innerHTML = '<option value="all">All accounts</option>';
+      dvAccounts.forEach(function(a){
+        var label = a.name + (a.archived ? ' (archived)' : '');
+        dvAcc.innerHTML += '<option value="'+a.id+'">'+label+'</option>';
+      });
+      dvAcc.value = dvActive;
+      if(!dvAcc._tqWired){
+        dvAcc._tqWired = true;
+        dvAcc.addEventListener('change', function(){
+          if(typeof tqSetActiveAccount==='function') tqSetActiveAccount(this.value);
+        });
+      }
+    }
     var trades=dvGetTrades();
     var showWkd=(document.getElementById('dv-weekends')||{}).checked;
     var monthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -36813,12 +36858,20 @@ window.toggleSidebar = function(){
     var filter = document.getElementById('dash-account-filter');
     if(filter){
       var accounts = (typeof getVisibleAccounts === 'function') ? getVisibleAccounts() : [];
-      var prevVal=filter.value;
+      var prevVal = (typeof tqGetActiveAccount==='function') ? tqGetActiveAccount() : (filter.value||'all');
       filter.innerHTML='<option value="all">All accounts</option>';
       accounts.forEach(function(a){
         var label = a.name + (a.archived ? ' (archived)' : '');
         filter.innerHTML+='<option value="'+a.id+'"'+(prevVal===a.id?' selected':'')+'>'+label+'</option>';
       });
+      filter.value = prevVal;
+      // Wire onchange once to drive the global active-account
+      if(!filter._tqWired){
+        filter._tqWired = true;
+        filter.addEventListener('change', function(){
+          if(typeof tqSetActiveAccount==='function') tqSetActiveAccount(this.value);
+        });
+      }
     }
     var selAcc = filter ? filter.value : 'all';
     var filtered = selAcc === 'all' ? all : all.filter(function(t){ return t.account === selAcc; });
