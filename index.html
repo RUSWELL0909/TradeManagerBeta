@@ -10778,11 +10778,22 @@ window.toggleSidebar = function(){
     try{ return rfxGet('tq_active_account') || 'all'; }catch(e){ return 'all'; }
   }
   function tqSetActiveAccount(id){
-    try{ rfxSet('tq_active_account', id || 'all'); }catch(e){}
+    id = id || 'all';
+    try{ rfxSet('tq_active_account', id); }catch(e){}
+    // Keep the legacy View Mode in sync (all_prop→prop, all_personal→personal, else all)
+    var vm = (id==='all_prop') ? 'prop' : (id==='all_personal') ? 'personal' : 'all';
+    try{ window.TQ_VIEW_MODE = vm; rfxSet('tq_view_mode', vm); }catch(e){}
+    // Update View Mode button UI
+    try{
+      document.querySelectorAll('[data-vm]').forEach(function(b){
+        b.classList.toggle('active', b.getAttribute('data-vm') === vm);
+      });
+    }catch(e){}
     // Re-render whichever filtered pages are currently in the DOM
     try{ if(typeof updateDashboard==='function') updateDashboard(); }catch(e){}
     try{ if(typeof window.dashRenderTiles==='function') window.dashRenderTiles(); }catch(e){}
     try{ if(typeof window.dvRender==='function') window.dvRender(); }catch(e){}
+    try{ if(typeof renderAccountsPage==='function') renderAccountsPage(); }catch(e){}
     // Keep both dropdowns in sync
     try{
       var d1=document.getElementById('dash-account-filter'); if(d1 && d1.value!==id) d1.value=id;
@@ -10791,6 +10802,28 @@ window.toggleSidebar = function(){
   }
   window.tqGetActiveAccount = tqGetActiveAccount;
   window.tqSetActiveAccount = tqSetActiveAccount;
+
+  // Filter a trades array by the active selection.
+  // Selection can be: 'all', 'all_prop', 'all_personal', or a specific account id.
+  function tqFilterTradesByActive(trades){
+    var sel = (typeof tqGetActiveAccount==='function') ? tqGetActiveAccount() : 'all';
+    if(!sel || sel === 'all') return trades;
+    try{
+      if(sel === 'all_prop' || sel === 'all_personal'){
+        var accs = JSON.parse(rfxGet('rf_accounts')||'[]');
+        var wantProp = (sel === 'all_prop');
+        var idSet = {};
+        accs.forEach(function(a){
+          if(a && a.id && typeof tqIsProp==='function'){
+            if(tqIsProp(a) === wantProp) idSet[a.id] = true;
+          }
+        });
+        return trades.filter(function(t){ return idSet[t.account]; });
+      }
+      return trades.filter(function(t){ return t.account === sel; });
+    }catch(e){ return trades; }
+  }
+  window.tqFilterTradesByActive = tqFilterTradesByActive;
 
   // ── Universal metric helpers — used everywhere to keep numbers consistent ──
   // Profit Factor: returns null when undefined (no losses), so callers can render
@@ -15876,6 +15909,13 @@ window.toggleSidebar = function(){
       if(mode !== 'all' && mode !== 'personal' && mode !== 'prop') return;
       window.TQ_VIEW_MODE = mode;
       try{ localStorage.setItem(TQ_VIEW_MODE_KEY, mode); }catch(e){}
+      // Unify with the global active-account selector (dropdowns on Dashboard/Day View)
+      var activeVal = (mode==='prop') ? 'all_prop' : (mode==='personal') ? 'all_personal' : 'all';
+      try{ rfxSet('tq_active_account', activeVal); }catch(e){}
+      try{
+        var d1=document.getElementById('dash-account-filter'); if(d1) d1.value=activeVal;
+        var d2=document.getElementById('dv-account-filter'); if(d2) d2.value=activeVal;
+      }catch(e){}
       // Persist to Supabase user settings
       if(typeof tqPushSettings === 'function') tqPushSettings();
       _tqUpdateViewModeUI();
@@ -29719,10 +29759,9 @@ window.toggleSidebar = function(){
   }
   function dvGetTrades(){
     var raw = (typeof getActiveTrades === 'function') ? getActiveTrades() : JSON.parse(rfxGet('rf_trades')||'[]').filter(function(t){return !t.deleted;});
-    // Global active-account filter (shared with Dashboard)
+    // Global active-account filter (shared with Dashboard — handles all/all_prop/all_personal/id)
     try{
-      var act = (typeof tqGetActiveAccount==='function') ? tqGetActiveAccount() : 'all';
-      if(act && act !== 'all') raw = raw.filter(function(t){ return t.account === act; });
+      if(typeof tqFilterTradesByActive==='function') raw = tqFilterTradesByActive(raw);
     }catch(e){}
     // Apply reset filter — keep Day View consistent with Dashboard/Risk Monitor (current cycle only)
     try{
@@ -29780,11 +29819,18 @@ window.toggleSidebar = function(){
     if(dvAcc){
       var dvAccounts = (typeof getVisibleAccounts === 'function') ? getVisibleAccounts() : [];
       var dvActive = (typeof tqGetActiveAccount==='function') ? tqGetActiveAccount() : 'all';
-      dvAcc.innerHTML = '<option value="all">All accounts</option>';
+      var dvHasProp = dvAccounts.some(function(a){ return typeof tqIsProp==='function' && tqIsProp(a); });
+      var dvHasPersonal = dvAccounts.some(function(a){ return !(typeof tqIsProp==='function' && tqIsProp(a)); });
+      var dvOpts = '<option value="all">All accounts</option>';
+      if(dvHasProp && dvHasPersonal){
+        dvOpts += '<option value="all_prop">— All Prop firms</option>';
+        dvOpts += '<option value="all_personal">— All Personal</option>';
+      }
       dvAccounts.forEach(function(a){
         var label = a.name + (a.archived ? ' (archived)' : '');
-        dvAcc.innerHTML += '<option value="'+a.id+'">'+label+'</option>';
+        dvOpts += '<option value="'+a.id+'">'+label+'</option>';
       });
+      dvAcc.innerHTML = dvOpts;
       dvAcc.value = dvActive;
       if(!dvAcc._tqWired){
         dvAcc._tqWired = true;
@@ -36859,13 +36905,19 @@ window.toggleSidebar = function(){
     if(filter){
       var accounts = (typeof getVisibleAccounts === 'function') ? getVisibleAccounts() : [];
       var prevVal = (typeof tqGetActiveAccount==='function') ? tqGetActiveAccount() : (filter.value||'all');
-      filter.innerHTML='<option value="all">All accounts</option>';
+      var hasProp = accounts.some(function(a){ return typeof tqIsProp==='function' && tqIsProp(a); });
+      var hasPersonal = accounts.some(function(a){ return !(typeof tqIsProp==='function' && tqIsProp(a)); });
+      var optsHtml = '<option value="all">All accounts</option>';
+      if(hasProp && hasPersonal){
+        optsHtml += '<option value="all_prop">— All Prop firms</option>';
+        optsHtml += '<option value="all_personal">— All Personal</option>';
+      }
       accounts.forEach(function(a){
         var label = a.name + (a.archived ? ' (archived)' : '');
-        filter.innerHTML+='<option value="'+a.id+'"'+(prevVal===a.id?' selected':'')+'>'+label+'</option>';
+        optsHtml += '<option value="'+a.id+'">'+label+'</option>';
       });
+      filter.innerHTML = optsHtml;
       filter.value = prevVal;
-      // Wire onchange once to drive the global active-account
       if(!filter._tqWired){
         filter._tqWired = true;
         filter.addEventListener('change', function(){
@@ -36874,7 +36926,7 @@ window.toggleSidebar = function(){
       }
     }
     var selAcc = filter ? filter.value : 'all';
-    var filtered = selAcc === 'all' ? all : all.filter(function(t){ return t.account === selAcc; });
+    var filtered = (typeof tqFilterTradesByActive==='function') ? tqFilterTradesByActive(all) : (selAcc === 'all' ? all : all.filter(function(t){ return t.account === selAcc; }));
 
     // Apply reset filter — same logic as dashRenderTiles, keeps all dashboard widgets in sync
     try{
@@ -38495,10 +38547,8 @@ window.toggleSidebar = function(){
     var trades = [];
     try{
       var raw = (typeof getActiveTrades==='function')?getActiveTrades():JSON.parse(rfxGet('rf_trades')||'[]').filter(function(t){return !t.deleted;});
-      // Apply account filter if dashboard has one
-      var accFilter = document.getElementById('dash-account-filter');
-      var accId = accFilter ? accFilter.value : 'all';
-      trades = (accId==='all') ? raw : raw.filter(function(t){return t.account===accId;});
+      // Apply unified active-account filter (all/all_prop/all_personal/id)
+      trades = (typeof tqFilterTradesByActive==='function') ? tqFilterTradesByActive(raw) : raw;
       // Apply reset date filter — only show trades after the latest reset per account
       try{
         var accs = JSON.parse(rfxGet('rf_accounts')||'[]');
@@ -40275,7 +40325,7 @@ window.toggleSidebar = function(){
     if (prev) prev.addEventListener('click', function(){ dashCalDate.setMonth(dashCalDate.getMonth()-1); updateDashCalendar(); });
     if (next) next.addEventListener('click', function(){ dashCalDate.setMonth(dashCalDate.getMonth()+1); updateDashCalendar(); });
     if (tod) tod.addEventListener('click', function(){ dashCalDate = new Date(); updateDashCalendar(); });
-    if (accFilter) accFilter.addEventListener('change', updateDashboard);
+    // Account filter change is handled by the unified tqSetActiveAccount wiring in updateDashboard
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',_dashDOMInit);
   else setTimeout(_dashDOMInit,0);
