@@ -29658,15 +29658,15 @@ window.toggleSidebar = function(){
     var banner = document.getElementById('jr-rule-banner');
     if(!banner) return;
     var accFilter = document.getElementById('jr-account-filter');
-    var accName = accFilter ? accFilter.value : '';
-    if(!accName || accName === 'All Accounts'){
+    var accVal = accFilter ? accFilter.value : '';
+    if(!accVal || accVal === 'All Accounts'){
       banner.style.display = 'none';
       banner.innerHTML = '';
       return;
     }
-    // Resolve account by name
+    // Resolve account by id (the filter's option values are account ids)
     var accs = (typeof accLoad === 'function') ? accLoad() : [];
-    var acc = accs.find(function(a){ return a.name === accName && !a.deleted; });
+    var acc = accs.find(function(a){ return a.id === accVal && !a.deleted; });
     if(!acc){ banner.style.display='none'; banner.innerHTML=''; return; }
 
     var trades = (typeof getTradesArr === 'function') ? getTradesArr().filter(function(t){return !t.deleted;}) : [];
@@ -33497,8 +33497,11 @@ window.toggleSidebar = function(){
     if(typeof getTradesArrRaw === 'function') trades = getTradesArrRaw().filter(function(t){return !t.deleted;});
     else if(typeof getTradesArr === 'function') trades = getTradesArr().filter(function(t){return !t.deleted;});
 
-    // Filter to accounts that have funded rules configured (or type === 'prop'/'challenge')
+    // Filter to prop/funded accounts. Use the shared tqIsProp() so Mission Control
+    // and My Accounts/View Mode agree on what counts as a prop account (fixes an
+    // account with only a firm preset showing in My Accounts but missing from MC).
     var propAccs = accs.filter(function(a){
+      if(typeof tqIsProp === 'function') return tqIsProp(a);
       var isFunded = (a.type === 'prop' || a.type === 'challenge');
       var hasRules = a.dailyLossLimit != null || a.maxDrawdownLimit != null || a.profitTarget != null;
       return isFunded || hasRules;
@@ -33726,11 +33729,11 @@ window.toggleSidebar = function(){
     setTimeout(function(){
       var accFilter = document.getElementById('jr-account-filter');
       if(accFilter){
-        // Look for option by account name (filter uses name, not id)
+        // Option values are account ids (not names) — match by id
         var found = false;
         for(var i = 0; i < accFilter.options.length; i++){
-          if(accFilter.options[i].value === acc.name){
-            accFilter.value = acc.name;
+          if(accFilter.options[i].value === acc.id){
+            accFilter.value = acc.id;
             found = true;
             break;
           }
