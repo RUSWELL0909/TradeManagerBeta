@@ -15984,8 +15984,10 @@ window.toggleSidebar = function(){
     // Re-render visible pages that respect view mode
     function _tqRerenderAllForMode(){
       try{
-        // Dashboard
-        if(typeof renderDashboard === 'function') renderDashboard();
+        // Dashboard (correct function is updateDashboard; also refresh KPI tiles)
+        if(typeof updateDashboard === 'function') updateDashboard();
+        else if(typeof window.updateDashboard === 'function') window.updateDashboard();
+        if(typeof window.dashRenderTiles === 'function') window.dashRenderTiles();
         // Journal
         if(typeof renderJournal === 'function') renderJournal();
         // Day View
@@ -20299,6 +20301,7 @@ window.toggleSidebar = function(){
       }
     }
     if (id === 'youredge' && window.yeRender) _tqRenderAfterPaint(yeRender);
+    if (id === 'casestudies' && typeof renderCS === 'function') _tqRenderAfterPaint(renderCS);
     if (id === 'trash' && window.trRender) _tqRenderAfterPaint(trRender);
     if (id === 'admin' && window.adminInit) _tqRenderAfterPaint(adminInit);
     // Telemetry: track page navigation (silent — no-op if telemetry disabled)
@@ -42635,7 +42638,7 @@ CREATE POLICY "users manage own tokens" ON tq_share_tokens
               action: function(){
                 tqGlobalSearchClose();
                 showPage('notebook');
-                setTimeout(function(){ if(typeof nbOpenForEdit === 'function') nbOpenForEdit(n.id); else if(typeof nbOpenModal === 'function') nbOpenModal(n.id); }, 150);
+                setTimeout(function(){ if(typeof nbEdit === 'function') nbEdit(n.id); else if(typeof nbOpenForEdit === 'function') nbOpenForEdit(n.id); }, 150);
               }
             });
           }
