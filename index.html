@@ -14612,6 +14612,9 @@ window.toggleSidebar = function(){
     function accLoad(){
       try{ return JSON.parse(rfxGet('rf_accounts')||'[]'); }catch(e){ return []; }
     }
+    // Export to window — Mission Control and other functions live in a different closure
+    // and were falling back to an empty list, making prop accounts invisible there.
+    window.accLoad = accLoad;
 
     // ══════════════════════════════════════════════════════════════
     // ██  TAG CATEGORIES — Hierarchical tag system (May 2026)
@@ -15005,6 +15008,8 @@ window.toggleSidebar = function(){
       });
       return sp.balance + accNetAdjustments(acc) + pnl;
     }
+    window.accBalanceWithPnL = accBalanceWithPnL;
+    window.accNetAdjustments = accNetAdjustments;
 
     function accTypeLabel(t){
       if(t==='prop' || t==='challenge') return 'Prop';
