@@ -33676,8 +33676,25 @@ window.toggleSidebar = function(){
 
     // Render payout pipeline
     if(typeof mcRenderPayoutPipeline === 'function') mcRenderPayoutPipeline(accountStatuses);
-    // Render aggregated analytics — use period-filtered trades
-    if(typeof mcRenderAnalytics === 'function') mcRenderAnalytics(accountStatuses, tradesForPnl);
+    // Render aggregated analytics — use period-filtered trades, also respecting each
+    // account's reset point so analytics match the per-account cards (current cycle only)
+    var tradesForAnalytics = tradesForPnl;
+    try{
+      var resetSince = {};
+      propAccs.forEach(function(a){
+        var sp2 = (typeof accGetStartingPoint==='function') ? accGetStartingPoint(a) : null;
+        if(sp2 && sp2.since && /^\d{4}-\d{2}-\d{2}T\d{1,2}:\d{2}/.test(sp2.since)) resetSince[a.id] = sp2.since;
+      });
+      if(Object.keys(resetSince).length){
+        tradesForAnalytics = tradesForPnl.filter(function(t){
+          var since = resetSince[t.account];
+          if(!since) return true;
+          var td=(t.date||''); if(!td) return true;
+          return (td + 'T' + (t.entryTime||'00:00')) >= since;
+        });
+      }
+    }catch(e){}
+    if(typeof mcRenderAnalytics === 'function') mcRenderAnalytics(accountStatuses, tradesForAnalytics);
     // Render smart insights (AI Risk Officer)
     if(typeof mcRenderInsights === 'function') mcRenderInsights();
   }
