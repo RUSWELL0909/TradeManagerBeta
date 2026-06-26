@@ -34378,6 +34378,44 @@ window.toggleSidebar = function(){
   }
   window.mcGenerateInsights = mcGenerateInsights;
 
+  // Build a small inline SVG sparkline of an account's cumulative daily P&L (last ~14 days)
+  function _mcAccountSparkline(acc, totalPnl){
+    try{
+      var trades = (typeof getActiveTrades==='function') ? getActiveTrades() : [];
+      var sp = (typeof accGetStartingPoint==='function') ? accGetStartingPoint(acc) : null;
+      var byDay = {};
+      trades.forEach(function(t){
+        if(t.account !== acc.id || t.deleted) return;
+        if(sp && sp.since){
+          var tdt = (t.date||'') + 'T' + (t.entryTime||'00:00');
+          if(tdt < sp.since) return;
+        }
+        var d = (typeof tqNormalizeDate==='function') ? tqNormalizeDate(t.date) : t.date;
+        if(!d) return;
+        byDay[d] = (byDay[d]||0) + (typeof tqConvertTradePnl==='function'?tqConvertTradePnl(t):(parseFloat(t.pnl)||0));
+      });
+      var days = Object.keys(byDay).sort();
+      if(days.length < 2) return '';
+      days = days.slice(-14);
+      var cum = 0, pts = [];
+      days.forEach(function(d){ cum += byDay[d]; pts.push(cum); });
+      var min = Math.min.apply(null, pts), max = Math.max.apply(null, pts);
+      var range = (max - min) || 1;
+      var w = 90, h = 30;
+      var coords = pts.map(function(v, i){
+        var x = (i/(pts.length-1)) * w;
+        var y = h - ((v - min)/range) * h;
+        return x.toFixed(1)+','+y.toFixed(1);
+      }).join(' ');
+      var lineColor = pts[pts.length-1] >= pts[0] ? 'var(--green)' : 'var(--red)';
+      var lastX = w, lastY = h - ((pts[pts.length-1]-min)/range)*h;
+      return '<svg width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" style="overflow:visible">'+
+        '<polyline points="'+coords+'" fill="none" stroke="'+lineColor+'" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"/>'+
+        '<circle cx="'+lastX.toFixed(1)+'" cy="'+lastY.toFixed(1)+'" r="2" fill="'+lineColor+'"/>'+
+      '</svg>';
+    }catch(e){ return ''; }
+  }
+
   function _mcRenderAccountCard(acc, st, pnl, tradeCount){
     var startBal = parseFloat(acc.startingBalance || acc.balance) || 0;
 
@@ -34486,6 +34524,47 @@ window.toggleSidebar = function(){
     var healthStr = st ? (st.health + '%') : '—';
     var healthColor2 = st ? (st.health >= 70 ? 'var(--green)' : st.health >= 40 ? '#fbbf24' : 'var(--red)') : 'var(--text3)';
 
+    // ── Safe to risk today: how much $ you can still lose before hitting daily loss limit ──
+    var safeChip = '';
+    if(st && acc.dailyLossLimit != null){
+      var startBalForRisk = (typeof accGetStartingPoint==='function') ? (accGetStartingPoint(acc).balance || parseFloat(acc.startingBalance||acc.balance)||0) : (parseFloat(acc.startingBalance||acc.balance)||0);
+      var dailyLimitAbs = acc.ddMode === 'dollar' ? acc.dailyLossLimit : (startBalForRisk * acc.dailyLossLimit / 100);
+      var lostToday = st.dailyLossAbs || 0;
+      var safeToRisk = Math.max(0, dailyLimitAbs - lostToday);
+      var safeColor = safeToRisk <= dailyLimitAbs*0.2 ? 'var(--red)' : safeToRisk <= dailyLimitAbs*0.5 ? '#fbbf24' : 'var(--green)';
+      safeChip = '<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:3px 9px;background:rgba(255,255,255,.05);border:1px solid '+safeColor+'33;border-radius:5px;color:'+safeColor+';font-weight:600;white-space:nowrap" title="How much you can still lose today before breaching the daily loss limit">'+
+        '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'+
+        'Safe today: $'+safeToRisk.toFixed(0)+'</span>';
+    }
+
+    // ── Profit target progress (for challenge / funded with target) ──
+    var profitBar = '';
+    if(st && acc.profitTarget && !st.profitTargetMet){
+      var profPct = Math.min(100, Math.max(0, st.profitPctOf || 0));
+      profitBar = '<div style="margin-top:6px"><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:2px"><span>Profit target</span><span>'+profPct.toFixed(0)+'%</span></div>'+
+        '<div style="height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden"><div style="height:100%;width:'+profPct+'%;background:linear-gradient(90deg,var(--accent),var(--accent3));border-radius:2px"></div></div></div>';
+    } else if(st && st.profitTargetMet){
+      profitBar = '<div style="margin-top:6px;font-size:11px;color:var(--accent3);font-weight:600">✓ Profit target reached — payout eligible</div>';
+    }
+
+    // ── Payout countdown ──
+    var payoutChip = '';
+    if(typeof _mcNextPayoutDate === 'function' && acc.payoutSchedule){
+      try{
+        var npd = _mcNextPayoutDate(acc.payoutSchedule, acc.lastPayoutDate);
+        if(npd){
+          var daysLeft = Math.ceil((npd - new Date()) / 86400000);
+          if(daysLeft >= 0 && daysLeft <= 60){
+            payoutChip = '<span style="font-size:11px;padding:3px 9px;background:rgba(124,90,240,.1);border:1px solid rgba(124,90,240,.25);border-radius:5px;color:var(--accent3);font-weight:600;white-space:nowrap" title="Days until next payout window">💰 Payout in '+daysLeft+'d</span>';
+          }
+        }
+      }catch(e){}
+    }
+
+    // ── Sparkline: daily P&L trend for this account (last ~14 days) ──
+    var sparkline = _mcAccountSparkline(acc, pnl);
+
+
     return '<div style="padding:14px 18px;background:'+bgGrad+';border:1px solid '+borderColor+';border-left:3px solid '+accent+';border-radius:0 10px 10px 0;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;cursor:pointer;transition:transform .15s;position:relative" '+
       'onmouseover="this.style.transform=\'translateX(2px)\';var ed=this.querySelector(\'.mc-card-edit\');if(ed)ed.style.opacity=\'1\';" onmouseout="this.style.transform=\'\';var ed=this.querySelector(\'.mc-card-edit\');if(ed)ed.style.opacity=\'0\';" '+
       'onclick="mcDrillDown(\''+acc.id+'\')" '+
@@ -34506,9 +34585,13 @@ window.toggleSidebar = function(){
         '<div style="font-size:10px;color:var(--text3);margin-top:3px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+rulesMetaStr+' · '+tradeCount+' trades</div>'+
         ddBar +
         ddInsight +
+        profitBar +
+        // Chips row: safe-to-risk + payout countdown
+        ((safeChip || payoutChip) ? '<div style="display:flex;gap:6px;margin-top:7px;flex-wrap:wrap">'+safeChip+payoutChip+'</div>' : '')+
       '</div>'+
-      // P&L + Health
-      '<div style="text-align:right;white-space:nowrap">'+
+      // P&L + Health + sparkline
+      '<div style="text-align:right;white-space:nowrap;display:flex;flex-direction:column;align-items:flex-end;gap:2px">'+
+        (sparkline ? '<div style="margin-bottom:2px">'+sparkline+'</div>' : '')+
         '<div style="font-size:18px;font-weight:600;color:'+pnlColor+';font-variant-numeric:tabular-nums;line-height:1;letter-spacing:-.3px">'+pnlStr+'</div>'+
         '<div style="font-size:12px;color:'+healthColor2+';margin-top:3px;font-family:Inter,sans-serif;font-weight:600">Health '+healthStr+'</div>'+
       '</div>'+
