@@ -3754,7 +3754,7 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(124,90,240,.15);outlin
 /* Cockpit appeared zoomed-out vs other pages — scale the whole page up ~6% uniformly */
 #page-cockpit{zoom:1.06}
 /* Mission Control — bump small text in cards, table, and analytics for readability */
-#mc-account-cards, #mc-account-table, #mc-analytics{zoom:1.12}
+#mc-account-cards, #mc-account-table, #mc-analytics{zoom:1.18}
 #mc-account-cards [style*="font-size:10px"], #mc-analytics [style*="font-size:10px"]{font-size:11.5px !important}
 .ck-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.1}
 .ck-pair-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px 22px;margin-bottom:14px;position:relative;overflow:hidden;transition:border-color .2s}
@@ -5636,6 +5636,9 @@ window.toggleSidebar = function(){
 
     <!-- AGGREGATE KPI STRIP -->
     <div id="mc-agg-strip" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px"></div>
+
+    <!-- INFOGRAPHIC: health gauge + account heatmap -->
+    <div id="mc-infographic" style="display:none;margin-bottom:18px"></div>
 
     <!-- WARNINGS BAR (if any breaches) -->
     <div id="mc-warnings-bar" style="display:none;margin-bottom:18px"></div>
@@ -33539,6 +33542,7 @@ window.toggleSidebar = function(){
       if(warnEl){ warnEl.style.display = 'none'; warnEl.innerHTML = ''; }
       if(listEl) listEl.innerHTML = '';
       var togEmpty = document.getElementById('mc-view-toggle'); if(togEmpty) togEmpty.style.display = 'none';
+      var infoEmpty = document.getElementById('mc-infographic'); if(infoEmpty){ infoEmpty.style.display='none'; infoEmpty.innerHTML=''; }
       var tblEmpty = document.getElementById('mc-account-table'); if(tblEmpty){ tblEmpty.style.display='none'; tblEmpty.innerHTML=''; }
       // Hide time period filter (no data to filter)
       var tfEl = document.getElementById('mc-time-filter');
@@ -33691,6 +33695,9 @@ window.toggleSidebar = function(){
       var hb = b.status ? b.status.health : 100;
       return ha - hb;
     });
+
+    // ── Infographic header (health gauge + heatmap) ──
+    if(typeof mcRenderInfographic === 'function') mcRenderInfographic(accountStatuses, avgHealth);
 
     // ── View toggle: cards vs comparison table ──
     var view = mcGetView();
@@ -34458,6 +34465,69 @@ window.toggleSidebar = function(){
         '<circle cx="'+lastX.toFixed(1)+'" cy="'+lastY.toFixed(1)+'" r="2" fill="'+lineColor+'"/>'+
       '</svg>';
     }catch(e){ return ''; }
+  }
+
+  // ── Infographic: health gauge (semicircle) + account heatmap grid ──
+  function mcRenderInfographic(accountStatuses, avgHealth){
+    var el = document.getElementById('mc-infographic');
+    if(!el) return;
+    // Only worth showing the heatmap when there are multiple accounts
+    if(!accountStatuses || accountStatuses.length === 0){ el.style.display='none'; return; }
+
+    // ── Health gauge (semicircle 180°) ──
+    var h = Math.max(0, Math.min(100, avgHealth||0));
+    var gColor = h>=70?'#1de9b6':h>=40?'#fbbf24':'#ef4444';
+    // semicircle: radius 60, center (70,70), arc from 180° to 0°
+    var R=58, cx=70, cy=70;
+    var angle = Math.PI - (h/100)*Math.PI; // 180°→0°
+    var endX = cx + R*Math.cos(angle), endY = cy - R*Math.sin(angle);
+    var largeArc = (h>50)?1:0;
+    var trackPath = 'M '+(cx-R)+' '+cy+' A '+R+' '+R+' 0 0 1 '+(cx+R)+' '+cy;
+    var valPath = 'M '+(cx-R)+' '+cy+' A '+R+' '+R+' 0 '+largeArc+' 1 '+endX.toFixed(1)+' '+endY.toFixed(1);
+    var gauge = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px 8px">'+
+      '<svg width="140" height="84" viewBox="0 0 140 84">'+
+        '<path d="'+trackPath+'" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="11" stroke-linecap="round"/>'+
+        '<path d="'+valPath+'" fill="none" stroke="'+gColor+'" stroke-width="11" stroke-linecap="round"/>'+
+        '<text x="70" y="60" text-anchor="middle" font-size="26" font-weight="700" fill="'+gColor+'" font-family="Inter,sans-serif">'+h+'</text>'+
+        '<text x="70" y="76" text-anchor="middle" font-size="9" fill="var(--text3)" font-family="Inter,sans-serif" letter-spacing="1">HEALTH</text>'+
+      '</svg>'+
+      '<div style="font-size:11px;color:var(--text3);margin-top:2px">Portfolio average</div>'+
+    '</div>';
+
+    // ── Heatmap grid: one tile per account, color by status ──
+    var tiles = accountStatuses.map(function(item){
+      var st=item.status;
+      var c = !st ? 'rgba(255,255,255,.1)' :
+              st.breaches.length>0 ? 'rgba(239,68,68,.85)' :
+              st.warnings.length>0 ? 'rgba(251,191,36,.85)' :
+              'rgba(29,233,182,.8)';
+      var firmName=item.acc.propFirm||item.acc.name||'?';
+      var abbr=firmName.replace(/[^A-Z]/g,'').slice(0,3)||firmName.slice(0,2).toUpperCase();
+      if(firmName.toLowerCase().indexOf('fundednext')>=0) abbr='FN';
+      var hh = st?st.health:'—';
+      return '<div onclick="mcDrillDown(\''+item.acc.id+'\')" title="'+escapeHtml(item.acc.name)+' · Health '+hh+'%" '+
+        'style="aspect-ratio:1;background:'+c+';border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s;min-height:54px" '+
+        'onmouseover="this.style.transform=\'scale(1.05)\'" onmouseout="this.style.transform=\'\'">'+
+        '<span style="font-size:11px;font-weight:700;color:rgba(0,0,0,.7)">'+abbr+'</span>'+
+        '<span style="font-size:10px;color:rgba(0,0,0,.6);font-weight:600">'+hh+'%</span>'+
+      '</div>';
+    }).join('');
+    var cols = Math.min(accountStatuses.length, 8);
+    var heatmap = '<div style="flex:1;padding:14px 16px">'+
+      '<div style="font-size:10px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700;margin-bottom:10px">Account Health Map</div>'+
+      '<div style="display:grid;grid-template-columns:repeat('+cols+',1fr);gap:7px">'+tiles+'</div>'+
+      '<div style="display:flex;gap:14px;margin-top:12px;font-size:10px;color:var(--text3)">'+
+        '<span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:rgba(29,233,182,.8);display:inline-block"></span>Healthy</span>'+
+        '<span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:rgba(251,191,36,.85);display:inline-block"></span>Warning</span>'+
+        '<span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:rgba(239,68,68,.85);display:inline-block"></span>Critical</span>'+
+      '</div>'+
+    '</div>';
+
+    el.style.display='block';
+    el.innerHTML = '<div style="display:flex;gap:14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow:hidden;flex-wrap:wrap">'+
+      '<div style="border-right:1px solid rgba(255,255,255,.06);min-width:160px">'+gauge+'</div>'+
+      heatmap+
+    '</div>';
   }
 
   // ── Mission Control view mode (cards vs comparison table) ──
