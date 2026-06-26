@@ -34471,8 +34471,9 @@ window.toggleSidebar = function(){
   function mcRenderInfographic(accountStatuses, avgHealth){
     var el = document.getElementById('mc-infographic');
     if(!el) return;
-    // Only worth showing the heatmap when there are multiple accounts
-    if(!accountStatuses || accountStatuses.length === 0){ el.style.display='none'; return; }
+    // Only show the gauge+heatmap when there are enough accounts to make it useful.
+    // With 1-2 accounts it just creates empty space and looks unfinished.
+    if(!accountStatuses || accountStatuses.length < 3){ el.style.display='none'; el.innerHTML=''; return; }
 
     // ── Health gauge (semicircle 180°) ──
     var h = Math.max(0, Math.min(100, avgHealth||0));
