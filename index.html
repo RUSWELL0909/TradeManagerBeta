@@ -5640,6 +5640,9 @@ window.toggleSidebar = function(){
     <!-- INFOGRAPHIC: health gauge + account heatmap -->
     <div id="mc-infographic" style="display:none;margin-bottom:18px"></div>
 
+    <!-- PORTFOLIO EQUITY CURVE -->
+    <div id="mc-equity-curve" style="display:none;margin-bottom:18px"></div>
+
     <!-- WARNINGS BAR (if any breaches) -->
     <div id="mc-warnings-bar" style="display:none;margin-bottom:18px"></div>
 
@@ -33543,6 +33546,7 @@ window.toggleSidebar = function(){
       if(listEl) listEl.innerHTML = '';
       var togEmpty = document.getElementById('mc-view-toggle'); if(togEmpty) togEmpty.style.display = 'none';
       var infoEmpty = document.getElementById('mc-infographic'); if(infoEmpty){ infoEmpty.style.display='none'; infoEmpty.innerHTML=''; }
+      var eqEmpty = document.getElementById('mc-equity-curve'); if(eqEmpty){ eqEmpty.style.display='none'; eqEmpty.innerHTML=''; }
       var tblEmpty = document.getElementById('mc-account-table'); if(tblEmpty){ tblEmpty.style.display='none'; tblEmpty.innerHTML=''; }
       // Hide time period filter (no data to filter)
       var tfEl = document.getElementById('mc-time-filter');
@@ -33698,6 +33702,9 @@ window.toggleSidebar = function(){
 
     // ── Infographic header (health gauge + heatmap) ──
     if(typeof mcRenderInfographic === 'function') mcRenderInfographic(accountStatuses, avgHealth);
+
+    // ── Portfolio equity curve ──
+    if(typeof mcRenderEquityCurve === 'function') mcRenderEquityCurve(propAccs, tradesForPnl);
 
     // ── View toggle: cards vs comparison table ──
     var view = mcGetView();
@@ -34468,6 +34475,123 @@ window.toggleSidebar = function(){
   }
 
   // ── Infographic: health gauge (semicircle) + account heatmap grid ──
+  // ── Portfolio Equity Curve ──
+  // Combined = one cumulative P&L line across all accounts.
+  // Overlay = one line per account for comparison.
+  function mcGetEquityMode(){ try{ return rfxGet('tq_mc_eq_mode') || 'combined'; }catch(e){ return 'combined'; } }
+  window.mcSetEquityMode = function(m){ try{ rfxSet('tq_mc_eq_mode', m); }catch(e){} if(typeof mcRender==='function') mcRender(); };
+
+  function mcRenderEquityCurve(propAccs, tradesForPnl){
+    var el = document.getElementById('mc-equity-curve');
+    if(!el) return;
+    if(!propAccs || propAccs.length === 0){ el.style.display='none'; el.innerHTML=''; return; }
+
+    var mode = mcGetEquityMode();
+    var ACCENT_PALETTE = ['#7c5af0','#1de9b6','#5cc8ff','#fbbf24','#ef4444','#f472b6','#a78bfa','#34d399','#fb923c','#60a5fa','#f87171','#c084fc'];
+
+    // Build per-account daily cumulative series (reset-aware)
+    function seriesForAccount(acc){
+      var sp = (typeof accGetStartingPoint==='function') ? accGetStartingPoint(acc) : null;
+      var byDay = {};
+      tradesForPnl.forEach(function(t){
+        if(t.account !== acc.id || t.deleted) return;
+        if(sp && sp.since){
+          var tdt = (t.date||'') + 'T' + (t.entryTime||'00:00');
+          if(tdt < sp.since) return;
+        }
+        var d = (typeof tqNormalizeDate==='function') ? tqNormalizeDate(t.date) : t.date;
+        if(!d) return;
+        byDay[d] = (byDay[d]||0) + (typeof tqConvertTradePnl==='function'?tqConvertTradePnl(t):(parseFloat(t.pnl)||0));
+      });
+      return byDay;
+    }
+
+    // Collect all dates across accounts
+    var allByAcc = propAccs.map(function(a){ return {acc:a, byDay:seriesForAccount(a)}; });
+    var dateSet = {};
+    allByAcc.forEach(function(s){ Object.keys(s.byDay).forEach(function(d){ dateSet[d]=true; }); });
+    var dates = Object.keys(dateSet).sort();
+    if(dates.length < 2){ el.style.display='none'; el.innerHTML=''; return; }
+
+    // Build cumulative series
+    var lines = []; // {name, color, pts:[cumulative...]}
+    if(mode === 'combined'){
+      var cum = 0, pts = [];
+      dates.forEach(function(d){
+        var dayTotal = 0;
+        allByAcc.forEach(function(s){ dayTotal += (s.byDay[d]||0); });
+        cum += dayTotal; pts.push(cum);
+      });
+      lines.push({name:'Portfolio', color:'#7c5af0', pts:pts});
+    } else {
+      allByAcc.forEach(function(s, i){
+        var cum = 0, pts = [];
+        dates.forEach(function(d){ cum += (s.byDay[d]||0); pts.push(cum); });
+        lines.push({name:s.acc.name, color:ACCENT_PALETTE[i % ACCENT_PALETTE.length], pts:pts});
+      });
+    }
+
+    // Scale
+    var allVals = [];
+    lines.forEach(function(l){ l.pts.forEach(function(v){ allVals.push(v); }); });
+    allVals.push(0);
+    var minV = Math.min.apply(null, allVals), maxV = Math.max.apply(null, allVals);
+    var range = (maxV - minV) || 1;
+    var W = 1000, H = 200, padL = 8, padR = 8, padT = 12, padB = 12;
+    var plotW = W - padL - padR, plotH = H - padT - padB;
+    function xAt(i){ return padL + (i/(dates.length-1))*plotW; }
+    function yAt(v){ return padT + (1 - (v-minV)/range)*plotH; }
+
+    // Zero line
+    var zeroY = yAt(0);
+    var zeroLine = '<line x1="'+padL+'" y1="'+zeroY.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+zeroY.toFixed(1)+'" stroke="rgba(255,255,255,.12)" stroke-width="1" stroke-dasharray="3 4"/>';
+
+    var paths = lines.map(function(l){
+      var d = l.pts.map(function(v,i){ return (i===0?'M':'L')+' '+xAt(i).toFixed(1)+' '+yAt(v).toFixed(1); }).join(' ');
+      var lastV = l.pts[l.pts.length-1];
+      var dot = '<circle cx="'+xAt(l.pts.length-1).toFixed(1)+'" cy="'+yAt(lastV).toFixed(1)+'" r="3" fill="'+l.color+'"/>';
+      // area fill for combined mode
+      var area = '';
+      if(mode==='combined'){
+        var areaD = d + ' L '+xAt(l.pts.length-1).toFixed(1)+' '+zeroY.toFixed(1)+' L '+xAt(0).toFixed(1)+' '+zeroY.toFixed(1)+' Z';
+        area = '<path d="'+areaD+'" fill="url(#mcEqGrad)" opacity="0.5"/>';
+      }
+      return area + '<path d="'+d+'" fill="none" stroke="'+l.color+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'+dot;
+    }).join('');
+
+    // Legend (overlay mode)
+    var legend = '';
+    if(mode==='overlay'){
+      legend = '<div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:10px">'+lines.map(function(l){
+        var last = l.pts[l.pts.length-1];
+        var lc = last>=0?'var(--green)':'var(--red)';
+        return '<span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)"><span style="width:10px;height:3px;background:'+l.color+';border-radius:2px;display:inline-block"></span>'+escapeHtml(l.name)+' <span style="color:'+lc+';font-weight:600">'+(last>=0?'+':'')+'$'+Math.abs(last).toFixed(0)+'</span></span>';
+      }).join('')+'</div>';
+    } else {
+      var finalV = lines[0].pts[lines[0].pts.length-1];
+      var fc = finalV>=0?'var(--green)':'var(--red)';
+      legend = '<div style="margin-top:8px;font-size:12px;color:var(--text3)">Combined across '+propAccs.length+' account'+(propAccs.length>1?'s':'')+' · <span style="color:'+fc+';font-weight:600">'+(finalV>=0?'+':'')+'$'+Math.abs(finalV).toFixed(0)+'</span> total</div>';
+    }
+
+    var toggleBtns = '<div style="display:flex;gap:4px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:3px">'+
+      '<button onclick="mcSetEquityMode(\'combined\')" style="font-size:11px;padding:5px 12px;border:none;border-radius:6px;cursor:pointer;font-weight:600;'+(mode==='combined'?'background:rgba(124,90,240,.2);color:var(--accent3)':'background:transparent;color:var(--text3)')+'">Combined</button>'+
+      '<button onclick="mcSetEquityMode(\'overlay\')" style="font-size:11px;padding:5px 12px;border:none;border-radius:6px;cursor:pointer;font-weight:600;'+(mode==='overlay'?'background:rgba(124,90,240,.2);color:var(--accent3)':'background:transparent;color:var(--text3)')+'">By account</button>'+
+    '</div>';
+
+    el.style.display='block';
+    el.innerHTML = '<div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px 18px">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:10px">'+
+        '<div style="display:flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent3)" stroke-width="2"><path d="M3 3v18h18"/><path d="M19 9l-5 5-4-4-3 3"/></svg><span style="font-size:14px;font-weight:600;color:var(--text)">Portfolio Equity Curve</span></div>'+
+        toggleBtns+
+      '</div>'+
+      '<svg width="100%" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" style="display:block">'+
+        '<defs><linearGradient id="mcEqGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7c5af0" stop-opacity="0.35"/><stop offset="100%" stop-color="#7c5af0" stop-opacity="0"/></linearGradient></defs>'+
+        zeroLine + paths +
+      '</svg>'+
+      legend+
+    '</div>';
+  }
+
   function mcRenderInfographic(accountStatuses, avgHealth){
     var el = document.getElementById('mc-infographic');
     if(!el) return;
@@ -34625,7 +34749,7 @@ window.toggleSidebar = function(){
           '<div style="display:flex;align-items:center;gap:10px">'+
             '<div style="width:34px;height:34px;background:'+sBg+';border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:'+sColor+';letter-spacing:.5px;flex-shrink:0">'+firmAbbr+'</div>'+
             '<div style="min-width:0"><div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(acc.name)+'</div>'+
-            '<div style="font-size:10px;color:var(--text3)">'+item.tradeCount+' trades</div></div>'+
+            '<div style="font-size:11px;color:var(--text2)">'+item.tradeCount+' trades</div></div>'+
           '</div>'+
         '</td>'+
         '<td style="padding:11px 12px;border-bottom:1px solid rgba(255,255,255,.05)"><span style="font-size:10px;padding:3px 8px;background:'+sBg+';color:'+sColor+';border-radius:4px;font-weight:700;letter-spacing:.4px;white-space:nowrap">'+statusLabel+'</span></td>'+
@@ -34840,7 +34964,7 @@ window.toggleSidebar = function(){
           '<span style="font-size:13px;font-weight:600;color:var(--text)">'+escapeHtml(acc.name)+'</span>'+
           pills +
         '</div>'+
-        '<div style="font-size:10px;color:var(--text3);margin-top:3px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+rulesMetaStr+' · '+tradeCount+' trades</div>'+
+        '<div style="font-size:12px;color:var(--text2);margin-top:4px;font-family:Inter,sans-serif;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.2px">'+rulesMetaStr+' · '+tradeCount+' trades</div>'+
         ddBar +
         ddInsight +
         profitBar +
