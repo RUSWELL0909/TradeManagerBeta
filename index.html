@@ -34506,16 +34506,15 @@ window.toggleSidebar = function(){
       if(firmName.toLowerCase().indexOf('fundednext')>=0) abbr='FN';
       var hh = st?st.health:'—';
       return '<div onclick="mcDrillDown(\''+item.acc.id+'\')" title="'+escapeHtml(item.acc.name)+' · Health '+hh+'%" '+
-        'style="aspect-ratio:1;background:'+c+';border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s;min-height:54px" '+
+        'style="width:72px;height:72px;background:'+c+';border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s" '+
         'onmouseover="this.style.transform=\'scale(1.05)\'" onmouseout="this.style.transform=\'\'">'+
-        '<span style="font-size:11px;font-weight:700;color:rgba(0,0,0,.7)">'+abbr+'</span>'+
-        '<span style="font-size:10px;color:rgba(0,0,0,.6);font-weight:600">'+hh+'%</span>'+
+        '<span style="font-size:13px;font-weight:700;color:rgba(0,0,0,.7)">'+abbr+'</span>'+
+        '<span style="font-size:11px;color:rgba(0,0,0,.6);font-weight:600">'+hh+'%</span>'+
       '</div>';
     }).join('');
-    var cols = Math.min(accountStatuses.length, 8);
     var heatmap = '<div style="flex:1;padding:14px 16px">'+
       '<div style="font-size:10px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700;margin-bottom:10px">Account Health Map</div>'+
-      '<div style="display:grid;grid-template-columns:repeat('+cols+',1fr);gap:7px">'+tiles+'</div>'+
+      '<div style="display:flex;flex-wrap:wrap;gap:7px">'+tiles+'</div>'+
       '<div style="display:flex;gap:14px;margin-top:12px;font-size:10px;color:var(--text3)">'+
         '<span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:rgba(29,233,182,.8);display:inline-block"></span>Healthy</span>'+
         '<span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:rgba(251,191,36,.85);display:inline-block"></span>Warning</span>'+
