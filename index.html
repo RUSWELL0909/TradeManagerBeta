@@ -33674,9 +33674,22 @@ window.toggleSidebar = function(){
       return ha - hb;
     });
 
-    // Render account cards
+    // Render account cards (guard each so one bad card can't blank the whole list)
     listEl.innerHTML = accountStatuses.map(function(item){
-      return _mcRenderAccountCard(item.acc, item.status, item.pnl, item.tradeCount);
+      try{
+        var cardHtml = _mcRenderAccountCard(item.acc, item.status, item.pnl, item.tradeCount);
+        if(cardHtml && cardHtml.length) return cardHtml;
+        throw new Error('empty card html');
+      }catch(err){
+        console.error('MC card render failed for', item.acc && item.acc.name, err);
+        // Minimal fallback card so the account is never invisible
+        var nm = (item.acc && item.acc.name) ? item.acc.name : 'Account';
+        var pnlTxt = (item.pnl>=0?'+':'-')+'$'+Math.abs(item.pnl||0).toFixed(0);
+        return '<div onclick="mcDrillDown(\''+(item.acc?item.acc.id:'')+'\')" style="padding:14px 18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;display:flex;justify-content:space-between;align-items:center;cursor:pointer">'+
+          '<span style="font-size:13px;font-weight:600;color:var(--text)">'+nm+'</span>'+
+          '<span style="font-size:16px;font-weight:600;color:'+(item.pnl>=0?'var(--green)':'var(--red)')+'">'+pnlTxt+'</span>'+
+        '</div>';
+      }
     }).join('');
 
     // Render payout pipeline
