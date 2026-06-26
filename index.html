@@ -5640,8 +5640,20 @@ window.toggleSidebar = function(){
     <!-- SMART INSIGHTS AI CARD (Phase 3) -->
     <div id="mc-insights-card" style="margin-bottom:18px;display:none"></div>
 
+    <!-- VIEW TOGGLE: Cards vs Table (table is better for comparing many accounts) -->
+    <div id="mc-view-toggle" style="display:none;align-items:center;justify-content:space-between;margin-bottom:10px;gap:10px;flex-wrap:wrap">
+      <div id="mc-table-tabs" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+      <div style="display:flex;gap:4px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:3px">
+        <button id="mc-view-cards" onclick="mcSetView('cards')" style="font-size:11px;padding:5px 12px;border:none;border-radius:6px;background:transparent;color:var(--text3);cursor:pointer;font-weight:600">Cards</button>
+        <button id="mc-view-table" onclick="mcSetView('table')" style="font-size:11px;padding:5px 12px;border:none;border-radius:6px;background:transparent;color:var(--text3);cursor:pointer;font-weight:600">Table</button>
+      </div>
+    </div>
+
     <!-- ACCOUNT CARDS LIST -->
     <div id="mc-account-cards" style="display:flex;flex-direction:column;gap:8px"></div>
+
+    <!-- ACCOUNT COMPARISON TABLE -->
+    <div id="mc-account-table" style="display:none"></div>
 
     <!-- PAYOUT PIPELINE (Phase 2) -->
     <div id="mc-payout-pipeline" style="display:none;margin-top:22px"></div>
@@ -33523,6 +33535,8 @@ window.toggleSidebar = function(){
       if(aggEl) aggEl.innerHTML = '';
       if(warnEl){ warnEl.style.display = 'none'; warnEl.innerHTML = ''; }
       if(listEl) listEl.innerHTML = '';
+      var togEmpty = document.getElementById('mc-view-toggle'); if(togEmpty) togEmpty.style.display = 'none';
+      var tblEmpty = document.getElementById('mc-account-table'); if(tblEmpty){ tblEmpty.style.display='none'; tblEmpty.innerHTML=''; }
       // Hide time period filter (no data to filter)
       var tfEl = document.getElementById('mc-time-filter');
       if(tfEl) tfEl.style.display = 'none';
@@ -33675,23 +33689,50 @@ window.toggleSidebar = function(){
       return ha - hb;
     });
 
-    // Render account cards (guard each so one bad card can't blank the whole list)
-    listEl.innerHTML = accountStatuses.map(function(item){
-      try{
-        var cardHtml = _mcRenderAccountCard(item.acc, item.status, item.pnl, item.tradeCount);
-        if(cardHtml && cardHtml.length) return cardHtml;
-        throw new Error('empty card html');
-      }catch(err){
-        console.error('MC card render failed for', item.acc && item.acc.name, err);
-        // Minimal fallback card so the account is never invisible
-        var nm = (item.acc && item.acc.name) ? item.acc.name : 'Account';
-        var pnlTxt = (item.pnl>=0?'+':'-')+'$'+Math.abs(item.pnl||0).toFixed(0);
-        return '<div onclick="mcDrillDown(\''+(item.acc?item.acc.id:'')+'\')" style="padding:14px 18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;display:flex;justify-content:space-between;align-items:center;cursor:pointer">'+
-          '<span style="font-size:13px;font-weight:600;color:var(--text)">'+nm+'</span>'+
-          '<span style="font-size:16px;font-weight:600;color:'+(item.pnl>=0?'var(--green)':'var(--red)')+'">'+pnlTxt+'</span>'+
-        '</div>';
+    // ── View toggle: cards vs comparison table ──
+    var view = mcGetView();
+    var toggleEl = document.getElementById('mc-view-toggle');
+    var cardsContainer = document.getElementById('mc-account-cards');
+    var tableContainer = document.getElementById('mc-account-table');
+    // Show the toggle only when there are accounts to compare
+    if(toggleEl) toggleEl.style.display = 'flex';
+    // Sync toggle button styles
+    var btnCards = document.getElementById('mc-view-cards');
+    var btnTable = document.getElementById('mc-view-table');
+    if(btnCards && btnTable){
+      var on = 'background:rgba(124,90,240,.2);color:var(--accent3)';
+      var off = 'background:transparent;color:var(--text3)';
+      btnCards.style.cssText = 'font-size:11px;padding:5px 12px;border:none;border-radius:6px;cursor:pointer;font-weight:600;'+(view==='cards'?on:off);
+      btnTable.style.cssText = 'font-size:11px;padding:5px 12px;border:none;border-radius:6px;cursor:pointer;font-weight:600;'+(view==='table'?on:off);
+    }
+
+    if(view === 'table'){
+      if(cardsContainer) cardsContainer.style.display = 'none';
+      if(tableContainer){ tableContainer.style.display = 'block'; tableContainer.innerHTML = mcRenderTable(accountStatuses); }
+      mcRenderTableTabs(accountStatuses);
+      document.getElementById('mc-table-tabs').style.display = 'flex';
+    } else {
+      if(tableContainer) tableContainer.style.display = 'none';
+      var tt = document.getElementById('mc-table-tabs'); if(tt) tt.style.display = 'none';
+      if(cardsContainer){
+        cardsContainer.style.display = 'flex';
+        cardsContainer.innerHTML = accountStatuses.map(function(item){
+          try{
+            var cardHtml = _mcRenderAccountCard(item.acc, item.status, item.pnl, item.tradeCount);
+            if(cardHtml && cardHtml.length) return cardHtml;
+            throw new Error('empty card html');
+          }catch(err){
+            console.error('MC card render failed for', item.acc && item.acc.name, err);
+            var nm = (item.acc && item.acc.name) ? item.acc.name : 'Account';
+            var pnlTxt = (item.pnl>=0?'+':'-')+'$'+Math.abs(item.pnl||0).toFixed(0);
+            return '<div onclick="mcDrillDown(\''+(item.acc?item.acc.id:'')+'\')" style="padding:14px 18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;display:flex;justify-content:space-between;align-items:center;cursor:pointer">'+
+              '<span style="font-size:13px;font-weight:600;color:var(--text)">'+nm+'</span>'+
+              '<span style="font-size:16px;font-weight:600;color:'+(item.pnl>=0?'var(--green)':'var(--red)')+'">'+pnlTxt+'</span>'+
+            '</div>';
+          }
+        }).join('');
       }
-    }).join('');
+    }
 
     // Render payout pipeline
     if(typeof mcRenderPayoutPipeline === 'function') mcRenderPayoutPipeline(accountStatuses);
@@ -34414,6 +34455,150 @@ window.toggleSidebar = function(){
         '<circle cx="'+lastX.toFixed(1)+'" cy="'+lastY.toFixed(1)+'" r="2" fill="'+lineColor+'"/>'+
       '</svg>';
     }catch(e){ return ''; }
+  }
+
+  // ── Mission Control view mode (cards vs comparison table) ──
+  function mcGetView(){ try{ return rfxGet('tq_mc_view') || 'cards'; }catch(e){ return 'cards'; } }
+  window.mcSetView = function(v){
+    try{ rfxSet('tq_mc_view', v); }catch(e){}
+    if(typeof mcRender==='function') mcRender();
+  };
+
+  // Table tab filters (All / Critical / Near Payout / etc.)
+  var MC_TABLE_TABS = [
+    {id:'all', label:'All'},
+    {id:'critical', label:'Critical'},
+    {id:'warning', label:'Warning'},
+    {id:'healthy', label:'Healthy'},
+    {id:'profit', label:'In Profit'}
+  ];
+  function mcGetTableTab(){ try{ return rfxGet('tq_mc_table_tab') || 'all'; }catch(e){ return 'all'; } }
+  window.mcSetTableTab = function(id){ try{ rfxSet('tq_mc_table_tab', id); }catch(e){} if(typeof mcRender==='function') mcRender(); };
+
+  // Table sort
+  function mcGetSort(){ try{ return JSON.parse(rfxGet('tq_mc_sort')||'{"key":"health","dir":"asc"}'); }catch(e){ return {key:'health',dir:'asc'}; } }
+  window.mcSortBy = function(key){
+    var cur = mcGetSort();
+    var dir = (cur.key === key && cur.dir === 'asc') ? 'desc' : 'asc';
+    try{ rfxSet('tq_mc_sort', JSON.stringify({key:key,dir:dir})); }catch(e){}
+    if(typeof mcRender==='function') mcRender();
+  };
+
+  // Render the comparison table (Pit Flow-style command center)
+  function mcRenderTable(accountStatuses){
+    var tab = mcGetTableTab();
+    var sort = mcGetSort();
+    // Filter by tab
+    var rows = accountStatuses.filter(function(item){
+      var st = item.status;
+      if(tab === 'all') return true;
+      if(tab === 'critical') return st && st.breaches && st.breaches.length > 0;
+      if(tab === 'warning') return st && st.warnings && st.warnings.length > 0 && (!st.breaches || !st.breaches.length);
+      if(tab === 'healthy') return st && (!st.breaches || !st.breaches.length) && (!st.warnings || !st.warnings.length);
+      if(tab === 'profit') return item.pnl > 0;
+      return true;
+    });
+    // Sort
+    rows.sort(function(a,b){
+      var va, vb;
+      switch(sort.key){
+        case 'name': va=(a.acc.name||'').toLowerCase(); vb=(b.acc.name||'').toLowerCase(); break;
+        case 'pnl': va=a.pnl; vb=b.pnl; break;
+        case 'dd': va=a.status?a.status.maxDdPctOf||0:0; vb=b.status?b.status.maxDdPctOf||0:0; break;
+        case 'trades': va=a.tradeCount; vb=b.tradeCount; break;
+        default: va=a.status?a.status.health:100; vb=b.status?b.status.health:100;
+      }
+      if(va<vb) return sort.dir==='asc'?-1:1;
+      if(va>vb) return sort.dir==='asc'?1:-1;
+      return 0;
+    });
+
+    function sortArrow(key){ return sort.key===key ? (sort.dir==='asc'?' ▲':' ▼') : ''; }
+    var th = function(label, key, align){
+      return '<th onclick="mcSortBy(\''+key+'\')" style="text-align:'+(align||'left')+';padding:8px 12px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);cursor:pointer;user-select:none;white-space:nowrap;border-bottom:1px solid rgba(255,255,255,.08)">'+label+sortArrow(key)+'</th>';
+    };
+
+    var rowsHtml = rows.map(function(item){
+      var acc=item.acc, st=item.status, pnl=item.pnl;
+      // Status badge
+      var statusLabel='HEALTHY', sColor='var(--green)', sBg='rgba(29,233,182,.15)';
+      if(st && st.breaches.length>0){ statusLabel='CRITICAL'; sColor='var(--red)'; sBg='rgba(239,68,68,.18)'; }
+      else if(st && st.warnings.length>0){ statusLabel='WARNING'; sColor='#fbbf24'; sBg='rgba(251,191,36,.16)'; }
+      else if(!st){ statusLabel='NO RULES'; sColor='var(--text3)'; sBg='rgba(255,255,255,.06)'; }
+      // Firm abbr
+      var firmName=acc.propFirm||acc.name||'?';
+      var firmAbbr=firmName.replace(/[^A-Z]/g,'').slice(0,4)||firmName.slice(0,3).toUpperCase();
+      if(firmName.toLowerCase().indexOf('fundednext')>=0) firmAbbr='FN';
+      if(firmName.toLowerCase().indexOf('ftmo')>=0) firmAbbr='FTMO';
+      if(firmName.toLowerCase().indexOf('apex')>=0) firmAbbr='APEX';
+      var ddPct = st ? (st.maxDdPctOf||0) : 0;
+      var ddColor = ddPct>=80?'var(--red)':ddPct>=60?'#fbbf24':'var(--green)';
+      var health = st?st.health:100;
+      var hColor = health>=70?'var(--green)':health>=40?'#fbbf24':'var(--red)';
+      var pnlColor = pnl>=0?'var(--green)':'var(--red)';
+      var pnlStr = (pnl>=0?'+':'-')+'$'+Math.abs(pnl).toFixed(0);
+      // Safe today
+      var safeStr='—', safeColor='var(--text3)';
+      if(st && acc.dailyLossLimit!=null){
+        var sb=(typeof accGetStartingPoint==='function')?(accGetStartingPoint(acc).balance||0):(parseFloat(acc.startingBalance||acc.balance)||0);
+        var lim=acc.ddMode==='dollar'?acc.dailyLossLimit:(sb*acc.dailyLossLimit/100);
+        var safe=Math.max(0,lim-(st.dailyLossAbs||0));
+        safeStr='$'+safe.toFixed(0);
+        safeColor=safe<=lim*0.2?'var(--red)':safe<=lim*0.5?'#fbbf24':'var(--green)';
+      }
+      var spark=_mcAccountSparkline(acc,pnl);
+      return '<tr onclick="mcDrillDown(\''+acc.id+'\')" style="cursor:pointer;transition:background .15s" onmouseover="this.style.background=\'rgba(255,255,255,.03)\'" onmouseout="this.style.background=\'\'">'+
+        '<td style="padding:11px 12px;border-bottom:1px solid rgba(255,255,255,.05)">'+
+          '<div style="display:flex;align-items:center;gap:10px">'+
+            '<div style="width:34px;height:34px;background:'+sBg+';border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:'+sColor+';letter-spacing:.5px;flex-shrink:0">'+firmAbbr+'</div>'+
+            '<div style="min-width:0"><div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(acc.name)+'</div>'+
+            '<div style="font-size:10px;color:var(--text3)">'+item.tradeCount+' trades</div></div>'+
+          '</div>'+
+        '</td>'+
+        '<td style="padding:11px 12px;border-bottom:1px solid rgba(255,255,255,.05)"><span style="font-size:10px;padding:3px 8px;background:'+sBg+';color:'+sColor+';border-radius:4px;font-weight:700;letter-spacing:.4px;white-space:nowrap">'+statusLabel+'</span></td>'+
+        '<td style="padding:11px 12px;text-align:right;border-bottom:1px solid rgba(255,255,255,.05);font-variant-numeric:tabular-nums;font-weight:600;font-size:14px;color:'+pnlColor+'">'+pnlStr+'</td>'+
+        '<td style="padding:11px 12px;text-align:right;border-bottom:1px solid rgba(255,255,255,.05);font-variant-numeric:tabular-nums;color:'+ddColor+';font-weight:600;font-size:13px">'+ddPct.toFixed(0)+'%</td>'+
+        '<td style="padding:11px 12px;text-align:right;border-bottom:1px solid rgba(255,255,255,.05);font-variant-numeric:tabular-nums;color:'+hColor+';font-weight:600;font-size:13px">'+health+'%</td>'+
+        '<td style="padding:11px 12px;text-align:right;border-bottom:1px solid rgba(255,255,255,.05);font-variant-numeric:tabular-nums;color:'+safeColor+';font-weight:600;font-size:13px">'+safeStr+'</td>'+
+        '<td style="padding:11px 12px;text-align:right;border-bottom:1px solid rgba(255,255,255,.05)">'+(spark||'<span style="color:var(--text3);font-size:11px">—</span>')+'</td>'+
+      '</tr>';
+    }).join('');
+
+    return '<div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.08);border-radius:12px;overflow:hidden;overflow-x:auto">'+
+      '<table style="width:100%;border-collapse:collapse;min-width:640px">'+
+        '<thead><tr>'+
+          th('Account','name','left')+
+          '<th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);border-bottom:1px solid rgba(255,255,255,.08)">Status</th>'+
+          th('P&L','pnl','right')+
+          th('DD Used','dd','right')+
+          th('Health','health','right')+
+          '<th style="text-align:right;padding:8px 12px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);border-bottom:1px solid rgba(255,255,255,.08)">Safe Today</th>'+
+          '<th style="text-align:right;padding:8px 12px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);border-bottom:1px solid rgba(255,255,255,.08)">14d Trend</th>'+
+        '</tr></thead>'+
+        '<tbody>'+(rowsHtml || '<tr><td colspan="7" style="padding:30px;text-align:center;color:var(--text3);font-size:13px">No accounts match this filter</td></tr>')+'</tbody>'+
+      '</table>'+
+    '</div>';
+  }
+
+  // Render the table filter tabs
+  function mcRenderTableTabs(accountStatuses){
+    var tabsEl = document.getElementById('mc-table-tabs');
+    if(!tabsEl) return;
+    var active = mcGetTableTab();
+    tabsEl.innerHTML = MC_TABLE_TABS.map(function(t){
+      // count for each tab
+      var n = accountStatuses.filter(function(item){
+        var st=item.status;
+        if(t.id==='all') return true;
+        if(t.id==='critical') return st && st.breaches.length>0;
+        if(t.id==='warning') return st && st.warnings.length>0 && !st.breaches.length;
+        if(t.id==='healthy') return st && !st.breaches.length && !st.warnings.length;
+        if(t.id==='profit') return item.pnl>0;
+        return true;
+      }).length;
+      var isActive = active===t.id;
+      return '<button onclick="mcSetTableTab(\''+t.id+'\')" style="font-size:11px;padding:6px 12px;border-radius:7px;border:1px solid '+(isActive?'var(--accent)':'rgba(255,255,255,.1)')+';background:'+(isActive?'rgba(124,90,240,.15)':'transparent')+';color:'+(isActive?'var(--accent3)':'var(--text3)')+';cursor:pointer;font-weight:600;white-space:nowrap">'+t.label+' <span style="opacity:.6">'+n+'</span></button>';
+    }).join('');
   }
 
   function _mcRenderAccountCard(acc, st, pnl, tradeCount){
