@@ -3753,6 +3753,9 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(124,90,240,.15);outlin
 .ck-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px 28px;position:relative;overflow:hidden;transition:border-color .2s}
 /* Cockpit appeared zoomed-out vs other pages — scale the whole page up ~6% uniformly */
 #page-cockpit{zoom:1.06}
+/* Mission Control — bump small text in cards, table, and analytics for readability */
+#mc-account-cards, #mc-account-table, #mc-analytics{zoom:1.12}
+#mc-account-cards [style*="font-size:10px"], #mc-analytics [style*="font-size:10px"]{font-size:11.5px !important}
 .ck-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.1}
 .ck-pair-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px 22px;margin-bottom:14px;position:relative;overflow:hidden;transition:border-color .2s}
 .ck-pair-title{font-size:18px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:10px}
