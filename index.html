@@ -3755,6 +3755,7 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(124,90,240,.15);outlin
 #page-cockpit{zoom:1.06}
 /* Mission Control — bump small text in cards, table, and analytics for readability */
 #mc-account-cards, #mc-account-table, #mc-analytics{zoom:1.18}
+@keyframes mcPulseDot{0%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(1.35)}100%{opacity:1;transform:scale(1)}}
 #mc-account-cards [style*="font-size:10px"], #mc-analytics [style*="font-size:10px"]{font-size:11.5px !important}
 .ck-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.1}
 .ck-pair-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px 22px;margin-bottom:14px;position:relative;overflow:hidden;transition:border-color .2s}
@@ -33661,27 +33662,33 @@ window.toggleSidebar = function(){
     // Aggregate strip
     var avgHealth = healthCount > 0 ? Math.round(healthSum/healthCount) : 0;
     var healthColor = avgHealth >= 70 ? 'var(--green)' : avgHealth >= 40 ? '#fbbf24' : 'var(--red)';
-    var criticalBg = criticalCount > 0 ? 'rgba(239,68,68,.08)' : 'rgba(255,255,255,.04)';
-    var criticalBorder = criticalCount > 0 ? 'rgba(239,68,68,.2)' : 'rgba(255,255,255,.08)';
     var criticalColor = criticalCount > 0 ? 'var(--red)' : 'var(--text)';
 
-    aggEl.innerHTML =
-      '<div style="padding:14px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px">'+
-        '<div style="font-size:11px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700">Total Funded</div>'+
-        '<div style="font-size:20px;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums;letter-spacing:-.4px">$'+totalFunded.toLocaleString()+'</div>'+
-      '</div>'+
-      '<div style="padding:14px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px">'+
-        '<div style="font-size:11px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700">DD Room Available</div>'+
-        '<div style="font-size:20px;font-weight:600;margin-top:4px;color:#fbbf24;font-variant-numeric:tabular-nums;letter-spacing:-.4px">$'+totalRisk.toFixed(0)+'</div>'+
-      '</div>'+
-      '<div style="padding:14px 16px;background:'+criticalBg+';border:1px solid '+criticalBorder+';border-radius:10px">'+
-        '<div style="font-size:11px;color:'+(criticalCount>0?'var(--red)':'var(--text3)')+';letter-spacing:.5px;text-transform:uppercase;font-weight:700">Critical Alerts</div>'+
-        '<div style="font-size:20px;font-weight:600;margin-top:4px;color:'+criticalColor+';font-variant-numeric:tabular-nums;letter-spacing:-.4px">'+criticalCount+(warningCount > 0 ? '<span style="font-size:11px;color:#fbbf24;margin-left:6px">+'+warningCount+' warn</span>':'')+'</div>'+
-      '</div>'+
-      '<div style="padding:14px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px">'+
-        '<div style="font-size:11px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700">Avg Health</div>'+
-        '<div style="font-size:20px;font-weight:600;margin-top:4px;color:'+healthColor+';font-variant-numeric:tabular-nums;letter-spacing:-.4px">'+avgHealth+'%</div>'+
+    // Reusable tile builder: accent bar + icon + label + value (+ optional pulse dot)
+    function _mcAggTile(opts){
+      var accent = opts.accent;
+      var pulse = opts.pulse ? '<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:'+accent+';margin-left:7px;animation:mcPulseDot 1.6s ease-in-out infinite"></span>' : '';
+      return '<div style="position:relative;padding:14px 16px 14px 18px;background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden">'+
+        '<div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:'+accent+';opacity:.85"></div>'+
+        '<div style="display:flex;align-items:center;gap:7px">'+
+          '<span style="display:flex;color:'+accent+';opacity:.9">'+opts.icon+'</span>'+
+          '<span style="font-size:11px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700">'+opts.label+'</span>'+
+        '</div>'+
+        '<div style="font-size:21px;font-weight:600;margin-top:6px;color:'+opts.valueColor+';font-variant-numeric:tabular-nums;letter-spacing:-.4px;display:flex;align-items:center">'+opts.value+pulse+'</div>'+
       '</div>';
+    }
+
+    // Icons (16px line svg)
+    var icoFunded = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>';
+    var icoDD = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>';
+    var icoAlert = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>';
+    var icoHealth = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>';
+
+    aggEl.innerHTML =
+      _mcAggTile({label:'Total Funded', value:'$'+totalFunded.toLocaleString(), valueColor:'var(--text)', accent:'#7c5af0', icon:icoFunded})+
+      _mcAggTile({label:'DD Room Available', value:'$'+totalRisk.toFixed(0), valueColor:'#fbbf24', accent:'#fbbf24', icon:icoDD})+
+      _mcAggTile({label:'Critical Alerts', value:criticalCount+(warningCount>0?'<span style="font-size:11px;color:#fbbf24;margin-left:6px">+'+warningCount+' warn</span>':''), valueColor:criticalColor, accent:criticalCount>0?'#ef4444':'#3f3f5a', icon:icoAlert, pulse:criticalCount>0})+
+      _mcAggTile({label:'Avg Health', value:avgHealth+'%', valueColor:healthColor, accent:healthColor, icon:icoHealth, pulse:avgHealth<40});
 
     // Critical warnings banner
     var criticalAccs = accountStatuses.filter(function(x){ return x.status && x.status.breaches.length > 0; });
