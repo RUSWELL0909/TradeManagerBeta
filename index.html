@@ -3756,6 +3756,9 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(124,90,240,.15);outlin
 /* Mission Control — bump small text in cards, table, and analytics for readability */
 #mc-account-cards, #mc-account-table, #mc-analytics{zoom:1.18}
 @keyframes mcPulseDot{0%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(1.35)}100%{opacity:1;transform:scale(1)}}
+#mc-portfolio-insights{zoom:1.05}
+@media(max-width:980px){#mc-portfolio-insights > div{grid-template-columns:repeat(2,1fr)!important}}
+@media(max-width:560px){#mc-portfolio-insights > div{grid-template-columns:1fr!important}}
 #mc-account-cards [style*="font-size:10px"], #mc-analytics [style*="font-size:10px"]{font-size:11.5px !important}
 .ck-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.1}
 .ck-pair-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px 22px;margin-bottom:14px;position:relative;overflow:hidden;transition:border-color .2s}
@@ -5637,6 +5640,9 @@ window.toggleSidebar = function(){
 
     <!-- AGGREGATE KPI STRIP -->
     <div id="mc-agg-strip" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px"></div>
+
+    <!-- PORTFOLIO INSIGHTS (6 metrics with mini-charts) -->
+    <div id="mc-portfolio-insights" style="display:none;margin-bottom:18px"></div>
 
     <!-- INFOGRAPHIC: health gauge + account heatmap -->
     <div id="mc-infographic" style="display:none;margin-bottom:18px"></div>
@@ -33552,6 +33558,7 @@ window.toggleSidebar = function(){
       if(listEl) listEl.innerHTML = '';
       var togEmpty = document.getElementById('mc-view-toggle'); if(togEmpty) togEmpty.style.display = 'none';
       var infoEmpty = document.getElementById('mc-infographic'); if(infoEmpty){ infoEmpty.style.display='none'; infoEmpty.innerHTML=''; }
+      var piEmpty = document.getElementById('mc-portfolio-insights'); if(piEmpty){ piEmpty.style.display='none'; piEmpty.innerHTML=''; }
       var eqEmpty = document.getElementById('mc-equity-curve'); if(eqEmpty){ eqEmpty.style.display='none'; eqEmpty.innerHTML=''; }
       var tabsEmpty = document.getElementById('mc-tabs-wrap'); if(tabsEmpty){ tabsEmpty.style.display='none'; }
       var dtfEmpty = document.getElementById('mc-days-to-funded'); if(dtfEmpty){ dtfEmpty.style.display='none'; dtfEmpty.innerHTML=''; }
@@ -33714,6 +33721,9 @@ window.toggleSidebar = function(){
       var hb = b.status ? b.status.health : 100;
       return ha - hb;
     });
+
+    // ── Portfolio insights (6 metrics with mini-charts) ──
+    if(typeof mcRenderPortfolioInsights === 'function') mcRenderPortfolioInsights(accountStatuses, tradesForPnl);
 
     // ── Infographic header (health gauge + heatmap) ──
     if(typeof mcRenderInfographic === 'function') mcRenderInfographic(accountStatuses, avgHealth);
@@ -34181,10 +34191,35 @@ window.toggleSidebar = function(){
   }
   window.mcRenderInsights = mcRenderInsights;
 
+  window.mcToggleInsights = function(){
+    try{
+      var cur = rfxGet('tq_mc_insights_collapsed') === '1';
+      rfxSet('tq_mc_insights_collapsed', cur ? '0' : '1');
+    }catch(e){}
+    // Re-render insights section only
+    try{
+      if(rfxGet('tq_mc_insights_collapsed')==='1'){ _mcRenderInsightsPlaceholder(); return; }
+      var cached = null;
+      try{ var raw = rfxGet(MC_INSIGHTS_CACHE_KEY); if(raw) cached = JSON.parse(raw); }catch(e){}
+      if(cached && cached.insights){ _mcRenderInsightsHtml(cached.insights, cached.ts); }
+      else { _mcRenderInsightsPlaceholder(); }
+    }catch(e){ if(typeof mcRender==='function') mcRender(); }
+  };
+
   function _mcRenderInsightsPlaceholder(){
     var card = document.getElementById('mc-insights-card');
     if(!card) return;
     card.style.display = 'block';
+    // Collapsed state — show slim bar with expand button
+    var collapsed = false;
+    try{ collapsed = rfxGet('tq_mc_insights_collapsed') === '1'; }catch(e){}
+    if(collapsed){
+      card.innerHTML = '<div onclick="mcToggleInsights()" style="padding:11px 18px;background:var(--card);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:space-between;cursor:pointer">'+
+        '<div style="display:flex;align-items:center;gap:8px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent3)" stroke-width="1.8"><path d="M9 18h6M10 22h4M12 2v3M5.5 7.5l-2-2M18.5 7.5l2-2M2 14h3M19 14h3M7 14a5 5 0 1 1 10 0c0 3-3 4-3 6h-4c0-2-3-3-3-6z"/></svg><span style="font-size:12px;font-weight:600;color:var(--text2)">Smart Insights</span></div>'+
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'+
+      '</div>';
+      return;
+    }
     card.innerHTML =
       '<div style="padding:18px 22px;background:linear-gradient(135deg,rgba(124,90,240,.06),rgba(29,233,182,.03));border:1px solid rgba(124,90,240,.18);border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap">'+
         '<div style="display:flex;align-items:center;gap:10px">'+
@@ -34196,7 +34231,10 @@ window.toggleSidebar = function(){
             '<div style="font-size:11px;color:var(--text2);margin-top:2px">AI analysis of your accounts &amp; patterns</div>'+
           '</div>'+
         '</div>'+
-        '<button onclick="mcGenerateInsights()" id="mc-insights-generate-btn" style="font-size:11px;padding:8px 16px;background:var(--accent);border:none;color:#fff;border-radius:7px;cursor:pointer;font-weight:600;letter-spacing:.3px;box-shadow:0 1px 4px rgba(124,90,240,.4)">Generate Insights</button>'+
+        '<div style="display:flex;align-items:center;gap:8px">'+
+          '<button onclick="mcGenerateInsights()" id="mc-insights-generate-btn" style="font-size:11px;padding:8px 16px;background:var(--accent);border:none;color:#fff;border-radius:7px;cursor:pointer;font-weight:600;letter-spacing:.3px;box-shadow:0 1px 4px rgba(124,90,240,.4)">Generate Insights</button>'+
+          '<button onclick="mcToggleInsights()" title="Collapse" style="width:30px;height:30px;display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid var(--border);border-radius:7px;cursor:pointer;color:var(--text3)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>'+
+        '</div>'+
       '</div>';
   }
 
@@ -34204,6 +34242,10 @@ window.toggleSidebar = function(){
     var card = document.getElementById('mc-insights-card');
     if(!card) return;
     card.style.display = 'block';
+    // Respect collapsed state
+    var collapsed = false;
+    try{ collapsed = rfxGet('tq_mc_insights_collapsed') === '1'; }catch(e){}
+    if(collapsed){ _mcRenderInsightsPlaceholder(); return; }
     var ageMin = Math.round((Date.now() - ts) / 60000);
     var ageStr = ageMin < 1 ? 'just now' : ageMin === 1 ? '1 min ago' : ageMin + ' min ago';
 
@@ -34658,8 +34700,8 @@ window.toggleSidebar = function(){
     // Value labels for max/min (luxury informative touch)
     var maxLabel = (maxV>=0?'+':'')+'$'+Math.abs(maxV).toFixed(0);
     var minLabel = (minV>=0?'+':'')+'$'+Math.abs(minV).toFixed(0);
-    var axisLabels = '<text x="'+(W-padR)+'" y="'+(yAt(maxV)-4).toFixed(1)+'" text-anchor="end" font-size="11" fill="var(--text3)" font-family="Inter,sans-serif">'+maxLabel+'</text>'+
-      '<text x="'+(W-padR)+'" y="'+(yAt(minV)+12).toFixed(1)+'" text-anchor="end" font-size="11" fill="var(--text3)" font-family="Inter,sans-serif">'+minLabel+'</text>';
+    var axisLabels = '<text x="'+(W-padR)+'" y="'+(yAt(maxV)-5).toFixed(1)+'" text-anchor="end" font-size="14" font-weight="600" fill="var(--text2)" font-family="Inter,sans-serif">'+maxLabel+'</text>'+
+      '<text x="'+(W-padR)+'" y="'+(yAt(minV)+15).toFixed(1)+'" text-anchor="end" font-size="14" font-weight="600" fill="var(--text2)" font-family="Inter,sans-serif">'+minLabel+'</text>';
 
     el.style.display='block';
     el.innerHTML = '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px">'+
@@ -34808,6 +34850,143 @@ window.toggleSidebar = function(){
     el.innerHTML = '<div style="margin-bottom:10px;display:flex;align-items:center;gap:8px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent3)" stroke-width="2"><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="6"/></svg><span style="font-size:13px;font-weight:600;color:var(--text)">Days to Funded</span></div>'+
       '<div style="display:flex;gap:12px;flex-wrap:wrap">'+cards+'</div>';
   }
+
+  // ── Portfolio Insights: 6 premium metrics with mini-charts ──
+  function mcRenderPortfolioInsights(accountStatuses, tradesForPnl){
+    var el = document.getElementById('mc-portfolio-insights');
+    if(!el) return;
+    if(!accountStatuses || accountStatuses.length === 0){ el.style.display='none'; el.innerHTML=''; return; }
+
+    var PALETTE = ['#7c5af0','#1de9b6','#5cc8ff','#fbbf24','#ef4444','#f472b6','#a78bfa','#34d399'];
+
+    // ── 1. Risk concentration (capital share per firm) ──
+    var firmCapital = {}; var totalCap = 0;
+    accountStatuses.forEach(function(it){
+      var firm = it.acc.propFirm || it.acc.name || 'Other';
+      var cap = parseFloat(it.acc.startingBalance || it.acc.balance) || 0;
+      firmCapital[firm] = (firmCapital[firm]||0) + cap;
+      totalCap += cap;
+    });
+    var firmArr = Object.keys(firmCapital).map(function(f){ return {firm:f, cap:firmCapital[f], pct: totalCap?(firmCapital[f]/totalCap*100):0}; }).sort(function(a,b){ return b.cap-a.cap; });
+    var topConcentration = firmArr.length ? firmArr[0].pct : 0;
+    var concColor = topConcentration>=70 ? 'var(--red)' : topConcentration>=50 ? '#fbbf24' : 'var(--green)';
+    // donut for concentration
+    var donutSegs = ''; var offset = 0; var circ = 2*Math.PI*30;
+    firmArr.slice(0,6).forEach(function(f, i){
+      var seg = (f.pct/100)*circ;
+      donutSegs += '<circle cx="40" cy="40" r="30" fill="none" stroke="'+PALETTE[i%PALETTE.length]+'" stroke-width="12" stroke-dasharray="'+seg.toFixed(1)+' '+(circ-seg).toFixed(1)+'" stroke-dashoffset="'+(-offset).toFixed(1)+'" transform="rotate(-90 40 40)"/>';
+      offset += seg;
+    });
+    var concentrationCard = _mcInsightCard({
+      label:'Risk Concentration', accent:concColor,
+      visual:'<svg width="80" height="80" viewBox="0 0 80 80">'+donutSegs+'<text x="40" y="44" text-anchor="middle" font-size="16" font-weight="700" fill="'+concColor+'" font-family="Inter">'+topConcentration.toFixed(0)+'%</text></svg>',
+      main: firmArr.length ? escapeHtml(firmArr[0].firm) : '—',
+      sub: topConcentration>=70 ? 'High concentration risk' : topConcentration>=50 ? 'Moderate concentration' : 'Well diversified'
+    });
+
+    // ── 2. Best / Worst account ──
+    var sorted = accountStatuses.slice().sort(function(a,b){ return b.pnl-a.pnl; });
+    var best = sorted[0], worst = sorted[sorted.length-1];
+    var bwCard = _mcInsightCard({
+      label:'Best / Worst Account', accent:'#7c5af0',
+      visual:'<svg width="80" height="80" viewBox="0 0 80 80"><path d="M40 14 L48 34 L40 30 L32 34 Z" fill="var(--green)"/><path d="M40 66 L48 46 L40 50 L32 46 Z" fill="var(--red)"/></svg>',
+      main:'<span style="color:var(--green)">'+escapeHtml((best.acc.name||'').slice(0,16))+'</span>',
+      sub:'<span style="color:var(--green)">+$'+Math.abs(best.pnl).toFixed(0)+'</span> · worst <span style="color:var(--red)">'+escapeHtml((worst.acc.name||'').slice(0,12))+'</span>'
+    });
+
+    // ── 3. Funded vs Challenge split ──
+    var funded=0, challenge=0;
+    accountStatuses.forEach(function(it){
+      if(it.acc.profitTarget != null && it.status && !it.status.profitTargetMet) challenge++;
+      else funded++;
+    });
+    var totalAcc = funded+challenge;
+    var fundedPct = totalAcc?(funded/totalAcc*100):0;
+    var splitBar = '<svg width="80" height="80" viewBox="0 0 80 80">'+
+      '<circle cx="40" cy="40" r="30" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="12"/>'+
+      '<circle cx="40" cy="40" r="30" fill="none" stroke="var(--green)" stroke-width="12" stroke-dasharray="'+((fundedPct/100)*circ).toFixed(1)+' '+circ+'" transform="rotate(-90 40 40)"/>'+
+      '<text x="40" y="44" text-anchor="middle" font-size="15" font-weight="700" fill="var(--text)" font-family="Inter">'+funded+'/'+totalAcc+'</text></svg>';
+    var splitCard = _mcInsightCard({
+      label:'Funded vs Challenge', accent:'var(--green)',
+      visual:splitBar,
+      main:funded+' funded · '+challenge+' challenge',
+      sub: challenge>0 ? challenge+' account'+(challenge>1?'s':'')+' in progress' : 'All accounts funded'
+    });
+
+    // ── 4. Aggregate win rate ──
+    var wins=0, losses=0;
+    tradesForPnl.forEach(function(t){
+      var p = (typeof tqConvertTradePnl==='function')?tqConvertTradePnl(t):(parseFloat(t.pnl)||0);
+      if(p>1) wins++; else if(p<-1) losses++;
+    });
+    var totalWL = wins+losses;
+    var wr = totalWL?(wins/totalWL*100):0;
+    var wrColor = wr>=50?'var(--green)':wr>=40?'#fbbf24':'var(--red)';
+    // mini bar
+    var wrBar = '<svg width="80" height="80" viewBox="0 0 80 80">'+
+      '<circle cx="40" cy="40" r="30" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="12"/>'+
+      '<circle cx="40" cy="40" r="30" fill="none" stroke="'+wrColor+'" stroke-width="12" stroke-dasharray="'+((wr/100)*circ).toFixed(1)+' '+circ+'" stroke-linecap="round" transform="rotate(-90 40 40)"/>'+
+      '<text x="40" y="44" text-anchor="middle" font-size="16" font-weight="700" fill="'+wrColor+'" font-family="Inter">'+wr.toFixed(0)+'%</text></svg>';
+    var wrCard = _mcInsightCard({
+      label:'Aggregate Win Rate', accent:wrColor,
+      visual:wrBar,
+      main:wins+'W / '+losses+'L',
+      sub:'Across '+accountStatuses.length+' account'+(accountStatuses.length>1?'s':'')
+    });
+
+    // ── 5. Total payouts pending (accounts eligible: profit target met) ──
+    var pendingCount=0, pendingAmount=0;
+    accountStatuses.forEach(function(it){
+      if(it.status && it.status.profitTargetMet && it.pnl>0){
+        pendingCount++;
+        // payout = profit * split (default 80% if not set)
+        var split = it.acc.profitSplit != null ? it.acc.profitSplit/100 : 0.8;
+        pendingAmount += it.pnl * split;
+      }
+    });
+    var payoutCard = _mcInsightCard({
+      label:'Payouts Pending', accent:pendingCount>0?'var(--green)':'var(--text3)',
+      visual:'<svg width="80" height="80" viewBox="0 0 80 80"><rect x="18" y="28" width="44" height="30" rx="4" fill="none" stroke="'+(pendingCount>0?'var(--green)':'var(--text3)')+'" stroke-width="2.5"/><path d="M18 36h44" stroke="'+(pendingCount>0?'var(--green)':'var(--text3)')+'" stroke-width="2.5"/><circle cx="52" cy="47" r="3" fill="'+(pendingCount>0?'var(--green)':'var(--text3)')+'"/></svg>',
+      main: pendingCount>0 ? '~$'+pendingAmount.toFixed(0) : '$0',
+      sub: pendingCount>0 ? pendingCount+' account'+(pendingCount>1?'s':'')+' eligible' : 'None eligible yet'
+    });
+
+    // ── 6. Risk of ruin (simplified: based on avg health + win rate) ──
+    var avgH = 0; accountStatuses.forEach(function(it){ avgH += (it.status?it.status.health:100); }); avgH /= accountStatuses.length;
+    // rough heuristic: lower health + lower WR = higher risk
+    var ror = Math.max(0, Math.min(100, Math.round((100-avgH)*0.6 + (wr<50?(50-wr):0)*0.8)));
+    var rorColor = ror>=50?'var(--red)':ror>=25?'#fbbf24':'var(--green)';
+    var rorBar = '<svg width="80" height="80" viewBox="0 0 80 80">'+
+      '<circle cx="40" cy="40" r="30" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="12"/>'+
+      '<circle cx="40" cy="40" r="30" fill="none" stroke="'+rorColor+'" stroke-width="12" stroke-dasharray="'+((ror/100)*circ).toFixed(1)+' '+circ+'" stroke-linecap="round" transform="rotate(-90 40 40)"/>'+
+      '<text x="40" y="44" text-anchor="middle" font-size="16" font-weight="700" fill="'+rorColor+'" font-family="Inter">'+ror+'%</text></svg>';
+    var rorCard = _mcInsightCard({
+      label:'Risk of Ruin', accent:rorColor,
+      visual:rorBar,
+      main: ror>=50?'High':ror>=25?'Moderate':'Low',
+      sub:'Based on health & win rate'
+    });
+
+    el.style.display='block';
+    el.innerHTML = '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">'+
+      concentrationCard+bwCard+splitCard+wrCard+payoutCard+rorCard+
+    '</div>';
+  }
+
+  // Premium insight card builder
+  function _mcInsightCard(o){
+    return '<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;display:flex;align-items:center;gap:14px;min-width:0;position:relative;overflow:hidden">'+
+      '<div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:'+o.accent+';opacity:.7"></div>'+
+      '<div style="flex-shrink:0">'+o.visual+'</div>'+
+      '<div style="min-width:0;flex:1">'+
+        '<div style="font-size:10px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700;margin-bottom:5px">'+o.label+'</div>'+
+        '<div style="font-size:15px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px">'+o.main+'</div>'+
+        '<div style="font-size:11px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+o.sub+'</div>'+
+      '</div>'+
+    '</div>';
+  }
+
+  // ── Portfolio Insights end ──
 
   function mcRenderInfographic(accountStatuses, avgHealth){
     var el = document.getElementById('mc-infographic');
