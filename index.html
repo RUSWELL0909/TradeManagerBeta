@@ -34551,7 +34551,7 @@ window.toggleSidebar = function(){
     allVals.push(0);
     var minV = Math.min.apply(null, allVals), maxV = Math.max.apply(null, allVals);
     var range = (maxV - minV) || 1;
-    var W = 1000, H = 200, padL = 8, padR = 8, padT = 12, padB = 12;
+    var W = 1000, H = 130, padL = 8, padR = 8, padT = 14, padB = 14;
     var plotW = W - padL - padR, plotH = H - padT - padB;
     function xAt(i){ return padL + (i/(dates.length-1))*plotW; }
     function yAt(v){ return padT + (1 - (v-minV)/range)*plotH; }
@@ -34561,7 +34561,19 @@ window.toggleSidebar = function(){
     var zeroLine = '<line x1="'+padL+'" y1="'+zeroY.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+zeroY.toFixed(1)+'" stroke="rgba(255,255,255,.12)" stroke-width="1" stroke-dasharray="3 4"/>';
 
     var paths = lines.map(function(l){
-      var d = l.pts.map(function(v,i){ return (i===0?'M':'L')+' '+xAt(i).toFixed(1)+' '+yAt(v).toFixed(1); }).join(' ');
+      // Build a smooth path (Catmull-Rom → cubic bezier) for a nicer curve
+      var P = l.pts.map(function(v,i){ return {x:xAt(i), y:yAt(v)}; });
+      var d;
+      if(P.length < 2){ d = ''; }
+      else {
+        d = 'M '+P[0].x.toFixed(1)+' '+P[0].y.toFixed(1);
+        for(var pi=0; pi<P.length-1; pi++){
+          var p0 = P[pi-1]||P[pi], p1 = P[pi], p2 = P[pi+1], p3 = P[pi+2]||p2;
+          var c1x = p1.x + (p2.x - p0.x)/6, c1y = p1.y + (p2.y - p0.y)/6;
+          var c2x = p2.x - (p3.x - p1.x)/6, c2y = p2.y - (p3.y - p1.y)/6;
+          d += ' C '+c1x.toFixed(1)+' '+c1y.toFixed(1)+' '+c2x.toFixed(1)+' '+c2y.toFixed(1)+' '+p2.x.toFixed(1)+' '+p2.y.toFixed(1);
+        }
+      }
       var lastV = l.pts[l.pts.length-1];
       var dot = '<circle cx="'+xAt(l.pts.length-1).toFixed(1)+'" cy="'+yAt(lastV).toFixed(1)+'" r="3" fill="'+l.color+'"/>';
       // area fill for combined mode
@@ -34598,7 +34610,7 @@ window.toggleSidebar = function(){
         '<div style="display:flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent3)" stroke-width="2"><path d="M3 3v18h18"/><path d="M19 9l-5 5-4-4-3 3"/></svg><span style="font-size:14px;font-weight:600;color:var(--text)">Portfolio Equity Curve</span></div>'+
         toggleBtns+
       '</div>'+
-      '<svg width="100%" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" style="display:block">'+
+      '<svg width="100%" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" style="display:block;height:130px">'+
         '<defs><linearGradient id="mcEqGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7c5af0" stop-opacity="0.35"/><stop offset="100%" stop-color="#7c5af0" stop-opacity="0"/></linearGradient></defs>'+
         zeroLine + paths +
       '</svg>'+
