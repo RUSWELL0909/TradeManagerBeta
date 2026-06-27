@@ -5643,6 +5643,12 @@ window.toggleSidebar = function(){
     <!-- PORTFOLIO EQUITY CURVE -->
     <div id="mc-equity-curve" style="display:none;margin-bottom:18px"></div>
 
+    <!-- DAYS TO FUNDED (challenge accounts) -->
+    <div id="mc-days-to-funded" style="display:none;margin-bottom:18px"></div>
+
+    <!-- PAYOUT HISTORY + YTD -->
+    <div id="mc-payout-history" style="display:none;margin-bottom:18px"></div>
+
     <!-- WARNINGS BAR (if any breaches) -->
     <div id="mc-warnings-bar" style="display:none;margin-bottom:18px"></div>
 
@@ -6392,6 +6398,10 @@ window.toggleSidebar = function(){
     <div class="page-header">
       <div><div class="page-title">Journal</div><div class="page-sub">Log, review, and learn from every trade</div></div>
       <div style="display:flex;gap:8px;align-items:center">
+        <label class="btn btn-ghost" title="Import trades from CSV or Excel" style="font-size:12px;padding:8px 14px;display:flex;align-items:center;gap:6px;cursor:pointer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>Import
+          <input type="file" id="jr-csv-input" accept=".csv,.xlsx,.xls" style="display:none" onchange="jrCsvPreImport(this)">
+        </label>
+        <button class="btn btn-ghost" onclick="jrExportCSV()" title="Export all trades to CSV" style="font-size:12px;padding:8px 14px;display:flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Export</button>
         <button class="btn btn-ghost" onclick="jrOpenBulkEdit()" title="Apply tags/setup to multiple trades at once" style="font-size:12px;padding:8px 14px;display:flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11H5a2 2 0 00-2 2v7a2 2 0 002 2h14a2 2 0 002-2v-7a2 2 0 00-2-2h-4M9 11V7a3 3 0 016 0v4M9 11h6"/></svg>Bulk edit</button>
         <button class="btn btn-primary" onclick="openJrModal()">+ Add Trade</button>
       </div>
@@ -6536,13 +6546,9 @@ window.toggleSidebar = function(){
     <!-- Trade list -->
     <div id="jr-list"></div>
 
-    <!-- Export bar -->
+    <!-- Export bar (JSON backup; CSV import/export moved to header) -->
     <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)" id="jr-export-bar">
-      <button class="pb-btn pb-btn-ghost" style="padding:6px 16px;font-size:10px" onclick="tqBackupExport()">↓ Backup JSON</button>
-      <button class="pb-btn pb-btn-ghost" style="padding:6px 16px;font-size:10px" onclick="jrExportCSV()">↓ Export CSV</button>
-      <label class="pb-btn pb-btn-ghost" style="padding:6px 16px;font-size:10px;cursor:pointer;display:inline-flex;align-items:center;gap:6px">↑ Import CSV / Excel
-        <input type="file" id="jr-csv-input" accept=".csv,.xlsx,.xls" style="display:none" onchange="jrCsvPreImport(this)">
-      </label>
+      <button class="pb-btn pb-btn-ghost" style="padding:6px 16px;font-size:10px" onclick="tqBackupExport()" title="Download a full JSON backup of all your data">↓ Full Backup (JSON)</button>
     </div>
   </div>
 
@@ -33547,6 +33553,8 @@ window.toggleSidebar = function(){
       var togEmpty = document.getElementById('mc-view-toggle'); if(togEmpty) togEmpty.style.display = 'none';
       var infoEmpty = document.getElementById('mc-infographic'); if(infoEmpty){ infoEmpty.style.display='none'; infoEmpty.innerHTML=''; }
       var eqEmpty = document.getElementById('mc-equity-curve'); if(eqEmpty){ eqEmpty.style.display='none'; eqEmpty.innerHTML=''; }
+      var dtfEmpty = document.getElementById('mc-days-to-funded'); if(dtfEmpty){ dtfEmpty.style.display='none'; dtfEmpty.innerHTML=''; }
+      var phEmpty = document.getElementById('mc-payout-history'); if(phEmpty){ phEmpty.style.display='none'; phEmpty.innerHTML=''; }
       var tblEmpty = document.getElementById('mc-account-table'); if(tblEmpty){ tblEmpty.style.display='none'; tblEmpty.innerHTML=''; }
       // Hide time period filter (no data to filter)
       var tfEl = document.getElementById('mc-time-filter');
@@ -33705,6 +33713,12 @@ window.toggleSidebar = function(){
 
     // ── Portfolio equity curve ──
     if(typeof mcRenderEquityCurve === 'function') mcRenderEquityCurve(propAccs, tradesForPnl);
+
+    // ── Days to funded (challenge accounts) ──
+    if(typeof mcRenderDaysToFunded === 'function') mcRenderDaysToFunded(accountStatuses);
+
+    // ── Payout history + YTD ──
+    if(typeof mcRenderPayoutHistory === 'function') mcRenderPayoutHistory();
 
     // ── View toggle: cards vs comparison table ──
     var view = mcGetView();
@@ -34590,6 +34604,140 @@ window.toggleSidebar = function(){
       '</svg>'+
       legend+
     '</div>';
+  }
+
+  // ── Days-to-Funded tracker (challenge accounts working toward a profit target) ──
+  // ── Payout History + YTD total (tax helper) ──
+  window.mcExportPayouts = function(){
+    try{
+      var log = mcLoadPayoutLog();
+      if(!log.length){ if(typeof tqToast==='function') tqToast('No payouts to export', {type:'info'}); return; }
+      var rows = [['Date','Account','Amount']];
+      log.slice().sort(function(a,b){ return (a.date<b.date)?-1:1; }).forEach(function(p){
+        rows.push([p.date, '"'+(p.accountName||'').replace(/"/g,'""')+'"', p.amount]);
+      });
+      var csv = rows.map(function(r){ return r.join(','); }).join('\n');
+      var blob = new Blob([csv], {type:'text/csv'});
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'tradequill-payouts-'+new Date().toISOString().slice(0,10)+'.csv';
+      a.click();
+      if(typeof tqToast==='function') tqToast('Payouts exported', {type:'success'});
+    }catch(e){ console.error(e); }
+  };
+
+  function mcRenderPayoutHistory(){
+    var el = document.getElementById('mc-payout-history');
+    if(!el) return;
+    var log = mcLoadPayoutLog();
+    if(!log || log.length === 0){ el.style.display='none'; el.innerHTML=''; return; }
+
+    var thisYear = new Date().getFullYear();
+    var ytd = 0, allTime = 0;
+    log.forEach(function(p){
+      allTime += (p.amount||0);
+      if((p.date||'').slice(0,4) === String(thisYear)) ytd += (p.amount||0);
+    });
+
+    // Most recent first
+    var sorted = log.slice().sort(function(a,b){ return (a.date<b.date)?1:-1; });
+    var rowsHtml = sorted.slice(0,8).map(function(p){
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)">'+
+        '<div><div style="font-size:13px;color:var(--text);font-weight:500">'+escapeHtml(p.accountName||'Account')+'</div>'+
+        '<div style="font-size:11px;color:var(--text3)">'+(p.date||'')+'</div></div>'+
+        '<div style="font-size:15px;font-weight:600;color:var(--green);font-variant-numeric:tabular-nums">+$'+Number(p.amount||0).toFixed(0)+'</div>'+
+      '</div>';
+    }).join('');
+    var more = sorted.length > 8 ? '<div style="text-align:center;font-size:11px;color:var(--text3);margin-top:8px">+ '+(sorted.length-8)+' more</div>' : '';
+
+    el.style.display='block';
+    el.innerHTML = '<div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px 18px">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">'+
+        '<div style="display:flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg><span style="font-size:14px;font-weight:600;color:var(--text)">Payout History</span></div>'+
+        '<button onclick="mcExportPayouts()" style="font-size:11px;padding:5px 12px;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text2);border-radius:6px;cursor:pointer;font-weight:600">Export CSV</button>'+
+      '</div>'+
+      // Totals
+      '<div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">'+
+        '<div style="flex:1;min-width:130px;background:rgba(29,233,182,.06);border:1px solid rgba(29,233,182,.15);border-radius:10px;padding:12px 14px">'+
+          '<div style="font-size:10px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700;margin-bottom:4px">'+thisYear+' YTD</div>'+
+          '<div style="font-size:22px;font-weight:700;color:var(--green);font-variant-numeric:tabular-nums">$'+ytd.toLocaleString('en-US',{maximumFractionDigits:0})+'</div>'+
+        '</div>'+
+        '<div style="flex:1;min-width:130px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px 14px">'+
+          '<div style="font-size:10px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700;margin-bottom:4px">All-time</div>'+
+          '<div style="font-size:22px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums">$'+allTime.toLocaleString('en-US',{maximumFractionDigits:0})+'</div>'+
+        '</div>'+
+      '</div>'+
+      // List
+      '<div>'+rowsHtml+'</div>'+more+
+    '</div>';
+  }
+
+  function mcRenderDaysToFunded(accountStatuses){
+    var el = document.getElementById('mc-days-to-funded');
+    if(!el) return;
+    // Only accounts with a profit target that haven't passed yet
+    var challenges = accountStatuses.filter(function(item){
+      return item.acc.profitTarget != null && item.status && !item.status.profitTargetMet;
+    });
+    if(challenges.length === 0){ el.style.display='none'; el.innerHTML=''; return; }
+
+    var cards = challenges.map(function(item){
+      var acc=item.acc, st=item.status;
+      var profitPct = Math.min(100, Math.max(0, st.profitPctOf||0));
+      var profitAbs = st.profitAbs||0;
+      var targetAbs = acc.ddMode==='dollar' ? acc.profitTarget : 0; // approx for $ display
+      var daysTraded = st.daysTraded||0;
+      var minDays = acc.minTradingDays||0;
+      var daysPct = minDays ? Math.min(100,(daysTraded/minDays)*100) : 100;
+
+      // ETA: at current pace (profit per trading day), how many more days to target?
+      var etaStr = '—';
+      if(profitAbs > 0 && daysTraded > 0 && profitPct < 100){
+        var profitPerDay = profitAbs / daysTraded;
+        if(profitPerDay > 0){
+          var remaining = acc.profitTarget - (acc.ddMode==='dollar'?profitAbs:st.profitPct);
+          var daysNeeded = Math.ceil(remaining / (profitPerDay/(acc.ddMode==='dollar'?1:(profitAbs/st.profitPct||1))));
+          // simpler: remaining % over pace %
+          var pacePctPerDay = profitPct / daysTraded;
+          if(pacePctPerDay > 0){
+            var daysToTarget = Math.ceil((100 - profitPct) / pacePctPerDay);
+            etaStr = '~'+daysToTarget+' day'+(daysToTarget!==1?'s':'')+' at current pace';
+          }
+        }
+      } else if(profitPct <= 0){
+        etaStr = 'No progress yet';
+      }
+
+      var firmName=acc.propFirm||acc.name||'?';
+      var abbr=firmName.replace(/[^A-Z]/g,'').slice(0,3)||firmName.slice(0,2).toUpperCase();
+      if(firmName.toLowerCase().indexOf('fundednext')>=0) abbr='FN';
+      if(firmName.toLowerCase().indexOf('ftmo')>=0) abbr='FTMO';
+
+      // Days requirement chip
+      var daysChip = '';
+      if(minDays){
+        var daysMet = daysTraded >= minDays;
+        daysChip = '<div style="margin-top:10px"><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:3px"><span>Min trading days</span><span style="color:'+(daysMet?'var(--green)':'var(--text2)')+'">'+daysTraded+' / '+minDays+(daysMet?' ✓':'')+'</span></div>'+
+          '<div style="height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden"><div style="height:100%;width:'+daysPct+'%;background:'+(daysMet?'var(--green)':'var(--accent)')+';border-radius:2px"></div></div></div>';
+      }
+
+      return '<div onclick="mcDrillDown(\''+acc.id+'\')" style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:16px;cursor:pointer;flex:1;min-width:260px">'+
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">'+
+          '<div style="width:36px;height:36px;background:rgba(124,90,240,.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--accent3)">'+abbr+'</div>'+
+          '<div><div style="font-size:13px;font-weight:600;color:var(--text)">'+escapeHtml(acc.name)+'</div>'+
+          '<div style="font-size:11px;color:var(--accent3);font-weight:600">CHALLENGE</div></div>'+
+        '</div>'+
+        // Profit progress
+        '<div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:4px"><span>Profit target</span><span style="color:var(--text)">'+profitPct.toFixed(0)+'%</span></div>'+
+          '<div style="height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden"><div style="height:100%;width:'+profitPct+'%;background:linear-gradient(90deg,var(--accent),var(--accent3));border-radius:4px"></div></div></div>'+
+        daysChip+
+        '<div style="margin-top:12px;font-size:12px;color:var(--text2)"><span style="color:var(--text3)">ETA:</span> '+etaStr+'</div>'+
+      '</div>';
+    }).join('');
+
+    el.style.display='block';
+    el.innerHTML = '<div style="margin-bottom:10px;display:flex;align-items:center;gap:8px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent3)" stroke-width="2"><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="6"/></svg><span style="font-size:13px;font-weight:600;color:var(--text)">Days to Funded</span></div>'+
+      '<div style="display:flex;gap:12px;flex-wrap:wrap">'+cards+'</div>';
   }
 
   function mcRenderInfographic(accountStatuses, avgHealth){
