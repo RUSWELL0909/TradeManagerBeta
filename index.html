@@ -5642,7 +5642,7 @@ window.toggleSidebar = function(){
 
     <!-- INSIGHTS TABS: Equity Curve / Challenges / Payouts -->
     <div id="mc-tabs-wrap" style="display:none;margin-bottom:18px">
-      <div id="mc-tabs-bar" style="display:flex;gap:4px;margin-bottom:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:4px;width:fit-content"></div>
+      <div id="mc-tabs-bar" style="display:flex;gap:4px;margin-bottom:12px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:4px;width:fit-content"></div>
       <div id="mc-equity-curve" style="display:none"></div>
       <div id="mc-days-to-funded" style="display:none"></div>
       <div id="mc-payout-history" style="display:none"></div>
@@ -34655,7 +34655,7 @@ window.toggleSidebar = function(){
       '<text x="'+(W-padR)+'" y="'+(yAt(minV)+12).toFixed(1)+'" text-anchor="end" font-size="11" fill="var(--text3)" font-family="Inter,sans-serif">'+minLabel+'</text>';
 
     el.style.display='block';
-    el.innerHTML = '<div style="background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px 20px">'+
+    el.innerHTML = '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px">'+
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">'+
         '<div style="display:flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent3)" stroke-width="2"><path d="M3 3v18h18"/><path d="M19 9l-5 5-4-4-3 3"/></svg><span style="font-size:14px;font-weight:600;color:var(--text);letter-spacing:.2px">Portfolio Equity Curve</span></div>'+
         toggleBtns+
@@ -34713,7 +34713,7 @@ window.toggleSidebar = function(){
     var more = sorted.length > 8 ? '<div style="text-align:center;font-size:11px;color:var(--text3);margin-top:8px">+ '+(sorted.length-8)+' more</div>' : '';
 
     el.style.display='block';
-    el.innerHTML = '<div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px 18px">'+
+    el.innerHTML = '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px">'+
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">'+
         '<div style="display:flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg><span style="font-size:14px;font-weight:600;color:var(--text)">Payout History</span></div>'+
         '<button onclick="mcExportPayouts()" style="font-size:11px;padding:5px 12px;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text2);border-radius:6px;cursor:pointer;font-weight:600">Export CSV</button>'+
@@ -34724,7 +34724,7 @@ window.toggleSidebar = function(){
           '<div style="font-size:10px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700;margin-bottom:4px">'+thisYear+' YTD</div>'+
           '<div style="font-size:22px;font-weight:700;color:var(--green);font-variant-numeric:tabular-nums">$'+ytd.toLocaleString('en-US',{maximumFractionDigits:0})+'</div>'+
         '</div>'+
-        '<div style="flex:1;min-width:130px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px 14px">'+
+        '<div style="flex:1;min-width:130px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px">'+
           '<div style="font-size:10px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700;margin-bottom:4px">All-time</div>'+
           '<div style="font-size:22px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums">$'+allTime.toLocaleString('en-US',{maximumFractionDigits:0})+'</div>'+
         '</div>'+
@@ -34783,7 +34783,7 @@ window.toggleSidebar = function(){
           '<div style="height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden"><div style="height:100%;width:'+daysPct+'%;background:'+(daysMet?'var(--green)':'var(--accent)')+';border-radius:2px"></div></div></div>';
       }
 
-      return '<div onclick="mcDrillDown(\''+acc.id+'\')" style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:16px;cursor:pointer;flex:1;min-width:260px">'+
+      return '<div onclick="mcDrillDown(\''+acc.id+'\')" style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;flex:1;min-width:260px">'+
         '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">'+
           '<div style="width:36px;height:36px;background:rgba(124,90,240,.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--accent3)">'+abbr+'</div>'+
           '<div><div style="font-size:13px;font-weight:600;color:var(--text)">'+escapeHtml(acc.name)+'</div>'+
@@ -34858,7 +34858,7 @@ window.toggleSidebar = function(){
     '</div>';
 
     el.style.display='block';
-    el.innerHTML = '<div style="display:flex;gap:14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow:hidden;flex-wrap:wrap">'+
+    el.innerHTML = '<div style="display:flex;gap:14px;background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;flex-wrap:wrap">'+
       '<div style="border-right:1px solid rgba(255,255,255,.06);min-width:160px">'+gauge+'</div>'+
       heatmap+
     '</div>';
@@ -34971,7 +34971,7 @@ window.toggleSidebar = function(){
       '</tr>';
     }).join('');
 
-    return '<div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.08);border-radius:12px;overflow:hidden;overflow-x:auto">'+
+    return '<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;overflow-x:auto">'+
       '<table style="width:100%;border-collapse:collapse;min-width:640px">'+
         '<thead><tr>'+
           th('Account','name','left')+
