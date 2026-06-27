@@ -159,12 +159,12 @@
   --status-info-bg: rgba(124,90,240,.06);
   --status-info-border: rgba(124,90,240,.18);
 
-  /* Spacing scale */
-  --space-xs: 4px;
-  --space-sm: 8px;
-  --space-md: 12px;
-  --space-lg: 18px;
-  --space-xl: 24px;
+  /* Spacing scale (+20% for more premium breathing room) */
+  --space-xs: 5px;
+  --space-sm: 10px;
+  --space-md: 14px;
+  --space-lg: 22px;
+  --space-xl: 30px;
 
   /* Radius scale */
   --radius-sm: 4px;
@@ -2217,14 +2217,14 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .nav-item:hover svg{stroke:var(--text)}
 .nav-item.active svg{stroke:var(--accent3)}
 .main{margin-left:220px;flex:1;padding:24px 16px;min-height:100vh;width:calc(100vw - 220px);max-width:calc(100vw - 220px);overflow-x:hidden;box-sizing:border-box}
-.page{display:none;width:100%;max-width:2000px;margin:0 auto;overflow-x:hidden;padding:32px 36px}.page.active{display:block}
-.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:32px}
+.page{display:none;width:100%;max-width:2000px;margin:0 auto;overflow-x:hidden;padding:38px 44px}.page.active{display:block}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:38px}
 .page-title{font-size:32px;font-weight:600;letter-spacing:-0.5px;font-family:Inter,sans-serif}
 .page-sub{font-size:14px;color:var(--text3);font-family:Inter,sans-serif;margin-top:6px}
 .btn{padding:10px 20px;border-radius:10px;border:none;cursor:pointer;font-family:Inter,sans-serif;font-weight:600;font-size:13px;transition:all .2s}
 .btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:var(--accent2);transform:translateY(-1px)}
 .btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}.btn-ghost:hover{border-color:var(--accent);color:var(--accent3)}
-.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px 28px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px 32px}
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
 .stat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px 24px;position:relative;overflow:hidden;transition:box-shadow .25s,border-color .25s,transform .2s}.stat-card:hover{box-shadow:0 8px 32px rgba(124,90,240,.18);border-color:rgba(124,90,240,.35);transform:translateY(-2px)}
 [data-widget-hidden="true"]{display:none !important}
@@ -5463,27 +5463,34 @@ const _tqSupabaseLoad = (async () => {
       <div id="tq-viewmode-hint" style="font-size:8px;color:var(--text3);margin-top:5px;padding:0 4px;line-height:1.4">Showing all accounts</div>
     </div>
 
-    <div class="nav-label">Workspace</div>
-    <div class="nav-item" id="nav-cockpit">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>
-      Cockpit
-    </div>
-    <div class="nav-item" id="nav-missioncontrol">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
-      Mission Control
-      <span style="margin-left:auto;font-size:8px;font-weight:700;padding:2px 5px;background:rgba(124,90,240,.2);color:var(--accent3);border-radius:3px;letter-spacing:.4px">PROP</span>
-    </div>
+    <div class="nav-label">Core</div>
     <div class="nav-item active" id="nav-dashboard">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
       Dashboard
+    </div>
+    <div class="nav-item" id="nav-cockpit">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>
+      Cockpit
     </div>
     <div class="nav-item" id="nav-journal">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h8"/></svg>
       Journal
     </div>
-    <div class="nav-item" id="nav-reports">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
-      Reports
+    <div class="nav-item" id="nav-trademanager">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+      Trade Manager
+    </div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Prop Control</div>
+    <div class="nav-item" id="nav-missioncontrol">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+      Mission Control
+      <span style="margin-left:auto;font-size:8px;font-weight:700;padding:2px 5px;background:rgba(124,90,240,.2);color:var(--accent3);border-radius:3px;letter-spacing:.4px">PROP</span>
+    </div>
+    <div class="nav-item" id="nav-riskmonitor">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Risk Monitor
     </div>
     <div class="nav-item" id="nav-accounts">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
@@ -5491,9 +5498,32 @@ const _tqSupabaseLoad = (async () => {
     </div>
   </div>
   <div class="nav-section">
+    <div class="nav-label">Growth</div>
+    <div class="nav-item" id="nav-reports">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+      Reports
+    </div>
+    <div class="nav-item" id="nav-progress">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      Progress Tracker
+    </div>
+    <div class="nav-item" id="nav-aicoach">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2a4 4 0 014 4v1a2 2 0 012 2v1a2 2 0 01-2 2H8a2 2 0 01-2-2V9a2 2 0 012-2V6a4 4 0 014-4z"/><path d="M6 12v2a6 6 0 0012 0v-2"/><path d="M12 18v4"/></svg>
+      AI Coach
+    </div>
+    <div class="nav-item" id="nav-youredge">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      Your Edge
+    </div>
+    <div class="nav-item" id="nav-playbook">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><path d="M8 7h8M8 11h5"/></svg>
+      Playbook
+    </div>
+  </div>
+  <div class="nav-section">
     <div class="nav-label" style="cursor:pointer;display:flex;align-items:center;gap:6px;user-select:none" onclick="toggleNavMore()" id="nav-more-toggle">
       <svg id="nav-more-chev" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition:transform .2s;transform:rotate(-90deg)"><polyline points="6 9 12 15 18 9"/></svg>
-      <span>More</span>
+      <span>Tools</span>
     </div>
     <div id="nav-more-items" style="display:none">
       <div class="nav-item" id="nav-dayview">
@@ -5504,18 +5534,6 @@ const _tqSupabaseLoad = (async () => {
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
         Notebook
       </div>
-      <div class="nav-item" id="nav-playbook">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><path d="M8 7h8M8 11h5"/></svg>
-        Playbook
-      </div>
-      <div class="nav-item" id="nav-riskmonitor">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        Risk Monitor
-      </div>
-      <div class="nav-item" id="nav-trademanager">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
-        Trade Manager
-      </div>
       <div class="nav-item" id="nav-news">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 14h2M8 18h2M14 14h2M14 18h2"/></svg>
         Economic Calendar
@@ -5523,18 +5541,6 @@ const _tqSupabaseLoad = (async () => {
       <div class="nav-item" id="nav-casestudies">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/><path d="M6 8h2M16 8h2"/></svg>
         Case Studies
-      </div>
-      <div class="nav-item" id="nav-progress">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-        Progress Tracker
-      </div>
-      <div class="nav-item" id="nav-aicoach">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2a4 4 0 014 4v1a2 2 0 012 2v1a2 2 0 01-2 2H8a2 2 0 01-2-2V9a2 2 0 012-2V6a4 4 0 014-4z"/><path d="M6 12v2a6 6 0 0012 0v-2"/><path d="M12 18v4"/></svg>
-        AI Coach
-      </div>
-      <div class="nav-item" id="nav-youredge">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-        Your Edge
       </div>
       <div class="nav-item" id="nav-resources">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>
@@ -5637,6 +5643,9 @@ window.toggleSidebar = function(){
       <button class="mc-tf-btn" data-period="month" onclick="mcSetTimePeriod('month')" style="font-size:10px;padding:5px 12px;background:transparent;border:1px solid var(--border);color:var(--text2);border-radius:5px;cursor:pointer;font-weight:600;letter-spacing:.3px">This month</button>
       <span id="mc-tf-info" style="margin-left:8px;font-size:10px;color:var(--text3);font-family:ui-monospace,SFMono-Regular,Menlo,monospace"></span>
     </div>
+
+    <!-- CAN I TAKE THIS TRADE? — today's status hero -->
+    <div id="mc-trade-check" style="display:none;margin-bottom:18px"></div>
 
     <!-- AGGREGATE KPI STRIP -->
     <div id="mc-agg-strip" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px"></div>
@@ -33559,6 +33568,7 @@ window.toggleSidebar = function(){
       var togEmpty = document.getElementById('mc-view-toggle'); if(togEmpty) togEmpty.style.display = 'none';
       var infoEmpty = document.getElementById('mc-infographic'); if(infoEmpty){ infoEmpty.style.display='none'; infoEmpty.innerHTML=''; }
       var piEmpty = document.getElementById('mc-portfolio-insights'); if(piEmpty){ piEmpty.style.display='none'; piEmpty.innerHTML=''; }
+      var tcEmpty = document.getElementById('mc-trade-check'); if(tcEmpty){ tcEmpty.style.display='none'; tcEmpty.innerHTML=''; }
       var eqEmpty = document.getElementById('mc-equity-curve'); if(eqEmpty){ eqEmpty.style.display='none'; eqEmpty.innerHTML=''; }
       var tabsEmpty = document.getElementById('mc-tabs-wrap'); if(tabsEmpty){ tabsEmpty.style.display='none'; }
       var dtfEmpty = document.getElementById('mc-days-to-funded'); if(dtfEmpty){ dtfEmpty.style.display='none'; dtfEmpty.innerHTML=''; }
@@ -33721,6 +33731,9 @@ window.toggleSidebar = function(){
       var hb = b.status ? b.status.health : 100;
       return ha - hb;
     });
+
+    // ── Can I take this trade? (risk calculator hero) ──
+    if(typeof mcRenderTradeCheck === 'function') mcRenderTradeCheck(accountStatuses);
 
     // ── Portfolio insights (6 metrics with mini-charts) ──
     if(typeof mcRenderPortfolioInsights === 'function') mcRenderPortfolioInsights(accountStatuses, tradesForPnl);
@@ -34849,6 +34862,98 @@ window.toggleSidebar = function(){
     el.style.display='block';
     el.innerHTML = '<div style="margin-bottom:10px;display:flex;align-items:center;gap:8px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent3)" stroke-width="2"><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="6"/></svg><span style="font-size:13px;font-weight:600;color:var(--text)">Days to Funded</span></div>'+
       '<div style="display:flex;gap:12px;flex-wrap:wrap">'+cards+'</div>';
+  }
+
+  // ── "Can I take this trade?" — risk calculator + per-account verdict ──
+  function mcGetTradeRisk(){ try{ return parseFloat(rfxGet('tq_mc_trade_risk')) || 0; }catch(e){ return 0; } }
+  window.mcSetTradeRisk = function(v){
+    try{ rfxSet('tq_mc_trade_risk', v); }catch(e){}
+    // Re-render just the verdict rows without full mcRender
+    var inp = document.getElementById('mc-tc-input');
+    var caret = inp ? inp.selectionStart : null;
+    if(typeof window._mcLastAccountStatuses !== 'undefined') mcRenderTradeCheck(window._mcLastAccountStatuses);
+    var inp2 = document.getElementById('mc-tc-input');
+    if(inp2){ inp2.focus(); if(caret!=null) try{ inp2.setSelectionRange(caret,caret); }catch(e){} }
+  };
+
+  function mcRenderTradeCheck(accountStatuses){
+    var el = document.getElementById('mc-trade-check');
+    if(!el) return;
+    if(!accountStatuses || accountStatuses.length === 0){ el.style.display='none'; el.innerHTML=''; return; }
+    window._mcLastAccountStatuses = accountStatuses;
+
+    var risk = mcGetTradeRisk();
+
+    // Per-account verdict
+    var verdicts = accountStatuses.map(function(it){
+      var acc=it.acc, st=it.status;
+      var verdict='safe', detail='', remaining=null;
+      if(st && acc.dailyLossLimit != null){
+        var sb = (typeof accGetStartingPoint==='function') ? (accGetStartingPoint(acc).balance||0) : (parseFloat(acc.startingBalance||acc.balance)||0);
+        var dailyLimitAbs = acc.ddMode==='dollar' ? acc.dailyLossLimit : (sb*acc.dailyLossLimit/100);
+        var lostToday = st.dailyLossAbs || 0;
+        remaining = Math.max(0, dailyLimitAbs - lostToday);
+        // Also check max DD room
+        var ddRoomAbs = st.maxDdAbs != null ? (st.maxDdAbs - (st.currentDdAbs||0)) : null;
+        var effectiveRoom = ddRoomAbs != null ? Math.min(remaining, Math.max(0,ddRoomAbs)) : remaining;
+        if(risk <= 0){ verdict='neutral'; detail='$'+effectiveRoom.toFixed(0)+' room today'; }
+        else if(risk > effectiveRoom){ verdict='block'; detail='Would breach — only $'+effectiveRoom.toFixed(0)+' left'; }
+        else if(risk > effectiveRoom*0.7){ verdict='caution'; detail='Tight — $'+(effectiveRoom-risk).toFixed(0)+' left after'; }
+        else { verdict='safe'; detail='OK — $'+(effectiveRoom-risk).toFixed(0)+' left after'; }
+      } else {
+        verdict='neutral'; detail='No daily limit set';
+      }
+      return {acc:acc, verdict:verdict, detail:detail};
+    });
+
+    // Overall status
+    var hasBlock = verdicts.some(function(v){ return v.verdict==='block'; });
+    var hasCaution = verdicts.some(function(v){ return v.verdict==='caution'; });
+    var overall, overallColor, overallBg, overallIcon;
+    if(risk <= 0){ overall='READY'; overallColor='var(--text2)'; overallBg='rgba(255,255,255,.03)'; overallIcon='○'; }
+    else if(hasBlock){ overall='STOP'; overallColor='var(--red)'; overallBg='rgba(239,68,68,.1)'; overallIcon='✕'; }
+    else if(hasCaution){ overall='CAUTION'; overallColor='#fbbf24'; overallBg='rgba(251,191,36,.1)'; overallIcon='!'; }
+    else { overall='SAFE TO TRADE'; overallColor='var(--green)'; overallBg='rgba(29,233,182,.1)'; overallIcon='✓'; }
+
+    var rows = verdicts.map(function(v){
+      var c = v.verdict==='block'?'var(--red)':v.verdict==='caution'?'#fbbf24':v.verdict==='safe'?'var(--green)':'var(--text3)';
+      var badge = v.verdict==='block'?'BLOCK':v.verdict==='caution'?'CAUTION':v.verdict==='safe'?'OK':'—';
+      var firmName=v.acc.propFirm||v.acc.name||'?';
+      var abbr=firmName.replace(/[^A-Z]/g,'').slice(0,3)||firmName.slice(0,2).toUpperCase();
+      if(firmName.toLowerCase().indexOf('fundednext')>=0) abbr='FN';
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border)">'+
+        '<div style="display:flex;align-items:center;gap:9px;min-width:0">'+
+          '<span style="width:26px;height:26px;background:rgba(124,90,240,.12);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--accent3);flex-shrink:0">'+abbr+'</span>'+
+          '<span style="font-size:13px;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(v.acc.name)+'</span>'+
+        '</div>'+
+        '<div style="display:flex;align-items:center;gap:10px;flex-shrink:0">'+
+          '<span style="font-size:11px;color:var(--text3)">'+v.detail+'</span>'+
+          '<span style="font-size:10px;font-weight:700;padding:3px 8px;background:'+c+'22;color:'+c+';border-radius:4px;min-width:54px;text-align:center">'+badge+'</span>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+
+    el.style.display='block';
+    el.innerHTML = '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:14px">'+
+        '<div style="display:flex;align-items:center;gap:10px">'+
+          '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--accent3)" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>'+
+          '<span style="font-size:14px;font-weight:600;color:var(--text)">Can I take this trade?</span>'+
+        '</div>'+
+        '<div style="display:flex;align-items:center;gap:6px">'+
+          '<span style="font-size:12px;color:var(--text3)">Risk $</span>'+
+          '<input id="mc-tc-input" type="number" inputmode="decimal" value="'+(risk||'')+'" placeholder="0" oninput="mcSetTradeRisk(this.value)" style="width:90px;padding:7px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;font-weight:600;text-align:right;font-variant-numeric:tabular-nums">'+
+        '</div>'+
+      '</div>'+
+      // Overall verdict banner
+      '<div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:'+overallBg+';border-radius:10px;margin-bottom:12px">'+
+        '<span style="width:28px;height:28px;border-radius:50%;background:'+overallColor+'22;color:'+overallColor+';display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700">'+overallIcon+'</span>'+
+        '<span style="font-size:16px;font-weight:700;color:'+overallColor+';letter-spacing:.3px">'+overall+'</span>'+
+        (risk>0?'<span style="font-size:12px;color:var(--text3);margin-left:auto">risking $'+risk.toFixed(0)+' per account</span>':'<span style="font-size:12px;color:var(--text3);margin-left:auto">enter a risk amount to check</span>')+
+      '</div>'+
+      // Per-account rows
+      '<div>'+rows+'</div>'+
+    '</div>';
   }
 
   // ── Portfolio Insights: 6 premium metrics with mini-charts ──
