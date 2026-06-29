@@ -41069,6 +41069,7 @@ window.toggleSidebar = function(){
 
   function renderDashCharts(trades, byDay, accBal) {
     var Chart = window.Chart;
+    if(window._dashChartDebug) console.log('[charts] Chart loaded:', !!Chart, '| trades:', trades?trades.length:0, '| byDay keys:', byDay?Object.keys(byDay).length:0, '| cum-canvas:', !!document.getElementById('dash-cum-chart'));
     if (!Chart) {
       // Chart.js may not have finished loading from CDN yet — retry shortly
       if(!window._dashChartRetries) window._dashChartRetries = 0;
@@ -41173,7 +41174,7 @@ window.toggleSidebar = function(){
 
     // Cumulative chart
     var cumEl = document.getElementById('dash-cum-chart');
-    if (cumEl) {
+    if (cumEl) { try {
       if(cumEl._chart) { cumEl._chart.destroy(); cumEl._chart = null; }
       var isNeg = cumVals[cumVals.length-1] < 0;
       var col = isNeg ? '#e05c7a' : '#2ecc8a';
@@ -41207,7 +41208,7 @@ window.toggleSidebar = function(){
         },
         options: cumOpts
       });
-    }
+    } catch(_cErr){ console.error('[chart cumulative ERROR]', _cErr); } }
 
     // Bar chart — net daily P&L
     var barEl = document.getElementById('dash-bar-chart');
