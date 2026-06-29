@@ -2249,6 +2249,9 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(124,90,240,.15);outlin
 .widget-action-btn svg{display:block}
 /* info-icon stays interactive; minus button sits in the corner clear of it */
 .info-icon{z-index:21}
+/* Reserve the top-right corner for the hover minus button so header controls never sit under it */
+[data-widget] > div:first-child:has(> .info-icon){padding-right:22px}
+[data-widget] > div:first-child:has(.tq-row){padding-right:20px}
 
 /* Widget gallery modal */
 .widget-gallery-modal{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:99999;display:flex;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(8px);animation:fadeIn .2s}
@@ -6397,6 +6400,36 @@ window.toggleSidebar = function(){
           <div class="card" data-widget="duration-bars" data-widget-hidden="true" style="padding:22px 24px;min-height:220px">
             <div style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:500;margin-bottom:14px">Avg duration · win vs loss</div>
             <div id="dash-w-duration-content" style="display:flex;flex-direction:column;gap:14px;font-size:11px"></div>
+          </div>
+
+          <!-- Expectancy -->
+          <div class="card" data-widget="expectancy" data-widget-hidden="true" style="padding:22px 24px;min-height:220px;position:relative;overflow:hidden">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+              <span style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:500">Expectancy</span>
+              <span class="info-icon" data-tip="Average $ you can expect to win (or lose) per trade over time. Positive = profitable edge. The single most important number in trading.">i</span>
+            </div>
+            <div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:18px">Expected $ per trade</div>
+            <div id="dash-w-expectancy-content"></div>
+          </div>
+
+          <!-- R-multiple distribution -->
+          <div class="card" data-widget="r-distribution" data-widget-hidden="true" style="padding:22px 24px;min-height:220px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+              <span style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:500">R-multiple distribution</span>
+              <span class="info-icon" data-tip="Histogram of trade outcomes in R (risk units). Shows the real shape of your edge — a healthy system has small losses clustered at -1R and a tail of bigger wins.">i</span>
+            </div>
+            <div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:14px">Outcome shape in risk units</div>
+            <div id="dash-w-rdist-content"></div>
+          </div>
+
+          <!-- Tilt detector -->
+          <div class="card" data-widget="tilt-detector" data-widget-hidden="true" style="padding:22px 24px;min-height:220px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+              <span style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:500">Tilt detector</span>
+              <span class="info-icon" data-tip="Behavioral patterns that hurt P&L — revenge trading after losses, overtrading, and performance after a first win of the day.">i</span>
+            </div>
+            <div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:14px">Behavioral risk signals</div>
+            <div id="dash-w-tilt-content" style="display:flex;flex-direction:column;gap:10px"></div>
           </div>
 
         </div>
@@ -38882,7 +38915,10 @@ window.toggleSidebar = function(){
         {id:'dow-bars', label:'Day of week', desc:'Performance Mon → Fri', def:false, icon:'📆'},
         {id:'top-mistakes', label:'Top costly mistakes', desc:'Psych tags ranked by loss', def:false, icon:'⚠️'},
         {id:'wl-donut', label:'Win/Loss split', desc:'Visual W/L count + net', def:false, icon:'⚖️'},
-        {id:'duration-bars', label:'Avg duration W vs L', desc:'How long held wins vs losses', def:false, icon:'⏱️'}
+        {id:'duration-bars', label:'Avg duration W vs L', desc:'How long held wins vs losses', def:false, icon:'⏱️'},
+        {id:'expectancy', label:'Expectancy', desc:'Expected $ per trade — your edge', def:false, icon:'🎲'},
+        {id:'r-distribution', label:'R-multiple distribution', desc:'Outcome shape in risk units', def:false, icon:'📊'},
+        {id:'tilt-detector', label:'Tilt detector', desc:'Revenge trading & overtrading signals', def:false, icon:'🧠'}
       ]
     }
   ];
@@ -40906,9 +40942,122 @@ window.toggleSidebar = function(){
         }
       }
     }
+
+    // ─── Expectancy ───
+    if(_isWidgetVisible('expectancy')){
+      var el = document.getElementById('dash-w-expectancy-content');
+      if(el){
+        var mx = (typeof tqMetrics==='function') ? tqMetrics(trades) : null;
+        if(mx && mx.count>0){
+          var exp = mx.expectancy;
+          var expColor = exp>0?'var(--green)':exp<0?'var(--red)':'var(--text3)';
+          var expSign = exp>0?'+':'';
+          // per-100-trades projection
+          var per100 = exp*100;
+          el.innerHTML = '<div style="font-size:42px;font-weight:400;letter-spacing:-.8px;line-height:1;color:'+expColor+';font-variant-numeric:tabular-nums;margin-bottom:10px">'+expSign+ci.sym+Math.abs(exp).toFixed(2)+'</div>'+
+            '<div style="display:flex;flex-direction:column;gap:8px;margin-top:14px">'+
+              '<div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--text3)">Avg win</span><span style="color:var(--green);font-variant-numeric:tabular-nums">+'+ci.sym+mx.avgWin.toFixed(0)+'</span></div>'+
+              '<div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--text3)">Avg loss</span><span style="color:var(--red);font-variant-numeric:tabular-nums">-'+ci.sym+mx.avgLoss.toFixed(0)+'</span></div>'+
+              '<div style="display:flex;justify-content:space-between;font-size:12px;padding-top:8px;border-top:1px solid var(--border)"><span style="color:var(--text3)">Per 100 trades</span><span style="color:'+expColor+';font-weight:600;font-variant-numeric:tabular-nums">'+expSign+ci.sym+Math.abs(per100).toFixed(0)+'</span></div>'+
+            '</div>'+
+            '<div style="margin-top:12px;font-size:11px;color:var(--text2);line-height:1.5">'+(exp>0?'Positive edge — each trade is worth taking over time.':exp<0?'Negative edge — review setup quality & risk.':'Flat — no statistical edge yet.')+'</div>';
+        } else {
+          el.innerHTML = '<div style="color:var(--text3);font-size:12px;padding:20px 0;text-align:center">No trades yet</div>';
+        }
+      }
+    }
+
+    // ─── R-multiple distribution ───
+    if(_isWidgetVisible('r-distribution')){
+      var el = document.getElementById('dash-w-rdist-content');
+      if(el){
+        // Compute R for each trade that has SL+entry (risk defined). R = pnl / riskAmount.
+        var buckets = {'≤-2':0,'-2..-1':0,'-1..0':0,'0..1':0,'1..2':0,'2..3':0,'≥3':0};
+        var order = ['≤-2','-2..-1','-1..0','0..1','1..2','2..3','≥3'];
+        var counted = 0;
+        trades.forEach(function(t){
+          var pn = (typeof tqConvertTradePnl==='function')?tqConvertTradePnl(t):(parseFloat(t.pnl)||0);
+          var r = null;
+          // Prefer explicit riskAmount, else derive from entry/sl + size, else use avgLoss as 1R proxy
+          if(t.riskAmount && parseFloat(t.riskAmount)>0){ r = pn/parseFloat(t.riskAmount); }
+          else if(t.rMultiple!=null && !isNaN(parseFloat(t.rMultiple))){ r = parseFloat(t.rMultiple); }
+          if(r===null) return;
+          counted++;
+          if(r<=-2) buckets['≤-2']++;
+          else if(r<-1) buckets['-2..-1']++;
+          else if(r<0) buckets['-1..0']++;
+          else if(r<1) buckets['0..1']++;
+          else if(r<2) buckets['1..2']++;
+          else if(r<3) buckets['2..3']++;
+          else buckets['≥3']++;
+        });
+        if(counted===0){
+          el.innerHTML = '<div style="color:var(--text3);font-size:12px;padding:20px 0;text-align:center;line-height:1.6">No R data yet.<br><span style="font-size:11px">Add risk amount or R-multiple to trades.</span></div>';
+        } else {
+          var maxB = Math.max.apply(null, order.map(function(k){return buckets[k];}))||1;
+          var bars = order.map(function(k){
+            var v = buckets[k];
+            var h = Math.round((v/maxB)*90);
+            var isNeg = k.indexOf('-')===0 || k==='-1..0';
+            var col = (k==='≤-2'||k==='-2..-1'||k==='-1..0')?'var(--red)':(k==='0..1'?'var(--text3)':'var(--green)');
+            return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">'+
+              '<div style="font-size:10px;color:var(--text3);font-variant-numeric:tabular-nums">'+(v||'')+'</div>'+
+              '<div style="width:100%;max-width:30px;height:'+Math.max(2,h)+'px;background:'+col+';border-radius:3px 3px 0 0;opacity:.85"></div>'+
+              '<div style="font-size:9px;color:var(--text3);white-space:nowrap">'+k+'R</div>'+
+            '</div>';
+          }).join('');
+          el.innerHTML = '<div style="display:flex;align-items:flex-end;gap:4px;height:120px;padding-top:8px">'+bars+'</div>'+
+            '<div style="font-size:11px;color:var(--text2);margin-top:10px">'+counted+' trades with R data</div>';
+        }
+      }
+    }
+
+    // ─── Tilt detector ───
+    if(_isWidgetVisible('tilt-detector')){
+      var el = document.getElementById('dash-w-tilt-content');
+      if(el){
+        var sorted = trades.slice().sort(function(a,b){
+          return (a.date||'').localeCompare(b.date||'')||(a.entryTime||'').localeCompare(b.entryTime||'');
+        });
+        function pnlOf(t){ return (typeof tqConvertTradePnl==='function')?tqConvertTradePnl(t):(parseFloat(t.pnl)||0); }
+        // Signal 1: performance after a loss (revenge)
+        var afterLoss=[], afterLossWins=0;
+        for(var i=1;i<sorted.length;i++){
+          if(pnlOf(sorted[i-1])<-1){ afterLoss.push(sorted[i]); if(pnlOf(sorted[i])>1) afterLossWins++; }
+        }
+        var alWR = afterLoss.length? Math.round(afterLossWins/afterLoss.length*100):null;
+        var baseWR = (typeof tqMetrics==='function')? Math.round(tqMetrics(trades).winRate):null;
+        // Signal 2: overtrading days (most trades in one day)
+        var byDayCount={};
+        sorted.forEach(function(t){ var d=t.date||''; byDayCount[d]=(byDayCount[d]||0)+1; });
+        var maxPerDay = Math.max.apply(null, Object.keys(byDayCount).map(function(k){return byDayCount[k];}))||0;
+        var avgPerDay = Object.keys(byDayCount).length? (sorted.length/Object.keys(byDayCount).length):0;
+        // Signal 3: after-first-win-of-day performance
+        function buildSignal(label, value, bad, detail){
+          var col = bad?'var(--red)':'var(--green)';
+          var icon = bad?'⚠':'✓';
+          return '<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:'+(bad?'rgba(239,68,68,.06)':'rgba(29,233,182,.05)')+';border:1px solid '+(bad?'rgba(239,68,68,.18)':'rgba(29,233,182,.18)')+';border-radius:9px">'+
+            '<span style="color:'+col+';font-size:13px;flex-shrink:0">'+icon+'</span>'+
+            '<div style="min-width:0"><div style="font-size:12px;font-weight:600;color:var(--text)">'+label+'</div>'+
+            '<div style="font-size:11px;color:var(--text2);margin-top:2px;line-height:1.4">'+detail+'</div></div>'+
+          '</div>';
+        }
+        var out = '';
+        if(afterLoss.length>=3 && baseWR!=null){
+          var revenge = alWR < baseWR - 10;
+          out += buildSignal('After a loss', alWR+'% WR', revenge, revenge? 'Your win rate drops to '+alWR+'% after losses (vs '+baseWR+'% overall). Possible revenge trading.' : 'You stay steady after losses ('+alWR+'% vs '+baseWR+'%). Good discipline.');
+        }
+        if(maxPerDay>=5){
+          var over = maxPerDay >= Math.max(6, avgPerDay*2.5);
+          out += buildSignal('Overtrading', maxPerDay+' in a day', over, over? 'Peak of '+maxPerDay+' trades in one day (avg '+avgPerDay.toFixed(1)+'). Watch for impulsive overtrading.' : 'Max '+maxPerDay+' trades/day — within reason.');
+        }
+        if(!out){
+          out = '<div style="color:var(--text3);font-size:12px;padding:16px 0;text-align:center;line-height:1.6">Not enough data for tilt signals yet.<br><span style="font-size:11px">Log more trades to unlock behavioral analysis.</span></div>';
+        }
+        el.innerHTML = out;
+      }
+    }
   }
-  // Expose to window so updateDashboard can call it via window.renderDashExtras (May 2026 fix)
-  window.renderDashExtras = renderDashExtras;
 
   function renderDashCharts(trades, byDay, accBal) {
     var Chart = window.Chart;
