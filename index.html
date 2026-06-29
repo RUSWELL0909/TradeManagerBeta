@@ -41069,7 +41069,16 @@ window.toggleSidebar = function(){
 
   function renderDashCharts(trades, byDay, accBal) {
     var Chart = window.Chart;
-    if (!Chart) return;
+    if (!Chart) {
+      // Chart.js may not have finished loading from CDN yet — retry shortly
+      if(!window._dashChartRetries) window._dashChartRetries = 0;
+      if(window._dashChartRetries < 20){
+        window._dashChartRetries++;
+        setTimeout(function(){ try{ renderDashCharts(trades, byDay, accBal); }catch(e){} }, 250);
+      }
+      return;
+    }
+    window._dashChartRetries = 0;
 
     // Sort days
     var sortedDays = Object.keys(byDay).sort();
