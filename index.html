@@ -40610,7 +40610,7 @@ window.toggleSidebar = function(){
     var DIST_COLORS = ['#a78bfa','#1de9b6','#fbbf24','#fb7185','#94a3b8','#60a5fa','#f472b6'];
 
     // ─── Pair distribution — segmented bar + clean list ───
-    if(_isWidgetVisible('pair-distribution')){
+    if(_isWidgetVisible('pair-distribution')){ try{
       var el = document.getElementById('dash-w-pair-content');
       if(el){
         // Convert to vertical layout — replace inline flex with column
@@ -40643,10 +40643,10 @@ window.toggleSidebar = function(){
           '<div style="display:flex;height:8px;border-radius:4px;overflow:hidden;margin-bottom:14px;background:rgba(255,255,255,.03);gap:1px">'+segs+'</div>' +
           '<div style="display:flex;flex-direction:column">'+legend+'</div>';
       }
-    }
+    }catch(_wErr){if(typeof console!=='undefined')console.error('[dash widget pair-distribution]',_wErr);} }
 
     // ─── Win rate by setup — gradient bars + trade count ───
-    if(_isWidgetVisible('win-by-setup')){
+    if(_isWidgetVisible('win-by-setup')){ try{
       var el = document.getElementById('dash-w-setup-content');
       if(el){
         var setupStats = {};
@@ -40687,10 +40687,10 @@ window.toggleSidebar = function(){
             }).join('');
         }
       }
-    }
+    }catch(_wErr){if(typeof console!=='undefined')console.error('[dash widget win-by-setup]',_wErr);} }
 
     // ─── Performance by session — segmented bar + dotted list ───
-    if(_isWidgetVisible('session-perf')){
+    if(_isWidgetVisible('session-perf')){ try{
       var el = document.getElementById('dash-w-session-content');
       if(el){
         var sessionStats = {};
@@ -40726,10 +40726,10 @@ window.toggleSidebar = function(){
             '<div style="display:flex;flex-direction:column">'+rows+'</div>';
         }
       }
-    }
+    }catch(_wErr){if(typeof console!=='undefined')console.error('[dash widget session-perf]',_wErr);} }
 
     // ─── Hour-of-day heatmap with best/worst stats ───
-    if(_isWidgetVisible('hour-heatmap')){
+    if(_isWidgetVisible('hour-heatmap')){ try{
       var grid = document.getElementById('dash-w-hour-grid');
       var summary = document.getElementById('dash-w-hour-summary');
       if(grid){
@@ -40772,10 +40772,10 @@ window.toggleSidebar = function(){
             '</div>';
         }
       }
-    }
+    }catch(_wErr){if(typeof console!=='undefined')console.error('[dash widget hour-heatmap]',_wErr);} }
 
     // ─── Day of week — VERTICAL bars ───
-    if(_isWidgetVisible('dow-bars')){
+    if(_isWidgetVisible('dow-bars')){ try{
       var el = document.getElementById('dash-w-dow-content');
       if(el){
         var dows = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
@@ -40815,10 +40815,10 @@ window.toggleSidebar = function(){
             }).join('') +
           '</div>';
       }
-    }
+    }catch(_wErr){if(typeof console!=='undefined')console.error('[dash widget dow-bars]',_wErr);} }
 
     // ─── Top costly mistakes ───
-    if(_isWidgetVisible('top-mistakes')){
+    if(_isWidgetVisible('top-mistakes')){ try{
       var el = document.getElementById('dash-w-mistakes-content');
       if(el){
         var tagPnl = {};
@@ -40852,10 +40852,10 @@ window.toggleSidebar = function(){
             }).join('');
         }
       }
-    }
+    }catch(_wErr){if(typeof console!=='undefined')console.error('[dash widget top-mistakes]',_wErr);} }
 
     // ─── Win/Loss split — 3-color donut with BE + center label ───
-    if(_isWidgetVisible('wl-donut')){
+    if(_isWidgetVisible('wl-donut')){ try{
       var el = document.getElementById('dash-w-wl-content');
       if(el){
         var wins=0, losses=0, bes=0, net=0;
@@ -40903,10 +40903,10 @@ window.toggleSidebar = function(){
             '</div>' +
           '</div>';
       }
-    }
+    }catch(_wErr){if(typeof console!=='undefined')console.error('[dash widget wl-donut]',_wErr);} }
 
     // ─── Avg duration W vs L ───
-    if(_isWidgetVisible('duration-bars')){
+    if(_isWidgetVisible('duration-bars')){ try{
       var el = document.getElementById('dash-w-duration-content');
       if(el){
         var winDur = [], lossDur = [];
@@ -40947,10 +40947,10 @@ window.toggleSidebar = function(){
             (aw>0&&al>0 ? '<div style="font-size:10px;color:var(--text3);font-family:DM Mono,monospace;margin-top:4px">Ratio: '+(aw/al).toFixed(1)+':1 '+(aw>=al?'· healthy ✓':'· cut winners early')+'</div>' : '');
         }
       }
-    }
+    }catch(_wErr){if(typeof console!=='undefined')console.error('[dash widget duration-bars]',_wErr);} }
 
     // ─── Expectancy ───
-    if(_isWidgetVisible('expectancy')){
+    if(_isWidgetVisible('expectancy')){ try{
       var el = document.getElementById('dash-w-expectancy-content');
       if(el){
         var mx = (typeof tqMetrics==='function') ? tqMetrics(trades) : null;
@@ -40971,10 +40971,10 @@ window.toggleSidebar = function(){
           el.innerHTML = '<div style="color:var(--text3);font-size:12px;padding:20px 0;text-align:center">No trades yet</div>';
         }
       }
-    }
+    }catch(_wErr){if(typeof console!=='undefined')console.error('[dash widget expectancy]',_wErr);} }
 
     // ─── R-multiple distribution ───
-    if(_isWidgetVisible('r-distribution')){
+    if(_isWidgetVisible('r-distribution')){ try{
       var el = document.getElementById('dash-w-rdist-content');
       if(el){
         // Compute R for each trade that has SL+entry (risk defined). R = pnl / riskAmount.
@@ -41016,10 +41016,10 @@ window.toggleSidebar = function(){
             '<div style="font-size:11px;color:var(--text2);margin-top:10px">'+counted+' trades with R data</div>';
         }
       }
-    }
+    }catch(_wErr){if(typeof console!=='undefined')console.error('[dash widget r-distribution]',_wErr);} }
 
     // ─── Tilt detector ───
-    if(_isWidgetVisible('tilt-detector')){
+    if(_isWidgetVisible('tilt-detector')){ try{
       var el = document.getElementById('dash-w-tilt-content');
       if(el){
         var sorted = trades.slice().sort(function(a,b){
@@ -41062,7 +41062,7 @@ window.toggleSidebar = function(){
         }
         el.innerHTML = out;
       }
-    }
+    }catch(_wErr){if(typeof console!=='undefined')console.error('[dash widget tilt-detector]',_wErr);} }
   }
 
   function renderDashCharts(trades, byDay, accBal) {
