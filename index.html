@@ -2241,12 +2241,14 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(124,90,240,.15);outlin
 
 /* Widget hover actions (Hide ⊝ + Replace ⇄) — May 2026 */
 [data-widget]{position:relative}
-.widget-actions{position:absolute;top:8px;right:8px;display:flex;gap:3px;opacity:0;transition:opacity .15s;z-index:10;pointer-events:none}
+.widget-actions{position:absolute;top:6px;right:6px;display:flex;gap:3px;opacity:0;transition:opacity .15s;z-index:20;pointer-events:none}
 [data-widget]:hover > .widget-actions{opacity:1;pointer-events:auto}
 .widget-action-btn{width:24px;height:24px;border:0.5px solid var(--border);border-radius:6px;background:var(--bg2);display:inline-flex;align-items:center;justify-content:center;color:var(--text3);cursor:pointer;transition:all .15s;padding:0}
 .widget-action-btn:hover{background:rgba(124,90,240,.1);color:var(--accent3);border-color:rgba(124,90,240,.35)}
 .widget-action-btn.minus:hover{background:rgba(255,80,95,.08);color:#ef4444;border-color:rgba(239,68,68,.35)}
 .widget-action-btn svg{display:block}
+/* info-icon stays interactive; minus button sits in the corner clear of it */
+.info-icon{z-index:21}
 
 /* Widget gallery modal */
 .widget-gallery-modal{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:99999;display:flex;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(8px);animation:fadeIn .2s}
@@ -23151,8 +23153,8 @@ window.toggleSidebar = function(){
     // Recovery Factor = Net P&L / Max Drawdown
     var maxDD=0, peak=0, runPnl=0;
     sorted.forEach(function(x){ runPnl += tqConvertTradePnl(x); if(runPnl>peak)peak=runPnl; var dd=peak-runPnl; if(dd>maxDD)maxDD=dd; });
-    var recoveryFactor = maxDD>0 ? Math.abs(netPnl)/maxDD : 0;
-    if(el('rpt-recovery')){ el('rpt-recovery').textContent = recoveryFactor.toFixed(2); el('rpt-recovery').style.color = recoveryFactor>=1?'var(--green)':'var(--red)'; }
+    var recoveryFactor = maxDD>0 ? netPnl/maxDD : 0;
+    if(el('rpt-recovery')){ el('rpt-recovery').textContent = recoveryFactor.toFixed(2); el('rpt-recovery').style.color = recoveryFactor>=1?'var(--green)':recoveryFactor>0?'var(--yellow)':'var(--red)'; }
     if(el('rpt-recovery-sub')) el('rpt-recovery-sub').textContent = 'Max DD: $'+maxDD.toLocaleString('en-US');
     // Planned vs Actual R:R
     var plannedRR = 0, actualRR = 0, rrCount = 0;
@@ -38452,7 +38454,8 @@ window.toggleSidebar = function(){
     // Recent trades
     var recentEl = document.getElementById('dash-recent-trades');
     if (recentEl) {
-      var recent = trades.slice(0, 8);
+      var RECENT_LIMIT = 14;
+      var recent = trades.slice(0, RECENT_LIMIT);
       var ccy = (typeof tqGetDisplayCurrency==='function') ? tqGetDisplayCurrency() : 'USD';
       var sym = {USD:'$',EUR:'€',GBP:'£',JPY:'¥',CHF:'CHF ',CAD:'C$',AUD:'A$',NZD:'NZ$'}[ccy] || '$';
       recentEl.innerHTML = recent.map(function(t) {
@@ -38471,6 +38474,12 @@ window.toggleSidebar = function(){
           + '<span style="text-align:right;color:' + pnlColor + ';font-family:Inter,sans-serif;font-weight:500">' + pnlStr + '</span>'
           + '</div>';
       }).join('');
+      // "View more" footer if there are more trades than shown
+      if(trades.length > RECENT_LIMIT){
+        recentEl.innerHTML += '<button onclick="showPage(\'journal\')" style="width:100%;margin-top:8px;padding:9px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s" onmouseover="this.style.background=\'rgba(124,90,240,.08)\';this.style.color=\'var(--accent3)\'" onmouseout="this.style.background=\'transparent\';this.style.color=\'var(--text2)\'">View more in Journal ('+(trades.length-RECENT_LIMIT)+' more) →</button>';
+      } else if(trades.length === 0){
+        recentEl.innerHTML = '<div style="text-align:center;padding:24px 12px;color:var(--text3);font-size:12px">No trades yet</div>';
+      }
     }
 
     // Charts
