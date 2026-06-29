@@ -38519,7 +38519,7 @@ window.toggleSidebar = function(){
     try{ renderDashCharts(trades, byDay, accBal); }catch(e){ console.error('Dashboard charts error:', e); }
     try{ renderDashCalendar(byDay, tradesByDay); }catch(e){ console.error('Dashboard calendar error:', e); }
     // Extra widgets (May 2026 — only render if not hidden, avoid wasted CPU)
-    try{ if(typeof window.renderDashExtras === 'function') window.renderDashExtras(trades); }catch(e){ console.error('Dash extras error:', e); }
+    try{ if(typeof window.renderDashExtras === 'function'){ window._dashLastTrades = trades; window.renderDashExtras(trades); } }catch(e){ console.error('Dash extras error:', e); }
 
     // Avg Daily sparkline
     (function() {
@@ -38940,6 +38940,12 @@ window.toggleSidebar = function(){
     });
     // Inject hover action buttons (May 2026)
     if(typeof window.dashInjectWidgetActions === 'function') window.dashInjectWidgetActions();
+    // Re-render extra widgets so any newly-shown card gets populated (not left empty)
+    try{
+      if(typeof window.renderDashExtras === 'function' && typeof window._dashLastTrades !== 'undefined' && window._dashLastTrades){
+        window.renderDashExtras(window._dashLastTrades);
+      }
+    }catch(e){ if(typeof console!=='undefined') console.error('re-render extras failed', e); }
   }
   window.dashApplyCustomization = dashApplyCustomization;
 
