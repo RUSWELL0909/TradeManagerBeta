@@ -41064,6 +41064,8 @@ window.toggleSidebar = function(){
       }
     }catch(_wErr){if(typeof console!=='undefined')console.error('[dash widget tilt-detector]',_wErr);} }
   }
+  // Expose to window so updateDashboard can call it via window.renderDashExtras (May 2026 fix)
+  window.renderDashExtras = renderDashExtras;
 
   function renderDashCharts(trades, byDay, accBal) {
     var Chart = window.Chart;
