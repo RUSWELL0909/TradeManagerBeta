@@ -36154,6 +36154,37 @@ window.toggleSidebar = function(){
     // Current UTC hour as decimal
     var utcH = now.getUTCHours() + now.getUTCMinutes() / 60;
 
+    // ── Forex weekend check ──
+    // Market closes Friday 22:00 UTC, reopens Sunday 22:00 UTC (Sydney open).
+    var utcDay = now.getUTCDay(); // 0=Sun, 5=Fri, 6=Sat
+    var isWeekendClosed = false;
+    if (utcDay === 6) {                       // Saturday — always closed
+      isWeekendClosed = true;
+    } else if (utcDay === 5 && utcH >= 22) {  // Friday after 22:00 UTC
+      isWeekendClosed = true;
+    } else if (utcDay === 0 && utcH < 22) {   // Sunday before 22:00 UTC
+      isWeekendClosed = true;
+    }
+
+    if (isWeekendClosed) {
+      // Minutes until Sunday 22:00 UTC
+      var nowMinW = (utcDay * 24 * 60) + now.getUTCHours() * 60 + now.getUTCMinutes();
+      var sunOpenMin = 0 * 24 * 60 + 22 * 60; // Sunday 22:00 in week-minutes
+      // If we're past Sunday 22:00 reference (Fri/Sat), target next week's Sunday
+      var weekMin = 7 * 24 * 60;
+      var diffW = sunOpenMin - nowMinW;
+      if (diffW <= 0) diffW += weekMin;
+      var dW = Math.floor(diffW / 1440);
+      var hW = Math.floor((diffW % 1440) / 60);
+      var mW = diffW % 60;
+      dotEl.className = 'ck-session-dot off';
+      labelEl.className = 'ck-session-label off';
+      labelEl.textContent = 'MARKET CLOSED';
+      var openStr = dW > 0 ? ('Opens in ' + dW + 'd ' + hW + 'h') : ('Opens in ' + hW + 'h ' + mW + 'm');
+      nextEl.textContent = 'Forex reopens Sunday 22:00 UTC · ' + openStr;
+      return;
+    }
+
     // Find live sessions
     var liveSessions = [];
     var upcoming = [];
