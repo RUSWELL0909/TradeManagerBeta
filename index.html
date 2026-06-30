@@ -6350,20 +6350,50 @@ window.toggleSidebar = function(){
               <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:8px;height:8px;border-radius:50%;background:#ffd166;display:inline-block"></span>Peak</span>
             </div>
           </div>
-          <div class="card" data-widget="chart-dailypnl" style="padding:12px 16px 8px">
-            <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px"><span class="dash-label" style="font-size:9px">Net daily P&L</span><div id="dash-bar-days" style="font-size:11px;color:var(--text3)">&#8212; days</div></div>
-            <div style="height:130px;position:relative"><canvas id="dash-bar-chart"></canvas></div>
-          </div>
-          <div class="card" data-widget="chart-balance" style="padding:12px 16px 8px">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-              <span class="dash-label" style="font-size:9px">Account Balance</span>
-              <div style="display:flex;gap:8px"><div style="display:flex;align-items:center;gap:3px"><div style="width:5px;height:5px;border-radius:50%;background:var(--accent)"></div><span style="font-size:7px;color:var(--text3)">Bal</span></div><div style="display:flex;align-items:center;gap:3px"><div style="width:5px;height:5px;border-radius:50%;background:var(--red)"></div><span style="font-size:7px;color:var(--text3)">Dep</span></div></div>
+          <div class="card" data-widget="chart-dailypnl" style="padding:18px 20px 10px">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
+              <div>
+                <div class="dash-label" style="font-size:14px;font-weight:600;color:var(--text);letter-spacing:-.1px">Net daily P&L</div>
+                <div id="dash-bar-sub" style="font-size:12.5px;color:var(--text2);margin-top:3px;font-weight:500">&#8212;</div>
+              </div>
+              <div id="dash-bar-days" style="font-size:12px;color:var(--text3);white-space:nowrap;margin-top:3px">&#8212; days</div>
             </div>
-            <div style="height:130px;position:relative"><canvas id="dash-balance-chart"></canvas></div>
+            <div style="height:160px;position:relative;margin-top:6px"><canvas id="dash-bar-chart"></canvas></div>
+            <div style="display:flex;gap:14px;margin-top:8px;flex-wrap:wrap">
+              <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:9px;height:9px;border-radius:2px;background:var(--green);display:inline-block"></span>Win day</span>
+              <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:9px;height:9px;border-radius:2px;background:var(--red);display:inline-block"></span>Loss day</span>
+              <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:10px;height:0;border-top:2px dashed rgba(168,158,196,.6);display:inline-block"></span>Avg/day</span>
+            </div>
           </div>
-          <div class="card" data-widget="chart-drawdown" style="padding:12px 16px 8px">
-            <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px"><span class="dash-label" style="font-size:9px">Drawdown</span><span id="dash-max-dd" style="font-size:13px;font-weight:400;color:var(--red);font-family:Inter,sans-serif">0.00%</span></div>
-            <div style="height:130px;position:relative"><canvas id="dash-drawdown-chart"></canvas></div>
+          <div class="card" data-widget="chart-balance" style="padding:18px 20px 10px">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
+              <div>
+                <div class="dash-label" style="font-size:14px;font-weight:600;color:var(--text);letter-spacing:-.1px">Account Balance</div>
+                <div id="dash-bal-sub" style="font-size:12.5px;color:var(--text2);margin-top:3px;font-weight:500">&#8212;</div>
+              </div>
+              <div id="dash-bal-total" class="dash-big-num" style="font-size:22px;letter-spacing:-.5px;font-weight:700;white-space:nowrap">&#8212;</div>
+            </div>
+            <div style="height:160px;position:relative;margin-top:6px"><canvas id="dash-balance-chart"></canvas></div>
+            <div style="display:flex;gap:14px;margin-top:8px;flex-wrap:wrap">
+              <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:10px;height:2px;background:#7c5af0;display:inline-block;border-radius:1px"></span>Balance</span>
+              <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:10px;height:0;border-top:2px dashed rgba(239,68,68,.6);display:inline-block"></span>Starting balance</span>
+              <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:10px;height:0;border-top:2px dotted #ffd166;display:inline-block"></span>High-water mark</span>
+            </div>
+          </div>
+          <div class="card" data-widget="chart-drawdown" style="padding:18px 20px 10px">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
+              <div>
+                <div class="dash-label" style="font-size:14px;font-weight:600;color:var(--text);letter-spacing:-.1px">Drawdown</div>
+                <div id="dash-dd-sub" style="font-size:12.5px;color:var(--text2);margin-top:3px;font-weight:500">&#8212;</div>
+              </div>
+              <span id="dash-max-dd" style="font-size:22px;font-weight:700;color:var(--red);font-family:Inter,sans-serif;white-space:nowrap">0.00%</span>
+            </div>
+            <div style="height:160px;position:relative;margin-top:6px"><canvas id="dash-drawdown-chart"></canvas></div>
+            <div style="display:flex;gap:14px;margin-top:8px;flex-wrap:wrap">
+              <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:10px;height:2px;background:var(--red);display:inline-block;border-radius:1px"></span>Drawdown curve</span>
+              <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:8px;height:8px;border-radius:50%;background:#e05c7a;display:inline-block"></span>Current</span>
+              <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:8px;height:8px;border-radius:50%;background:#9b7cf0;display:inline-block"></span>Worst point</span>
+            </div>
           </div>
         </div>
         </div><!-- /section charts -->
@@ -41179,7 +41209,7 @@ window.toggleSidebar = function(){
     // Previous period (same length window, immediately before) — for ghost-line comparison
     var prevDays = sortedDays.slice(Math.max(0, sortedDays.length - last60.length*2), sortedDays.length - last60.length);
     var prevCumVals = null;
-    if (prevDays.length >= 3) {
+    if (prevDays.length >= 2) {
       var pc = 0;
       var rawPrev = prevDays.map(function(d){ pc += byDay[d]; return parseFloat(pc.toFixed(2)); });
       // align to current window length: left-pad with null, or trim from the start
@@ -41318,7 +41348,7 @@ window.toggleSidebar = function(){
       var hasDD = maxDDVal > 0.5 && ddPeakIdx !== ddTroughIdx;
 
       // Moving average trend line (adaptive window)
-      var maWindow = cumVals.length >= 20 ? 7 : (cumVals.length >= 8 ? 5 : 0);
+      var maWindow = cumVals.length >= 20 ? 7 : (cumVals.length >= 8 ? 5 : (cumVals.length >= 4 ? 3 : 0));
       var maVals = null;
       if (maWindow >= 2) {
         maVals = cumVals.map(function(_,i){
@@ -41442,25 +41472,73 @@ window.toggleSidebar = function(){
     if (barEl) {
       if(barEl._chart) { barEl._chart.destroy(); barEl._chart = null; }
       var barVals = last60.map(function(d){ return byDay[d]; });
-      var barColors = barVals.map(function(v){ return v >= 0 ? 'rgba(29,233,182,.75)' : 'rgba(239,68,68,.75)'; });
+      var winDays = barVals.filter(function(v){ return v > 0; }).length;
+      var lossDays = barVals.filter(function(v){ return v < 0; }).length;
+      var avgDay = barVals.length ? barVals.reduce(function(a,b){ return a+b; },0)/barVals.length : 0;
+      var bestDayIdx = 0, worstDayIdx = 0;
+      barVals.forEach(function(v,i){ if(v > barVals[bestDayIdx]) bestDayIdx = i; if(v < barVals[worstDayIdx]) worstDayIdx = i; });
+
+      var barSub = document.getElementById('dash-bar-sub');
+      if (barSub) {
+        var subParts2 = [winDays+'W / '+lossDays+'L'];
+        subParts2.push('avg '+(avgDay>=0?'+$':'-$')+Math.abs(avgDay).toLocaleString('en-US',{maximumFractionDigits:0})+'/day');
+        if(barVals.length && barVals[bestDayIdx] > 0) subParts2.push('best +$'+barVals[bestDayIdx].toLocaleString('en-US',{maximumFractionDigits:0}));
+        if(barVals.length && barVals[worstDayIdx] < 0) subParts2.push('worst -$'+Math.abs(barVals[worstDayIdx]).toLocaleString('en-US',{maximumFractionDigits:0}));
+        barSub.textContent = subParts2.join(' · ');
+      }
+
+      var barColors = barVals.map(function(v,i){
+        var base = v >= 0 ? 'rgba(29,233,182,.75)' : 'rgba(239,68,68,.75)';
+        return base;
+      });
+      var barBorderColors = barVals.map(function(v,i){
+        if (i === bestDayIdx && v > 0) return '#ffd166';
+        if (i === worstDayIdx && v < 0) return '#9b7cf0';
+        return 'transparent';
+      });
+      var barBorderWidths = barVals.map(function(v,i){
+        return (i === bestDayIdx && v > 0) || (i === worstDayIdx && v < 0) ? 2 : 0;
+      });
       var barHover = barVals.map(function(v){ return v >= 0 ? '#2ecc8a' : '#e05c7a'; });
+      var avgLine = barVals.map(function(){ return avgDay; });
       var barOpts = JSON.parse(JSON.stringify(chartDefaults));
       barOpts.plugins.tooltip.callbacks = {
         title: function(items){ return items[0].label; },
-        label: function(ctx){ var v=ctx.raw; return ' Daily P&L: '+(v>=0?'+$':'-$')+Math.abs(v).toLocaleString('en-US',{maximumFractionDigits:0}); }
+        label: function(ctx){
+          if(ctx.dataset.label === 'Avg/day') return ' Avg/day: '+(avgDay>=0?'+$':'-$')+Math.abs(avgDay).toLocaleString('en-US',{maximumFractionDigits:0});
+          var v=ctx.raw; return ' Daily P&L: '+(v>=0?'+$':'-$')+Math.abs(v).toLocaleString('en-US',{maximumFractionDigits:0});
+        }
       };
       barEl._chart = new Chart(barEl.getContext('2d'), {
         type: 'bar',
         data: {
           labels: last60.map(shortDate),
-          datasets: [{
-            data: barVals,
-            backgroundColor: barColors,
-            hoverBackgroundColor: barHover,
-            borderRadius: 3,
-            borderSkipped: false,
-            barPercentage: 0.6
-          }]
+          datasets: [
+            {
+              data: barVals,
+              backgroundColor: barColors,
+              hoverBackgroundColor: barHover,
+              borderColor: barBorderColors,
+              borderWidth: barBorderWidths,
+              borderRadius: 3,
+              borderSkipped: false,
+              barPercentage: 0.6,
+              order: 1
+            },
+            {
+              type: 'line',
+              label: 'Avg/day',
+              data: avgLine,
+              borderColor: 'rgba(168,158,196,.6)',
+              borderWidth: 1.5,
+              borderDash: [5,3],
+              fill: false,
+              tension: 0,
+              pointRadius: 0,
+              pointHoverRadius: 0,
+              order: 0
+            }
+          ]
         },
         options: barOpts
       });
@@ -41474,6 +41552,21 @@ window.toggleSidebar = function(){
       var runBal = startBal;
       var balVals = [];
       last60.forEach(function(d){ runBal += byDay[d]; balVals.push(parseFloat(runBal.toFixed(2))); });
+      var curBal = balVals.length ? balVals[balVals.length-1] : startBal;
+      var peakBalLine = startBal;
+      var hwmVals = balVals.map(function(v){ if(v > peakBalLine) peakBalLine = v; return peakBalLine; });
+      var balChangePct = startBal > 0 ? ((curBal - startBal)/startBal*100) : 0;
+
+      var balTotalEl = document.getElementById('dash-bal-total');
+      if (balTotalEl) {
+        balTotalEl.textContent = '$'+curBal.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+        balTotalEl.style.color = balChangePct >= 0 ? 'var(--green)' : 'var(--red)';
+      }
+      var balSubEl = document.getElementById('dash-bal-sub');
+      if (balSubEl) {
+        balSubEl.textContent = 'Start $'+startBal.toLocaleString('en-US',{maximumFractionDigits:0})+' · '+(balChangePct>=0?'+':'')+balChangePct.toFixed(2)+'% · peak $'+peakBalLine.toLocaleString('en-US',{maximumFractionDigits:0});
+      }
+
       var balCtx = balEl.getContext('2d');
       var balGrad = balCtx.createLinearGradient(0,0,0,160);
       balGrad.addColorStop(0, 'rgba(124,90,240,.35)');
@@ -41493,15 +41586,26 @@ window.toggleSidebar = function(){
               fill: true, tension: 0.35,
               pointRadius: 0, pointHoverRadius: 5,
               pointHoverBackgroundColor: '#7c5af0',
-              pointHoverBorderColor: '#fff', pointHoverBorderWidth: 2
+              pointHoverBorderColor: '#fff', pointHoverBorderWidth: 2,
+              order: 1
             },
             {
-              label: 'Deposits / Withdrawals',
+              label: 'Starting balance',
               data: depositLine,
               borderColor: 'rgba(239,68,68,.7)', borderWidth: 1.5,
               borderDash: [4,4],
               backgroundColor: 'transparent',
-              fill: false, tension: 0, pointRadius: 0, pointHoverRadius: 0
+              fill: false, tension: 0, pointRadius: 0, pointHoverRadius: 0,
+              order: 2
+            },
+            {
+              label: 'High-water mark',
+              data: hwmVals,
+              borderColor: 'rgba(255,209,102,.7)', borderWidth: 1.5,
+              borderDash: [2,3],
+              backgroundColor: 'transparent',
+              fill: false, tension: 0.2, pointRadius: 0, pointHoverRadius: 0,
+              order: 0
             }
           ]
         },
@@ -41554,9 +41658,18 @@ window.toggleSidebar = function(){
         if (runBal2 > peakBal2) peakBal2 = runBal2;
         return peakBal2 > 0 ? parseFloat(((runBal2 - peakBal2)/ddStartBal*100).toFixed(2)) : 0;
       });
-      var minDD = Math.min.apply(null, ddVals);
+      var minDD = ddVals.length ? Math.min.apply(null, ddVals) : 0;
+      var worstDDidx = 0;
+      ddVals.forEach(function(v,i){ if(v < ddVals[worstDDidx]) worstDDidx = i; });
+      var curDDidx = ddVals.length - 1;
+      var curDD = ddVals.length ? ddVals[curDDidx] : 0;
       var maxDDel = document.getElementById('dash-max-dd');
       if (maxDDel) maxDDel.textContent = minDD.toFixed(2) + '%';
+      var ddSubEl = document.getElementById('dash-dd-sub');
+      if (ddSubEl) {
+        var ddState = curDD >= -0.01 ? 'at equity high' : 'currently '+curDD.toFixed(2)+'%';
+        ddSubEl.textContent = ddState + ' · worst '+minDD.toFixed(2)+'% · '+last60.length+' days';
+      }
       var ddCtx = ddEl.getContext('2d');
       var ddGrad = ddCtx.createLinearGradient(0,0,0,160);
       ddGrad.addColorStop(0, 'rgba(239,68,68,.35)');
@@ -41572,7 +41685,18 @@ window.toggleSidebar = function(){
             borderColor: '#e05c7a', borderWidth: 2,
             backgroundColor: ddGrad,
             fill: true, tension: 0.35,
-            pointRadius: 0, pointHoverRadius: 5,
+            pointRadius: function(c){
+              if (ddVals.length <= 1) return 0;
+              if (c.dataIndex === worstDDidx && minDD < -0.01) return 4;
+              if (c.dataIndex === curDDidx) return 4;
+              return 0;
+            },
+            pointBackgroundColor: function(c){
+              if (c.dataIndex === worstDDidx && minDD < -0.01) return '#9b7cf0';
+              return '#e05c7a';
+            },
+            pointBorderColor: '#fff', pointBorderWidth: 1.5,
+            pointHoverRadius: 5,
             pointHoverBackgroundColor: '#e05c7a',
             pointHoverBorderColor: '#fff', pointHoverBorderWidth: 2
           }]
