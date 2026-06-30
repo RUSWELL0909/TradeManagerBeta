@@ -11148,7 +11148,8 @@ window.toggleSidebar = function(){
       if(!raw) return null;
       var obj = JSON.parse(raw);
       if(!obj || !obj.fetchedAt || !obj.rates) return null;
-      if(Date.now() - obj.fetchedAt > TQ_FX_TTL_MS) return null;
+      var ttl = obj.ttlOverrideMs || TQ_FX_TTL_MS;
+      if(Date.now() - obj.fetchedAt > ttl) return null;
       return obj.rates;
     }catch(e){ return null; }
   }
@@ -11190,6 +11191,14 @@ window.toggleSidebar = function(){
         _tqFxInflight = null;
         console.warn('TradeQuill: All FX providers failed, using identity rates', err);
         var fallback = {USD:1, EUR:1, GBP:1, JPY:1, CHF:1, CAD:1, AUD:1, NZD:1, SGD:1, HKD:1, SEK:1};
+        // CRITICAL: cache the fallback too (short TTL) — without this, every single
+        // tqGetFxRates() call (there are hundreds per dashboard render) sees an empty
+        // cache and re-triggers a fresh fetch + a full updateDashboard() re-render in
+        // its .then(), which itself triggers more fetches... an infinite async loop
+        // that doesn't look like a normal hang but eventually freezes the page. The
+        // short TTL (1 min) means we still retry periodically in case the network
+        // recovers, without hammering it on every render.
+        try{ rfxSet(TQ_FX_CACHE_KEY, JSON.stringify({fetchedAt: Date.now(), rates: fallback, source:'identity-fallback', ttlOverrideMs: 60000})); }catch(e){}
         return fallback;
       });
     return _tqFxInflight;
@@ -11197,15 +11206,26 @@ window.toggleSidebar = function(){
 
   // Lazy: triggers a fetch in the background but returns synchronously
   // with whatever's cached (or identity rates as fallback).
+  var _tqFxRerenderQueued = false;
   function tqGetFxRates(){
     var cached = _tqFxLoadCache();
     if(cached) return cached;
-    // Trigger background fetch; render now with identity, refresh on completion
-    _tqFxFetch().then(function(){
-      // Re-render aggregations once fresh rates arrive
-      if(typeof updateDashboard === 'function') try{ updateDashboard(); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
-      if(typeof updateReports === 'function') try{ updateReports(); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
-    });
+    // Trigger background fetch; render now with identity, refresh on completion.
+    // Guard: tqGetFxRates() is called once per trade per widget — potentially
+    // hundreds of times within a single render pass while the cache is empty.
+    // Without this flag, every one of those calls would attach its own .then()
+    // callback to the (shared, in-flight) fetch promise, so when it finally
+    // resolves, updateDashboard() would fire hundreds of times back to back —
+    // itself enough to make the page appear to hang even with the cache fix.
+    if (!_tqFxRerenderQueued) {
+      _tqFxRerenderQueued = true;
+      _tqFxFetch().then(function(){
+        _tqFxRerenderQueued = false;
+        // Re-render aggregations once fresh rates arrive
+        if(typeof updateDashboard === 'function') try{ updateDashboard(); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
+        if(typeof updateReports === 'function') try{ updateReports(); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
+      });
+    }
     return {USD:1, EUR:1, GBP:1, JPY:1, CHF:1, CAD:1, AUD:1, NZD:1, SGD:1, HKD:1, SEK:1};
   }
   window.tqGetFxRates = tqGetFxRates;
