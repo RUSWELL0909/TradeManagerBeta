@@ -38686,8 +38686,9 @@ window.toggleSidebar = function(){
                 : '<span style="font-size:10px;padding:1px 6px;background:rgba(239,68,68,.15);color:var(--red);border-radius:4px;font-family:Inter,sans-serif">LOSS</span>';
         var pnlColor = isBe ? 'var(--text3)' : isWin ? 'var(--green)' : 'var(--red)';
         var pnlStr = isBe ? sym+'0' : (isWin ? '+'+sym : '-'+sym) + Math.abs(pn).toFixed(0);
-        var clickAttr = (t.id && typeof jrViewDetail==='function') ? ' onclick="jrViewDetail(\''+t.id+'\')" style="cursor:pointer"' : '';
-        return '<div class="rt-row"'+clickAttr+' style="display:grid;grid-template-columns:90px 1fr 80px;padding:9px 8px;border-radius:6px;font-size:13px;border-bottom:1px solid var(--border);font-variant-numeric:tabular-nums;transition:background .15s" onmouseover="this.style.background=\'rgba(124,90,240,.05)\'" onmouseout="this.style.background=\'transparent\'">'
+        var clickable = !!(t.id && typeof jrViewDetail==='function');
+        var clickAttr = clickable ? ' onclick="jrViewDetail(\''+t.id+'\')"' : '';
+        return '<div class="rt-row"'+clickAttr+' style="display:grid;grid-template-columns:90px 1fr 80px;padding:9px 8px;border-radius:6px;font-size:13px;border-bottom:1px solid var(--border);font-variant-numeric:tabular-nums;transition:background .15s;'+(clickable?'cursor:pointer':'')+'" onmouseover="this.style.background=\'rgba(124,90,240,.05)\'" onmouseout="this.style.background=\'transparent\'">'
           + '<span style="font-family:Inter,sans-serif;color:var(--text3);font-size:11.5px">' + (t.date||'').replace(/-/g,'/') + '</span>'
           + '<span style="font-weight:600;color:var(--accent3)">' + (t.pair||t.symbol||'—') + ' ' + tag + '</span>'
           + '<span style="text-align:right;color:' + pnlColor + ';font-family:Inter,sans-serif;font-weight:700">' + pnlStr + '</span>'
