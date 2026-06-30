@@ -6337,7 +6337,7 @@ window.toggleSidebar = function(){
             <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px;padding-right:26px">
               <div>
                 <div class="dash-label" style="font-size:14px;font-weight:600;color:var(--text);letter-spacing:-.1px">Daily net cumulative P&L</div>
-                <div id="dash-cum-sub" style="font-size:12.5px;color:var(--text2);margin-top:3px;font-weight:500">&#8212;</div>
+                <div id="dash-cum-sub" style="font-size:12.5px;color:var(--text);margin-top:3px;font-weight:600">&#8212;</div>
               </div>
               <div id="dash-cum-total" class="dash-big-num green" style="font-size:24px;letter-spacing:-.5px;font-weight:700">&#8212;</div>
             </div>
@@ -6354,7 +6354,7 @@ window.toggleSidebar = function(){
             <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
               <div>
                 <div class="dash-label" style="font-size:14px;font-weight:600;color:var(--text);letter-spacing:-.1px">Net daily P&L</div>
-                <div id="dash-bar-sub" style="font-size:12.5px;color:var(--text2);margin-top:3px;font-weight:500">&#8212;</div>
+                <div id="dash-bar-sub" style="font-size:12.5px;color:var(--text);margin-top:3px;font-weight:600">&#8212;</div>
               </div>
               <div id="dash-bar-days" style="font-size:12px;color:var(--text3);white-space:nowrap;margin-top:3px">&#8212; days</div>
             </div>
@@ -6369,7 +6369,7 @@ window.toggleSidebar = function(){
             <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
               <div>
                 <div class="dash-label" style="font-size:14px;font-weight:600;color:var(--text);letter-spacing:-.1px">Account Balance</div>
-                <div id="dash-bal-sub" style="font-size:12.5px;color:var(--text2);margin-top:3px;font-weight:500">&#8212;</div>
+                <div id="dash-bal-sub" style="font-size:12.5px;color:var(--text);margin-top:3px;font-weight:600">&#8212;</div>
               </div>
               <div id="dash-bal-total" class="dash-big-num" style="font-size:22px;letter-spacing:-.5px;font-weight:700;white-space:nowrap">&#8212;</div>
             </div>
@@ -6384,7 +6384,7 @@ window.toggleSidebar = function(){
             <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
               <div>
                 <div class="dash-label" style="font-size:14px;font-weight:600;color:var(--text);letter-spacing:-.1px">Drawdown</div>
-                <div id="dash-dd-sub" style="font-size:12.5px;color:var(--text2);margin-top:3px;font-weight:500">&#8212;</div>
+                <div id="dash-dd-sub" style="font-size:12.5px;color:var(--text);margin-top:3px;font-weight:600">&#8212;</div>
               </div>
               <span id="dash-max-dd" style="font-size:22px;font-weight:700;color:var(--red);font-family:Inter,sans-serif;white-space:nowrap">0.00%</span>
             </div>
@@ -41242,12 +41242,13 @@ window.toggleSidebar = function(){
       var offPeak = peakVal - finalCum; // always >= 0 since peak is the max
       var subParts = [last60.length + ' days'];
       if(cumVals.length){
-        subParts.push('peak '+(peakVal>=0?'+$':'-$')+Math.abs(peakVal).toLocaleString('en-US',{maximumFractionDigits:0}));
-        if(offPeak > 0.5) subParts.push('$'+offPeak.toLocaleString('en-US',{maximumFractionDigits:0})+' off peak');
+        var peakColor = peakVal>=0 ? 'var(--green)' : 'var(--red)';
+        subParts.push('peak <b style="color:'+peakColor+'">'+(peakVal>=0?'+$':'-$')+Math.abs(peakVal).toLocaleString('en-US',{maximumFractionDigits:0})+'</b>');
+        if(offPeak > 0.5) subParts.push('<b style="color:var(--red)">$'+offPeak.toLocaleString('en-US',{maximumFractionDigits:0})+'</b> off peak');
         else subParts.push('at peak');
-        if(maxDDVal > 0.5) subParts.push('max DD -$'+maxDDVal.toLocaleString('en-US',{maximumFractionDigits:0})+(ddDurationDays>0?' over '+ddDurationDays+'d':''));
+        if(maxDDVal > 0.5) subParts.push('max DD <b style="color:var(--red)">-$'+maxDDVal.toLocaleString('en-US',{maximumFractionDigits:0})+'</b>'+(ddDurationDays>0?' over '+ddDurationDays+'d':''));
       }
-      cumSub.textContent = subParts.join(' · ');
+      cumSub.innerHTML = subParts.join(' &middot; ');
     }
     var barLbl = document.getElementById('dash-bar-days');
     if (barLbl) barLbl.textContent = last60.length + ' trading days';
@@ -41480,11 +41481,11 @@ window.toggleSidebar = function(){
 
       var barSub = document.getElementById('dash-bar-sub');
       if (barSub) {
-        var subParts2 = [winDays+'W / '+lossDays+'L'];
-        subParts2.push('avg '+(avgDay>=0?'+$':'-$')+Math.abs(avgDay).toLocaleString('en-US',{maximumFractionDigits:0})+'/day');
-        if(barVals.length && barVals[bestDayIdx] > 0) subParts2.push('best +$'+barVals[bestDayIdx].toLocaleString('en-US',{maximumFractionDigits:0}));
-        if(barVals.length && barVals[worstDayIdx] < 0) subParts2.push('worst -$'+Math.abs(barVals[worstDayIdx]).toLocaleString('en-US',{maximumFractionDigits:0}));
-        barSub.textContent = subParts2.join(' · ');
+        var subParts2 = ['<b style="color:var(--green)">'+winDays+'W</b> / <b style="color:var(--red)">'+lossDays+'L</b>'];
+        subParts2.push('avg <b style="color:'+(avgDay>=0?'var(--green)':'var(--red)')+'">'+(avgDay>=0?'+$':'-$')+Math.abs(avgDay).toLocaleString('en-US',{maximumFractionDigits:0})+'</b>/day');
+        if(barVals.length && barVals[bestDayIdx] > 0) subParts2.push('best <b style="color:var(--green)">+$'+barVals[bestDayIdx].toLocaleString('en-US',{maximumFractionDigits:0})+'</b>');
+        if(barVals.length && barVals[worstDayIdx] < 0) subParts2.push('worst <b style="color:var(--red)">-$'+Math.abs(barVals[worstDayIdx]).toLocaleString('en-US',{maximumFractionDigits:0})+'</b>');
+        barSub.innerHTML = subParts2.join(' &middot; ');
       }
 
       var barColors = barVals.map(function(v,i){
@@ -41503,6 +41504,7 @@ window.toggleSidebar = function(){
       var barHover = barVals.map(function(v){ return v >= 0 ? '#2ecc8a' : '#e05c7a'; });
       var avgLine = barVals.map(function(){ return avgDay; });
       var barOpts = JSON.parse(JSON.stringify(chartDefaults));
+      barOpts.layout = { padding: { top: 14, bottom: 14 } };
       barOpts.plugins.tooltip.callbacks = {
         title: function(items){ return items[0].label; },
         label: function(ctx){
@@ -41510,6 +41512,31 @@ window.toggleSidebar = function(){
           var v=ctx.raw; return ' Daily P&L: '+(v>=0?'+$':'-$')+Math.abs(v).toLocaleString('en-US',{maximumFractionDigits:0});
         }
       };
+
+      // BEST/WORST tag plugin — labels the highlighted bars directly on the chart
+      var bestWorstTagPlugin = {
+        id: 'barBestWorstTags',
+        afterDatasetsDraw: function(chart){
+          var meta = chart.getDatasetMeta(0);
+          if (!meta || !meta.data) return;
+          var c = chart.ctx;
+          c.save();
+          c.font = '700 9px Inter, sans-serif';
+          c.textAlign = 'center';
+          if (barVals.length && barVals[bestDayIdx] > 0 && meta.data[bestDayIdx]) {
+            var pb = meta.data[bestDayIdx];
+            c.fillStyle = '#1de9b6';
+            c.fillText('BEST', pb.x, pb.y - 8);
+          }
+          if (barVals.length && barVals[worstDayIdx] < 0 && meta.data[worstDayIdx]) {
+            var pw = meta.data[worstDayIdx];
+            c.fillStyle = '#ef4444';
+            c.fillText('WORST', pw.x, pw.y + 16);
+          }
+          c.restore();
+        }
+      };
+
       barEl._chart = new Chart(barEl.getContext('2d'), {
         type: 'bar',
         data: {
@@ -41541,7 +41568,8 @@ window.toggleSidebar = function(){
             }
           ]
         },
-        options: barOpts
+        options: barOpts,
+        plugins: [bestWorstTagPlugin]
       });
     }
 
@@ -41565,7 +41593,7 @@ window.toggleSidebar = function(){
       }
       var balSubEl = document.getElementById('dash-bal-sub');
       if (balSubEl) {
-        balSubEl.textContent = 'Start $'+startBal.toLocaleString('en-US',{maximumFractionDigits:0})+' · '+(balChangePct>=0?'+':'')+balChangePct.toFixed(2)+'% · peak $'+peakBalLine.toLocaleString('en-US',{maximumFractionDigits:0});
+        balSubEl.innerHTML = 'Start $'+startBal.toLocaleString('en-US',{maximumFractionDigits:0})+' &middot; <b style="color:'+(balChangePct>=0?'var(--green)':'var(--red)')+'">'+(balChangePct>=0?'+':'')+balChangePct.toFixed(2)+'%</b> &middot; peak <b style="color:var(--text)">$'+peakBalLine.toLocaleString('en-US',{maximumFractionDigits:0})+'</b>';
       }
 
       var balCtx = balEl.getContext('2d');
@@ -41668,8 +41696,8 @@ window.toggleSidebar = function(){
       if (maxDDel) maxDDel.textContent = minDD.toFixed(2) + '%';
       var ddSubEl = document.getElementById('dash-dd-sub');
       if (ddSubEl) {
-        var ddState = curDD >= -0.01 ? 'at equity high' : 'currently '+curDD.toFixed(2)+'%';
-        ddSubEl.textContent = ddState + ' · worst '+minDD.toFixed(2)+'% · '+last60.length+' days';
+        var ddState = curDD >= -0.01 ? 'at equity high' : 'currently <b style="color:var(--red)">'+curDD.toFixed(2)+'%</b>';
+        ddSubEl.innerHTML = ddState + ' &middot; worst <b style="color:var(--red)">'+minDD.toFixed(2)+'%</b> &middot; '+last60.length+' days';
       }
       var ddCtx = ddEl.getContext('2d');
       var ddGrad = ddCtx.createLinearGradient(0,0,0,160);
