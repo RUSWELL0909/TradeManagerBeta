@@ -40664,11 +40664,13 @@ window.toggleSidebar = function(){
     return (typeof tqConvertTradePnl==='function') ? tqConvertTradePnl(t) : (parseFloat(t.pnl)||0);
   }
   // Empty state with built-in "Hide this widget" link (May 2026)
-  function _emptyState(widgetId, title, sub){
+  function _emptyState(widgetId, title, sub, actionLabel, actionOnclick){
+    var actionBtn = actionLabel ? '<button onclick="'+actionOnclick+'" style="padding:8px 16px;background:rgba(124,90,240,.1);color:var(--accent3);border:1px solid rgba(124,90,240,.2);border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;margin-bottom:8px">'+actionLabel+'</button>' : '';
     return '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px 8px;text-align:center;height:100%">' +
-      '<div style="font-size:11px;color:var(--text2);margin-bottom:4px">'+title+'</div>' +
-      '<div style="font-size:10px;color:var(--text3);opacity:.7;margin-bottom:14px">'+sub+'</div>' +
-      '<button onclick="dashHideWidget(\''+widgetId+'\')" style="background:transparent;border:0.5px solid var(--border);color:var(--text3);padding:5px 12px;border-radius:6px;font-size:10px;cursor:pointer;font-family:Inter,sans-serif;font-weight:500;transition:all .15s" onmouseover="this.style.color=\'#ef4444\';this.style.borderColor=\'rgba(239,68,68,.3)\'" onmouseout="this.style.color=\'var(--text3)\';this.style.borderColor=\'var(--border)\'">Hide widget</button>' +
+      '<div style="font-size:13px;color:var(--text);font-weight:600;margin-bottom:5px">'+title+'</div>' +
+      '<div style="font-size:12px;color:var(--text3);margin-bottom:14px;max-width:240px;line-height:1.5">'+sub+'</div>' +
+      actionBtn +
+      '<button onclick="dashHideWidget(\''+widgetId+'\')" style="background:transparent;border:none;color:var(--text3);padding:4px 8px;font-size:11px;cursor:pointer;font-family:Inter,sans-serif;font-weight:500;text-decoration:underline;text-underline-offset:2px" onmouseover="this.style.color=\'#ef4444\'" onmouseout="this.style.color=\'var(--text3)\'">Hide widget</button>' +
     '</div>';
   }
 
@@ -41074,27 +41076,27 @@ window.toggleSidebar = function(){
         var span = dates.length>1 ? Math.round((new Date(dates[dates.length-1])-new Date(dates[0]))/86400000) : 0;
         el.style.padding = '0';
         el.innerHTML =
-          '<div style="font-size:11px;color:var(--text3);font-family:DM Mono,monospace;margin-bottom:14px">'+total+' trades'+(span>0?' · '+span+' days span':'')+'</div>' +
+          '<div style="font-size:13px;color:var(--text2);font-weight:600;margin-bottom:14px">'+total+' trades'+(span>0?' · '+span+' days span':'')+'</div>' +
           '<div style="display:flex;align-items:center;gap:18px">' +
             '<div style="position:relative;flex-shrink:0">' +
               '<svg width="120" height="120" viewBox="0 0 36 36">' +
                 '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="rgba(255,255,255,.06)" stroke-width="3.5"/>' +
-                '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="#1de9b6" stroke-width="3.5" stroke-dasharray="'+winPctOfAll.toFixed(2)+' 100" stroke-dashoffset="0" transform="rotate(-90 18 18)" stroke-linecap="round"/>' +
+                '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="'+TG+'" stroke-width="3.5" stroke-dasharray="'+winPctOfAll.toFixed(2)+' 100" stroke-dashoffset="0" transform="rotate(-90 18 18)" stroke-linecap="round"/>' +
                 (bes>0 ? '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="#94a3b8" stroke-width="3.5" stroke-dasharray="'+bePctOfAll.toFixed(2)+' 100" stroke-dashoffset="-'+winPctOfAll.toFixed(2)+'" transform="rotate(-90 18 18)" stroke-linecap="round"/>' : '') +
-                '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="#ef4444" stroke-width="3.5" stroke-dasharray="'+lossPctOfAll.toFixed(2)+' 100" stroke-dashoffset="-'+(winPctOfAll+bePctOfAll).toFixed(2)+'" transform="rotate(-90 18 18)" stroke-linecap="round"/>' +
+                '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="'+TR+'" stroke-width="3.5" stroke-dasharray="'+lossPctOfAll.toFixed(2)+' 100" stroke-dashoffset="-'+(winPctOfAll+bePctOfAll).toFixed(2)+'" transform="rotate(-90 18 18)" stroke-linecap="round"/>' +
               '</svg>' +
               '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">' +
-                '<div style="font-size:28px;font-weight:500;color:var(--text);line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.5px">'+wrDecisive.toFixed(0)+'%</div>' +
-                '<div style="font-size:10px;color:var(--text3);letter-spacing:1.5px;margin-top:3px">WIN RATE</div>' +
+                '<div style="font-size:28px;font-weight:700;color:var(--text);line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.5px">'+wrDecisive.toFixed(0)+'%</div>' +
+                '<div style="font-size:11px;color:var(--text3);letter-spacing:1.5px;margin-top:3px;font-weight:600">WIN RATE</div>' +
               '</div>' +
             '</div>' +
             '<div style="flex:1;display:flex;flex-direction:column;gap:4px">' +
-              '<div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;padding:8px 0;border-bottom:0.5px dotted var(--border)"><span style="display:flex;align-items:center;gap:8px;color:var(--text2)"><span style="width:9px;height:9px;border-radius:50%;background:#1de9b6"></span>Wins</span><span style="font-family:DM Mono,monospace;font-variant-numeric:tabular-nums;color:var(--text)">'+wins+'</span></div>' +
-              (bes>0 ? '<div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;padding:8px 0;border-bottom:0.5px dotted var(--border)"><span style="display:flex;align-items:center;gap:8px;color:var(--text2)"><span style="width:9px;height:9px;border-radius:50%;background:#94a3b8"></span>Breakeven</span><span style="font-family:DM Mono,monospace;font-variant-numeric:tabular-nums;color:var(--text)">'+bes+'</span></div>' : '') +
-              '<div style="display:flex;align-items:center;justify-content:space-between;font-size:11px;padding:5px 0"><span style="display:flex;align-items:center;gap:8px;color:var(--text2)"><span style="width:9px;height:9px;border-radius:50%;background:#ef4444"></span>Losses</span><span style="font-family:DM Mono,monospace;font-variant-numeric:tabular-nums;color:var(--text)">'+losses+'</span></div>' +
+              '<div style="display:flex;align-items:center;justify-content:space-between;font-size:14px;padding:9px 0;border-bottom:0.5px dotted var(--border)"><span style="display:flex;align-items:center;gap:8px;color:var(--text);font-weight:500"><span style="width:9px;height:9px;border-radius:50%;background:'+TG+'"></span>Wins</span><span style="font-family:Inter,sans-serif;font-variant-numeric:tabular-nums;color:var(--text);font-weight:700;font-size:15px">'+wins+'</span></div>' +
+              (bes>0 ? '<div style="display:flex;align-items:center;justify-content:space-between;font-size:14px;padding:9px 0;border-bottom:0.5px dotted var(--border)"><span style="display:flex;align-items:center;gap:8px;color:var(--text);font-weight:500"><span style="width:9px;height:9px;border-radius:50%;background:#94a3b8"></span>Breakeven</span><span style="font-family:Inter,sans-serif;font-variant-numeric:tabular-nums;color:var(--text);font-weight:700;font-size:15px">'+bes+'</span></div>' : '') +
+              '<div style="display:flex;align-items:center;justify-content:space-between;font-size:14px;padding:9px 0"><span style="display:flex;align-items:center;gap:8px;color:var(--text);font-weight:500"><span style="width:9px;height:9px;border-radius:50%;background:'+TR+'"></span>Losses</span><span style="font-family:Inter,sans-serif;font-variant-numeric:tabular-nums;color:var(--text);font-weight:700;font-size:15px">'+losses+'</span></div>' +
               '<div style="margin-top:8px;padding-top:12px;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:baseline">' +
-                '<span style="font-size:11px;color:var(--text3);letter-spacing:1px">NET</span>' +
-                '<span style="font-size:22px;font-weight:500;color:'+(net>=0?'#1de9b6':'#ef4444')+';font-family:Inter,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.5px">'+sign+ci.sym+Math.abs(Math.round(net)).toLocaleString()+'</span>' +
+                '<span style="font-size:12px;color:var(--text3);letter-spacing:1px;font-weight:600">NET</span>' +
+                '<span style="font-size:24px;font-weight:700;color:'+(net>=0?TG:TR)+';font-family:Inter,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.5px">'+sign+ci.sym+Math.abs(Math.round(net)).toLocaleString()+'</span>' +
               '</div>' +
             '</div>' +
           '</div>';
@@ -41115,7 +41117,7 @@ window.toggleSidebar = function(){
           else if(p<0) lossDur.push(min);
         });
         if(winDur.length===0 && lossDur.length===0){
-          el.innerHTML = _emptyState('duration-bars', 'Log entry/exit times', 'See how long you hold');
+          el.innerHTML = _emptyState('duration-bars', 'Log entry/exit times', 'Add entry & exit times to your trades — duration is calculated automatically.', 'Go to Journal →', "showPage('journal')");
         } else {
           function avg(a){return a.length?a.reduce(function(x,y){return x+y;},0)/a.length:0;}
           function fmt(min){
@@ -41153,7 +41155,7 @@ window.toggleSidebar = function(){
         if(mx && mx.count>0){
           var exp = mx.expectancy;
           var expColor = exp>0?'var(--green)':exp<0?'var(--red)':'var(--text3)';
-          var expSign = exp>0?'+':'';
+          var expSign = exp>0?'+':(exp<0?'-':'');
           // per-100-trades projection
           var per100 = exp*100;
           el.innerHTML = '<div style="font-size:42px;font-weight:400;letter-spacing:-.8px;line-height:1;color:'+expColor+';font-variant-numeric:tabular-nums;margin-bottom:10px">'+expSign+ci.sym+Math.abs(exp).toFixed(2)+'</div>'+
