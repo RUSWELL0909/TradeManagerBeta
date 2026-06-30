@@ -6239,7 +6239,7 @@ window.toggleSidebar = function(){
         <div class="dash-advanced-grid" data-widget="advanced-metrics" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:0">
           <!-- Recovery Factor -->
           <div class="card" data-widget="recovery-factor" style="padding:22px 24px;display:flex;flex-direction:column;min-height:220px;position:relative;overflow:hidden">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;padding-right:26px">
               <span style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:600">Recovery Factor</span>
               <span class="info-icon" data-tip="Net profit ÷ Max Drawdown. Higher = better recovery from losses. 2.0+ is strong.">i</span>
             </div>
@@ -6270,7 +6270,7 @@ window.toggleSidebar = function(){
           </div>
           <!-- Consistency -->
           <div class="card" data-widget="consistency" style="padding:22px 24px;display:flex;flex-direction:column;min-height:220px">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;padding-right:26px">
               <span style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:600">Consistency</span>
               <span class="info-icon" data-tip="Score = 100 − (volatility ÷ avg daily P&L) × 20. Measures how erratic your day-to-day results are, not whether you're profitable. A profitable trader with wildly swinging days can still score low.">i</span>
             </div>
@@ -6302,7 +6302,7 @@ window.toggleSidebar = function(){
           </div>
           <!-- Goals -->
           <div class="card" data-widget="goals" style="padding:22px 24px;display:flex;flex-direction:column;min-height:220px">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;padding-right:26px">
               <span style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:500">Goals</span>
               <button onclick="tqOpenGoals()" style="background:transparent;border:0.5px solid var(--border);color:var(--text3);cursor:pointer;font-size:16px;width:28px;height:28px;border-radius:6px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-weight:400" title="Manage goals">+</button>
             </div>
@@ -6317,7 +6317,7 @@ window.toggleSidebar = function(){
         <div class="dash-charts-split" style="display:grid;grid-template-columns:30fr 70fr;gap:12px;margin-top:12px">
           <!-- Recent Trades -->
           <div class="card" data-widget="recent-trades" style="padding:14px 16px">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-right:26px">
               <span class="dash-label" style="font-size:13px;font-weight:600;color:var(--text)">Recent Trades</span>
               <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px;font-weight:600" onclick="showPage('journal')">View all →</button>
             </div>
@@ -6330,7 +6330,7 @@ window.toggleSidebar = function(){
           </div>
           <!-- Calendar -->
           <div class="card" data-widget="pnl-calendar" style="padding:16px 18px">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-right:26px">
               <div class="tq-row"><button id="dash-cal-prev" class="dash-cal-nav">&#8249;</button><span id="dash-cal-title" style="font-size:12px;font-weight:600;font-family:Inter,sans-serif;letter-spacing:-.3px"></span><button id="dash-cal-next" class="dash-cal-nav">&#8250;</button></div>
               <div class="tq-row"><div id="dash-cal-month-total" style="font-size:12px;font-weight:600;font-family:Inter,sans-serif;color:var(--text3)"></div><button class="btn btn-ghost" style="font-size:10px;padding:3px 8px" id="dash-cal-today">This month</button></div>
             </div>
@@ -6476,7 +6476,7 @@ window.toggleSidebar = function(){
 
           <!-- Expectancy -->
           <div class="card" data-widget="expectancy" data-widget-hidden="true" style="padding:22px 24px;min-height:220px;position:relative;overflow:hidden">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;padding-right:26px">
               <span style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:500">Expectancy</span>
               <span class="info-icon" data-tip="Average $ you can expect to win (or lose) per trade over time. Positive = profitable edge. The single most important number in trading.">i</span>
             </div>
@@ -6486,7 +6486,7 @@ window.toggleSidebar = function(){
 
           <!-- R-multiple distribution -->
           <div class="card" data-widget="r-distribution" data-widget-hidden="true" style="padding:22px 24px;min-height:220px">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;padding-right:26px">
               <span style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:500">R-multiple distribution</span>
               <span class="info-icon" data-tip="Histogram of trade outcomes in R (risk units). Shows the real shape of your edge — a healthy system has small losses clustered at -1R and a tail of bigger wins.">i</span>
             </div>
@@ -6496,7 +6496,7 @@ window.toggleSidebar = function(){
 
           <!-- Tilt detector -->
           <div class="card" data-widget="tilt-detector" data-widget-hidden="true" style="padding:22px 24px;min-height:220px">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;padding-right:26px">
               <span style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:500">Tilt detector</span>
               <span class="info-icon" data-tip="Behavioral patterns that hurt P&L — revenge trading after losses, overtrading, and performance after a first win of the day.">i</span>
             </div>
