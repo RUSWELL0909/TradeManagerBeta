@@ -6336,12 +6336,19 @@ window.toggleSidebar = function(){
           <div class="card" data-widget="chart-cumpnl" style="padding:18px 20px 10px">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px;padding-right:26px">
               <div>
-                <div class="dash-label" style="font-size:13px;font-weight:600;color:var(--text);letter-spacing:-.1px">Daily net cumulative P&L</div>
-                <div id="dash-cum-sub" style="font-size:11px;color:var(--text3);margin-top:2px">&#8212;</div>
+                <div class="dash-label" style="font-size:14px;font-weight:600;color:var(--text);letter-spacing:-.1px">Daily net cumulative P&L</div>
+                <div id="dash-cum-sub" style="font-size:12.5px;color:var(--text2);margin-top:3px;font-weight:500">&#8212;</div>
               </div>
-              <div id="dash-cum-total" class="dash-big-num green" style="font-size:22px;letter-spacing:-.5px;font-weight:700">&#8212;</div>
+              <div id="dash-cum-total" class="dash-big-num green" style="font-size:24px;letter-spacing:-.5px;font-weight:700">&#8212;</div>
             </div>
             <div style="height:160px;position:relative;margin-top:6px"><canvas id="dash-cum-chart"></canvas></div>
+            <div style="display:flex;gap:14px;margin-top:8px;flex-wrap:wrap">
+              <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:10px;height:2px;background:var(--green);display:inline-block;border-radius:1px"></span>Equity curve</span>
+              <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:10px;height:0;border-top:2px dashed rgba(124,90,240,.6);display:inline-block"></span>5-day avg</span>
+              <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:10px;height:0;border-top:2px dotted rgba(168,158,196,.6);display:inline-block"></span>Previous period</span>
+              <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:8px;height:8px;border-radius:50%;background:#9b7cf0;display:inline-block"></span>Drawdown trough</span>
+              <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:8px;height:8px;border-radius:50%;background:#ffd166;display:inline-block"></span>Peak</span>
+            </div>
           </div>
           <div class="card" data-widget="chart-dailypnl" style="padding:12px 16px 8px">
             <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px"><span class="dash-label" style="font-size:9px">Net daily P&L</span><div id="dash-bar-days" style="font-size:11px;color:var(--text3)">&#8212; days</div></div>
@@ -41169,6 +41176,17 @@ window.toggleSidebar = function(){
     var cum = 0;
     last60.forEach(function(d){ cum += byDay[d]; cumVals.push(parseFloat(cum.toFixed(2))); });
 
+    // Previous period (same length window, immediately before) — for ghost-line comparison
+    var prevDays = sortedDays.slice(Math.max(0, sortedDays.length - last60.length*2), sortedDays.length - last60.length);
+    var prevCumVals = null;
+    if (prevDays.length >= 3) {
+      var pc = 0;
+      var rawPrev = prevDays.map(function(d){ pc += byDay[d]; return parseFloat(pc.toFixed(2)); });
+      // align to current window length: left-pad with null, or trim from the start
+      prevCumVals = rawPrev.slice(-cumVals.length);
+      while (prevCumVals.length < cumVals.length) prevCumVals.unshift(null);
+    }
+
     // Update summary labels above charts
     var finalCum = cumVals[cumVals.length-1] || 0;
 
@@ -41179,6 +41197,7 @@ window.toggleSidebar = function(){
       var dd = runPeak - v;
       if (dd > maxDDVal) { maxDDVal = dd; ddPeakIdx = curPeakIdx; ddTroughIdx = i; }
     });
+    var ddDurationDays = maxDDVal > 0.5 ? Math.max(1, ddTroughIdx - ddPeakIdx) : 0;
 
     var cumLbl = document.getElementById('dash-cum-total');
     if (cumLbl) {
@@ -41196,7 +41215,7 @@ window.toggleSidebar = function(){
         subParts.push('peak '+(peakVal>=0?'+$':'-$')+Math.abs(peakVal).toLocaleString('en-US',{maximumFractionDigits:0}));
         if(offPeak > 0.5) subParts.push('$'+offPeak.toLocaleString('en-US',{maximumFractionDigits:0})+' off peak');
         else subParts.push('at peak');
-        if(maxDDVal > 0.5) subParts.push('max DD -$'+maxDDVal.toLocaleString('en-US',{maximumFractionDigits:0}));
+        if(maxDDVal > 0.5) subParts.push('max DD -$'+maxDDVal.toLocaleString('en-US',{maximumFractionDigits:0})+(ddDurationDays>0?' over '+ddDurationDays+'d':''));
       }
       cumSub.textContent = subParts.join(' · ');
     }
@@ -41288,7 +41307,8 @@ window.toggleSidebar = function(){
       cumOpts.plugins.tooltip.callbacks = {
         title: function(items){ return items[0].label; },
         label: function(c){
-          if(c.datasetIndex === 1) return ' 5-day avg: '+(c.raw>=0?'+$':'-$')+Math.abs(c.raw).toLocaleString('en-US',{maximumFractionDigits:0});
+          if(c.dataset.label === '5-day avg') return ' 5-day avg: '+(c.raw>=0?'+$':'-$')+Math.abs(c.raw).toLocaleString('en-US',{maximumFractionDigits:0});
+          if(c.dataset.label === 'Previous period') return c.raw==null ? null : ' Prev period: '+(c.raw>=0?'+$':'-$')+Math.abs(c.raw).toLocaleString('en-US',{maximumFractionDigits:0});
           var v=c.raw; return ' Net P&L: '+(v>=0?'+$':'-$')+Math.abs(v).toLocaleString('en-US',{maximumFractionDigits:0});
         }
       };
@@ -41342,6 +41362,7 @@ window.toggleSidebar = function(){
       };
 
       var datasets = [{
+        label: 'Equity',
         data: cumVals,
         borderWidth: 2,
         fill: 'origin',
@@ -41374,8 +41395,25 @@ window.toggleSidebar = function(){
         pointHoverBorderWidth: 2
       }];
 
+      if (prevCumVals) {
+        datasets.push({
+          label: 'Previous period',
+          data: prevCumVals,
+          borderColor: 'rgba(168,158,196,.35)',
+          borderWidth: 1.5,
+          borderDash: [2,3],
+          fill: false,
+          tension: 0.3,
+          spanGaps: true,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          order: 2
+        });
+      }
+
       if (maVals) {
         datasets.push({
+          label: '5-day avg',
           data: maVals,
           borderColor: 'rgba(124,90,240,.55)',
           borderWidth: 1.5,
