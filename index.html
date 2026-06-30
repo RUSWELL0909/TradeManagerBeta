@@ -41171,20 +41171,32 @@ window.toggleSidebar = function(){
 
     // Update summary labels above charts
     var finalCum = cumVals[cumVals.length-1] || 0;
+
+    // Running peak + max drawdown (peak-to-trough) across the series — shared by subtitle + chart
+    var runPeak = -Infinity, ddPeakIdx = 0, curPeakIdx = 0, ddTroughIdx = 0, maxDDVal = 0;
+    cumVals.forEach(function(v,i){
+      if (v > runPeak) { runPeak = v; curPeakIdx = i; }
+      var dd = runPeak - v;
+      if (dd > maxDDVal) { maxDDVal = dd; ddPeakIdx = curPeakIdx; ddTroughIdx = i; }
+    });
+
     var cumLbl = document.getElementById('dash-cum-total');
     if (cumLbl) {
       cumLbl.textContent = (finalCum >= 0 ? '+$' : '-$') + Math.abs(finalCum).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-      cumLbl.style.color = finalCum >= 0 ? '#2ecc8a' : '#e05c7a';
+      cumLbl.classList.toggle('green', finalCum >= 0);
+      cumLbl.classList.toggle('red', finalCum < 0);
+      cumLbl.style.color = finalCum >= 0 ? 'var(--green)' : 'var(--red)';
     }
     var cumSub = document.getElementById('dash-cum-sub');
     if (cumSub) {
       var peakVal = cumVals.length ? Math.max.apply(null, cumVals) : 0;
-      var offPeak = peakVal - finalCum;
+      var offPeak = peakVal - finalCum; // always >= 0 since peak is the max
       var subParts = [last60.length + ' days'];
       if(cumVals.length){
-        subParts.push('peak +$'+Math.abs(peakVal).toLocaleString('en-US',{maximumFractionDigits:0}));
-        if(offPeak > 0.5) subParts.push('-$'+offPeak.toLocaleString('en-US',{maximumFractionDigits:0})+' off peak');
+        subParts.push('peak '+(peakVal>=0?'+$':'-$')+Math.abs(peakVal).toLocaleString('en-US',{maximumFractionDigits:0}));
+        if(offPeak > 0.5) subParts.push('$'+offPeak.toLocaleString('en-US',{maximumFractionDigits:0})+' off peak');
         else subParts.push('at peak');
+        if(maxDDVal > 0.5) subParts.push('max DD -$'+maxDDVal.toLocaleString('en-US',{maximumFractionDigits:0}));
       }
       cumSub.textContent = subParts.join(' · ');
     }
@@ -41269,20 +41281,47 @@ window.toggleSidebar = function(){
       if(cumEl._chart) { cumEl._chart.destroy(); cumEl._chart = null; }
       var isNeg = cumVals[cumVals.length-1] < 0;
       var col = isNeg ? '#e05c7a' : '#2ecc8a';
-      var posCol = '#2ecc8a', negCol = '#e05c7a', peakCol = '#ffd166';
+      var posCol = '#2ecc8a', negCol = '#e05c7a', peakCol = '#ffd166', troughCol = '#9b7cf0';
       var ctx = cumEl.getContext('2d');
       var cumOpts = JSON.parse(JSON.stringify(chartDefaults));
+      cumOpts.scales.y.grace = '12%';
       cumOpts.plugins.tooltip.callbacks = {
         title: function(items){ return items[0].label; },
-        label: function(ctx){ var v=ctx.raw; return ' Net P&L: '+(v>=0?'+$':'-$')+Math.abs(v).toLocaleString('en-US',{maximumFractionDigits:0}); }
+        label: function(c){
+          if(c.datasetIndex === 1) return ' 5-day avg: '+(c.raw>=0?'+$':'-$')+Math.abs(c.raw).toLocaleString('en-US',{maximumFractionDigits:0});
+          var v=c.raw; return ' Net P&L: '+(v>=0?'+$':'-$')+Math.abs(v).toLocaleString('en-US',{maximumFractionDigits:0});
+        }
       };
       function segColor(y0,y1){ return (y0 < 0 || y1 < 0) ? negCol : posCol; }
-      var peakIdx = 0;
-      cumVals.forEach(function(v,i){ if(v > cumVals[peakIdx]) peakIdx = i; });
+      var peakIdx = curPeakIdx;
+      var troughIdx = ddTroughIdx;
+      var hasDD = maxDDVal > 0.5 && ddPeakIdx !== ddTroughIdx;
 
-      // Dashed zero baseline plugin
+      // Moving average trend line (adaptive window)
+      var maWindow = cumVals.length >= 20 ? 7 : (cumVals.length >= 8 ? 5 : 0);
+      var maVals = null;
+      if (maWindow >= 2) {
+        maVals = cumVals.map(function(_,i){
+          var s = Math.max(0, i - maWindow + 1);
+          var slice = cumVals.slice(s, i+1);
+          return slice.reduce(function(a,b){ return a+b; }, 0) / slice.length;
+        });
+      }
+
+      // Max-drawdown zone shading + dashed zero baseline
       var zeroLinePlugin = {
         id: 'cumZeroLine',
+        beforeDatasetsDraw: function(chart){
+          var c = chart.ctx, area = chart.chartArea, xScale = chart.scales.x, yScale = chart.scales.y;
+          if (hasDD && xScale && yScale) {
+            var x0 = xScale.getPixelForValue(ddPeakIdx);
+            var x1 = xScale.getPixelForValue(ddTroughIdx);
+            c.save();
+            c.fillStyle = negCol + '12';
+            c.fillRect(Math.min(x0,x1), area.top, Math.abs(x1-x0), area.bottom - area.top);
+            c.restore();
+          }
+        },
         afterDatasetsDraw: function(chart){
           var yScale = chart.scales.y;
           if(!yScale) return;
@@ -41302,28 +41341,58 @@ window.toggleSidebar = function(){
         }
       };
 
+      var datasets = [{
+        data: cumVals,
+        borderWidth: 2,
+        fill: 'origin',
+        tension: 0.3,
+        order: 1,
+        segment: {
+          borderColor: function(c){ return segColor(c.p0.parsed.y, c.p1.parsed.y); },
+          backgroundColor: function(c){ return segColor(c.p0.parsed.y, c.p1.parsed.y) + '20'; }
+        },
+        pointRadius: function(c){
+          if (cumVals.length <= 1) return 0;
+          if (c.dataIndex === peakIdx) return 4;
+          if (hasDD && c.dataIndex === troughIdx) return 4;
+          return 0;
+        },
+        pointBackgroundColor: function(c){
+          if (c.dataIndex === peakIdx) return peakCol;
+          if (hasDD && c.dataIndex === troughIdx) return troughCol;
+          return col;
+        },
+        pointBorderColor: '#fff',
+        pointBorderWidth: 1.5,
+        pointHoverRadius: 5,
+        pointHoverBackgroundColor: function(c){
+          if (c.dataIndex === peakIdx) return peakCol;
+          if (hasDD && c.dataIndex === troughIdx) return troughCol;
+          return col;
+        },
+        pointHoverBorderColor: '#fff',
+        pointHoverBorderWidth: 2
+      }];
+
+      if (maVals) {
+        datasets.push({
+          data: maVals,
+          borderColor: 'rgba(124,90,240,.55)',
+          borderWidth: 1.5,
+          borderDash: [5,3],
+          fill: false,
+          tension: 0.3,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          order: 0
+        });
+      }
+
       cumEl._chart = new Chart(ctx, {
         type: 'line',
         data: {
           labels: last60.map(shortDate),
-          datasets: [{
-            data: cumVals,
-            borderWidth: 2,
-            fill: 'origin',
-            tension: 0.3,
-            segment: {
-              borderColor: function(c){ return segColor(c.p0.parsed.y, c.p1.parsed.y); },
-              backgroundColor: function(c){ return segColor(c.p0.parsed.y, c.p1.parsed.y) + '20'; }
-            },
-            pointRadius: function(c){ return c.dataIndex === peakIdx && cumVals.length > 1 ? 4 : 0; },
-            pointBackgroundColor: function(c){ return c.dataIndex === peakIdx ? peakCol : col; },
-            pointBorderColor: '#fff',
-            pointBorderWidth: 1.5,
-            pointHoverRadius: 5,
-            pointHoverBackgroundColor: function(c){ return c.dataIndex === peakIdx ? peakCol : col; },
-            pointHoverBorderColor: '#fff',
-            pointHoverBorderWidth: 2
-          }]
+          datasets: datasets
         },
         options: cumOpts,
         plugins: [zeroLinePlugin]
