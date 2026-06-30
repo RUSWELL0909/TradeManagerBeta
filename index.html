@@ -39451,11 +39451,27 @@ window.toggleSidebar = function(){
         var balLine = accBal !== null
           ? '<span style="display:block;font-size:10px;color:var(--text3);margin-top:2px">Balance: '+sym+Math.round(accBal).toLocaleString()+'</span>'
           : '';
+        // Small cumulative sparkline — gives the raw number some shape/context at a glance
+        var sparkLine = '';
+        try{
+          var byDayMini = {};
+          t.forEach(function(x){ if(!x.date) return; var d=String(x.date).slice(0,10); var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0); byDayMini[d]=(byDayMini[d]||0)+p; });
+          var dKeys = Object.keys(byDayMini).sort();
+          if(dKeys.length >= 2){
+            var c=0; var vals = dKeys.map(function(k){ c+=byDayMini[k]; return c; });
+            var vMax = Math.max.apply(Math, vals), vMin = Math.min.apply(Math, vals);
+            var range = Math.max(0.01, vMax-vMin);
+            var stepX = 60/(vals.length-1);
+            var pts = vals.map(function(v,i){ return (i*stepX).toFixed(1)+','+(18-((v-vMin)/range*16)).toFixed(1); }).join(' ');
+            var sparkCol = pnl>=0 ? 'var(--green)' : 'var(--red)';
+            sparkLine = '<svg width="60" height="18" viewBox="0 0 60 18" style="display:block;margin-top:6px;overflow:visible"><polyline points="'+pts+'" fill="none" stroke="'+sparkCol+'" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/></svg>';
+          }
+        }catch(e){}
         return {
           value: _fmtAmt(pnl, mode||'dollar', sym, {trades:t}),
           valueColor: pnl>=0?'green':'red',
           foot: t.length+' trade'+(t.length===1?'':'s'),
-          footExtra: balLine
+          footExtra: balLine + sparkLine
         };
       }
     },
@@ -39521,7 +39537,10 @@ window.toggleSidebar = function(){
       accent: 'purple',
       render: function(t, ccy, sym, mode){
         var rs=t.map(function(x){return parseFloat(x.rMultiple);}).filter(function(r){return !isNaN(r);});
-        if(rs.length===0) return {value:'—', foot:'no R data'};
+        if(rs.length===0) return {
+          value:'—', foot:'no R data',
+          footExtra: '<button onclick="event.stopPropagation();showPage(\'journal\');setTimeout(function(){if(window.jrOpenBulkEdit)jrOpenBulkEdit();},200)" style="margin-top:6px;padding:5px 10px;background:rgba(124,90,240,.1);color:var(--accent3);border:1px solid rgba(124,90,240,.2);border-radius:6px;font-size:10px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;display:block">Add R-multiple →</button>'
+        };
         var avg=rs.reduce(function(a,b){return a+b;},0)/rs.length;
         return { value: avg.toFixed(2), foot: rs.length+' R recorded' };
       }
@@ -39572,13 +39591,19 @@ window.toggleSidebar = function(){
       accent: 'red',
       render: function(t, ccy, sym, mode){
         var sorted=t.slice().sort(function(a,b){return new Date(a.date||0)-new Date(b.date||0);});
-        var cum=0,peak=0,maxDD=0,maxPct=0;
+        var cum=0,peak=0,maxDD=0;
         sorted.forEach(function(x){
           var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0);
           cum+=p; if(cum>peak)peak=cum;
-          var dd=peak-cum; if(dd>maxDD){maxDD=dd; maxPct=peak>0?(dd/peak*100):0;}
+          var dd=peak-cum; if(dd>maxDD){maxDD=dd;}
         });
         if(sorted.length===0) return {value:'—', foot:'no trades'};
+        // % of STARTING BALANCE, not % of local peak — local peak is $0 whenever the
+        // cumulative curve never goes positive in the period, which would silently
+        // make the % (and the mini-bar fill) always read 0 even with a real $ drawdown.
+        // Matches the same anchor used by the main Drawdown dashboard card.
+        var startBalMdd = _dashStartingBalance();
+        var maxPct = startBalMdd>0 ? (maxDD/startBalMdd*100) : 0;
         var val;
         if(mode==='privacy') val='••••';
         else if(mode==='percent') val = '-'+maxPct.toFixed(2)+'%';
@@ -39589,7 +39614,7 @@ window.toggleSidebar = function(){
         return {
           value: val,
           valueColor: maxDD>0?'red':'',
-          foot: maxPct.toFixed(1)+'% of peak',
+          foot: maxPct.toFixed(1)+'% of balance',
           mini: maxDD>0 ? mdMini : ''
         };
       }
@@ -39718,7 +39743,15 @@ window.toggleSidebar = function(){
       render: function(t, ccy, sym, mode){
         var dates=t.map(function(x){return String(x.date||'').slice(0,10);}).filter(Boolean).sort();
         var span=dates.length>1?Math.round((new Date(dates[dates.length-1])-new Date(dates[0]))/86400000):0;
-        return { value: t.length.toLocaleString(), foot: span>0?'over '+span+' day'+(span===1?'':'s'):'all-time' };
+        var ttW=0,ttL=0,ttB=0;
+        t.forEach(function(x){
+          var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0);
+          if(Math.abs(p)<=1)ttB++;else if(p>1)ttW++;else ttL++;
+        });
+        var ttRatio = t.length>0 ? Math.round(ttW/t.length*10) : 0;
+        var ttMini = '';
+        if (t.length>0) { for(var ti=0;ti<10;ti++) ttMini += '<div class="on '+(ti<ttRatio?'win':'loss')+'"></div>'; }
+        return { value: t.length.toLocaleString(), foot: (span>0?'over '+span+' day'+(span===1?'':'s'):'all-time')+' · '+ttW+'W/'+ttL+'L', mini: ttMini };
       }
     },
     expectancy: {
@@ -39746,7 +39779,14 @@ window.toggleSidebar = function(){
         if(!days.length) return {value:'—', foot:'no days'};
         var sum=0; days.forEach(function(d){sum+=dayPnl[d];});
         var avg=sum/days.length;
-        return { value: _fmtAmt(avg, mode||'dollar', sym, {trades:t}), valueColor: avg>=0?'green':'red', foot: days.length+' day'+(days.length===1?'':'s') };
+        // Mini trend: last up-to-10 trading days as win/loss segments, oldest→newest
+        var sortedDaysAd = days.slice().sort().slice(-10);
+        var adMini = sortedDaysAd.map(function(d){
+          var v = dayPnl[d];
+          var cls = Math.abs(v)<=0.01 ? '' : (v>0 ? 'win' : 'loss');
+          return '<div class="on '+cls+'" style="'+(cls?'':'background:rgba(255,255,255,.15)')+'"></div>';
+        }).join('');
+        return { value: _fmtAmt(avg, mode||'dollar', sym, {trades:t}), valueColor: avg>=0?'green':'red', foot: days.length+' day'+(days.length===1?'':'s'), mini: adMini };
       }
     },
     largestWin: {
@@ -39824,6 +39864,25 @@ window.toggleSidebar = function(){
   window.dashSaveLayout = dashSaveLayout;
 
   // Render single tile into a slot element
+  // Maps each KPI tile metric to the detail widget it should scroll to on click
+  var DASH_TILE_TARGET = {
+    pnl: 'chart-cumpnl', wr: 'wl-donut', pf: 'wl-donut', rr: 'r-distribution',
+    bal: 'chart-balance', dwr: 'dow-bars', mdd: 'chart-drawdown', streak: 'wl-donut',
+    best: 'chart-dailypnl', worst: 'chart-dailypnl', avgWin: 'expectancy', avgLoss: 'expectancy',
+    avgWL: 'expectancy', totalTrades: 'recent-trades', expectancy: 'expectancy',
+    avgDaily: 'chart-dailypnl', largestWin: 'wl-donut', largestLoss: 'wl-donut',
+    longestWinStreak: 'wl-donut', longestLossStreak: 'wl-donut'
+  };
+  window.dashScrollToWidget = function(widgetId){
+    var target = document.querySelector('[data-widget="'+widgetId+'"]');
+    if(!target) return;
+    target.scrollIntoView({behavior:'smooth', block:'center'});
+    target.style.transition = 'box-shadow .3s ease';
+    var prevShadow = target.style.boxShadow;
+    target.style.boxShadow = '0 0 0 2px var(--accent)';
+    setTimeout(function(){ target.style.boxShadow = prevShadow; }, 1200);
+  };
+
   function _dashRenderTile(slotEl, metricId, trades, ccy, sym, mode){
     if(!slotEl) return;
     if(!metricId || !DASH_METRICS[metricId]){
@@ -39860,8 +39919,10 @@ window.toggleSidebar = function(){
       '  <button class="kpi-tile-edit-btn x" data-hide-tile="1" title="Hide"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>' +
       '</div>'
     ) : '';
+    var navTarget = DASH_TILE_TARGET[metricId];
+    var clickNav = (!_dashEditing && navTarget) ? ' onclick="dashScrollToWidget(\''+navTarget+'\')" style="cursor:pointer"' : '';
     slotEl.innerHTML =
-      '<div class="kpi-tile accent-'+m.accent+(_dashEditing?' editing':'')+'" data-tile-metric="'+metricId+'" data-tile-slot="'+slotEl.getAttribute('data-slot')+'"'+(_dashEditing?' draggable="true"':'')+'>' +
+      '<div class="kpi-tile accent-'+m.accent+(_dashEditing?' editing':'')+'" data-tile-metric="'+metricId+'" data-tile-slot="'+slotEl.getAttribute('data-slot')+'"'+(_dashEditing?' draggable="true"':'')+clickNav+'>' +
         editActions +
         '<div class="kpi-tile-label">'+m.name+'<span class="kpi-tile-info" title="'+m.desc.replace(/"/g,'&quot;')+'">i</span></div>' +
         '<div class="kpi-tile-value'+(valueColor?' '+valueColor:'')+'">'+data.value+'</div>' +
