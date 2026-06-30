@@ -41074,10 +41074,35 @@ window.toggleSidebar = function(){
         // Days span
         var dates = trades.map(function(t){return String(t.date||'').slice(0,10);}).filter(Boolean).sort();
         var span = dates.length>1 ? Math.round((new Date(dates[dates.length-1])-new Date(dates[0]))/86400000) : 0;
+
+        // Reuse the shared metrics engine for Profit Factor + streaks (single source of truth — avoid re-deriving)
+        var wlMx = (typeof tqMetrics==='function') ? tqMetrics(trades) : null;
+        var pf = wlMx ? wlMx.profitFactorDisplay : '—';
+
+        // Current streak — scan from most recent trade (trades[0], already sorted newest-first)
+        var curStreak = 0, curStreakSign = 0;
+        for (var si=0; si<trades.length; si++){
+          var sp = _pnlOf(trades[si]);
+          if (Math.abs(sp) <= 1) break; // BE trade breaks the streak count
+          var ssign = sp > 0 ? 1 : -1;
+          if (curStreak === 0) { curStreakSign = ssign; curStreak = 1; }
+          else if (ssign === curStreakSign) curStreak++;
+          else break;
+        }
+        var streakLabel = curStreak > 0 ? (curStreakSign>0 ? curStreak+'W streak' : curStreak+'L streak') : '—';
+        var streakColor = curStreakSign>0 ? TG : (curStreakSign<0 ? TR : 'var(--text3)');
+
+        // Recent sequence strip — last 12 trades, oldest→newest (left to right reads naturally)
+        var recentSeq = trades.slice(0, 12).slice().reverse().map(function(t){
+          var p = _pnlOf(t);
+          var c = Math.abs(p)<=1 ? '#94a3b8' : (p>0 ? TG : TR);
+          return '<span title="'+(p>=0?'+':'-')+ci.sym+Math.abs(Math.round(p))+'" style="flex:1;height:18px;background:'+c+';border-radius:2px;opacity:.85"></span>';
+        }).join('');
+
         el.style.padding = '0';
         el.innerHTML =
-          '<div style="font-size:13px;color:var(--text2);font-weight:600;margin-bottom:14px">'+total+' trades'+(span>0?' · '+span+' days span':'')+'</div>' +
-          '<div style="display:flex;align-items:center;gap:18px">' +
+          '<div class="dash-card-animate" style="font-size:13px;color:var(--text2);font-weight:600;margin-bottom:14px">'+total+' trades'+(span>0?' · '+span+' days span':'')+'</div>' +
+          '<div class="dash-card-animate" style="display:flex;align-items:center;gap:18px">' +
             '<div style="position:relative;flex-shrink:0">' +
               '<svg width="120" height="120" viewBox="0 0 36 36">' +
                 '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="rgba(255,255,255,.06)" stroke-width="3.5"/>' +
@@ -41099,7 +41124,25 @@ window.toggleSidebar = function(){
                 '<span style="font-size:24px;font-weight:700;color:'+(net>=0?TG:TR)+';font-family:Inter,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.5px">'+sign+ci.sym+Math.abs(Math.round(net)).toLocaleString()+'</span>' +
               '</div>' +
             '</div>' +
-          '</div>';
+          '</div>' +
+          '<div class="dash-card-animate" style="display:flex;gap:10px;margin-top:16px">' +
+            '<div style="flex:1;background:rgba(124,90,240,.06);border:1px solid rgba(124,90,240,.18);border-radius:10px;padding:10px 12px;text-align:center">' +
+              '<div style="font-size:10px;color:var(--text3);letter-spacing:.3px;font-weight:700">PROFIT FACTOR</div>' +
+              '<div style="font-size:18px;font-weight:700;color:var(--text);margin-top:3px">'+pf+'</div>' +
+            '</div>' +
+            '<div style="flex:1;background:rgba('+(curStreakSign>0?TG_RGB:TR_RGB)+',.08);border:1px solid rgba('+(curStreakSign>0?TG_RGB:TR_RGB)+',.2);border-radius:10px;padding:10px 12px;text-align:center">' +
+              '<div style="font-size:10px;color:var(--text3);letter-spacing:.3px;font-weight:700">CURRENT STREAK</div>' +
+              '<div style="font-size:18px;font-weight:700;color:'+streakColor+';margin-top:3px">'+streakLabel+'</div>' +
+            '</div>' +
+            '<div style="flex:1;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:10px 12px;text-align:center">' +
+              '<div style="font-size:10px;color:var(--text3);letter-spacing:.3px;font-weight:700">BEST / WORST STREAK</div>' +
+              '<div style="font-size:13px;font-weight:700;margin-top:5px"><span style="color:'+TG+'">'+(wlMx?wlMx.longestWinStreak:0)+'W</span> / <span style="color:'+TR+'">'+(wlMx?wlMx.longestLossStreak:0)+'L</span></div>' +
+            '</div>' +
+          '</div>' +
+          (recentSeq ? '<div class="dash-card-animate" style="margin-top:14px">' +
+            '<div style="font-size:11px;color:var(--text3);font-weight:700;letter-spacing:.3px;margin-bottom:6px">RECENT SEQUENCE (oldest → newest)</div>' +
+            '<div style="display:flex;gap:3px">'+recentSeq+'</div>' +
+          '</div>' : '');
       }
     }catch(_wErr){if(typeof console!=='undefined')console.error('[dash widget wl-donut]',_wErr);} }
 
@@ -41129,20 +41172,20 @@ window.toggleSidebar = function(){
           var maxv = Math.max(aw, al, 1);
           el.innerHTML =
             '<div>' +
-              '<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">' +
-                '<span style="color:#1de9b6">Wins held</span>' +
-                '<span style="font-family:DM Mono,monospace;color:var(--text);font-variant-numeric:tabular-nums">'+(winDur.length?fmt(aw):'—')+'</span>' +
+              '<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;font-weight:600">' +
+                '<span style="color:'+TG+'">Wins held</span>' +
+                '<span style="font-family:Inter,sans-serif;color:var(--text);font-variant-numeric:tabular-nums;font-weight:700">'+(winDur.length?fmt(aw):'—')+'</span>' +
               '</div>' +
-              '<div style="height:6px;background:rgba(255,255,255,.04);border-radius:2px;overflow:hidden"><div style="width:'+(aw/maxv*100).toFixed(0)+'%;height:100%;background:#1de9b6"></div></div>' +
+              '<div style="height:7px;background:rgba(255,255,255,.04);border-radius:3px;overflow:hidden"><div style="width:'+(aw/maxv*100).toFixed(0)+'%;height:100%;background:'+TG+'"></div></div>' +
             '</div>' +
-            '<div>' +
-              '<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">' +
-                '<span style="color:#ef4444">Losses cut</span>' +
-                '<span style="font-family:DM Mono,monospace;color:var(--text);font-variant-numeric:tabular-nums">'+(lossDur.length?fmt(al):'—')+'</span>' +
+            '<div style="margin-top:12px">' +
+              '<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;font-weight:600">' +
+                '<span style="color:'+TR+'">Losses cut</span>' +
+                '<span style="font-family:Inter,sans-serif;color:var(--text);font-variant-numeric:tabular-nums;font-weight:700">'+(lossDur.length?fmt(al):'—')+'</span>' +
               '</div>' +
-              '<div style="height:6px;background:rgba(255,255,255,.04);border-radius:2px;overflow:hidden"><div style="width:'+(al/maxv*100).toFixed(0)+'%;height:100%;background:#ef4444"></div></div>' +
+              '<div style="height:7px;background:rgba(255,255,255,.04);border-radius:3px;overflow:hidden"><div style="width:'+(al/maxv*100).toFixed(0)+'%;height:100%;background:'+TR+'"></div></div>' +
             '</div>' +
-            (aw>0&&al>0 ? '<div style="font-size:10px;color:var(--text3);font-family:DM Mono,monospace;margin-top:4px">Ratio: '+(aw/al).toFixed(1)+':1 '+(aw>=al?'· healthy ✓':'· cut winners early')+'</div>' : '');
+            (aw>0&&al>0 ? '<div style="font-size:12px;color:var(--text2);font-weight:600;margin-top:10px">Ratio: '+(aw/al).toFixed(1)+':1 '+(aw>=al?'· healthy ✓':'· cut winners early')+'</div>' : '');
         }
       }
     }catch(_wErr){if(typeof console!=='undefined')console.error('[dash widget duration-bars]',_wErr);} }
@@ -41158,13 +41201,29 @@ window.toggleSidebar = function(){
           var expSign = exp>0?'+':(exp<0?'-':'');
           // per-100-trades projection
           var per100 = exp*100;
-          el.innerHTML = '<div style="font-size:42px;font-weight:400;letter-spacing:-.8px;line-height:1;color:'+expColor+';font-variant-numeric:tabular-nums;margin-bottom:10px">'+expSign+ci.sym+Math.abs(exp).toFixed(2)+'</div>'+
-            '<div style="display:flex;flex-direction:column;gap:8px;margin-top:14px">'+
-              '<div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--text3)">Avg win</span><span style="color:var(--green);font-variant-numeric:tabular-nums">+'+ci.sym+mx.avgWin.toFixed(0)+'</span></div>'+
-              '<div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--text3)">Avg loss</span><span style="color:var(--red);font-variant-numeric:tabular-nums">-'+ci.sym+mx.avgLoss.toFixed(0)+'</span></div>'+
-              '<div style="display:flex;justify-content:space-between;font-size:12px;padding-top:8px;border-top:1px solid var(--border)"><span style="color:var(--text3)">Per 100 trades</span><span style="color:'+expColor+';font-weight:600;font-variant-numeric:tabular-nums">'+expSign+ci.sym+Math.abs(per100).toFixed(0)+'</span></div>'+
+          // Breakeven win rate: the WR you'd need at this avg win/loss ratio just to net $0
+          var bewr = (mx.avgWin + mx.avgLoss) > 0 ? (mx.avgLoss / (mx.avgWin + mx.avgLoss) * 100) : 0;
+          var wrGap = mx.winRate - bewr; // positive = above breakeven, negative = below
+          var maxWL = Math.max(mx.avgWin, mx.avgLoss, 1);
+
+          el.innerHTML = '<div class="dash-card-animate" style="font-size:42px;font-weight:400;letter-spacing:-.8px;line-height:1;color:'+expColor+';font-variant-numeric:tabular-nums;margin-bottom:10px">'+expSign+ci.sym+Math.abs(exp).toFixed(2)+'</div>'+
+            // Win vs loss size comparison bars
+            '<div class="dash-card-animate" style="margin-top:14px">'+
+              '<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;font-weight:600"><span style="color:var(--green)">Avg win</span><span style="color:var(--green);font-variant-numeric:tabular-nums;font-weight:700">+'+ci.sym+mx.avgWin.toFixed(0)+'</span></div>'+
+              '<div style="height:8px;background:rgba(255,255,255,.04);border-radius:3px;overflow:hidden"><div style="width:'+(mx.avgWin/maxWL*100).toFixed(0)+'%;height:100%;background:var(--green)"></div></div>'+
             '</div>'+
-            '<div style="margin-top:12px;font-size:11px;color:var(--text2);line-height:1.5">'+(exp>0?'Positive edge — each trade is worth taking over time.':exp<0?'Negative edge — review setup quality & risk.':'Flat — no statistical edge yet.')+'</div>';
+            '<div class="dash-card-animate" style="margin-top:10px">'+
+              '<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;font-weight:600"><span style="color:var(--red)">Avg loss</span><span style="color:var(--red);font-variant-numeric:tabular-nums;font-weight:700">-'+ci.sym+mx.avgLoss.toFixed(0)+'</span></div>'+
+              '<div style="height:8px;background:rgba(255,255,255,.04);border-radius:3px;overflow:hidden"><div style="width:'+(mx.avgLoss/maxWL*100).toFixed(0)+'%;height:100%;background:var(--red)"></div></div>'+
+            '</div>'+
+            '<div class="dash-card-animate" style="display:flex;justify-content:space-between;font-size:13px;padding-top:10px;margin-top:10px;border-top:1px solid var(--border)"><span style="color:var(--text2);font-weight:600">Per 100 trades</span><span style="color:'+expColor+';font-weight:700;font-variant-numeric:tabular-nums;font-size:14px">'+expSign+ci.sym+Math.abs(per100).toFixed(0)+'</span></div>'+
+            // Breakeven win rate insight box
+            '<div class="dash-card-animate" style="margin-top:14px;background:rgba('+(wrGap>=0?TG_RGB:TR_RGB)+',.07);border:1px solid rgba('+(wrGap>=0?TG_RGB:TR_RGB)+',.2);border-radius:10px;padding:11px 13px">'+
+              '<div style="font-size:10.5px;color:var(--text3);letter-spacing:.3px;font-weight:700;margin-bottom:4px">BREAKEVEN WIN RATE</div>'+
+              '<div style="font-size:13px;color:var(--text);font-weight:600">You need <b>'+bewr.toFixed(0)+'% WR</b> to break even at this win/loss size. You\'re at <b style="color:'+(wrGap>=0?TG:TR)+'">'+mx.winRate.toFixed(0)+'%</b> ('+(wrGap>=0?'+':'')+wrGap.toFixed(0)+' pts '+(wrGap>=0?'above':'below')+').</div>'+
+            '</div>'+
+            '<div class="dash-card-animate" style="margin-top:10px;font-size:11.5px;color:var(--text3);font-family:Inter,sans-serif">'+mx.winRate.toFixed(0)+'% × '+ci.sym+mx.avgWin.toFixed(0)+' &minus; '+(mx.losses/mx.count*100).toFixed(0)+'% × '+ci.sym+mx.avgLoss.toFixed(0)+' = '+expSign+ci.sym+Math.abs(exp).toFixed(2)+'</div>'+
+            '<div class="dash-card-animate" style="margin-top:10px;font-size:12px;color:var(--text2);font-weight:500;line-height:1.5">'+(exp>0?'Positive edge — each trade is worth taking over time.':exp<0?'Negative edge — review setup quality & risk.':'Flat — no statistical edge yet.')+'</div>';
         } else {
           el.innerHTML = '<div style="color:var(--text3);font-size:12px;padding:20px 0;text-align:center">No trades yet</div>';
         }
