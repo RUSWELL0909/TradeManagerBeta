@@ -2224,7 +2224,8 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 .btn{padding:10px 20px;border-radius:10px;border:none;cursor:pointer;font-family:Inter,sans-serif;font-weight:600;font-size:13px;transition:all .2s}
 .btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:var(--accent2);transform:translateY(-1px)}
 .btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}.btn-ghost:hover{border-color:var(--accent);color:var(--accent3)}
-.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px 32px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px 32px;box-shadow:0 1px 3px rgba(0,0,0,.04), 0 4px 16px rgba(0,0,0,.05);transition:transform .25s cubic-bezier(.22,1,.36,1), box-shadow .25s ease, border-color .25s ease}
+[data-widget].card:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.14), 0 0 0 1px rgba(124,90,240,.08);border-color:rgba(124,90,240,.16)}
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
 .stat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px 24px;position:relative;overflow:hidden;transition:box-shadow .25s,border-color .25s,transform .2s}.stat-card:hover{box-shadow:0 8px 32px rgba(124,90,240,.18);border-color:rgba(124,90,240,.35);transform:translateY(-2px)}
 [data-widget-hidden="true"]{display:none !important}
@@ -2473,15 +2474,17 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(124,90,240,.15);outlin
   .dash-card {
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: 14px;
+    border-radius: 16px;
     padding: 20px 22px;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,.04), 0 4px 16px rgba(0,0,0,.06);
     transition: transform .25s cubic-bezier(.22,1,.36,1), box-shadow .25s ease, border-color .25s ease;
   }
   .dash-card:hover {
-    box-shadow: 0 6px 24px rgba(0,0,0,.2), 0 0 0 1px rgba(124,90,240,.06);
-    border-color: rgba(124,90,240,.12);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0,0,0,.16), 0 0 0 1px rgba(124,90,240,.1);
+    border-color: rgba(124,90,240,.18);
   }
   .dash-card-bg {
     position: absolute; inset: 0; pointer-events: none; border-radius: 16px;
@@ -2538,6 +2541,15 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(124,90,240,.15);outlin
     font-size: 28px; font-weight:400; letter-spacing: -0.5px;
     font-family: 'Inter', sans-serif; color: var(--text);
     transition: color .3s ease;
+  }
+  /* Subtle neon glow on colored numbers — dark themes only (argentumhub-style depth) */
+  [data-theme="dark"] .dash-big-num.green, [data-theme="obsidian"] .dash-big-num.green,
+  [data-theme="dark"] .kpi-tile-value.green, [data-theme="obsidian"] .kpi-tile-value.green {
+    text-shadow: 0 0 18px rgba(29,233,182,.25);
+  }
+  [data-theme="dark"] .dash-big-num.red, [data-theme="obsidian"] .dash-big-num.red,
+  [data-theme="dark"] .kpi-tile-value.red, [data-theme="obsidian"] .kpi-tile-value.red {
+    text-shadow: 0 0 18px rgba(239,68,68,.22);
   }
   .dash-big-num.red { color: var(--red); }
   .dash-big-num.green { color: var(--green); }
