@@ -40801,7 +40801,8 @@ window.toggleSidebar = function(){
           var st = setupStats[s];
           var total = st.w+st.l;
           return {s:s, wr: total>0?st.w/total*100:0, total:total};
-        }).filter(function(x){return x.total>=3;}).sort(function(a,b){return b.wr-a.wr;}).slice(0,5);
+        }).filter(function(x){return x.total>=3;}).sort(function(a,b){return b.total-a.total;}).slice(0,5)
+          .sort(function(a,b){return b.wr-a.wr;}); // select by volume (avoids small-sample noise), display ranked by WR
         // If only "Other" (= no setup tagged), show actionable empty state
         var onlyOther = setups.length === 1 && setups[0].s === 'Other';
         if(setups.length === 0 || onlyOther){
@@ -41142,7 +41143,18 @@ window.toggleSidebar = function(){
           (recentSeq ? '<div class="dash-card-animate" style="margin-top:14px">' +
             '<div style="font-size:11px;color:var(--text3);font-weight:700;letter-spacing:.3px;margin-bottom:6px">RECENT SEQUENCE (oldest → newest)</div>' +
             '<div style="display:flex;gap:3px">'+recentSeq+'</div>' +
-          '</div>' : '');
+          '</div>' : '') +
+          (wlMx && (wlMx.maxWin>0 || wlMx.maxLoss<0) ? (function(){
+            var mwAbs = Math.abs(wlMx.maxWin), mlAbs = Math.abs(wlMx.maxLoss);
+            var maxBoth = Math.max(mwAbs, mlAbs, 1);
+            return '<div class="dash-card-animate" style="margin-top:16px;padding-top:14px;border-top:0.5px solid var(--border)">' +
+              '<div style="font-size:11px;color:var(--text3);font-weight:700;letter-spacing:.3px;margin-bottom:10px">LARGEST WIN VS LARGEST LOSS</div>' +
+              '<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;font-weight:600"><span style="color:'+TG+'">Largest win</span><span style="color:'+TG+';font-weight:700">+'+ci.sym+mwAbs.toFixed(0)+'</span></div>' +
+              '<div style="height:8px;background:rgba(255,255,255,.04);border-radius:3px;overflow:hidden"><div style="width:'+(mwAbs/maxBoth*100).toFixed(0)+'%;height:100%;background:'+TG+'"></div></div>' +
+              '<div style="display:flex;justify-content:space-between;font-size:12px;margin:10px 0 5px;font-weight:600"><span style="color:'+TR+'">Largest loss</span><span style="color:'+TR+';font-weight:700">-'+ci.sym+mlAbs.toFixed(0)+'</span></div>' +
+              '<div style="height:8px;background:rgba(255,255,255,.04);border-radius:3px;overflow:hidden"><div style="width:'+(mlAbs/maxBoth*100).toFixed(0)+'%;height:100%;background:'+TR+'"></div></div>' +
+            '</div>';
+          })() : '');
       }
     }catch(_wErr){if(typeof console!=='undefined')console.error('[dash widget wl-donut]',_wErr);} }
 
