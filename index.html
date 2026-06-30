@@ -6240,12 +6240,13 @@ window.toggleSidebar = function(){
           <!-- Recovery Factor -->
           <div class="card" data-widget="recovery-factor" style="padding:22px 24px;display:flex;flex-direction:column;min-height:220px;position:relative;overflow:hidden">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-              <span style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:500">Recovery Factor</span>
+              <span style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:600">Recovery Factor</span>
               <span class="info-icon" data-tip="Net profit ÷ Max Drawdown. Higher = better recovery from losses. 2.0+ is strong.">i</span>
             </div>
-            <div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:18px">Net profit ÷ max drawdown</div>
-            <div id="dash-recovery" style="font-size:48px;font-weight:400;letter-spacing:-.8px;line-height:1;color:var(--green);font-variant-numeric:tabular-nums;margin-bottom:6px">&#8212;</div>
-            <svg id="dash-recovery-spark" style="height:42px;margin:18px 0 14px;width:100%" viewBox="0 0 100 30" preserveAspectRatio="none">
+            <div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:14px">Net profit ÷ max drawdown</div>
+            <div id="dash-recovery" style="font-size:48px;font-weight:400;letter-spacing:-.8px;line-height:1;color:var(--green);font-variant-numeric:tabular-nums;margin-bottom:4px">&#8212;</div>
+            <div id="dash-recovery-breakdown" style="font-size:12px;color:var(--text3);font-weight:500;margin-bottom:10px"></div>
+            <svg id="dash-recovery-spark" style="height:42px;margin:6px 0 12px;width:100%" viewBox="0 0 100 30" preserveAspectRatio="none">
               <defs>
                 <linearGradient id="recSparkGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stop-color="rgba(29,233,182,.3)"/>
@@ -6258,18 +6259,25 @@ window.toggleSidebar = function(){
             <div>
               <span id="dash-recovery-tag" style="display:inline-flex;align-items:center;gap:7px;padding:5px 14px;background:rgba(29,233,182,.08);border:0.5px solid rgba(29,233,182,.25);border-radius:100px;font-size:12px;color:var(--green);font-weight:500">● Loading…</span>
             </div>
-            <div id="dash-recovery-bar" style="display:none"><div id="dash-recovery-fill" style="height:100%;width:0%"></div></div>
+            <div style="margin-top:14px">
+              <div id="dash-recovery-gauge-track" style="position:relative;height:8px;border-radius:4px;overflow:hidden;background:linear-gradient(90deg, var(--red) 0%, var(--red) 24%, #fbbf24 24%, #fbbf24 49%, rgba(29,233,182,.55) 49%, rgba(29,233,182,.55) 74%, var(--green) 74%, var(--green) 100%)">
+                <div id="dash-recovery-marker" style="position:absolute;top:-3px;width:2px;height:14px;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.3);left:0%;transition:left .6s ease"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:9.5px;color:var(--text3);margin-top:5px;font-weight:600;letter-spacing:.2px">
+                <span>WEAK</span><span>ACCEPTABLE</span><span>SOLID</span><span>STRONG</span>
+              </div>
+            </div>
           </div>
           <!-- Consistency -->
           <div class="card" data-widget="consistency" style="padding:22px 24px;display:flex;flex-direction:column;min-height:220px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-              <span style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:500">Consistency</span>
+              <span style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:600">Consistency</span>
               <span class="info-icon" data-tip="Stability of daily returns. 100 = perfectly steady, 0 = highly volatile.">i</span>
             </div>
-            <div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:18px">Daily return stability score</div>
-            <div style="display:flex;align-items:center;gap:22px;flex:1">
+            <div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:14px">Daily return stability score</div>
+            <div style="display:flex;align-items:center;gap:22px">
               <div style="position:relative;flex-shrink:0">
-                <svg width="120" height="120" viewBox="0 0 36 36">
+                <svg width="100" height="100" viewBox="0 0 36 36">
                   <defs>
                     <linearGradient id="consRingGrad" x1="0" y1="0" x2="1" y2="0">
                       <stop offset="0%" stop-color="#ef4444"/>
@@ -6281,15 +6289,16 @@ window.toggleSidebar = function(){
                   <circle id="dash-consistency-ring" cx="18" cy="18" r="15.9" fill="none" stroke="url(#consRingGrad)" stroke-width="3" stroke-dasharray="0 100" stroke-linecap="round" transform="rotate(-90 18 18)"/>
                 </svg>
                 <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
-                  <div id="dash-consistency" style="font-size:34px;font-weight:400;color:var(--text);line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.6px">&#8212;</div>
-                  <div style="font-size:10px;color:var(--text3);letter-spacing:1px;margin-top:3px">/ 100</div>
+                  <div id="dash-consistency" style="font-size:28px;font-weight:700;color:var(--text);line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.6px">&#8212;</div>
+                  <div style="font-size:10px;color:var(--text3);letter-spacing:1px;margin-top:3px;font-weight:600">/ 100</div>
                 </div>
               </div>
               <div style="flex:1;font-size:13px;color:var(--text2);line-height:1.5">
-                <div id="dash-consistency-label" style="display:inline-block;padding:4px 12px;background:rgba(29,233,182,.08);border-radius:6px;color:var(--green);font-size:12px;font-weight:500;margin-bottom:10px">—</div>
-                <div id="dash-consistency-desc" style="font-size:13px;color:var(--text2);line-height:1.5;opacity:.85"></div>
+                <div id="dash-consistency-label" style="display:inline-block;padding:4px 12px;background:rgba(29,233,182,.08);border-radius:6px;color:var(--green);font-size:12px;font-weight:600;margin-bottom:10px">—</div>
+                <div id="dash-consistency-desc" style="font-size:13px;color:var(--text2);line-height:1.5;opacity:.9;font-weight:500"></div>
               </div>
             </div>
+            <div id="dash-consistency-spread" style="margin-top:16px;padding-top:12px;border-top:0.5px solid var(--border)"></div>
           </div>
           <!-- Goals -->
           <div class="card" data-widget="goals" style="padding:22px 24px;display:flex;flex-direction:column;min-height:220px">
@@ -28988,7 +28997,11 @@ window.toggleSidebar = function(){
   // Compute current value for a goal based on trades within its period
   function tqGoalProgress(goal){
     if(!goal) return {current:0, target:goal.target, pct:0, label:''};
-    var allTrades = (typeof getActiveTrades === 'function') ? getActiveTrades() : [];
+    var rawTrades = (typeof getActiveTrades === 'function') ? getActiveTrades() : [];
+    // Respect the dashboard's account filter (all / all_prop / all_personal / specific) — was
+    // previously always pooling ALL accounts regardless of selection, inconsistent with every
+    // other dashboard widget. See METRICS_LOGIC_SPEC.md §0.
+    var allTrades = (typeof tqFilterTradesByActive === 'function') ? tqFilterTradesByActive(rawTrades) : rawTrades;
     var now = new Date();
     var startDate;
     if(goal.period === 'week'){
@@ -29002,7 +29015,12 @@ window.toggleSidebar = function(){
     } else {
       startDate = new Date(0);
     }
-    var startStr = startDate.toISOString().slice(0,10);
+    // Build the boundary date string from LOCAL calendar components, not .toISOString() —
+    // toISOString() converts to UTC first, which silently shifts the cutoff back a day for
+    // anyone east of UTC (e.g. UTC+5: local midnight Monday becomes Sunday 19:00 UTC, so the
+    // "week start" filter would wrongly include all of Sunday). Same bug class as the
+    // Day-of-week fix — see METRICS_LOGIC_SPEC.md §9.
+    var startStr = startDate.getFullYear() + '-' + String(startDate.getMonth()+1).padStart(2,'0') + '-' + String(startDate.getDate()).padStart(2,'0');
     var trades = allTrades.filter(function(t){ return (t.date||'') >= startStr; });
 
     var current = 0, label = '', target = goal.target;
@@ -29025,7 +29043,28 @@ window.toggleSidebar = function(){
       label = current.toFixed(2) + ' / ' + target.toFixed(2);
     }
     var pct = target > 0 ? Math.min(100, Math.max(0, (current / target) * 100)) : 0;
-    return {current:current, target:target, pct:pct, label:label};
+
+    // Days remaining in the period + pace needed (for $ and trade-count goals — % goals don't have a meaningful "pace")
+    var daysLeft = null, paceLabel = null;
+    if (goal.period === 'week' || goal.period === 'month' || goal.period === 'year') {
+      var periodEnd;
+      if (goal.period === 'week') {
+        periodEnd = new Date(startDate); periodEnd.setDate(startDate.getDate() + 6);
+      } else if (goal.period === 'month') {
+        periodEnd = new Date(now.getFullYear(), now.getMonth()+1, 0);
+      } else {
+        periodEnd = new Date(now.getFullYear(), 11, 31);
+      }
+      daysLeft = Math.max(0, Math.ceil((periodEnd - now) / 86400000));
+      if (daysLeft > 0 && pct < 100 && (goal.type === 'pnl' || goal.type === 'trades')) {
+        var remaining = target - current;
+        if (remaining > 0) {
+          var perDay = remaining / daysLeft;
+          paceLabel = goal.type === 'pnl' ? (sym + Math.round(perDay).toLocaleString() + '/day needed') : (Math.ceil(perDay) + '/day needed');
+        }
+      }
+    }
+    return {current:current, target:target, pct:pct, label:label, daysLeft:daysLeft, paceLabel:paceLabel};
   }
   window.tqGoalProgress = tqGoalProgress;
 
@@ -29045,18 +29084,26 @@ window.toggleSidebar = function(){
     }
     listEl.innerHTML = goals.slice(0,3).map(function(g){
       var p = tqGoalProgress(g);
-      var col = p.pct >= 100 ? '#1de9b6' : p.pct >= 75 ? '#1de9b6' : 'var(--text2)';
-      var barGrad = p.pct >= 100 ? 'linear-gradient(90deg,#1de9b6,rgba(29,233,182,.6))'
+      var TGc = getComputedStyle(document.documentElement).getPropertyValue('--green').trim() || '#1de9b6';
+      var col = p.pct >= 75 ? TGc : 'var(--text)';
+      var barGrad = p.pct >= 100 ? 'linear-gradient(90deg,'+TGc+',rgba(29,233,182,.6))'
                   : p.pct >= 50 ? 'linear-gradient(90deg,rgba(29,233,182,.7),rgba(29,233,182,.3))'
                   : 'rgba(255,255,255,.15)';
       var icon = ({pnl:'💰', win_rate:'🎯', trades:'📊', profit_factor:'⚡'})[g.type] || '🎯';
       var labelClean = String(p.label).replace(/<[^>]*>/g,'').trim();
-      return '<div style="margin-bottom:2px">' +
-               '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px;font-size:13px">' +
-                 '<span style="color:var(--text2)"><span style="margin-right:8px;font-size:14px">'+icon+'</span>'+(g.name||g.type).replace(/</g,'&lt;')+'</span>' +
-                 '<span style="color:'+col+';font-weight:500;font-size:12px;font-family:Inter,sans-serif;font-variant-numeric:tabular-nums">'+labelClean+'</span>' +
+      var metaParts = [];
+      if (p.pct >= 100) metaParts.push('<span style="color:'+TGc+'">✓ Goal hit</span>');
+      else {
+        if (p.daysLeft !== null) metaParts.push(p.daysLeft + (p.daysLeft===1?' day left':' days left'));
+        if (p.paceLabel) metaParts.push(p.paceLabel);
+      }
+      return '<div class="dash-card-animate" style="margin-bottom:2px">' +
+               '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px;font-size:14px">' +
+                 '<span style="color:var(--text);font-weight:600"><span style="margin-right:8px;font-size:15px">'+icon+'</span>'+(g.name||g.type).replace(/</g,'&lt;')+'</span>' +
+                 '<span style="color:'+col+';font-weight:700;font-size:14px;font-family:Inter,sans-serif;font-variant-numeric:tabular-nums">'+labelClean+'</span>' +
                '</div>' +
-               '<div style="background:rgba(255,255,255,.04);border-radius:3px;height:6px;overflow:hidden"><div style="background:'+barGrad+';height:100%;width:'+p.pct+'%;transition:width .4s;border-radius:3px"></div></div>' +
+               '<div style="background:rgba(255,255,255,.04);border-radius:3px;height:7px;overflow:hidden"><div style="background:'+barGrad+';height:100%;width:'+p.pct+'%;transition:width .4s;border-radius:3px"></div></div>' +
+               (metaParts.length ? '<div style="font-size:11.5px;color:var(--text3);font-weight:500;margin-top:5px">'+metaParts.join(' &middot; ')+'</div>' : '') +
              '</div>';
     }).join('');
   }
@@ -38744,8 +38791,9 @@ window.toggleSidebar = function(){
         var dd = peak - cum;
         if(dd > maxDD){ maxDD = dd; maxDDDate = t.date || ''; }
       });
-      var accs = [];try{accs=JSON.parse(rfxGet('rf_accounts')||'[]');}catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
-      var startBal = accs.reduce(function(a,x){return a+(parseFloat(x.balance)||0);},0) || 10000;
+      // Reuse accBal (already respects the account filter: all / all_prop / all_personal / specific —
+      // see the fix in §0 of METRICS_LOGIC_SPEC.md) instead of re-summing every account unconditionally.
+      var startBal = (typeof accBal === 'number' && accBal > 0) ? accBal : 10000;
       var maxDDPct = startBal>0 ? (maxDD/startBal*100) : 0;
 
       var ddEl = document.getElementById('dash-maxdd');
@@ -38758,16 +38806,23 @@ window.toggleSidebar = function(){
       // ── Recovery Factor = Net Profit / Max DD ──
       var recovery = maxDD > 0 ? (net / maxDD) : (net > 0 ? 999 : 0);
       var recEl = document.getElementById('dash-recovery');
-      var recFill = document.getElementById('dash-recovery-fill');
+      var recBreakdownEl = document.getElementById('dash-recovery-breakdown');
+      var recMarker = document.getElementById('dash-recovery-marker');
       if(recEl){
         if(recovery === 999) recEl.textContent = '∞';
         else if(maxDD === 0 && trades.length === 0) recEl.textContent = '—';
         else recEl.textContent = recovery.toFixed(2);
         recEl.style.color = recovery >= 2 ? 'var(--green)' : recovery >= 1 ? 'var(--yellow)' : recovery > 0 ? 'var(--text)' : 'var(--red)';
       }
-      if(recFill){
-        var recPct = Math.min(100, Math.max(0, recovery / 3 * 100));
-        recFill.style.width = recPct + '%';
+      if(recBreakdownEl){
+        var _ccy2 = (typeof tqGetDisplayCurrency==='function') ? tqGetDisplayCurrency() : 'USD';
+        var _sym2 = ({USD:'$',EUR:'€',GBP:'£',JPY:'¥',CHF:'CHF ',CAD:'C$',AUD:'A$',NZD:'NZ$'})[_ccy2] || '$';
+        if(trades.length === 0){ recBreakdownEl.textContent = ''; }
+        else recBreakdownEl.innerHTML = '<span style="color:'+(net>=0?'var(--green)':'var(--red)')+'">'+(net>=0?'+':'-')+_sym2+Math.abs(net).toFixed(0)+' net</span> &nbsp;/&nbsp; <span style="color:var(--red)">-'+_sym2+maxDD.toFixed(0)+' max DD</span>';
+      }
+      if(recMarker){
+        var recPct = Math.min(100, Math.max(0, recovery===999 ? 100 : (recovery / 4 * 100)));
+        recMarker.style.left = recPct + '%';
       }
       // Variant A — sparkline of cumulative recovery factor (rolling 30-trade window)
       (function(){
@@ -38870,6 +38925,26 @@ window.toggleSidebar = function(){
                   : consScore >= 15 ? 'High volatility. Cap daily risk.'
                   : 'Erratic returns. Pause and review rules.';
           consDescEl.textContent = msg;
+        }
+      }
+      var consSpreadEl = document.getElementById('dash-consistency-spread');
+      if(consSpreadEl){
+        if(dayKeys.length < 5){
+          consSpreadEl.innerHTML = '';
+        } else {
+          var sortedDayKeys = dayKeys.slice().sort();
+          var spreadVals = sortedDayKeys.map(function(k){return byDay[k];});
+          var spreadMax = Math.max(1, Math.max.apply(Math, spreadVals.map(Math.abs)));
+          var _ccy3 = (typeof tqGetDisplayCurrency==='function') ? tqGetDisplayCurrency() : 'USD';
+          var _sym3 = ({USD:'$',EUR:'€',GBP:'£',JPY:'¥',CHF:'CHF ',CAD:'C$',AUD:'A$',NZD:'NZ$'})[_ccy3] || '$';
+          var spreadBars = spreadVals.map(function(v){
+            var h = Math.max(8, Math.abs(v)/spreadMax*100);
+            var col = v >= 0 ? 'var(--green)' : 'var(--red)';
+            return '<div title="'+(v>=0?'+':'-')+_sym3+Math.abs(Math.round(v))+'" style="flex:1;display:flex;align-items:flex-end;height:32px"><div style="width:100%;height:'+h+'%;background:'+col+';opacity:.7;border-radius:2px"></div></div>';
+          }).join('');
+          consSpreadEl.innerHTML =
+            '<div style="font-size:10.5px;color:var(--text3);font-weight:700;letter-spacing:.3px;margin-bottom:8px">DAILY SPREAD ('+dayKeys.length+' days) &middot; avg '+(mean>=0?'+':'-')+_sym3+Math.abs(Math.round(mean))+' &middot; &sigma; '+_sym3+Math.round(stdDev)+'</div>' +
+            '<div style="display:flex;gap:2px;align-items:flex-end">'+spreadBars+'</div>';
         }
       }
 
@@ -41102,57 +41177,57 @@ window.toggleSidebar = function(){
 
         el.style.padding = '0';
         el.innerHTML =
-          '<div class="dash-card-animate" style="font-size:13px;color:var(--text2);font-weight:600;margin-bottom:14px">'+total+' trades'+(span>0?' · '+span+' days span':'')+'</div>' +
+          '<div class="dash-card-animate" style="font-size:13px;color:var(--text2);font-weight:600;margin-bottom:10px">'+total+' trades'+(span>0?' · '+span+' days span':'')+'</div>' +
           '<div class="dash-card-animate" style="display:flex;align-items:center;gap:18px">' +
             '<div style="position:relative;flex-shrink:0">' +
-              '<svg width="120" height="120" viewBox="0 0 36 36">' +
+              '<svg width="100" height="100" viewBox="0 0 36 36">' +
                 '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="rgba(255,255,255,.06)" stroke-width="3.5"/>' +
                 '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="'+TG+'" stroke-width="3.5" stroke-dasharray="'+winPctOfAll.toFixed(2)+' 100" stroke-dashoffset="0" transform="rotate(-90 18 18)" stroke-linecap="round"/>' +
                 (bes>0 ? '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="#94a3b8" stroke-width="3.5" stroke-dasharray="'+bePctOfAll.toFixed(2)+' 100" stroke-dashoffset="-'+winPctOfAll.toFixed(2)+'" transform="rotate(-90 18 18)" stroke-linecap="round"/>' : '') +
                 '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="'+TR+'" stroke-width="3.5" stroke-dasharray="'+lossPctOfAll.toFixed(2)+' 100" stroke-dashoffset="-'+(winPctOfAll+bePctOfAll).toFixed(2)+'" transform="rotate(-90 18 18)" stroke-linecap="round"/>' +
               '</svg>' +
               '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">' +
-                '<div style="font-size:28px;font-weight:700;color:var(--text);line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.5px">'+wrDecisive.toFixed(0)+'%</div>' +
-                '<div style="font-size:11px;color:var(--text3);letter-spacing:1.5px;margin-top:3px;font-weight:600">WIN RATE</div>' +
+                '<div style="font-size:23px;font-weight:700;color:var(--text);line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.5px">'+wrDecisive.toFixed(0)+'%</div>' +
+                '<div style="font-size:10px;color:var(--text3);letter-spacing:1.5px;margin-top:2px;font-weight:600">WIN RATE</div>' +
               '</div>' +
             '</div>' +
-            '<div style="flex:1;display:flex;flex-direction:column;gap:4px">' +
-              '<div style="display:flex;align-items:center;justify-content:space-between;font-size:14px;padding:9px 0;border-bottom:0.5px dotted var(--border)"><span style="display:flex;align-items:center;gap:8px;color:var(--text);font-weight:500"><span style="width:9px;height:9px;border-radius:50%;background:'+TG+'"></span>Wins</span><span style="font-family:Inter,sans-serif;font-variant-numeric:tabular-nums;color:var(--text);font-weight:700;font-size:15px">'+wins+'</span></div>' +
-              (bes>0 ? '<div style="display:flex;align-items:center;justify-content:space-between;font-size:14px;padding:9px 0;border-bottom:0.5px dotted var(--border)"><span style="display:flex;align-items:center;gap:8px;color:var(--text);font-weight:500"><span style="width:9px;height:9px;border-radius:50%;background:#94a3b8"></span>Breakeven</span><span style="font-family:Inter,sans-serif;font-variant-numeric:tabular-nums;color:var(--text);font-weight:700;font-size:15px">'+bes+'</span></div>' : '') +
-              '<div style="display:flex;align-items:center;justify-content:space-between;font-size:14px;padding:9px 0"><span style="display:flex;align-items:center;gap:8px;color:var(--text);font-weight:500"><span style="width:9px;height:9px;border-radius:50%;background:'+TR+'"></span>Losses</span><span style="font-family:Inter,sans-serif;font-variant-numeric:tabular-nums;color:var(--text);font-weight:700;font-size:15px">'+losses+'</span></div>' +
-              '<div style="margin-top:8px;padding-top:12px;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:baseline">' +
-                '<span style="font-size:12px;color:var(--text3);letter-spacing:1px;font-weight:600">NET</span>' +
-                '<span style="font-size:24px;font-weight:700;color:'+(net>=0?TG:TR)+';font-family:Inter,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.5px">'+sign+ci.sym+Math.abs(Math.round(net)).toLocaleString()+'</span>' +
+            '<div style="flex:1;display:flex;flex-direction:column;gap:2px">' +
+              '<div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:0.5px dotted var(--border)"><span style="display:flex;align-items:center;gap:8px;color:var(--text);font-weight:500"><span style="width:8px;height:8px;border-radius:50%;background:'+TG+'"></span>Wins</span><span style="font-family:Inter,sans-serif;font-variant-numeric:tabular-nums;color:var(--text);font-weight:700;font-size:14px">'+wins+'</span></div>' +
+              (bes>0 ? '<div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:0.5px dotted var(--border)"><span style="display:flex;align-items:center;gap:8px;color:var(--text);font-weight:500"><span style="width:8px;height:8px;border-radius:50%;background:#94a3b8"></span>Breakeven</span><span style="font-family:Inter,sans-serif;font-variant-numeric:tabular-nums;color:var(--text);font-weight:700;font-size:14px">'+bes+'</span></div>' : '') +
+              '<div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;padding:6px 0"><span style="display:flex;align-items:center;gap:8px;color:var(--text);font-weight:500"><span style="width:8px;height:8px;border-radius:50%;background:'+TR+'"></span>Losses</span><span style="font-family:Inter,sans-serif;font-variant-numeric:tabular-nums;color:var(--text);font-weight:700;font-size:14px">'+losses+'</span></div>' +
+              '<div style="margin-top:5px;padding-top:8px;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:baseline">' +
+                '<span style="font-size:11px;color:var(--text3);letter-spacing:1px;font-weight:600">NET</span>' +
+                '<span style="font-size:20px;font-weight:700;color:'+(net>=0?TG:TR)+';font-family:Inter,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.5px">'+sign+ci.sym+Math.abs(Math.round(net)).toLocaleString()+'</span>' +
               '</div>' +
             '</div>' +
           '</div>' +
-          '<div class="dash-card-animate" style="display:flex;gap:10px;margin-top:16px">' +
-            '<div style="flex:1;background:rgba(124,90,240,.06);border:1px solid rgba(124,90,240,.18);border-radius:10px;padding:10px 12px;text-align:center">' +
-              '<div style="font-size:10px;color:var(--text3);letter-spacing:.3px;font-weight:700">PROFIT FACTOR</div>' +
-              '<div style="font-size:18px;font-weight:700;color:var(--text);margin-top:3px">'+pf+'</div>' +
+          '<div class="dash-card-animate" style="display:flex;gap:8px;margin-top:12px">' +
+            '<div style="flex:1;background:rgba(124,90,240,.06);border:1px solid rgba(124,90,240,.18);border-radius:9px;padding:7px 10px;text-align:center">' +
+              '<div style="font-size:9.5px;color:var(--text3);letter-spacing:.3px;font-weight:700">PROFIT FACTOR</div>' +
+              '<div style="font-size:16px;font-weight:700;color:var(--text);margin-top:2px">'+pf+'</div>' +
             '</div>' +
-            '<div style="flex:1;background:rgba('+(curStreakSign>0?TG_RGB:TR_RGB)+',.08);border:1px solid rgba('+(curStreakSign>0?TG_RGB:TR_RGB)+',.2);border-radius:10px;padding:10px 12px;text-align:center">' +
-              '<div style="font-size:10px;color:var(--text3);letter-spacing:.3px;font-weight:700">CURRENT STREAK</div>' +
-              '<div style="font-size:18px;font-weight:700;color:'+streakColor+';margin-top:3px">'+streakLabel+'</div>' +
+            '<div style="flex:1;background:rgba('+(curStreakSign>0?TG_RGB:TR_RGB)+',.08);border:1px solid rgba('+(curStreakSign>0?TG_RGB:TR_RGB)+',.2);border-radius:9px;padding:7px 10px;text-align:center">' +
+              '<div style="font-size:9.5px;color:var(--text3);letter-spacing:.3px;font-weight:700">CURRENT STREAK</div>' +
+              '<div style="font-size:16px;font-weight:700;color:'+streakColor+';margin-top:2px">'+streakLabel+'</div>' +
             '</div>' +
-            '<div style="flex:1;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:10px 12px;text-align:center">' +
-              '<div style="font-size:10px;color:var(--text3);letter-spacing:.3px;font-weight:700">BEST / WORST STREAK</div>' +
-              '<div style="font-size:13px;font-weight:700;margin-top:5px"><span style="color:'+TG+'">'+(wlMx?wlMx.longestWinStreak:0)+'W</span> / <span style="color:'+TR+'">'+(wlMx?wlMx.longestLossStreak:0)+'L</span></div>' +
+            '<div style="flex:1;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:9px;padding:7px 10px;text-align:center">' +
+              '<div style="font-size:9.5px;color:var(--text3);letter-spacing:.3px;font-weight:700">BEST / WORST STREAK</div>' +
+              '<div style="font-size:12px;font-weight:700;margin-top:4px"><span style="color:'+TG+'">'+(wlMx?wlMx.longestWinStreak:0)+'W</span> / <span style="color:'+TR+'">'+(wlMx?wlMx.longestLossStreak:0)+'L</span></div>' +
             '</div>' +
           '</div>' +
-          (recentSeq ? '<div class="dash-card-animate" style="margin-top:14px">' +
-            '<div style="font-size:11px;color:var(--text3);font-weight:700;letter-spacing:.3px;margin-bottom:6px">RECENT SEQUENCE (oldest → newest)</div>' +
+          (recentSeq ? '<div class="dash-card-animate" style="margin-top:10px">' +
+            '<div style="font-size:10.5px;color:var(--text3);font-weight:700;letter-spacing:.3px;margin-bottom:5px">RECENT SEQUENCE (oldest → newest)</div>' +
             '<div style="display:flex;gap:3px">'+recentSeq+'</div>' +
           '</div>' : '') +
           (wlMx && (wlMx.maxWin>0 || wlMx.maxLoss<0) ? (function(){
             var mwAbs = Math.abs(wlMx.maxWin), mlAbs = Math.abs(wlMx.maxLoss);
             var maxBoth = Math.max(mwAbs, mlAbs, 1);
-            return '<div class="dash-card-animate" style="margin-top:16px;padding-top:14px;border-top:0.5px solid var(--border)">' +
-              '<div style="font-size:11px;color:var(--text3);font-weight:700;letter-spacing:.3px;margin-bottom:10px">LARGEST WIN VS LARGEST LOSS</div>' +
-              '<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;font-weight:600"><span style="color:'+TG+'">Largest win</span><span style="color:'+TG+';font-weight:700">+'+ci.sym+mwAbs.toFixed(0)+'</span></div>' +
-              '<div style="height:8px;background:rgba(255,255,255,.04);border-radius:3px;overflow:hidden"><div style="width:'+(mwAbs/maxBoth*100).toFixed(0)+'%;height:100%;background:'+TG+'"></div></div>' +
-              '<div style="display:flex;justify-content:space-between;font-size:12px;margin:10px 0 5px;font-weight:600"><span style="color:'+TR+'">Largest loss</span><span style="color:'+TR+';font-weight:700">-'+ci.sym+mlAbs.toFixed(0)+'</span></div>' +
-              '<div style="height:8px;background:rgba(255,255,255,.04);border-radius:3px;overflow:hidden"><div style="width:'+(mlAbs/maxBoth*100).toFixed(0)+'%;height:100%;background:'+TR+'"></div></div>' +
+            return '<div class="dash-card-animate" style="margin-top:12px;padding-top:10px;border-top:0.5px solid var(--border)">' +
+              '<div style="font-size:10.5px;color:var(--text3);font-weight:700;letter-spacing:.3px;margin-bottom:7px">LARGEST WIN VS LARGEST LOSS</div>' +
+              '<div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:4px;font-weight:600"><span style="color:'+TG+'">Largest win</span><span style="color:'+TG+';font-weight:700">+'+ci.sym+mwAbs.toFixed(0)+'</span></div>' +
+              '<div style="height:6px;background:rgba(255,255,255,.04);border-radius:3px;overflow:hidden"><div style="width:'+(mwAbs/maxBoth*100).toFixed(0)+'%;height:100%;background:'+TG+'"></div></div>' +
+              '<div style="display:flex;justify-content:space-between;font-size:11.5px;margin:7px 0 4px;font-weight:600"><span style="color:'+TR+'">Largest loss</span><span style="color:'+TR+';font-weight:700">-'+ci.sym+mlAbs.toFixed(0)+'</span></div>' +
+              '<div style="height:6px;background:rgba(255,255,255,.04);border-radius:3px;overflow:hidden"><div style="width:'+(mlAbs/maxBoth*100).toFixed(0)+'%;height:100%;background:'+TR+'"></div></div>' +
             '</div>';
           })() : '');
       }
