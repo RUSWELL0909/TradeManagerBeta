@@ -6426,9 +6426,9 @@ window.toggleSidebar = function(){
           <!-- Hour-of-day heatmap -->
           <div class="card" data-widget="hour-heatmap" data-widget-hidden="true" style="padding:22px 24px;min-height:220px">
             <div style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:600;margin-bottom:6px">Hour-of-day</div>
-            <div id="dash-w-hour-summary" style="font-size:13px;color:var(--text2);font-family:DM Mono,monospace;margin-bottom:12px"></div>
+            <div id="dash-w-hour-summary" style="font-size:13px;color:var(--text2);font-family:Inter,sans-serif;margin-bottom:12px"></div>
             <div id="dash-w-hour-grid" style="display:grid;grid-template-columns:repeat(24,1fr);gap:3px;height:54px"></div>
-            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-top:6px;font-family:DM Mono,monospace;opacity:.7">
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-top:6px;font-family:Inter,sans-serif;opacity:.7">
               <span>00</span><span>06</span><span>12</span><span>18</span><span>23</span>
             </div>
             <div style="display:flex;gap:16px;margin-top:12px;flex-wrap:wrap">
@@ -9742,7 +9742,7 @@ window.toggleSidebar = function(){
         <div style="font-size:15px;font-weight:600;color:var(--text)">Setup required</div>
       </div>
       <div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:14px">Admin telemetry tables (<code style="background:var(--card);padding:1px 6px;border-radius:4px;font-size:11px">tq_errors</code>, <code style="background:var(--card);padding:1px 6px;border-radius:4px;font-size:11px">tq_events</code>, <code style="background:var(--card);padding:1px 6px;border-radius:4px;font-size:11px">tq_admins</code>) don't exist yet. Run this SQL in Supabase → SQL Editor to create them:</div>
-      <pre id="admin-setup-sql" style="background:var(--card);padding:14px 16px;border-radius:8px;font-size:11px;color:var(--text2);overflow-x:auto;font-family:DM Mono,monospace;line-height:1.5;border:1px solid var(--border)"></pre>
+      <pre id="admin-setup-sql" style="background:var(--card);padding:14px 16px;border-radius:8px;font-size:11px;color:var(--text2);overflow-x:auto;font-family:Inter,sans-serif;line-height:1.5;border:1px solid var(--border)"></pre>
       <div style="display:flex;gap:8px;margin-top:12px">
         <button onclick="adminCopySQL()" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--accent);background:rgba(124,90,240,.1);color:var(--accent);font-weight:600;cursor:pointer;font-size:12px">📋 Copy SQL</button>
         <button onclick="adminCheckSetup()" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-weight:600;cursor:pointer;font-size:12px">↻ Re-check</button>
@@ -15228,7 +15228,7 @@ window.toggleSidebar = function(){
         '<div class="acc-row'+archivedClass+'" data-id="'+escapeHtml(a.id)+'" style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 100px 130px;padding:14px 20px;border-bottom:1px solid var(--border);align-items:center;transition:background .15s" onmouseover="this.style.background=\'var(--bg3)\'" onmouseout="this.style.background=\'transparent\'">',
         '  <div class="acc-name-cell" style="min-width:0">',
         '    <div style="font-size:15px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(a.name||'(unnamed)')+'</div>',
-        a.accountNumber ? '    <div style="font-size:13px;color:var(--text3);font-family:DM Mono,monospace;margin-top:3px">#'+escapeHtml(a.accountNumber)+'</div>' : '',
+        a.accountNumber ? '    <div style="font-size:13px;color:var(--text3);font-family:Inter,sans-serif;margin-top:3px">#'+escapeHtml(a.accountNumber)+'</div>' : '',
         hasActiveReset ? '    <div style="font-size:11px;color:var(--accent3);margin-top:3px;display:flex;align-items:center;gap:4px"><span>↺</span> Since reset · '+escapeHtml((sp.since||'').slice(0,10))+'</div>' : '',
         '  </div>',
         '  <div style="font-size:14px;color:var(--text)">'+escapeHtml(brokerStr)+(a.platform?'<div style="font-size:12px;color:var(--text3);margin-top:3px">'+escapeHtml(a.platform)+'</div>':'')+'</div>',
@@ -15365,7 +15365,7 @@ window.toggleSidebar = function(){
             '<div style="font-size:13px;font-weight:600;color:var(--text);font-family:Inter,sans-serif">'+label+'</div>' +
             '<div style="font-size:11px;color:var(--text3);font-weight:500">·  '+accountsInGroup.length+' account'+(accountsInGroup.length===1?'':'s')+' · '+tradeCount+' trade'+(tradeCount===1?'':'s')+'</div>' +
           '</div>' +
-          '<div style="display:flex;align-items:center;gap:18px;font-family:DM Mono,monospace">' +
+          '<div style="display:flex;align-items:center;gap:18px;font-family:Inter,sans-serif">' +
             '<div style="text-align:right"><div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Total Balance</div><div style="font-size:20px;font-weight:700;color:#ffffff;letter-spacing:-.5px;font-family:Inter,sans-serif">'+sym+Math.round(totalBal).toLocaleString()+'</div></div>' +
             '<div style="text-align:right"><div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Group P&amp;L</div><div style="font-size:20px;font-weight:700;color:'+pnlColor+';letter-spacing:-.5px;font-family:Inter,sans-serif">'+pnlSign+sym+Math.round(totalPnl).toLocaleString()+'</div></div>' +
           '</div>' +
@@ -17837,7 +17837,7 @@ window.toggleSidebar = function(){
           var who = e.email || (e.user_id ? e.user_id.slice(0,8) : 'anon');
           return '<div style="padding:12px 16px;border-bottom:1px solid var(--border)">'+
                    '<div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:6px">'+
-                     '<div style="font-size:11px;font-weight:600;color:var(--red);font-family:DM Mono,monospace;flex:1;min-width:0;word-break:break-word">'+adminEsc(e.message||'unknown error')+'</div>'+
+                     '<div style="font-size:11px;font-weight:600;color:var(--red);font-family:Inter,sans-serif;flex:1;min-width:0;word-break:break-word">'+adminEsc(e.message||'unknown error')+'</div>'+
                      '<div style="font-size:10px;color:var(--text3);white-space:nowrap">'+adminTimeAgo(e.created_at)+'</div>'+
                    '</div>'+
                    '<div style="font-size:10px;color:var(--text3);display:flex;gap:10px;flex-wrap:wrap">'+
@@ -17845,7 +17845,7 @@ window.toggleSidebar = function(){
                      (e.page ? '<span>📄 '+adminEsc(e.page)+'</span>' : '')+
                      (e.url ? '<span>🔗 '+adminEsc(e.url)+'</span>' : '')+
                    '</div>'+
-                   (e.stack ? '<details style="margin-top:6px"><summary style="font-size:10px;color:var(--text3);cursor:pointer">stack trace</summary><pre style="font-size:10px;color:var(--text3);background:var(--bg);padding:8px;border-radius:4px;margin-top:4px;overflow-x:auto;font-family:DM Mono,monospace">'+adminEsc(e.stack)+'</pre></details>' : '')+
+                   (e.stack ? '<details style="margin-top:6px"><summary style="font-size:10px;color:var(--text3);cursor:pointer">stack trace</summary><pre style="font-size:10px;color:var(--text3);background:var(--bg);padding:8px;border-radius:4px;margin-top:4px;overflow-x:auto;font-family:Inter,sans-serif">'+adminEsc(e.stack)+'</pre></details>' : '')+
                  '</div>';
         }).join('');
       });
@@ -17905,7 +17905,7 @@ window.toggleSidebar = function(){
           var topPage = Object.entries(u[1].pages).sort(function(a,b){return b[1]-a[1];})[0];
           return '<div style="padding:12px 16px;border-bottom:1px solid var(--border)">'+
                    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'+
-                     '<div style="font-size:11px;color:var(--text);font-weight:600;font-family:DM Mono,monospace">'+adminEsc(u[0]==='anon'?'anonymous':u[0].slice(0,12)+'...')+'</div>'+
+                     '<div style="font-size:11px;color:var(--text);font-weight:600;font-family:Inter,sans-serif">'+adminEsc(u[0]==='anon'?'anonymous':u[0].slice(0,12)+'...')+'</div>'+
                      '<div style="font-size:10px;color:var(--text3);white-space:nowrap">last: '+adminTimeAgo(u[1].lastEvent)+'</div>'+
                    '</div>'+
                    '<div style="font-size:10px;color:var(--text3)">'+u[1].events+' events · most active on <b>'+adminEsc(topPage[0])+'</b></div>'+
@@ -20545,7 +20545,7 @@ window.toggleSidebar = function(){
             return '<button data-lang="'+l.code+'" style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:'+(l.code===defaultMatch.code?'rgba(124,90,240,.08)':'var(--bg)')+';border:1px solid '+(l.code===defaultMatch.code?'var(--accent)':'var(--border)')+';border-radius:8px;color:var(--text);font-size:12px;font-weight:500;cursor:pointer;font-family:Inter,sans-serif;text-align:left">' +
               '<span style="font-size:18px">'+l.flag+'</span>' +
               '<span style="flex:1">'+l.name+'</span>' +
-              '<span style="font-size:9px;color:var(--text3);font-family:DM Mono,monospace">'+l.code+'</span>' +
+              '<span style="font-size:9px;color:var(--text3);font-family:Inter,sans-serif">'+l.code+'</span>' +
             '</button>';
           }).join('') +
         '</div>' +
@@ -24190,7 +24190,7 @@ window.toggleSidebar = function(){
         }
       }
       // Render grid: rows = days, cols = hours
-      var html = '<div style="min-width:720px"><div style="display:grid;grid-template-columns:50px repeat(24,1fr);gap:1px;font-family:DM Mono,monospace;font-size:9px">';
+      var html = '<div style="min-width:720px"><div style="display:grid;grid-template-columns:50px repeat(24,1fr);gap:1px;font-family:Inter,sans-serif;font-size:9px">';
       // Header row: hour labels
       html += '<div></div>';
       for(var hh=0; hh<24; hh++){
@@ -24455,7 +24455,7 @@ window.toggleSidebar = function(){
         else if(value < 0) col = 'var(--red)';
         return '<div style="padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">' +
                  '<div style="font-size:10px;color:var(--text3);font-weight:600;letter-spacing:.5px;margin-bottom:6px">'+label+'</div>' +
-                 '<div style="font-size:22px;font-weight:600;color:'+col+';font-family:DM Mono,monospace">'+(isFinite(value)?value.toFixed(2):'—')+'</div>' +
+                 '<div style="font-size:22px;font-weight:600;color:'+col+';font-family:Inter,sans-serif">'+(isFinite(value)?value.toFixed(2):'—')+'</div>' +
                  '<div style="font-size:10px;color:var(--text3);margin-top:4px">'+tip+'</div>' +
                '</div>';
       }
@@ -24525,7 +24525,7 @@ window.toggleSidebar = function(){
                  '<div style="color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+labelClean.replace(/</g,'&lt;')+'</div>' +
                  '<div style="text-align:right;color:var(--text3)">'+p.count+' trades</div>' +
                  '<div style="text-align:right;color:'+wrCol+';font-weight:600">'+p.wr.toFixed(0)+'% WR</div>' +
-                 '<div style="text-align:right;color:'+col+';font-weight:600;font-family:DM Mono,monospace">'+(p.pnl>=0?'+':'')+p.pnl.toFixed(0)+'</div>' +
+                 '<div style="text-align:right;color:'+col+';font-weight:600;font-family:Inter,sans-serif">'+(p.pnl>=0?'+':'')+p.pnl.toFixed(0)+'</div>' +
                '</div>';
       }
       var html = '';
@@ -25863,7 +25863,7 @@ window.toggleSidebar = function(){
             '</div>'+
           '</div>'+
 
-          '<div id="jr-bulk-match-count" style="padding:10px 14px;background:rgba(124,90,240,.06);border:0.5px solid rgba(124,90,240,.2);border-radius:8px;font-size:12px;color:var(--text2);margin-bottom:22px;text-align:center;font-family:DM Mono,monospace">— trades match the filter</div>'+
+          '<div id="jr-bulk-match-count" style="padding:10px 14px;background:rgba(124,90,240,.06);border:0.5px solid rgba(124,90,240,.2);border-radius:8px;font-size:12px;color:var(--text2);margin-bottom:22px;text-align:center;font-family:Inter,sans-serif">— trades match the filter</div>'+
 
           // Step 2: What to apply
           '<div style="font-size:12px;font-weight:600;color:var(--accent3);letter-spacing:.5px;margin-bottom:10px;text-transform:uppercase">2. Apply changes</div>'+
@@ -28482,7 +28482,7 @@ window.toggleSidebar = function(){
         '<div id="tq-csv-pick-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px">' +
           '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;max-width:460px;width:100%;padding:28px">' +
             '<div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px">Import to which account?</div>' +
-            '<div style="font-size:12px;color:var(--text3);margin-bottom:18px;font-family:DM Mono,monospace">'+fileLabel+' · ~'+rowCount+' rows</div>' +
+            '<div style="font-size:12px;color:var(--text3);margin-bottom:18px;font-family:Inter,sans-serif">'+fileLabel+' · ~'+rowCount+' rows</div>' +
             '<label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">Account</label>' +
             '<select id="tq-csv-pick-target" class="jr-select" style="width:100%;padding:10px;font-size:13px;margin-bottom:18px">'+optionsHtml+'</select>' +
             '<div style="display:flex;gap:8px;justify-content:flex-end">' +
@@ -29054,7 +29054,7 @@ window.toggleSidebar = function(){
       return '<div style="margin-bottom:2px">' +
                '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px;font-size:13px">' +
                  '<span style="color:var(--text2)"><span style="margin-right:8px;font-size:14px">'+icon+'</span>'+(g.name||g.type).replace(/</g,'&lt;')+'</span>' +
-                 '<span style="color:'+col+';font-weight:500;font-size:12px;font-family:DM Mono,monospace;font-variant-numeric:tabular-nums">'+labelClean+'</span>' +
+                 '<span style="color:'+col+';font-weight:500;font-size:12px;font-family:Inter,sans-serif;font-variant-numeric:tabular-nums">'+labelClean+'</span>' +
                '</div>' +
                '<div style="background:rgba(255,255,255,.04);border-radius:3px;height:6px;overflow:hidden"><div style="background:'+barGrad+';height:100%;width:'+p.pct+'%;transition:width .4s;border-radius:3px"></div></div>' +
              '</div>';
@@ -29131,7 +29131,7 @@ window.toggleSidebar = function(){
                '</div>' +
                '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">' +
                  '<span style="font-size:11px;color:var(--text3)">Progress</span>' +
-                 '<span style="font-size:11px;color:'+col+';font-weight:600;font-family:DM Mono,monospace">'+p.label+'</span>' +
+                 '<span style="font-size:11px;color:'+col+';font-weight:600;font-family:Inter,sans-serif">'+p.label+'</span>' +
                '</div>' +
                '<div style="background:var(--bg3);border-radius:3px;height:6px;overflow:hidden"><div style="background:'+col+';height:100%;width:'+p.pct+'%"></div></div>' +
              '</div>';
@@ -35904,7 +35904,7 @@ window.toggleSidebar = function(){
           '<div style="font-size:40px;margin-bottom:8px">&#9888;&#65039;</div>' +
           '<div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px">Pause. You flagged: '+escapeHtml(tagStr)+'</div>' +
           '<div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px">Trades taken in this state lose more often. Take a breath and let the timer run. If you still want the trade after, the button will unlock.</div>' +
-          '<div style="font-size:48px;font-weight:700;color:var(--red);font-family:DM Mono,monospace;margin-bottom:6px" id="tq-tilt-countdown">'+secs+'</div>' +
+          '<div style="font-size:48px;font-weight:700;color:var(--red);font-family:Inter,sans-serif;margin-bottom:6px" id="tq-tilt-countdown">'+secs+'</div>' +
           '<div style="font-size:11px;color:var(--text3);margin-bottom:22px">seconds</div>' +
           '<div style="display:flex;gap:8px;justify-content:center">' +
             '<button id="tq-tilt-walk" style="background:var(--green);color:#fff;border:none;padding:11px 22px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer">Walk away (good choice)</button>' +
@@ -40819,8 +40819,8 @@ window.toggleSidebar = function(){
               return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:0.5px dotted var(--border);font-variant-numeric:tabular-nums">' +
                 '<span style="width:110px;color:var(--text2);font-size:12px">'+label+'</span>' +
                 '<div style="flex:1;height:6px;background:rgba(255,255,255,.03);border-radius:3px;overflow:hidden"><div style="width:'+s.wr.toFixed(0)+'%;height:100%;background:'+grad+';border-radius:3px"></div></div>' +
-                '<span style="width:54px;text-align:right;font-size:12px;color:'+color+';font-family:DM Mono,monospace">'+s.wr.toFixed(0)+'%</span>' +
-                '<span style="width:34px;text-align:right;font-size:9px;color:var(--text3);font-family:DM Mono,monospace">'+s.total+' tr</span>' +
+                '<span style="width:54px;text-align:right;font-size:12px;color:'+color+';font-family:Inter,sans-serif">'+s.wr.toFixed(0)+'%</span>' +
+                '<span style="width:34px;text-align:right;font-size:9px;color:var(--text3);font-family:Inter,sans-serif">'+s.total+' tr</span>' +
               '</div>';
             }).join('');
         }
@@ -40858,8 +40858,8 @@ window.toggleSidebar = function(){
               '<span style="width:9px;height:9px;border-radius:50%;background:'+color+';flex-shrink:0"></span>' +
               '<span style="flex:1;color:var(--text);font-weight:600;font-size:14px">'+s.s+'</span>' +
               '<span style="color:var(--text2);font-size:14px;font-weight:600;min-width:50px;text-align:right">'+s.c+' tr</span>' +
-              '<span style="color:var(--text2);font-family:DM Mono,monospace;font-size:14px;font-weight:700;min-width:90px;text-align:right">'+shareOfPnl+'% of P&L</span>' +
-              '<span style="font-family:DM Mono,monospace;font-variant-numeric:tabular-nums;min-width:90px;text-align:right;font-size:17px;font-weight:700;color:'+(s.p>=0?TG:TR)+'">'+sign+ci.sym+Math.abs(Math.round(s.p)).toLocaleString()+'</span>' +
+              '<span style="color:var(--text2);font-family:Inter,sans-serif;font-size:14px;font-weight:700;min-width:90px;text-align:right">'+shareOfPnl+'% of P&L</span>' +
+              '<span style="font-family:Inter,sans-serif;font-variant-numeric:tabular-nums;min-width:90px;text-align:right;font-size:17px;font-weight:700;color:'+(s.p>=0?TG:TR)+'">'+sign+ci.sym+Math.abs(Math.round(s.p)).toLocaleString()+'</span>' +
             '</div>';
           }).join('');
           var footer = '';
@@ -40927,8 +40927,8 @@ window.toggleSidebar = function(){
           var worstStr = hourCount[worstH]>0 && hourPnl[worstH]<0 ? String(worstH).padStart(2,'0')+':00 · '+ci.sym+Math.round(hourPnl[worstH])+' · '+hourCount[worstH]+' tr' : '—';
           summary.innerHTML =
             '<div style="display:flex;gap:14px;padding-bottom:12px;border-bottom:0.5px solid var(--border)">' +
-              '<div style="flex:1"><div style="color:var(--text3);font-size:12px;letter-spacing:.4px;margin-bottom:6px;font-weight:700">BEST HOUR</div><div style="color:'+TG+';font-family:DM Mono,monospace;font-variant-numeric:tabular-nums;font-size:18px;font-weight:700">'+bestStr+'</div></div>' +
-              '<div style="flex:1"><div style="color:var(--text3);font-size:12px;letter-spacing:.4px;margin-bottom:6px;font-weight:700">WORST HOUR</div><div style="color:'+TR+';font-family:DM Mono,monospace;font-variant-numeric:tabular-nums;font-size:18px;font-weight:700">'+worstStr+'</div></div>' +
+              '<div style="flex:1"><div style="color:var(--text3);font-size:12px;letter-spacing:.4px;margin-bottom:6px;font-weight:700">BEST HOUR</div><div style="color:'+TG+';font-family:Inter,sans-serif;font-variant-numeric:tabular-nums;font-size:18px;font-weight:700">'+bestStr+'</div></div>' +
+              '<div style="flex:1"><div style="color:var(--text3);font-size:12px;letter-spacing:.4px;margin-bottom:6px;font-weight:700">WORST HOUR</div><div style="color:'+TR+';font-family:Inter,sans-serif;font-variant-numeric:tabular-nums;font-size:18px;font-weight:700">'+worstStr+'</div></div>' +
             '</div>';
         }
         // "Most active hours" — fills the remaining card space with a useful ranked list
@@ -40946,10 +40946,10 @@ window.toggleSidebar = function(){
                 var w = (x.c/maxC*100).toFixed(0);
                 var col = x.p >= 0 ? TG : TR;
                 return '<div style="display:flex;align-items:center;gap:12px;padding:6px 0">' +
-                  '<span style="width:50px;font-size:14px;color:var(--text);font-weight:700;font-family:DM Mono,monospace">'+String(x.h).padStart(2,'0')+':00</span>' +
+                  '<span style="width:50px;font-size:14px;color:var(--text);font-weight:700;font-family:Inter,sans-serif">'+String(x.h).padStart(2,'0')+':00</span>' +
                   '<div style="flex:1;height:7px;background:rgba(255,255,255,.04);border-radius:3px;overflow:hidden"><div style="width:'+w+'%;height:100%;background:'+col+';opacity:.6;border-radius:3px"></div></div>' +
                   '<span style="width:38px;text-align:right;font-size:13px;color:var(--text2);font-weight:600">'+x.c+'x</span>' +
-                  '<span style="width:74px;text-align:right;font-size:14px;font-weight:700;color:'+col+';font-family:DM Mono,monospace">'+(x.p>=0?'+':'-')+ci.sym+Math.abs(Math.round(x.p))+'</span>' +
+                  '<span style="width:74px;text-align:right;font-size:14px;font-weight:700;color:'+col+';font-family:Inter,sans-serif">'+(x.p>=0?'+':'-')+ci.sym+Math.abs(Math.round(x.p))+'</span>' +
                 '</div>';
               }).join('');
           } else {
@@ -40997,7 +40997,7 @@ window.toggleSidebar = function(){
               var valColor = x.p>0?TG:(x.p<0?TR:'var(--text3)');
               var borderCol = x.p>0 ? 'rgba('+TG_RGB+',.9)' : (x.p<0 ? 'rgba('+TR_RGB+',.9)' : 'transparent');
               return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%">' +
-                '<div style="font-size:15px;color:'+valColor+';font-family:DM Mono,monospace;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:700">'+(x.p===0?ci.sym+'0':sign+ci.sym+Math.abs(Math.round(x.p)))+'</div>' +
+                '<div style="font-size:15px;color:'+valColor+';font-family:Inter,sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:700">'+(x.p===0?ci.sym+'0':sign+ci.sym+Math.abs(Math.round(x.p)))+'</div>' +
                 '<div style="flex:1;width:80%;background:rgba(255,255,255,.03);border-radius:4px;display:flex;align-items:flex-end;overflow:hidden">' +
                   '<div style="width:100%;height:'+height+'%;background:'+grad+';border:1.5px solid '+borderCol+';border-bottom:none;box-sizing:border-box;border-radius:4px 4px 0 0"></div>' +
                 '</div>' +
@@ -41043,7 +41043,7 @@ window.toggleSidebar = function(){
                 '<span style="width:110px;color:var(--text);font-size:13px;font-weight:500">'+label+'</span>' +
                 '<div style="flex:1;height:6px;background:rgba(255,255,255,.03);border-radius:3px;overflow:hidden"><div style="width:'+width.toFixed(0)+'%;height:100%;background:linear-gradient(90deg,'+TR+',rgba('+TR_RGB+',.5));border-radius:3px"></div></div>' +
                 '<span style="width:42px;text-align:right;font-size:11px;color:var(--text3)">'+m.c+'x</span>' +
-                '<span style="width:78px;text-align:right;font-size:13px;font-weight:700;color:'+TR+';font-family:DM Mono,monospace;font-variant-numeric:tabular-nums">-'+ci.sym+Math.abs(Math.round(m.p)).toLocaleString()+'</span>' +
+                '<span style="width:78px;text-align:right;font-size:13px;font-weight:700;color:'+TR+';font-family:Inter,sans-serif;font-variant-numeric:tabular-nums">-'+ci.sym+Math.abs(Math.round(m.p)).toLocaleString()+'</span>' +
               '</div>';
             }).join('');
         }
