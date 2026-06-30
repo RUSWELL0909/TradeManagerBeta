@@ -6426,16 +6426,17 @@ window.toggleSidebar = function(){
           <!-- Hour-of-day heatmap -->
           <div class="card" data-widget="hour-heatmap" data-widget-hidden="true" style="padding:22px 24px;min-height:220px">
             <div style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:600;margin-bottom:6px">Hour-of-day</div>
-            <div id="dash-w-hour-summary" style="font-size:12px;color:var(--text2);font-family:DM Mono,monospace;margin-bottom:10px"></div>
-            <div id="dash-w-hour-grid" style="display:grid;grid-template-columns:repeat(24,1fr);gap:2px"></div>
-            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:6px;font-family:DM Mono,monospace;opacity:.6">
+            <div id="dash-w-hour-summary" style="font-size:13px;color:var(--text2);font-family:DM Mono,monospace;margin-bottom:12px"></div>
+            <div id="dash-w-hour-grid" style="display:grid;grid-template-columns:repeat(24,1fr);gap:3px;height:54px"></div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-top:6px;font-family:DM Mono,monospace;opacity:.7">
               <span>00</span><span>06</span><span>12</span><span>18</span><span>23</span>
             </div>
-            <div style="display:flex;gap:14px;margin-top:10px;flex-wrap:wrap">
-              <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:9px;height:9px;border-radius:2px;background:var(--green);display:inline-block"></span>Profitable hour</span>
-              <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:9px;height:9px;border-radius:2px;background:var(--red);display:inline-block"></span>Losing hour</span>
-              <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:9px;height:9px;border-radius:2px;background:rgba(255,255,255,.08);display:inline-block;border:1px solid var(--border)"></span>No trades</span>
+            <div style="display:flex;gap:16px;margin-top:12px;flex-wrap:wrap">
+              <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);font-weight:500"><span style="width:10px;height:10px;border-radius:2px;background:var(--green);display:inline-block"></span>Profitable hour</span>
+              <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);font-weight:500"><span style="width:10px;height:10px;border-radius:2px;background:var(--red);display:inline-block"></span>Losing hour</span>
+              <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);font-weight:500"><span style="width:10px;height:10px;border-radius:2px;background:rgba(255,255,255,.08);display:inline-block;border:1px solid var(--border)"></span>No trades</span>
             </div>
+            <div id="dash-w-hour-active" style="margin-top:14px;padding-top:12px;border-top:0.5px solid var(--border)"></div>
           </div>
 
           <!-- Day of week -->
@@ -40853,12 +40854,12 @@ window.toggleSidebar = function(){
             var color = s.p>=0 ? 'rgba('+TG_RGB+','+(0.95-i*0.18).toFixed(2)+')' : 'rgba('+TR_RGB+','+(0.95-i*0.18).toFixed(2)+')';
             var shareOfPnl = (Math.abs(s.p)/totalAbs*100).toFixed(0);
             var sign = s.p>=0?'+':'-';
-            return '<div style="display:flex;align-items:center;gap:12px;font-size:13px;padding:9px 0;border-bottom:0.5px dotted var(--border)">' +
+            return '<div style="display:flex;align-items:center;gap:14px;font-size:13px;padding:10px 0;border-bottom:0.5px dotted var(--border)">' +
               '<span style="width:9px;height:9px;border-radius:50%;background:'+color+';flex-shrink:0"></span>' +
-              '<span style="flex:1;color:var(--text);font-weight:500">'+s.s+'</span>' +
-              '<span style="color:var(--text3);font-size:11px;min-width:54px;text-align:right">'+s.c+' tr</span>' +
-              '<span style="color:var(--text3);font-family:DM Mono,monospace;font-size:12px;min-width:48px;text-align:right">'+shareOfPnl+'% of P&L</span>' +
-              '<span style="font-family:DM Mono,monospace;font-variant-numeric:tabular-nums;min-width:84px;text-align:right;font-size:13px;font-weight:700;color:'+(s.p>=0?TG:TR)+'">'+sign+ci.sym+Math.abs(Math.round(s.p)).toLocaleString()+'</span>' +
+              '<span style="flex:1;color:var(--text);font-weight:600;font-size:14px">'+s.s+'</span>' +
+              '<span style="color:var(--text2);font-size:13px;font-weight:500;min-width:48px;text-align:right">'+s.c+' tr</span>' +
+              '<span style="color:var(--text2);font-family:DM Mono,monospace;font-size:13px;font-weight:600;min-width:74px;text-align:right">'+shareOfPnl+'% of P&L</span>' +
+              '<span style="font-family:DM Mono,monospace;font-variant-numeric:tabular-nums;min-width:84px;text-align:right;font-size:15px;font-weight:700;color:'+(s.p>=0?TG:TR)+'">'+sign+ci.sym+Math.abs(Math.round(s.p)).toLocaleString()+'</span>' +
             '</div>';
           }).join('');
           var footer = '';
@@ -40899,6 +40900,7 @@ window.toggleSidebar = function(){
         });
         var maxAbs = Math.max(1, Math.max.apply(Math, hourPnl.map(Math.abs)));
         var bestH = hourPnl.indexOf(Math.max.apply(Math, hourPnl));
+        var worstH0 = hourPnl.indexOf(Math.min.apply(Math, hourPnl));
         grid.innerHTML = hourPnl.map(function(p, h){
           var intensity = Math.abs(p)/maxAbs;
           var bg = 'rgba(255,255,255,.03)';
@@ -40912,19 +40914,47 @@ window.toggleSidebar = function(){
               bg = 'rgba('+TR_RGB+','+(0.2+intensity*0.6).toFixed(2)+')';
             }
           }
+          var ring = '';
+          if(hourCount[h]>0 && h === bestH && p > 0) ring = 'border:1.5px solid rgba(255,255,255,.7);';
+          else if(hourCount[h]>0 && h === worstH0 && p < 0) ring = 'border:1.5px solid rgba(255,255,255,.7);';
           var sign = p>=0?'+':'';
           var title = String(h).padStart(2,'0')+':00 · '+sign+ci.sym+Math.round(p)+' · '+hourCount[h]+' tr';
-          return '<div title="'+title+'" style="aspect-ratio:1;border-radius:2px;background:'+bg+';'+glow+'"></div>';
+          return '<div title="'+title+'" style="border-radius:3px;background:'+bg+';'+glow+ring+'"></div>';
         }).join('');
         if(summary){
-          var worstH = hourPnl.indexOf(Math.min.apply(Math, hourPnl));
+          var worstH = worstH0;
           var bestStr = hourCount[bestH]>0 && hourPnl[bestH]>0 ? String(bestH).padStart(2,'0')+':00 · '+(hourPnl[bestH]>=0?'+':'')+ci.sym+Math.round(hourPnl[bestH])+' · '+hourCount[bestH]+' tr' : '—';
           var worstStr = hourCount[worstH]>0 && hourPnl[worstH]<0 ? String(worstH).padStart(2,'0')+':00 · '+ci.sym+Math.round(hourPnl[worstH])+' · '+hourCount[worstH]+' tr' : '—';
           summary.innerHTML =
-            '<div style="display:flex;gap:14px;margin-top:14px;padding-top:12px;border-top:0.5px solid var(--border);font-size:10px">' +
-              '<div style="flex:1"><div style="color:var(--text3);font-size:11px;letter-spacing:.4px;margin-bottom:5px;font-weight:600">BEST HOUR</div><div style="color:'+TG+';font-family:DM Mono,monospace;font-variant-numeric:tabular-nums;font-size:13px;font-weight:700">'+bestStr+'</div></div>' +
-              '<div style="flex:1"><div style="color:var(--text3);font-size:11px;letter-spacing:.4px;margin-bottom:5px;font-weight:600">WORST HOUR</div><div style="color:'+TR+';font-family:DM Mono,monospace;font-variant-numeric:tabular-nums;font-size:13px;font-weight:700">'+worstStr+'</div></div>' +
+            '<div style="display:flex;gap:14px;padding-bottom:12px;border-bottom:0.5px solid var(--border)">' +
+              '<div style="flex:1"><div style="color:var(--text3);font-size:11.5px;letter-spacing:.4px;margin-bottom:5px;font-weight:700">BEST HOUR</div><div style="color:'+TG+';font-family:DM Mono,monospace;font-variant-numeric:tabular-nums;font-size:15px;font-weight:700">'+bestStr+'</div></div>' +
+              '<div style="flex:1"><div style="color:var(--text3);font-size:11.5px;letter-spacing:.4px;margin-bottom:5px;font-weight:700">WORST HOUR</div><div style="color:'+TR+';font-family:DM Mono,monospace;font-variant-numeric:tabular-nums;font-size:15px;font-weight:700">'+worstStr+'</div></div>' +
             '</div>';
+        }
+        // "Most active hours" — fills the remaining card space with a useful ranked list
+        var activeEl = document.getElementById('dash-w-hour-active');
+        if (activeEl) {
+          var ranked = hourPnl.map(function(p,h){ return {h:h, p:p, c:hourCount[h]}; })
+            .filter(function(x){ return x.c > 0; })
+            .sort(function(a,b){ return b.c - a.c; })
+            .slice(0,3);
+          if (ranked.length) {
+            var maxC = ranked[0].c;
+            activeEl.innerHTML =
+              '<div style="font-size:11.5px;color:var(--text3);font-weight:700;letter-spacing:.4px;margin-bottom:8px">MOST ACTIVE HOURS</div>' +
+              ranked.map(function(x){
+                var w = (x.c/maxC*100).toFixed(0);
+                var col = x.p >= 0 ? TG : TR;
+                return '<div style="display:flex;align-items:center;gap:10px;padding:5px 0">' +
+                  '<span style="width:42px;font-size:12px;color:var(--text2);font-weight:600;font-family:DM Mono,monospace">'+String(x.h).padStart(2,'0')+':00</span>' +
+                  '<div style="flex:1;height:6px;background:rgba(255,255,255,.04);border-radius:3px;overflow:hidden"><div style="width:'+w+'%;height:100%;background:'+col+';opacity:.55;border-radius:3px"></div></div>' +
+                  '<span style="width:34px;text-align:right;font-size:11px;color:var(--text3)">'+x.c+'x</span>' +
+                  '<span style="width:64px;text-align:right;font-size:12px;font-weight:700;color:'+col+';font-family:DM Mono,monospace">'+(x.p>=0?'+':'-')+ci.sym+Math.abs(Math.round(x.p))+'</span>' +
+                '</div>';
+              }).join('');
+          } else {
+            activeEl.innerHTML = '';
+          }
         }
       }
     }catch(_wErr){if(typeof console!=='undefined')console.error('[dash widget hour-heatmap]',_wErr);} }
@@ -40965,13 +40995,14 @@ window.toggleSidebar = function(){
                        : x.p<0 ? 'linear-gradient(180deg,'+TR+',rgba('+TR_RGB+',.5))'
                        : 'rgba(255,255,255,.1)';
               var valColor = x.p>0?TG:(x.p<0?TR:'var(--text3)');
+              var borderCol = x.p>0 ? 'rgba('+TG_RGB+',.9)' : (x.p<0 ? 'rgba('+TR_RGB+',.9)' : 'transparent');
               return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%">' +
-                '<div style="font-size:10px;color:'+valColor+';font-family:DM Mono,monospace;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:700">'+(x.p===0?ci.sym+'0':sign+ci.sym+Math.abs(Math.round(x.p)))+'</div>' +
+                '<div style="font-size:13px;color:'+valColor+';font-family:DM Mono,monospace;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:700">'+(x.p===0?ci.sym+'0':sign+ci.sym+Math.abs(Math.round(x.p)))+'</div>' +
                 '<div style="flex:1;width:80%;background:rgba(255,255,255,.03);border-radius:4px;display:flex;align-items:flex-end;overflow:hidden">' +
-                  '<div style="width:100%;height:'+height+'%;background:'+grad+';border-radius:4px 4px 0 0"></div>' +
+                  '<div style="width:100%;height:'+height+'%;background:'+grad+';border:1.5px solid '+borderCol+';border-bottom:none;box-sizing:border-box;border-radius:4px 4px 0 0"></div>' +
                 '</div>' +
-                '<div style="font-size:12px;color:var(--text2);font-weight:600">'+x.d+'</div>' +
-                '<div style="font-size:10px;color:var(--text3)">'+x.c+' tr</div>' +
+                '<div style="font-size:12.5px;color:var(--text);font-weight:700">'+x.d+'</div>' +
+                '<div style="font-size:11px;color:var(--text2);font-weight:600">'+x.c+' tr</div>' +
               '</div>';
             }).join('') +
           '</div>';
