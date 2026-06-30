@@ -6333,9 +6333,15 @@ window.toggleSidebar = function(){
         <!-- ALL 4 CHARTS — 2×2 compact -->
         <div class="dash-section" data-section="charts">
         <div class="dash-bottom-grid" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:1fr 1fr;gap:10px;margin-top:12px">
-          <div class="card" data-widget="chart-cumpnl" style="padding:12px 16px 8px">
-            <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px"><span class="dash-label" style="font-size:9px">Daily net cumulative P&L</span><div id="dash-cum-total" class="dash-big-num green" style="font-size:15px;letter-spacing:-.5px">&#8212;</div></div>
-            <div style="height:130px;position:relative"><canvas id="dash-cum-chart"></canvas></div>
+          <div class="card" data-widget="chart-cumpnl" style="padding:18px 20px 10px">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px;padding-right:26px">
+              <div>
+                <div class="dash-label" style="font-size:13px;font-weight:600;color:var(--text);letter-spacing:-.1px">Daily net cumulative P&L</div>
+                <div id="dash-cum-sub" style="font-size:11px;color:var(--text3);margin-top:2px">&#8212;</div>
+              </div>
+              <div id="dash-cum-total" class="dash-big-num green" style="font-size:22px;letter-spacing:-.5px;font-weight:700">&#8212;</div>
+            </div>
+            <div style="height:160px;position:relative;margin-top:6px"><canvas id="dash-cum-chart"></canvas></div>
           </div>
           <div class="card" data-widget="chart-dailypnl" style="padding:12px 16px 8px">
             <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px"><span class="dash-label" style="font-size:9px">Net daily P&L</span><div id="dash-bar-days" style="font-size:11px;color:var(--text3)">&#8212; days</div></div>
@@ -41170,6 +41176,18 @@ window.toggleSidebar = function(){
       cumLbl.textContent = (finalCum >= 0 ? '+$' : '-$') + Math.abs(finalCum).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
       cumLbl.style.color = finalCum >= 0 ? '#2ecc8a' : '#e05c7a';
     }
+    var cumSub = document.getElementById('dash-cum-sub');
+    if (cumSub) {
+      var peakVal = cumVals.length ? Math.max.apply(null, cumVals) : 0;
+      var offPeak = peakVal - finalCum;
+      var subParts = [last60.length + ' days'];
+      if(cumVals.length){
+        subParts.push('peak +$'+Math.abs(peakVal).toLocaleString('en-US',{maximumFractionDigits:0}));
+        if(offPeak > 0.5) subParts.push('-$'+offPeak.toLocaleString('en-US',{maximumFractionDigits:0})+' off peak');
+        else subParts.push('at peak');
+      }
+      cumSub.textContent = subParts.join(' · ');
+    }
     var barLbl = document.getElementById('dash-bar-days');
     if (barLbl) barLbl.textContent = last60.length + ' trading days';
 
@@ -41251,35 +41269,64 @@ window.toggleSidebar = function(){
       if(cumEl._chart) { cumEl._chart.destroy(); cumEl._chart = null; }
       var isNeg = cumVals[cumVals.length-1] < 0;
       var col = isNeg ? '#e05c7a' : '#2ecc8a';
+      var posCol = '#2ecc8a', negCol = '#e05c7a', peakCol = '#ffd166';
       var ctx = cumEl.getContext('2d');
-      var grad = ctx.createLinearGradient(0,0,0,200);
-      grad.addColorStop(0, col + '55');
-      grad.addColorStop(0.6, col + '18');
-      grad.addColorStop(1, col + '00');
       var cumOpts = JSON.parse(JSON.stringify(chartDefaults));
       cumOpts.plugins.tooltip.callbacks = {
         title: function(items){ return items[0].label; },
         label: function(ctx){ var v=ctx.raw; return ' Net P&L: '+(v>=0?'+$':'-$')+Math.abs(v).toLocaleString('en-US',{maximumFractionDigits:0}); }
       };
+      function segColor(y0,y1){ return (y0 < 0 || y1 < 0) ? negCol : posCol; }
+      var peakIdx = 0;
+      cumVals.forEach(function(v,i){ if(v > cumVals[peakIdx]) peakIdx = i; });
+
+      // Dashed zero baseline plugin
+      var zeroLinePlugin = {
+        id: 'cumZeroLine',
+        afterDatasetsDraw: function(chart){
+          var yScale = chart.scales.y;
+          if(!yScale) return;
+          var yZero = yScale.getPixelForValue(0);
+          var area = chart.chartArea;
+          if(yZero < area.top - 1 || yZero > area.bottom + 1) return;
+          var c = chart.ctx;
+          c.save();
+          c.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || 'rgba(255,255,255,.18)';
+          c.setLineDash([4,4]);
+          c.lineWidth = 1;
+          c.beginPath();
+          c.moveTo(area.left, yZero);
+          c.lineTo(area.right, yZero);
+          c.stroke();
+          c.restore();
+        }
+      };
+
       cumEl._chart = new Chart(ctx, {
         type: 'line',
         data: {
           labels: last60.map(shortDate),
           datasets: [{
             data: cumVals,
-            borderColor: col,
             borderWidth: 2,
-            backgroundColor: grad,
-            fill: true,
-            tension: 0.35,
-            pointRadius: 0,
+            fill: 'origin',
+            tension: 0.3,
+            segment: {
+              borderColor: function(c){ return segColor(c.p0.parsed.y, c.p1.parsed.y); },
+              backgroundColor: function(c){ return segColor(c.p0.parsed.y, c.p1.parsed.y) + '20'; }
+            },
+            pointRadius: function(c){ return c.dataIndex === peakIdx && cumVals.length > 1 ? 4 : 0; },
+            pointBackgroundColor: function(c){ return c.dataIndex === peakIdx ? peakCol : col; },
+            pointBorderColor: '#fff',
+            pointBorderWidth: 1.5,
             pointHoverRadius: 5,
-            pointHoverBackgroundColor: col,
+            pointHoverBackgroundColor: function(c){ return c.dataIndex === peakIdx ? peakCol : col; },
             pointHoverBorderColor: '#fff',
             pointHoverBorderWidth: 2
           }]
         },
-        options: cumOpts
+        options: cumOpts,
+        plugins: [zeroLinePlugin]
       });
     } catch(_cErr){ console.error('[chart cumulative ERROR]', _cErr); } }
 
