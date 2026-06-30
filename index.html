@@ -4815,10 +4815,10 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
 [data-theme="light"] .kpi-tile-mini div{background:rgba(0,0,0,.07)}
 [data-theme="light"] .kpi-tile-info{background:rgba(0,0,0,.04)}
 [data-theme="light"] .kpi-tile::before{width:3px}
-.kpi-tile-foot{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);margin-top:auto;letter-spacing:.3px;opacity:.85}
-.kpi-tile-foot.green{color:var(--green);opacity:1;font-weight:500}
-.kpi-tile-foot.red{color:var(--red);opacity:1;font-weight:500}
-.kpi-tile-foot.purple{color:var(--accent3);opacity:1;font-weight:500}
+.kpi-tile-foot{font-family:Inter,sans-serif;font-size:12px;font-weight:500;color:var(--text2);margin-top:auto;letter-spacing:.1px;opacity:.9}
+.kpi-tile-foot.green{color:var(--green);opacity:1;font-weight:600}
+.kpi-tile-foot.red{color:var(--red);opacity:1;font-weight:600}
+.kpi-tile-foot.purple{color:var(--accent3);opacity:1;font-weight:600}
 .kpi-tile-badge{display:inline-block;font-size:9px;font-weight:600;letter-spacing:.5px;padding:2px 7px;border-radius:4px;margin-top:6px;text-transform:uppercase;font-family:Inter,sans-serif}
 .kpi-tile-badge.green{background:rgba(29,233,182,.12);color:var(--green)}
 .kpi-tile-badge.red{background:rgba(239,68,68,.12);color:var(--red)}
@@ -39472,10 +39472,15 @@ window.toggleSidebar = function(){
           else if(pf >= 1) badge = {text:'BREAK-EVEN', tone:'neutral'};
           else badge = {text:'LOSING', tone:'red'};
         }
+        var pfTotal = gw + gl;
+        var pfRatio = pfTotal > 0 ? Math.round(gw/pfTotal*10) : 0;
+        var pfMini = '';
+        if (pfTotal > 0) { for(var pi=0;pi<10;pi++) pfMini += '<div class="on '+(pi<pfRatio?'win':'loss')+'"></div>'; }
         return {
           value: mode==='privacy'?'••':(pf===Infinity?'∞':pf.toFixed(2)),
           valueColor: pf>=2?'green':(pf>=1?'':'red'),
           foot: mode==='privacy'?'••••':'+'+sym+Math.round(gw).toLocaleString()+' / -'+sym+Math.round(gl).toLocaleString(),
+          mini: pfMini,
           badge: badge
         };
       }
@@ -39548,10 +39553,13 @@ window.toggleSidebar = function(){
         else if(mode==='percent') val = '-'+maxPct.toFixed(2)+'%';
         else if(mode==='rmultiple') val = _fmtAmt(-maxDD, 'rmultiple', sym, {trades:t});
         else val = '-'+sym+Math.round(maxDD).toLocaleString();
+        var ddFillPct = Math.min(100, maxPct);
+        var mdMini = '<div style="flex:1;height:100%;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden"><div style="width:'+ddFillPct.toFixed(0)+'%;height:100%;background:var(--red);border-radius:2px"></div></div>';
         return {
           value: val,
           valueColor: maxDD>0?'red':'',
-          foot: maxPct.toFixed(1)+'% of peak'
+          foot: maxPct.toFixed(1)+'% of peak',
+          mini: maxDD>0 ? mdMini : ''
         };
       }
     },
@@ -39569,10 +39577,20 @@ window.toggleSidebar = function(){
           else if(ty===type)streak++;
           else break;
         }
+        var last10 = sorted.slice(0,10).slice().reverse(); // oldest -> newest, left to right
+        var streakMini = '';
+        if (last10.length) {
+          streakMini = last10.map(function(x){
+            var p = (typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x):(parseFloat(x.pnl)||0);
+            var cls = Math.abs(p)<=1 ? '' : (p>1 ? 'win' : 'loss');
+            return '<div class="on '+cls+'" style="'+(cls?'':'background:rgba(255,255,255,.15)')+'"></div>';
+          }).join('');
+        }
         return {
           value: sorted.length===0?'—':(streak===0?'0':streak+type),
           valueColor: type==='W'?'green':(type==='L'?'red':''),
-          foot: streak===0?'no streak':(type==='W'?'consecutive wins':'consecutive losses')
+          foot: streak===0?'no streak':(type==='W'?'consecutive wins':'consecutive losses'),
+          mini: streakMini
         };
       }
     },
@@ -39657,7 +39675,10 @@ window.toggleSidebar = function(){
         var aw=wins.reduce(function(a,b){return a+b;},0)/wins.length;
         var al=ls.reduce(function(a,b){return a+b;},0)/ls.length;
         var ratio=aw/al;
-        return { value: mode==='privacy'?'••':(ratio.toFixed(2)+'×'), foot: mode==='privacy'?'••••':'+'+sym+Math.round(aw)+' / -'+sym+Math.round(al), valueColor: ratio>=2?'green':'' };
+        var wlRatio = (aw+al)>0 ? Math.round(aw/(aw+al)*10) : 0;
+        var wlMini = '';
+        for(var wi=0;wi<10;wi++) wlMini += '<div class="on '+(wi<wlRatio?'win':'loss')+'"></div>';
+        return { value: mode==='privacy'?'••':(ratio.toFixed(2)+'×'), foot: mode==='privacy'?'••••':'+'+sym+Math.round(aw)+' / -'+sym+Math.round(al), valueColor: ratio>=2?'green':'', mini: wlMini };
       }
     },
     totalTrades: {
