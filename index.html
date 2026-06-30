@@ -41488,16 +41488,17 @@ window.toggleSidebar = function(){
       }
 
       var barColors = barVals.map(function(v,i){
-        var base = v >= 0 ? 'rgba(29,233,182,.75)' : 'rgba(239,68,68,.75)';
-        return base;
+        var isHighlight = (i === bestDayIdx && v > 0) || (i === worstDayIdx && v < 0);
+        if (isHighlight) return v >= 0 ? '#1de9b6' : '#ef4444'; // solid, full-opacity for best/worst
+        return v >= 0 ? 'rgba(29,233,182,.55)' : 'rgba(239,68,68,.55)';
       });
       var barBorderColors = barVals.map(function(v,i){
-        if (i === bestDayIdx && v > 0) return '#ffd166';
-        if (i === worstDayIdx && v < 0) return '#9b7cf0';
+        if (i === bestDayIdx && v > 0) return 'rgba(255,255,255,.5)';
+        if (i === worstDayIdx && v < 0) return 'rgba(255,255,255,.5)';
         return 'transparent';
       });
       var barBorderWidths = barVals.map(function(v,i){
-        return (i === bestDayIdx && v > 0) || (i === worstDayIdx && v < 0) ? 2 : 0;
+        return (i === bestDayIdx && v > 0) || (i === worstDayIdx && v < 0) ? 1.5 : 0;
       });
       var barHover = barVals.map(function(v){ return v >= 0 ? '#2ecc8a' : '#e05c7a'; });
       var avgLine = barVals.map(function(){ return avgDay; });
@@ -41610,7 +41611,7 @@ window.toggleSidebar = function(){
           ]
         },
         options: {
-          responsive: true, maintainAspectRatio: true,
+          responsive: true, maintainAspectRatio: false,
           interaction: { mode: 'index', intersect: false },
           plugins: {
             legend: { display: false },
@@ -41702,7 +41703,7 @@ window.toggleSidebar = function(){
           }]
         },
         options: {
-          responsive: true, maintainAspectRatio: true,
+          responsive: true, maintainAspectRatio: false,
           interaction: { mode: 'index', intersect: false },
           plugins: {
             legend: { display: false },
