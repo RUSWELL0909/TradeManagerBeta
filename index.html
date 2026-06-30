@@ -40625,35 +40625,59 @@ window.toggleSidebar = function(){
     if(_isWidgetVisible('pair-distribution')){ try{
       var el = document.getElementById('dash-w-pair-content');
       if(el){
-        // Convert to vertical layout — replace inline flex with column
-        el.parentElement.style.padding = '14px 16px';
-        var pairCount = {};
+        el.parentElement.style.padding = '22px 24px';
+        // Per-pair: count + P&L + wins
+        var pairStats = {};
         trades.forEach(function(t){
           var p = t.pair || t.symbol || 'Other';
-          pairCount[p] = (pairCount[p]||0) + 1;
+          if(!pairStats[p]) pairStats[p] = {c:0, pnl:0, w:0};
+          var pn = _pnlOf(t);
+          pairStats[p].c++; pairStats[p].pnl += pn; if(pn>1) pairStats[p].w++;
         });
-        var pairs = Object.keys(pairCount).map(function(p){return {p:p,c:pairCount[p]};}).sort(function(a,b){return b.c-a.c;});
+        var pairs = Object.keys(pairStats).map(function(p){return {p:p, c:pairStats[p].c, pnl:pairStats[p].pnl, w:pairStats[p].w};}).sort(function(a,b){return b.c-a.c;});
         var total = trades.length;
-        var topPairs = pairs.slice(0,4);
-        var othersCount = pairs.slice(4).reduce(function(a,p){return a+p.c;},0);
-        if(othersCount>0) topPairs.push({p:'Other',c:othersCount});
-        var segs = topPairs.map(function(pp,i){
-          var pct = (pp.c/total*100).toFixed(2);
-          return '<div style="background:'+DIST_COLORS[i%DIST_COLORS.length]+';width:'+pct+'%"></div>';
+        var topPairs = pairs.slice(0,5);
+        var othersCount = pairs.slice(5).reduce(function(a,p){return a+p.c;},0);
+        var othersPnl = pairs.slice(5).reduce(function(a,p){return a+p.pnl;},0);
+        if(othersCount>0) topPairs.push({p:'Other',c:othersCount,pnl:othersPnl,w:0});
+
+        // Donut chart (SVG)
+        var circ = 2*Math.PI*34, offset=0;
+        var donutSegs = topPairs.map(function(pp,i){
+          var frac = pp.c/total;
+          var seg = frac*circ;
+          var s = '<circle cx="50" cy="50" r="34" fill="none" stroke="'+DIST_COLORS[i%DIST_COLORS.length]+'" stroke-width="14" stroke-dasharray="'+seg.toFixed(2)+' '+(circ-seg).toFixed(2)+'" stroke-dashoffset="'+(-offset).toFixed(2)+'" transform="rotate(-90 50 50)" style="transition:stroke-dasharray .6s ease"/>';
+          offset += seg;
+          return s;
         }).join('');
+        var donut = '<svg width="116" height="116" viewBox="0 0 100 100" style="flex-shrink:0">'+donutSegs+
+          '<text x="50" y="47" text-anchor="middle" font-size="19" font-weight="700" fill="var(--text)" font-family="Inter">'+pairs.length+'</text>'+
+          '<text x="50" y="60" text-anchor="middle" font-size="8" fill="var(--text3)" font-family="Inter" letter-spacing="1">PAIRS</text></svg>';
+
+        // Rich legend rows
         var legend = topPairs.map(function(pp,i){
           var pct = (pp.c/total*100).toFixed(0);
-          return '<div style="display:flex;align-items:center;gap:12px;font-size:13px;padding:8px 0;border-bottom:0.5px dotted var(--border)">' +
-            '<span style="width:9px;height:9px;border-radius:50%;background:'+DIST_COLORS[i%DIST_COLORS.length]+';flex-shrink:0"></span>' +
-            '<span style="flex:1;color:var(--text2)">'+pp.p+'</span>' +
-            '<span style="color:var(--text3);font-family:DM Mono,monospace;font-size:12px;min-width:48px;text-align:right">'+pct+'%</span>' +
-            '<span style="font-family:DM Mono,monospace;font-variant-numeric:tabular-nums;min-width:74px;text-align:right;color:var(--text2);font-size:13px">'+pp.c+' tr</span>' +
+          var wr = pp.c>0 ? Math.round(pp.w/pp.c*100) : 0;
+          var pnlCol = pp.pnl>=0?'var(--green)':'var(--red)';
+          var pnlStr = (pp.pnl>=0?'+':'-')+ci.sym+Math.abs(pp.pnl).toFixed(0);
+          return '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">' +
+            '<span style="width:10px;height:10px;border-radius:3px;background:'+DIST_COLORS[i%DIST_COLORS.length]+';flex-shrink:0"></span>' +
+            '<div style="flex:1;min-width:0">' +
+              '<div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap">'+pp.p+'</div>' +
+              '<div style="font-size:11px;color:var(--text3)">'+pp.c+' trades · '+(pp.p!=='Other'?wr+'% WR':'')+'</div>' +
+            '</div>' +
+            '<div style="text-align:right">' +
+              '<div style="font-size:13px;font-weight:600;color:'+pnlCol+';font-variant-numeric:tabular-nums">'+pnlStr+'</div>' +
+              '<div style="font-size:11px;color:var(--text3)">'+pct+'%</div>' +
+            '</div>' +
           '</div>';
         }).join('');
+
         el.innerHTML =
-          '<div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:14px">'+pairs.length+' pairs · '+total+' trades total</div>' +
-          '<div style="display:flex;height:8px;border-radius:4px;overflow:hidden;margin-bottom:14px;background:rgba(255,255,255,.03);gap:1px">'+segs+'</div>' +
-          '<div style="display:flex;flex-direction:column">'+legend+'</div>';
+          '<div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">' +
+            donut +
+            '<div style="flex:1;min-width:200px">'+legend+'</div>' +
+          '</div>';
       }
     }catch(_wErr){if(typeof console!=='undefined')console.error('[dash widget pair-distribution]',_wErr);} }
 
