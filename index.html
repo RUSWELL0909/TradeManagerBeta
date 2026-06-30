@@ -10927,6 +10927,8 @@ window.toggleSidebar = function(){
     try{ return rfxGet('tq_active_account') || 'all'; }catch(e){ return 'all'; }
   }
   function tqSetActiveAccount(id){
+    if (window._tqAcctSwitchBusy) return;
+    window._tqAcctSwitchBusy = true;
     id = id || 'all';
     try{ rfxSet('tq_active_account', id); }catch(e){}
     // Keep the legacy View Mode in sync (all_prop→prop, all_personal→personal, else all)
@@ -10948,6 +10950,7 @@ window.toggleSidebar = function(){
       var d1=document.getElementById('dash-account-filter'); if(d1 && d1.value!==id) d1.value=id;
       var d2=document.getElementById('dv-account-filter'); if(d2 && d2.value!==id) d2.value=id;
     }catch(e){}
+    setTimeout(function(){ window._tqAcctSwitchBusy = false; }, 150);
   }
   window.tqGetActiveAccount = tqGetActiveAccount;
   window.tqSetActiveAccount = tqSetActiveAccount;
@@ -11118,6 +11121,12 @@ window.toggleSidebar = function(){
   window.tqGetDisplayCurrency = tqGetDisplayCurrency;
 
   function tqSetDisplayCurrency(ccy){
+    // Guard against rapid repeated clicks queuing up multiple heavy full-dashboard re-renders
+    // back to back (each updateDashboard() pass re-renders charts + calendar + 12 KPI tiles +
+    // goals + advanced metrics — stacking several of these from fast clicking can make the page
+    // appear to hang even though nothing is actually broken).
+    if (window._tqCcySwitchBusy) return;
+    window._tqCcySwitchBusy = true;
     try{
       var s = JSON.parse(rfxGet('rfx_settings')||'{}');
       s.displayCurrency = ccy;
@@ -11128,6 +11137,7 @@ window.toggleSidebar = function(){
       if(typeof updateReports === 'function') try{ updateReports(); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
       if(typeof renderJournal === 'function') try{ renderJournal(); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
     }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
+    finally{ setTimeout(function(){ window._tqCcySwitchBusy = false; }, 150); }
   }
   window.tqSetDisplayCurrency = tqSetDisplayCurrency;
 
@@ -40228,6 +40238,8 @@ window.toggleSidebar = function(){
 
   // ═══ DASHBOARD VIEW SWITCHER ($ / % / Privacy) ═══
   function dashSetView(view){
+    if (window._tqViewSwitchBusy) return;
+    window._tqViewSwitchBusy = true;
     rfxSet('rf_dash_view', view);
     document.querySelectorAll('.dash-view-btn').forEach(function(b){
       var isActive = b.getAttribute('data-view') === view;
@@ -40250,6 +40262,7 @@ window.toggleSidebar = function(){
               : '👁 — Privacy mode (values hidden)';
       tqToast(msg, {type:'info', duration:2000});
     }
+    setTimeout(function(){ window._tqViewSwitchBusy = false; }, 100);
   }
   window.dashSetView = dashSetView;
 
