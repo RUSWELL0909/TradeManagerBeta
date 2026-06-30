@@ -6272,7 +6272,7 @@ window.toggleSidebar = function(){
           <div class="card" data-widget="consistency" style="padding:22px 24px;display:flex;flex-direction:column;min-height:220px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
               <span style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:600">Consistency</span>
-              <span class="info-icon" data-tip="Stability of daily returns. 100 = perfectly steady, 0 = highly volatile.">i</span>
+              <span class="info-icon" data-tip="Score = 100 − (volatility ÷ avg daily P&L) × 20. Measures how erratic your day-to-day results are, not whether you're profitable. A profitable trader with wildly swinging days can still score low.">i</span>
             </div>
             <div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:14px">Daily return stability score</div>
             <div style="display:flex;align-items:center;gap:22px">
@@ -6307,7 +6307,7 @@ window.toggleSidebar = function(){
               <button onclick="tqOpenGoals()" style="background:transparent;border:0.5px solid var(--border);color:var(--text3);cursor:pointer;font-size:16px;width:28px;height:28px;border-radius:6px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-weight:400" title="Manage goals">+</button>
             </div>
             <div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:18px">Track weekly &amp; monthly targets</div>
-            <div id="dash-goals-list" style="display:flex;flex-direction:column;gap:18px;font-family:Inter,sans-serif;flex:1;justify-content:center"></div>
+            <div id="dash-goals-list" style="display:flex;flex-direction:column;gap:14px;font-family:Inter,sans-serif;flex:1;justify-content:flex-start"></div>
           </div>
         </div>
         </div><!-- /section advanced-metrics -->
@@ -6318,10 +6318,11 @@ window.toggleSidebar = function(){
           <!-- Recent Trades -->
           <div class="card" data-widget="recent-trades" style="padding:14px 16px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-              <span class="dash-label" style="font-size:10px">Recent Trades</span>
-              <button class="btn btn-ghost" style="font-size:9px;padding:3px 8px" onclick="showPage('journal')">View all →</button>
+              <span class="dash-label" style="font-size:13px;font-weight:600;color:var(--text)">Recent Trades</span>
+              <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px;font-weight:600" onclick="showPage('journal')">View all →</button>
             </div>
-            <div style="display:grid;grid-template-columns:52px 1fr 58px;font-size:11px;color:var(--text3);font-family:Inter,sans-serif;font-weight:500;padding:0 2px;margin-bottom:6px">
+            <div id="dash-recent-summary" style="font-size:11.5px;color:var(--text3);font-weight:500;margin-bottom:8px"></div>
+            <div style="display:grid;grid-template-columns:52px 1fr 58px;font-size:11px;color:var(--text3);font-family:Inter,sans-serif;font-weight:600;padding:0 2px;margin-bottom:6px">
               <span>Date</span><span>Symbol</span><span class="tq-right">P&L</span>
             </div>
             <div id="dash-recent-trades">
@@ -6335,6 +6336,7 @@ window.toggleSidebar = function(){
             </div>
             <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px"><div class="dash-cal-hdr">SUN</div><div class="dash-cal-hdr">MON</div><div class="dash-cal-hdr">TUE</div><div class="dash-cal-hdr">WED</div><div class="dash-cal-hdr">THU</div><div class="dash-cal-hdr">FRI</div><div class="dash-cal-hdr">SAT</div></div>
             <div id="dash-calendar-grid" style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px"></div>
+            <div id="dash-cal-month-bw" style="margin-top:10px;font-size:11.5px;color:var(--text3);font-weight:500"></div>
           </div>
         </div>
         </div><!-- /section recent-calendar -->
@@ -6346,7 +6348,7 @@ window.toggleSidebar = function(){
             <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px;padding-right:26px">
               <div>
                 <div class="dash-label" style="font-size:14px;font-weight:600;color:var(--text);letter-spacing:-.1px">Daily net cumulative P&L</div>
-                <div id="dash-cum-sub" style="font-size:13px;color:var(--text);margin-top:3px;font-weight:700">&#8212;</div>
+                <div id="dash-cum-sub" style="font-size:12.5px;color:var(--text3);margin-top:3px;font-weight:500">&#8212;</div>
               </div>
               <div id="dash-cum-total" class="dash-big-num green" style="font-size:24px;letter-spacing:-.5px;font-weight:700">&#8212;</div>
             </div>
@@ -6363,7 +6365,7 @@ window.toggleSidebar = function(){
             <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
               <div>
                 <div class="dash-label" style="font-size:14px;font-weight:600;color:var(--text);letter-spacing:-.1px">Net daily P&L</div>
-                <div id="dash-bar-sub" style="font-size:13px;color:var(--text);margin-top:3px;font-weight:700">&#8212;</div>
+                <div id="dash-bar-sub" style="font-size:12.5px;color:var(--text3);margin-top:3px;font-weight:500">&#8212;</div>
               </div>
               <div id="dash-bar-days" style="font-size:12px;color:var(--text3);white-space:nowrap;margin-top:3px">&#8212; days</div>
             </div>
@@ -6378,7 +6380,7 @@ window.toggleSidebar = function(){
             <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
               <div>
                 <div class="dash-label" style="font-size:14px;font-weight:600;color:var(--text);letter-spacing:-.1px">Account Balance</div>
-                <div id="dash-bal-sub" style="font-size:13px;color:var(--text);margin-top:3px;font-weight:700">&#8212;</div>
+                <div id="dash-bal-sub" style="font-size:12.5px;color:var(--text3);margin-top:3px;font-weight:500">&#8212;</div>
               </div>
               <div id="dash-bal-total" class="dash-big-num" style="font-size:22px;letter-spacing:-.5px;font-weight:700;white-space:nowrap">&#8212;</div>
             </div>
@@ -6393,7 +6395,7 @@ window.toggleSidebar = function(){
             <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
               <div>
                 <div class="dash-label" style="font-size:14px;font-weight:600;color:var(--text);letter-spacing:-.1px">Drawdown</div>
-                <div id="dash-dd-sub" style="font-size:13px;color:var(--text);margin-top:3px;font-weight:700">&#8212;</div>
+                <div id="dash-dd-sub" style="font-size:12.5px;color:var(--text3);margin-top:3px;font-weight:500">&#8212;</div>
               </div>
               <span id="dash-max-dd" style="font-size:22px;font-weight:700;color:var(--red);font-family:Inter,sans-serif;white-space:nowrap">0.00%</span>
             </div>
@@ -29073,16 +29075,15 @@ window.toggleSidebar = function(){
     var listEl = document.getElementById('dash-goals-list');
     if(!listEl) return;
     var goals = tqGoalsLoad();
-    if(goals.length === 0){
-      listEl.innerHTML =
-        '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px 8px;text-align:center">' +
-          '<div style="font-size:12px;color:var(--text2);margin-bottom:4px">No goals set</div>' +
-          '<div style="font-size:11px;color:var(--text3);opacity:.7;margin-bottom:14px">Track P&amp;L, win rate, or trade count</div>' +
-          '<button onclick="tqOpenGoals()" style="padding:6px 14px;background:transparent;border:0.5px solid var(--border);color:var(--text2);border-radius:6px;font-size:11px;cursor:pointer;font-family:Inter,sans-serif;font-weight:500">+ Set first goal</button>' +
-        '</div>';
-      return;
-    }
-    listEl.innerHTML = goals.slice(0,3).map(function(g){
+    var GOAL_SUGGESTIONS = [
+      {type:'pnl', period:'week', icon:'💰', label:'Weekly P&L target'},
+      {type:'win_rate', period:'month', icon:'🎯', label:'Win rate target'},
+      {type:'trades', period:'week', icon:'📊', label:'Trade count target'}
+    ];
+    var existingKeys = goals.map(function(g){ return g.type+'_'+g.period; });
+    var missingSuggestions = GOAL_SUGGESTIONS.filter(function(s){ return existingKeys.indexOf(s.type+'_'+s.period) === -1; }).slice(0, Math.max(0, 3 - goals.length));
+
+    var rowsHtml = goals.slice(0,3).map(function(g){
       var p = tqGoalProgress(g);
       var TGc = getComputedStyle(document.documentElement).getPropertyValue('--green').trim() || '#1de9b6';
       var col = p.pct >= 75 ? TGc : 'var(--text)';
@@ -29097,7 +29098,7 @@ window.toggleSidebar = function(){
         if (p.daysLeft !== null) metaParts.push(p.daysLeft + (p.daysLeft===1?' day left':' days left'));
         if (p.paceLabel) metaParts.push(p.paceLabel);
       }
-      return '<div class="dash-card-animate" style="margin-bottom:2px">' +
+      return '<div class="dash-card-animate" onclick="tqOpenGoals()" style="margin-bottom:2px;cursor:pointer;border-radius:8px;padding:8px;margin:-8px -8px 2px;transition:background .15s" onmouseover="this.style.background=\'rgba(124,90,240,.05)\'" onmouseout="this.style.background=\'transparent\'">' +
                '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px;font-size:14px">' +
                  '<span style="color:var(--text);font-weight:600"><span style="margin-right:8px;font-size:15px">'+icon+'</span>'+(g.name||g.type).replace(/</g,'&lt;')+'</span>' +
                  '<span style="color:'+col+';font-weight:700;font-size:14px;font-family:Inter,sans-serif;font-variant-numeric:tabular-nums">'+labelClean+'</span>' +
@@ -29106,11 +29107,26 @@ window.toggleSidebar = function(){
                (metaParts.length ? '<div style="font-size:11.5px;color:var(--text3);font-weight:500;margin-top:5px">'+metaParts.join(' &middot; ')+'</div>' : '') +
              '</div>';
     }).join('');
+
+    var suggestHtml = missingSuggestions.length ? (
+      '<div style="margin-top:'+(goals.length?'16px':'0')+';padding-top:'+(goals.length?'14px':'0')+';'+(goals.length?'border-top:0.5px solid var(--border);':'')+'">' +
+        '<div style="font-size:10.5px;color:var(--text3);font-weight:700;letter-spacing:.3px;margin-bottom:8px">'+(goals.length?'ADD ANOTHER':'QUICK START')+'</div>' +
+        '<div style="display:flex;flex-direction:column;gap:6px">' +
+          missingSuggestions.map(function(s){
+            return '<button onclick="tqOpenGoals(\''+s.type+'\',\''+s.period+'\')" style="display:flex;align-items:center;gap:8px;text-align:left;width:100%;padding:9px 11px;background:rgba(124,90,240,.05);border:1px dashed rgba(124,90,240,.25);border-radius:8px;color:var(--text2);font-size:12.5px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;transition:all .15s" onmouseover="this.style.background=\'rgba(124,90,240,.1)\';this.style.borderColor=\'var(--accent)\'" onmouseout="this.style.background=\'rgba(124,90,240,.05)\';this.style.borderColor=\'rgba(124,90,240,.25)\'">' +
+              '<span style="font-size:14px">'+s.icon+'</span>' + s.label + ' <span style="margin-left:auto;color:var(--accent3);font-weight:700">+</span>' +
+            '</button>';
+          }).join('') +
+        '</div>' +
+      '</div>'
+    ) : '';
+
+    listEl.innerHTML = rowsHtml + suggestHtml;
   }
   window.tqRenderGoalsWidget = tqRenderGoalsWidget;
 
   // Goals management modal
-  function tqOpenGoals(){
+  function tqOpenGoals(presetType, presetPeriod){
     var prev = document.getElementById('tq-goals-modal');
     if(prev) prev.remove();
     var goals = tqGoalsLoad();
@@ -29150,6 +29166,14 @@ window.toggleSidebar = function(){
     w.innerHTML = html;
     document.body.appendChild(w.firstElementChild);
     tqRenderGoalsModalList();
+    if (presetType) {
+      var typeSel = document.getElementById('tq-goal-type');
+      var periodSel = document.getElementById('tq-goal-period');
+      if (typeSel) typeSel.value = presetType;
+      if (periodSel && presetPeriod) periodSel.value = presetPeriod;
+      var targetInput = document.getElementById('tq-goal-target');
+      if (targetInput) setTimeout(function(){ targetInput.focus(); }, 50);
+    }
   }
   window.tqOpenGoals = tqOpenGoals;
   function tqCloseGoals(){ var m = document.getElementById('tq-goals-modal'); if(m) m.remove(); }
@@ -38608,6 +38632,20 @@ window.toggleSidebar = function(){
       var recent = trades.slice(0, RECENT_LIMIT);
       var ccy = (typeof tqGetDisplayCurrency==='function') ? tqGetDisplayCurrency() : 'USD';
       var sym = {USD:'$',EUR:'€',GBP:'£',JPY:'¥',CHF:'CHF ',CAD:'C$',AUD:'A$',NZD:'NZ$'}[ccy] || '$';
+      var recentSummaryEl = document.getElementById('dash-recent-summary');
+      if (recentSummaryEl) {
+        if (recent.length) {
+          var rW=0, rL=0, rNet=0;
+          recent.forEach(function(t){
+            var p = (typeof tqConvertTradePnl==='function') ? tqConvertTradePnl(t) : (parseFloat(t.pnl)||0);
+            rNet += p;
+            if (p>1) rW++; else if (p<-1) rL++;
+          });
+          recentSummaryEl.innerHTML = 'Last '+recent.length+': <b style="color:var(--green)">'+rW+'W</b> / <b style="color:var(--red)">'+rL+'L</b> &middot; net <b style="color:'+(rNet>=0?'var(--green)':'var(--red)')+'">'+(rNet>=0?'+':'-')+sym+Math.abs(Math.round(rNet)).toLocaleString()+'</b>';
+        } else {
+          recentSummaryEl.innerHTML = '';
+        }
+      }
       recentEl.innerHTML = recent.map(function(t) {
         // Use currency-converted P&L for accuracy across multi-currency accounts (May 2026 fix)
         var pn = (typeof tqConvertTradePnl==='function') ? tqConvertTradePnl(t) : (parseFloat(t.pnl)||0);
@@ -38618,10 +38656,11 @@ window.toggleSidebar = function(){
                 : '<span style="font-size:10px;padding:1px 6px;background:rgba(239,68,68,.15);color:var(--red);border-radius:4px;font-family:Inter,sans-serif">LOSS</span>';
         var pnlColor = isBe ? 'var(--text3)' : isWin ? 'var(--green)' : 'var(--red)';
         var pnlStr = isBe ? sym+'0' : (isWin ? '+'+sym : '-'+sym) + Math.abs(pn).toFixed(0);
-        return '<div style="display:grid;grid-template-columns:90px 1fr 80px;padding:8px;border-radius:6px;font-size:13px;border-bottom:1px solid var(--border);font-variant-numeric:tabular-nums">'
-          + '<span style="font-family:Inter,sans-serif;color:var(--text3);font-size:11px">' + (t.date||'').replace(/-/g,'/') + '</span>'
-          + '<span style="font-weight:500;color:var(--accent3)">' + (t.pair||t.symbol||'—') + ' ' + tag + '</span>'
-          + '<span style="text-align:right;color:' + pnlColor + ';font-family:Inter,sans-serif;font-weight:500">' + pnlStr + '</span>'
+        var clickAttr = (t.id && typeof jrViewDetail==='function') ? ' onclick="jrViewDetail(\''+t.id+'\')" style="cursor:pointer"' : '';
+        return '<div class="rt-row"'+clickAttr+' style="display:grid;grid-template-columns:90px 1fr 80px;padding:9px 8px;border-radius:6px;font-size:13px;border-bottom:1px solid var(--border);font-variant-numeric:tabular-nums;transition:background .15s" onmouseover="this.style.background=\'rgba(124,90,240,.05)\'" onmouseout="this.style.background=\'transparent\'">'
+          + '<span style="font-family:Inter,sans-serif;color:var(--text3);font-size:11.5px">' + (t.date||'').replace(/-/g,'/') + '</span>'
+          + '<span style="font-weight:600;color:var(--accent3)">' + (t.pair||t.symbol||'—') + ' ' + tag + '</span>'
+          + '<span style="text-align:right;color:' + pnlColor + ';font-family:Inter,sans-serif;font-weight:700">' + pnlStr + '</span>'
           + '</div>';
       }).join('');
       // "View more" footer if there are more trades than shown
@@ -38919,11 +38958,13 @@ window.toggleSidebar = function(){
         if(dayKeys.length < 5){
           consDescEl.textContent = 'Log more trading days to score.';
         } else {
+          var swingRatio = Math.abs(mean) > 0.01 ? (stdDev/Math.abs(mean)) : 0;
+          var ratioStr = swingRatio > 0 ? swingRatio.toFixed(1)+'×' : '';
           var msg = consScore >= 75 ? 'Steady gains across '+dayKeys.length+' days. Disciplined.'
                   : consScore >= 55 ? 'Steady-ish across '+dayKeys.length+' days. Some volatility.'
-                  : consScore >= 35 ? 'Moderate variation. Improve risk control.'
-                  : consScore >= 15 ? 'High volatility. Cap daily risk.'
-                  : 'Erratic returns. Pause and review rules.';
+                  : consScore >= 35 ? 'Day-to-day swings run about '+ratioStr+' your average day. Moderate — tighten risk a bit.'
+                  : consScore >= 15 ? 'Day-to-day swings run about '+ratioStr+' your average day. High volatility — cap size per day.'
+                  : 'Day-to-day swings run about '+ratioStr+' your average day — results look closer to random than repeatable. No edge to size up on yet.';
           consDescEl.textContent = msg;
         }
       }
@@ -42044,7 +42085,11 @@ window.toggleSidebar = function(){
 
     var firstDay = new Date(year, month, 1).getDay();
     var daysInMonth = new Date(year, month+1, 0).getDate();
-    var todayKey = new Date().toISOString().slice(0,10);
+    // Build from local calendar components, not .toISOString() — toISOString() converts to
+    // UTC first, which can mark the wrong day as "today" during early-morning local hours for
+    // anyone east of UTC. Same bug class as Day-of-week / Goals — see METRICS_LOGIC_SPEC.md §9.
+    var _today = new Date();
+    var todayKey = _today.getFullYear() + '-' + String(_today.getMonth()+1).padStart(2,'0') + '-' + String(_today.getDate()).padStart(2,'0');
 
     var cells = '';
     // Empty leading cells
@@ -42096,9 +42141,14 @@ window.toggleSidebar = function(){
 
     // Monthly total
     var monthTotal = 0, monthTrades = 0;
+    var bestDayKey = null, bestDayVal = -Infinity, worstDayKey = null, worstDayVal = Infinity;
     for (var dd = 1; dd <= daysInMonth; dd++) {
       var mk = year + '-' + String(month+1).padStart(2,'0') + '-' + String(dd).padStart(2,'0');
-      if (byDay[mk] !== undefined) { monthTotal += byDay[mk]; monthTrades += (tradesByDay[mk] || 0); }
+      if (byDay[mk] !== undefined) {
+        monthTotal += byDay[mk]; monthTrades += (tradesByDay[mk] || 0);
+        if (byDay[mk] > bestDayVal) { bestDayVal = byDay[mk]; bestDayKey = dd; }
+        if (byDay[mk] < worstDayVal) { worstDayVal = byDay[mk]; worstDayKey = dd; }
+      }
     }
     var mtEl = document.getElementById('dash-cal-month-total');
     if (mtEl) {
@@ -42107,6 +42157,15 @@ window.toggleSidebar = function(){
         var mtSign = monthTotal >= 0 ? '+' : '-';
         mtEl.innerHTML = '<span style="color:var(--text3);font-size:10px;font-weight:400;letter-spacing:.5px;text-transform:uppercase;margin-right:6px">' + monthTrades + ' trades</span><span style="color:' + mtColor + '">' + mtSign + '$' + Math.abs(monthTotal).toFixed(0) + '</span>';
       } else { mtEl.innerHTML = ''; }
+    }
+    var bwEl = document.getElementById('dash-cal-month-bw');
+    if (bwEl) {
+      if (monthTrades > 0 && bestDayKey && worstDayKey) {
+        var parts = [];
+        if (bestDayVal > 0) parts.push('Best: <b style="color:var(--green)">'+months[month].slice(0,3)+' '+bestDayKey+' (+$'+Math.round(bestDayVal)+')</b>');
+        if (worstDayVal < 0 && worstDayKey !== bestDayKey) parts.push('Worst: <b style="color:var(--red)">'+months[month].slice(0,3)+' '+worstDayKey+' ($'+Math.round(worstDayVal)+')</b>');
+        bwEl.innerHTML = parts.join(' &middot; ');
+      } else { bwEl.innerHTML = ''; }
     }
 
     // Cal nav — rebind with current byDay/tradesByDay
