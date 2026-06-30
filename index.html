@@ -6337,7 +6337,7 @@ window.toggleSidebar = function(){
             <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px;padding-right:26px">
               <div>
                 <div class="dash-label" style="font-size:14px;font-weight:600;color:var(--text);letter-spacing:-.1px">Daily net cumulative P&L</div>
-                <div id="dash-cum-sub" style="font-size:12.5px;color:var(--text);margin-top:3px;font-weight:600">&#8212;</div>
+                <div id="dash-cum-sub" style="font-size:13px;color:var(--text);margin-top:3px;font-weight:700">&#8212;</div>
               </div>
               <div id="dash-cum-total" class="dash-big-num green" style="font-size:24px;letter-spacing:-.5px;font-weight:700">&#8212;</div>
             </div>
@@ -6354,7 +6354,7 @@ window.toggleSidebar = function(){
             <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
               <div>
                 <div class="dash-label" style="font-size:14px;font-weight:600;color:var(--text);letter-spacing:-.1px">Net daily P&L</div>
-                <div id="dash-bar-sub" style="font-size:12.5px;color:var(--text);margin-top:3px;font-weight:600">&#8212;</div>
+                <div id="dash-bar-sub" style="font-size:13px;color:var(--text);margin-top:3px;font-weight:700">&#8212;</div>
               </div>
               <div id="dash-bar-days" style="font-size:12px;color:var(--text3);white-space:nowrap;margin-top:3px">&#8212; days</div>
             </div>
@@ -6369,7 +6369,7 @@ window.toggleSidebar = function(){
             <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
               <div>
                 <div class="dash-label" style="font-size:14px;font-weight:600;color:var(--text);letter-spacing:-.1px">Account Balance</div>
-                <div id="dash-bal-sub" style="font-size:12.5px;color:var(--text);margin-top:3px;font-weight:600">&#8212;</div>
+                <div id="dash-bal-sub" style="font-size:13px;color:var(--text);margin-top:3px;font-weight:700">&#8212;</div>
               </div>
               <div id="dash-bal-total" class="dash-big-num" style="font-size:22px;letter-spacing:-.5px;font-weight:700;white-space:nowrap">&#8212;</div>
             </div>
@@ -6384,7 +6384,7 @@ window.toggleSidebar = function(){
             <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
               <div>
                 <div class="dash-label" style="font-size:14px;font-weight:600;color:var(--text);letter-spacing:-.1px">Drawdown</div>
-                <div id="dash-dd-sub" style="font-size:12.5px;color:var(--text);margin-top:3px;font-weight:600">&#8212;</div>
+                <div id="dash-dd-sub" style="font-size:13px;color:var(--text);margin-top:3px;font-weight:700">&#8212;</div>
               </div>
               <span id="dash-max-dd" style="font-size:22px;font-weight:700;color:var(--red);font-family:Inter,sans-serif;white-space:nowrap">0.00%</span>
             </div>
@@ -6419,30 +6419,35 @@ window.toggleSidebar = function(){
 
           <!-- Performance by session -->
           <div class="card" data-widget="session-perf" data-widget-hidden="true" style="padding:22px 24px;min-height:220px">
-            <div style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:500;margin-bottom:14px">Performance by session</div>
-            <div id="dash-w-session-content" style="font-size:11px"></div>
+            <div style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:600;margin-bottom:14px">Performance by session</div>
+            <div id="dash-w-session-content" style="font-size:13px"></div>
           </div>
 
           <!-- Hour-of-day heatmap -->
           <div class="card" data-widget="hour-heatmap" data-widget-hidden="true" style="padding:22px 24px;min-height:220px">
-            <div style="font-size:10px;color:var(--text3);letter-spacing:.4px;font-weight:500;margin-bottom:6px">Hour-of-day</div>
-            <div id="dash-w-hour-summary" style="font-size:10px;color:var(--text3);font-family:DM Mono,monospace;margin-bottom:8px"></div>
+            <div style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:600;margin-bottom:6px">Hour-of-day</div>
+            <div id="dash-w-hour-summary" style="font-size:12px;color:var(--text2);font-family:DM Mono,monospace;margin-bottom:10px"></div>
             <div id="dash-w-hour-grid" style="display:grid;grid-template-columns:repeat(24,1fr);gap:2px"></div>
             <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:6px;font-family:DM Mono,monospace;opacity:.6">
               <span>00</span><span>06</span><span>12</span><span>18</span><span>23</span>
+            </div>
+            <div style="display:flex;gap:14px;margin-top:10px;flex-wrap:wrap">
+              <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:9px;height:9px;border-radius:2px;background:var(--green);display:inline-block"></span>Profitable hour</span>
+              <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:9px;height:9px;border-radius:2px;background:var(--red);display:inline-block"></span>Losing hour</span>
+              <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:9px;height:9px;border-radius:2px;background:rgba(255,255,255,.08);display:inline-block;border:1px solid var(--border)"></span>No trades</span>
             </div>
           </div>
 
           <!-- Day of week -->
           <div class="card" data-widget="dow-bars" data-widget-hidden="true" style="padding:22px 24px;min-height:220px">
-            <div style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:500;margin-bottom:14px">Day of week performance</div>
-            <div id="dash-w-dow-content" style="font-size:11px"></div>
+            <div style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:600;margin-bottom:14px">Day of week performance</div>
+            <div id="dash-w-dow-content" style="font-size:13px"></div>
           </div>
 
           <!-- Top costly mistakes -->
           <div class="card" data-widget="top-mistakes" data-widget-hidden="true" style="padding:22px 24px;min-height:220px">
-            <div style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:500;margin-bottom:14px">Top costly mistakes</div>
-            <div id="dash-w-mistakes-content" style="font-size:11px"></div>
+            <div style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:600;margin-bottom:14px">Top costly mistakes</div>
+            <div id="dash-w-mistakes-content" style="font-size:13px"></div>
           </div>
 
           <!-- Win/Loss split donut -->
@@ -38262,8 +38267,17 @@ window.toggleSidebar = function(){
     var allAccs = JSON.parse(rfxGet('rf_accounts') || '[]');
     var selAccId = filter ? filter.value : 'all';
     var accBal = 0;
-    if(selAccId === 'all'){allAccs.forEach(function(a){accBal += (a.balance||0);});}
-    else{var found = allAccs.find(function(a){return a.id===selAccId;});if(found) accBal = found.balance||0;}
+    if(selAccId === 'all'){
+      allAccs.forEach(function(a){accBal += (a.balance||0);});
+    } else if(selAccId === 'all_prop' || selAccId === 'all_personal'){
+      var wantProp = (selAccId === 'all_prop');
+      allAccs.forEach(function(a){
+        if(typeof tqIsProp==='function' && tqIsProp(a) === wantProp) accBal += (a.balance||0);
+      });
+    } else {
+      var found = allAccs.find(function(a){return a.id===selAccId;});
+      if(found) accBal = found.balance||0;
+    }
     var kpBalVal = document.getElementById('kpi-bal-val');
     var curBalance = accBal > 0 ? accBal + netPnl : netPnl;
     if(kpBalVal) kpBalVal.textContent = '$'+(curBalance).toLocaleString('en-US',{maximumFractionDigits:0});
@@ -40661,6 +40675,12 @@ window.toggleSidebar = function(){
     if(!trades || !trades.length) return;
     var ci = _ccyInfo();
 
+    // Theme-aware colors — resolve once per render so widgets never bleed dark-theme neon into light theme
+    var TG = getComputedStyle(document.documentElement).getPropertyValue('--green').trim() || '#1de9b6';
+    var TR = getComputedStyle(document.documentElement).getPropertyValue('--red').trim() || '#ef4444';
+    function _rgbOf(hex){ var m=hex.replace('#','').match(/.{1,2}/g); return m&&m.length>=3 ? parseInt(m[0],16)+','+parseInt(m[1],16)+','+parseInt(m[2],16) : '29,233,182'; }
+    var TG_RGB = _rgbOf(TG), TR_RGB = _rgbOf(TR);
+
     // Color palette for distributions (matches preview)
     var DIST_COLORS = ['#a78bfa','#1de9b6','#fbbf24','#fb7185','#94a3b8','#60a5fa','#f472b6'];
 
@@ -40813,34 +40833,52 @@ window.toggleSidebar = function(){
         var sessionStats = {};
         trades.forEach(function(t){
           var s = t.session || 'Other';
-          if(!sessionStats[s]) sessionStats[s] = 0;
-          sessionStats[s] += _pnlOf(t);
+          if(!sessionStats[s]) sessionStats[s] = {pnl:0, count:0};
+          sessionStats[s].pnl += _pnlOf(t);
+          sessionStats[s].count++;
         });
-        var sessions = Object.keys(sessionStats).map(function(s){return {s:s, p:sessionStats[s]};}).sort(function(a,b){return b.p-a.p;});
+        var sessions = Object.keys(sessionStats).map(function(s){return {s:s, p:sessionStats[s].pnl, c:sessionStats[s].count};}).sort(function(a,b){return b.p-a.p;});
         if(sessions.length === 0){
           el.innerHTML = _emptyState('session-perf', 'No session tags yet', 'Add session field to trades');
         } else {
           var totalAbs = sessions.reduce(function(a,s){return a+Math.abs(s.p);}, 0) || 1;
+          var bestSession = sessions[0];
+          var worstSession = sessions[sessions.length-1];
           var segs = sessions.map(function(s,i){
             var pct = (Math.abs(s.p)/totalAbs*100).toFixed(2);
-            var color = s.p>=0 ? 'rgba(29,233,182,'+(0.95-i*0.18).toFixed(2)+')' : 'rgba(239,68,68,'+(0.95-i*0.18).toFixed(2)+')';
+            var color = s.p>=0 ? 'rgba('+TG_RGB+','+(0.95-i*0.18).toFixed(2)+')' : 'rgba('+TR_RGB+','+(0.95-i*0.18).toFixed(2)+')';
             return '<div style="background:'+color+';width:'+pct+'%"></div>';
           }).join('');
           var rows = sessions.map(function(s,i){
-            var color = s.p>=0 ? 'rgba(29,233,182,'+(0.95-i*0.18).toFixed(2)+')' : 'rgba(239,68,68,'+(0.95-i*0.18).toFixed(2)+')';
-            var pct = (Math.abs(s.p)/totalAbs*100).toFixed(0);
+            var color = s.p>=0 ? 'rgba('+TG_RGB+','+(0.95-i*0.18).toFixed(2)+')' : 'rgba('+TR_RGB+','+(0.95-i*0.18).toFixed(2)+')';
+            var shareOfPnl = (Math.abs(s.p)/totalAbs*100).toFixed(0);
             var sign = s.p>=0?'+':'-';
-            return '<div style="display:flex;align-items:center;gap:12px;font-size:13px;padding:8px 0;border-bottom:0.5px dotted var(--border)">' +
+            return '<div style="display:flex;align-items:center;gap:12px;font-size:13px;padding:9px 0;border-bottom:0.5px dotted var(--border)">' +
               '<span style="width:9px;height:9px;border-radius:50%;background:'+color+';flex-shrink:0"></span>' +
-              '<span style="flex:1;color:var(--text2)">'+s.s+'</span>' +
-              '<span style="color:var(--text3);font-family:DM Mono,monospace;font-size:12px;min-width:48px;text-align:right">'+pct+'%</span>' +
-              '<span style="font-family:DM Mono,monospace;font-variant-numeric:tabular-nums;min-width:84px;text-align:right;font-size:13px;color:'+(s.p>=0?'#1de9b6':'#ef4444')+'">'+sign+ci.sym+Math.abs(Math.round(s.p)).toLocaleString()+'</span>' +
+              '<span style="flex:1;color:var(--text);font-weight:500">'+s.s+'</span>' +
+              '<span style="color:var(--text3);font-size:11px;min-width:54px;text-align:right">'+s.c+' tr</span>' +
+              '<span style="color:var(--text3);font-family:DM Mono,monospace;font-size:12px;min-width:48px;text-align:right">'+shareOfPnl+'% of P&L</span>' +
+              '<span style="font-family:DM Mono,monospace;font-variant-numeric:tabular-nums;min-width:84px;text-align:right;font-size:13px;font-weight:700;color:'+(s.p>=0?TG:TR)+'">'+sign+ci.sym+Math.abs(Math.round(s.p)).toLocaleString()+'</span>' +
             '</div>';
           }).join('');
+          var footer = '';
+          if(sessions.length >= 2 && bestSession.s !== worstSession.s){
+            footer = '<div style="display:flex;gap:10px;margin-top:14px">' +
+              '<div style="flex:1;background:rgba('+TG_RGB+',.08);border:1px solid rgba('+TG_RGB+',.22);border-radius:10px;padding:10px 12px">' +
+                '<div style="font-size:10px;color:var(--text3);letter-spacing:.3px">BEST SESSION</div>' +
+                '<div style="font-size:13px;font-weight:700;color:var(--text);margin-top:2px">'+bestSession.s+' <span style="color:'+(bestSession.p>=0?TG:TR)+';font-weight:600">'+(bestSession.p>=0?'+':'-')+ci.sym+Math.abs(Math.round(bestSession.p))+'</span></div>' +
+              '</div>' +
+              '<div style="flex:1;background:rgba('+TR_RGB+',.08);border:1px solid rgba('+TR_RGB+',.22);border-radius:10px;padding:10px 12px">' +
+                '<div style="font-size:10px;color:var(--text3);letter-spacing:.3px">WEAKEST SESSION</div>' +
+                '<div style="font-size:13px;font-weight:700;color:var(--text);margin-top:2px">'+worstSession.s+' <span style="color:'+(worstSession.p>=0?TG:TR)+';font-weight:600">'+(worstSession.p>=0?'+':'-')+ci.sym+Math.abs(Math.round(worstSession.p))+'</span></div>' +
+              '</div>' +
+            '</div>';
+          }
           el.innerHTML =
-            '<div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:14px">'+sessions.length+' sessions tagged</div>' +
+            '<div style="font-size:12.5px;color:var(--text2);font-weight:600;margin-bottom:14px">'+sessions.length+' sessions tagged</div>' +
             '<div style="display:flex;height:8px;border-radius:4px;overflow:hidden;margin-bottom:14px;background:rgba(255,255,255,.03);gap:1px">'+segs+'</div>' +
-            '<div style="display:flex;flex-direction:column">'+rows+'</div>';
+            '<div style="display:flex;flex-direction:column">'+rows+'</div>' +
+            footer;
         }
       }
     }catch(_wErr){if(typeof console!=='undefined')console.error('[dash widget session-perf]',_wErr);} }
@@ -40867,11 +40905,11 @@ window.toggleSidebar = function(){
           var glow = '';
           if(hourCount[h]>0){
             if(p>0){
-              if(intensity>0.85) { bg = 'rgba(29,233,182,.95)'; glow = 'box-shadow:0 0 8px rgba(29,233,182,.4);'; }
-              else if(intensity>0.5) bg = 'rgba(29,233,182,'+(0.4+intensity*0.4).toFixed(2)+')';
-              else bg = 'rgba(29,233,182,'+(0.15+intensity*0.4).toFixed(2)+')';
+              if(intensity>0.85) { bg = 'rgba('+TG_RGB+',.95)'; glow = 'box-shadow:0 0 8px rgba('+TG_RGB+',.4);'; }
+              else if(intensity>0.5) bg = 'rgba('+TG_RGB+','+(0.4+intensity*0.4).toFixed(2)+')';
+              else bg = 'rgba('+TG_RGB+','+(0.15+intensity*0.4).toFixed(2)+')';
             } else if(p<0) {
-              bg = 'rgba(239,68,68,'+(0.2+intensity*0.6).toFixed(2)+')';
+              bg = 'rgba('+TR_RGB+','+(0.2+intensity*0.6).toFixed(2)+')';
             }
           }
           var sign = p>=0?'+':'';
@@ -40880,12 +40918,12 @@ window.toggleSidebar = function(){
         }).join('');
         if(summary){
           var worstH = hourPnl.indexOf(Math.min.apply(Math, hourPnl));
-          var bestStr = hourCount[bestH]>0 && hourPnl[bestH]>0 ? String(bestH).padStart(2,'0')+':00 · '+(hourPnl[bestH]>=0?'+':'')+ci.sym+Math.round(hourPnl[bestH]) : '—';
-          var worstStr = hourCount[worstH]>0 && hourPnl[worstH]<0 ? String(worstH).padStart(2,'0')+':00 · '+ci.sym+Math.round(hourPnl[worstH]) : '—';
+          var bestStr = hourCount[bestH]>0 && hourPnl[bestH]>0 ? String(bestH).padStart(2,'0')+':00 · '+(hourPnl[bestH]>=0?'+':'')+ci.sym+Math.round(hourPnl[bestH])+' · '+hourCount[bestH]+' tr' : '—';
+          var worstStr = hourCount[worstH]>0 && hourPnl[worstH]<0 ? String(worstH).padStart(2,'0')+':00 · '+ci.sym+Math.round(hourPnl[worstH])+' · '+hourCount[worstH]+' tr' : '—';
           summary.innerHTML =
             '<div style="display:flex;gap:14px;margin-top:14px;padding-top:12px;border-top:0.5px solid var(--border);font-size:10px">' +
-              '<div style="flex:1"><div style="color:var(--text3);font-size:11px;letter-spacing:.4px;margin-bottom:5px">BEST HOUR</div><div style="color:#1de9b6;font-family:DM Mono,monospace;font-variant-numeric:tabular-nums">'+bestStr+'</div></div>' +
-              '<div style="flex:1"><div style="color:var(--text3);font-size:11px;letter-spacing:.4px;margin-bottom:5px">WORST HOUR</div><div style="color:#ef4444;font-family:DM Mono,monospace;font-variant-numeric:tabular-nums">'+worstStr+'</div></div>' +
+              '<div style="flex:1"><div style="color:var(--text3);font-size:11px;letter-spacing:.4px;margin-bottom:5px;font-weight:600">BEST HOUR</div><div style="color:'+TG+';font-family:DM Mono,monospace;font-variant-numeric:tabular-nums;font-size:13px;font-weight:700">'+bestStr+'</div></div>' +
+              '<div style="flex:1"><div style="color:var(--text3);font-size:11px;letter-spacing:.4px;margin-bottom:5px;font-weight:600">WORST HOUR</div><div style="color:'+TR+';font-family:DM Mono,monospace;font-variant-numeric:tabular-nums;font-size:13px;font-weight:700">'+worstStr+'</div></div>' +
             '</div>';
         }
       }
@@ -40897,37 +40935,43 @@ window.toggleSidebar = function(){
       if(el){
         var dows = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
         var dowPnl = new Array(7).fill(0);
+        var dowCount = new Array(7).fill(0);
         trades.forEach(function(t){
           if(!t.date) return;
-          var d = new Date(t.date);
+          // Parse the date-only string as LOCAL calendar components, not via `new Date(str)`
+          // (which treats bare "YYYY-MM-DD" as UTC midnight — getDay() can then read back
+          // as the PREVIOUS day for users west of UTC, silently shifting trades to the wrong weekday)
+          var dm = String(t.date).match(/^(\d{4})-(\d{2})-(\d{2})/);
+          var d = dm ? new Date(parseInt(dm[1],10), parseInt(dm[2],10)-1, parseInt(dm[3],10)) : new Date(t.date);
           if(isNaN(d.getTime())) return;
           dowPnl[d.getDay()] += _pnlOf(t);
+          dowCount[d.getDay()]++;
         });
-        var trading = [1,2,3,4,5].map(function(i){return {d:dows[i], p:dowPnl[i]};});
+        var trading = [1,2,3,4,5].map(function(i){return {d:dows[i], p:dowPnl[i], c:dowCount[i]};});
         var maxAbs = Math.max(1, Math.max.apply(Math, trading.map(function(x){return Math.abs(x.p);})));
         var bestDay = trading.slice().sort(function(a,b){return b.p-a.p;})[0];
         var worstDay = trading.slice().sort(function(a,b){return a.p-b.p;})[0];
         el.innerHTML =
-          '<div style="font-size:11px;color:var(--text3);font-family:DM Mono,monospace;margin-bottom:14px">' +
-            'Best: <span style="color:#1de9b6">'+bestDay.d+' ('+(bestDay.p>=0?'+':'-')+ci.sym+Math.abs(Math.round(bestDay.p))+')</span>' +
-            (worstDay.p<0 ? ' · Worst: <span style="color:#ef4444">'+worstDay.d+' ('+ci.sym+Math.round(worstDay.p)+')</span>' : '') +
+          '<div style="font-size:12.5px;color:var(--text2);font-weight:600;margin-bottom:14px">' +
+            'Best: <span style="color:'+TG+';font-weight:700">'+bestDay.d+' ('+(bestDay.p>=0?'+':'-')+ci.sym+Math.abs(Math.round(bestDay.p))+')</span>' +
+            (worstDay.p<0 ? ' &middot; Worst: <span style="color:'+TR+';font-weight:700">'+worstDay.d+' ('+ci.sym+Math.round(worstDay.p)+')</span>' : '') +
           '</div>' +
           '<div style="display:flex;align-items:flex-end;height:120px;gap:10px;padding:0 4px">' +
             trading.map(function(x){
               var height = Math.abs(x.p)/maxAbs*100;
               if(height < 2) height = 2;
               var sign = x.p>=0?'+':'-';
-              var color = x.p>0 ? '#1de9b6' : (x.p<0 ? '#ef4444' : 'rgba(255,255,255,.1)');
-              var grad = x.p>0 ? 'linear-gradient(180deg,#1de9b6,rgba(29,233,182,.5))'
-                       : x.p<0 ? 'linear-gradient(180deg,#ef4444,rgba(239,68,68,.5))'
+              var grad = x.p>0 ? 'linear-gradient(180deg,'+TG+',rgba('+TG_RGB+',.5))'
+                       : x.p<0 ? 'linear-gradient(180deg,'+TR+',rgba('+TR_RGB+',.5))'
                        : 'rgba(255,255,255,.1)';
-              var valColor = x.p>0?'#1de9b6':(x.p<0?'#ef4444':'var(--text3)');
+              var valColor = x.p>0?TG:(x.p<0?TR:'var(--text3)');
               return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%">' +
-                '<div style="font-size:9px;color:'+valColor+';font-family:DM Mono,monospace;font-variant-numeric:tabular-nums;white-space:nowrap">'+(x.p===0?ci.sym+'0':sign+ci.sym+Math.abs(Math.round(x.p)))+'</div>' +
+                '<div style="font-size:10px;color:'+valColor+';font-family:DM Mono,monospace;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:700">'+(x.p===0?ci.sym+'0':sign+ci.sym+Math.abs(Math.round(x.p)))+'</div>' +
                 '<div style="flex:1;width:80%;background:rgba(255,255,255,.03);border-radius:4px;display:flex;align-items:flex-end;overflow:hidden">' +
                   '<div style="width:100%;height:'+height+'%;background:'+grad+';border-radius:4px 4px 0 0"></div>' +
                 '</div>' +
-                '<div style="font-size:11px;color:var(--text3)">'+x.d+'</div>' +
+                '<div style="font-size:12px;color:var(--text2);font-weight:600">'+x.d+'</div>' +
+                '<div style="font-size:10px;color:var(--text3)">'+x.c+' tr</div>' +
               '</div>';
             }).join('') +
           '</div>';
@@ -40938,7 +40982,7 @@ window.toggleSidebar = function(){
     if(_isWidgetVisible('top-mistakes')){ try{
       var el = document.getElementById('dash-w-mistakes-content');
       if(el){
-        var tagPnl = {};
+        var tagPnl = {}, tagCount = {};
         trades.forEach(function(t){
           var p = _pnlOf(t);
           if(p>=0) return;
@@ -40946,9 +40990,10 @@ window.toggleSidebar = function(){
           if(!Array.isArray(tags)) return;
           tags.forEach(function(tag){
             tagPnl[tag] = (tagPnl[tag]||0) + p;
+            tagCount[tag] = (tagCount[tag]||0) + 1;
           });
         });
-        var mistakes = Object.keys(tagPnl).map(function(t){return {t:t, p:tagPnl[t]};}).sort(function(a,b){return a.p-b.p;}).slice(0,5);
+        var mistakes = Object.keys(tagPnl).map(function(t){return {t:t, p:tagPnl[t], c:tagCount[t]};}).sort(function(a,b){return a.p-b.p;}).slice(0,5);
         if(mistakes.length === 0){
           el.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px;text-align:center;min-height:140px">'+
             '<div style="font-size:13px;color:var(--text2);margin-bottom:6px;font-weight:500">No mistakes tagged yet</div>'+
@@ -40957,14 +41002,17 @@ window.toggleSidebar = function(){
           '</div>';
         } else {
           var max = Math.abs(mistakes[0].p);
-          el.innerHTML = '<div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:14px">Total cost across mistakes</div>' +
+          var totalCost = mistakes.reduce(function(a,m){return a+m.p;},0);
+          el.innerHTML = '<div style="font-size:12.5px;color:var(--text2);font-weight:600;margin-bottom:14px">Total cost: <span style="color:'+TR+';font-weight:700">-'+ci.sym+Math.abs(Math.round(totalCost)).toLocaleString()+'</span> across '+mistakes.length+' tag'+(mistakes.length===1?'':'s')+'</div>' +
             mistakes.map(function(m){
               var width = Math.abs(m.p)/max*100;
               var label = m.t.length>14 ? m.t.slice(0,14)+'…' : m.t;
-              return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:0.5px dotted var(--border);font-variant-numeric:tabular-nums">' +
-                '<span style="width:110px;color:var(--text2);font-size:12px">'+label+'</span>' +
-                '<div style="flex:1;height:6px;background:rgba(255,255,255,.03);border-radius:3px;overflow:hidden"><div style="width:'+width.toFixed(0)+'%;height:100%;background:linear-gradient(90deg,#ef4444,rgba(239,68,68,.5));border-radius:3px"></div></div>' +
-                '<span style="width:70px;text-align:right;font-size:10px;color:#ef4444;font-family:DM Mono,monospace">-'+ci.sym+Math.abs(Math.round(m.p)).toLocaleString()+'</span>' +
+              var avg = m.c>0 ? m.p/m.c : 0;
+              return '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:0.5px dotted var(--border)">' +
+                '<span style="width:110px;color:var(--text);font-size:13px;font-weight:500">'+label+'</span>' +
+                '<div style="flex:1;height:6px;background:rgba(255,255,255,.03);border-radius:3px;overflow:hidden"><div style="width:'+width.toFixed(0)+'%;height:100%;background:linear-gradient(90deg,'+TR+',rgba('+TR_RGB+',.5));border-radius:3px"></div></div>' +
+                '<span style="width:42px;text-align:right;font-size:11px;color:var(--text3)">'+m.c+'x</span>' +
+                '<span style="width:78px;text-align:right;font-size:13px;font-weight:700;color:'+TR+';font-family:DM Mono,monospace;font-variant-numeric:tabular-nums">-'+ci.sym+Math.abs(Math.round(m.p)).toLocaleString()+'</span>' +
               '</div>';
             }).join('');
         }
@@ -41220,14 +41268,31 @@ window.toggleSidebar = function(){
     // Update summary labels above charts
     var finalCum = cumVals[cumVals.length-1] || 0;
 
-    // Running peak + max drawdown (peak-to-trough) across the series — shared by subtitle + chart
-    var runPeak = -Infinity, ddPeakIdx = 0, curPeakIdx = 0, ddTroughIdx = 0, maxDDVal = 0;
-    cumVals.forEach(function(v,i){
-      if (v > runPeak) { runPeak = v; curPeakIdx = i; }
+    // Running peak + max drawdown (peak-to-trough), anchored at $0 (the implicit pre-window
+    // starting point — matches the Drawdown card's calc, which anchors at the starting balance).
+    // Without this anchor, a window that opens already underwater (no day ever reaches above
+    // its own local high) would under-report the true drawdown, since $0 itself is a valid peak.
+    var ddSeries = [0].concat(cumVals); // index 0 = virtual "before window" baseline
+    var runPeak = -Infinity, ddPeakIdxS = 0, curPeakIdxS = 0, ddTroughIdxS = 0, maxDDVal = 0;
+    ddSeries.forEach(function(v,i){
+      if (v > runPeak) { runPeak = v; curPeakIdxS = i; }
       var dd = runPeak - v;
-      if (dd > maxDDVal) { maxDDVal = dd; ddPeakIdx = curPeakIdx; ddTroughIdx = i; }
+      if (dd > maxDDVal) { maxDDVal = dd; ddPeakIdxS = curPeakIdxS; ddTroughIdxS = i; }
     });
-    var ddDurationDays = maxDDVal > 0.5 ? Math.max(1, ddTroughIdx - ddPeakIdx) : 0;
+    var ddPeakBeforeWindow = (ddPeakIdxS === 0);
+    var ddPeakIdx = Math.max(0, ddPeakIdxS - 1); // real index into cumVals/last60 (clamped)
+    var ddTroughIdx = Math.max(0, ddTroughIdxS - 1);
+    // Highest point actually visible on the curve (for the gold "peak" marker — separate from the DD anchor)
+    var curPeakIdx = 0;
+    cumVals.forEach(function(v,i){ if (v > cumVals[curPeakIdx]) curPeakIdx = i; });
+    // Duration in real calendar days (last60 entries are ISO date strings) rather than trading-day count
+    var ddDurationDays = 0;
+    if (maxDDVal > 0.5 && last60.length) {
+      var peakDateStr = ddPeakBeforeWindow ? last60[0] : last60[ddPeakIdx];
+      var troughDateStr = last60[ddTroughIdx];
+      var msDiff = new Date(troughDateStr) - new Date(peakDateStr);
+      ddDurationDays = Math.max(1, Math.round(msDiff / 86400000));
+    }
 
     var cumLbl = document.getElementById('dash-cum-total');
     if (cumLbl) {
@@ -41346,7 +41411,7 @@ window.toggleSidebar = function(){
       function segColor(y0,y1){ return (y0 < 0 || y1 < 0) ? negCol : posCol; }
       var peakIdx = curPeakIdx;
       var troughIdx = ddTroughIdx;
-      var hasDD = maxDDVal > 0.5 && ddPeakIdx !== ddTroughIdx;
+      var hasDD = maxDDVal > 0.5;
 
       // Moving average trend line (adaptive window)
       var maWindow = cumVals.length >= 20 ? 7 : (cumVals.length >= 8 ? 5 : (cumVals.length >= 4 ? 3 : 0));
@@ -41365,7 +41430,9 @@ window.toggleSidebar = function(){
         beforeDatasetsDraw: function(chart){
           var c = chart.ctx, area = chart.chartArea, xScale = chart.scales.x, yScale = chart.scales.y;
           if (hasDD && xScale && yScale) {
-            var x0 = xScale.getPixelForValue(ddPeakIdx);
+            // If the drawdown's true peak is the pre-window baseline (we opened already underwater
+            // relative to it), shade from the chart's left edge rather than a real x-index.
+            var x0 = ddPeakBeforeWindow ? area.left : xScale.getPixelForValue(ddPeakIdx);
             var x1 = xScale.getPixelForValue(ddTroughIdx);
             c.save();
             c.fillStyle = negCol + '12';
@@ -41488,10 +41555,20 @@ window.toggleSidebar = function(){
         barSub.innerHTML = subParts2.join(' &middot; ');
       }
 
+      // Resolve theme colors at render time (dark/obsidian use neon, light uses muted — avoids hardcoded neon bleeding into light theme)
+      var themeGreen = getComputedStyle(document.documentElement).getPropertyValue('--green').trim() || '#1de9b6';
+      var themeRed = getComputedStyle(document.documentElement).getPropertyValue('--red').trim() || '#ef4444';
+      function hexToRgb(hex){
+        var m = hex.replace('#','').match(/.{1,2}/g);
+        if(!m || m.length<3) return '29,233,182';
+        return parseInt(m[0],16)+','+parseInt(m[1],16)+','+parseInt(m[2],16);
+      }
+      var greenRgb = hexToRgb(themeGreen), redRgb = hexToRgb(themeRed);
+
       var barColors = barVals.map(function(v,i){
         var isHighlight = (i === bestDayIdx && v > 0) || (i === worstDayIdx && v < 0);
-        if (isHighlight) return v >= 0 ? '#1de9b6' : '#ef4444'; // solid, full-opacity for best/worst
-        return v >= 0 ? 'rgba(29,233,182,.55)' : 'rgba(239,68,68,.55)';
+        if (isHighlight) return v >= 0 ? 'rgba('+greenRgb+',.9)' : 'rgba('+redRgb+',.9)'; // strong but not neon-solid
+        return v >= 0 ? 'rgba('+greenRgb+',.45)' : 'rgba('+redRgb+',.45)';
       });
       var barBorderColors = barVals.map(function(v,i){
         if (i === bestDayIdx && v > 0) return 'rgba(255,255,255,.5)';
@@ -41521,16 +41598,16 @@ window.toggleSidebar = function(){
           if (!meta || !meta.data) return;
           var c = chart.ctx;
           c.save();
-          c.font = '700 9px Inter, sans-serif';
+          c.font = '700 10px Inter, sans-serif';
           c.textAlign = 'center';
           if (barVals.length && barVals[bestDayIdx] > 0 && meta.data[bestDayIdx]) {
             var pb = meta.data[bestDayIdx];
-            c.fillStyle = '#1de9b6';
+            c.fillStyle = themeGreen;
             c.fillText('BEST', pb.x, pb.y - 8);
           }
           if (barVals.length && barVals[worstDayIdx] < 0 && meta.data[worstDayIdx]) {
             var pw = meta.data[worstDayIdx];
-            c.fillStyle = '#ef4444';
+            c.fillStyle = themeRed;
             c.fillText('WORST', pw.x, pw.y + 16);
           }
           c.restore();
