@@ -6227,6 +6227,29 @@ window.toggleSidebar = function(){
     </div>
     <style>@keyframes tiltPulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(239,68,68,.4)}50%{opacity:.7;box-shadow:0 0 0 6px rgba(239,68,68,0)}}</style>
 
+    <!-- DAILY READINESS SCORE -->
+    <div id="dash-readiness-bar" style="display:none;margin-bottom:14px;border-radius:12px;border:1px solid var(--border);background:var(--card);padding:14px 20px;font-family:Inter,sans-serif">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="flex-shrink:0">
+          <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.5px;margin-bottom:4px">READINESS</div>
+          <div style="display:flex;align-items:baseline;gap:3px">
+            <span id="dash-readiness-score" style="font-size:28px;font-weight:700;letter-spacing:-1px;color:var(--green)">—</span>
+            <span style="font-size:12px;color:var(--text3)">/100</span>
+          </div>
+        </div>
+        <div style="flex:1">
+          <div style="height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;margin-bottom:8px">
+            <div id="dash-readiness-fill" style="height:100%;border-radius:3px;transition:width .6s ease;background:var(--green);width:0%"></div>
+          </div>
+          <div id="dash-readiness-msg" style="font-size:12.5px;color:var(--text2);font-weight:500"></div>
+        </div>
+        <div id="dash-readiness-factors" style="display:flex;gap:8px;flex-shrink:0"></div>
+      </div>
+    </div>
+
+    <!-- PROP CHALLENGE MINI -->
+    <div id="dash-prop-mini" style="display:none;margin-bottom:14px"></div>
+
     <!-- AI TRADE COACH — moved into AI HUB above -->
     <div id="dash-ai-coach" style="display:none"></div>
 
@@ -6434,20 +6457,13 @@ window.toggleSidebar = function(){
             <div id="dash-w-session-content" style="font-size:13px"></div>
           </div>
 
-          <!-- Hour-of-day heatmap -->
+          <!-- Session Matrix (was Hour-of-day heatmap) -->
           <div class="card" data-widget="hour-heatmap" data-widget-hidden="true" style="padding:22px 24px;min-height:220px">
-            <div style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:600;margin-bottom:6px">Hour-of-day</div>
-            <div id="dash-w-hour-summary" style="font-size:13px;color:var(--text2);font-family:Inter,sans-serif;margin-bottom:12px"></div>
-            <div id="dash-w-hour-grid" style="display:grid;grid-template-columns:repeat(24,1fr);gap:3px;height:54px"></div>
-            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-top:6px;font-family:Inter,sans-serif;opacity:.7">
-              <span>00</span><span>06</span><span>12</span><span>18</span><span>23</span>
-            </div>
-            <div style="display:flex;gap:16px;margin-top:12px;flex-wrap:wrap">
-              <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);font-weight:500"><span style="width:10px;height:10px;border-radius:2px;background:var(--green);display:inline-block"></span>Profitable hour</span>
-              <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);font-weight:500"><span style="width:10px;height:10px;border-radius:2px;background:var(--red);display:inline-block"></span>Losing hour</span>
-              <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);font-weight:500"><span style="width:10px;height:10px;border-radius:2px;background:rgba(255,255,255,.08);display:inline-block;border:1px solid var(--border)"></span>No trades</span>
-            </div>
-            <div id="dash-w-hour-active" style="margin-top:14px;padding-top:12px;border-top:0.5px solid var(--border)"></div>
+            <div style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:600;margin-bottom:4px">Session matrix</div>
+            <div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:12px">P&L by hour × day · hover cell for details</div>
+            <div id="dash-w-hour-grid" style="gap:2px"></div>
+            <div id="dash-w-hour-summary"></div>
+            <div id="dash-w-hour-active"></div>
           </div>
 
           <!-- Day of week -->
@@ -6502,6 +6518,26 @@ window.toggleSidebar = function(){
             </div>
             <div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:14px">Behavioral risk signals</div>
             <div id="dash-w-tilt-content" style="display:flex;flex-direction:column;gap:10px"></div>
+          </div>
+
+          <!-- Best Setup (Your Edge highlight) -->
+          <div class="card" data-widget="best-setup" data-widget-hidden="true" style="padding:22px 24px;min-height:220px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;padding-right:26px">
+              <span style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:600">Your Edge</span>
+              <span class="info-icon" data-tip="Auto-detected best performing pair, session, and day based on your trade history.">i</span>
+            </div>
+            <div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:14px">Best performing setup</div>
+            <div id="dash-w-best-setup-content"></div>
+          </div>
+
+          <!-- AI Weekly Narrative -->
+          <div class="card" data-widget="ai-narrative" data-widget-hidden="true" style="padding:22px 24px;min-height:220px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;padding-right:26px">
+              <span style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:600">AI Weekly Narrative</span>
+              <button onclick="dashAINarrativeRefresh()" title="Refresh" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:2px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>
+            </div>
+            <div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:14px">AI insight on your recent trading</div>
+            <div id="dash-w-narrative-content" style="font-size:13px;color:var(--text2);line-height:1.7;font-weight:500"></div>
           </div>
 
         </div>
@@ -39135,7 +39171,9 @@ window.toggleSidebar = function(){
         {id:'duration-bars', label:'Avg duration W vs L', desc:'How long held wins vs losses', def:false, icon:'⏱️'},
         {id:'expectancy', label:'Expectancy', desc:'Expected $ per trade — your edge', def:false, icon:'🎲'},
         {id:'r-distribution', label:'R-multiple distribution', desc:'Outcome shape in risk units', def:false, icon:'📊'},
-        {id:'tilt-detector', label:'Tilt detector', desc:'Revenge trading & overtrading signals', def:false, icon:'🧠'}
+        {id:'tilt-detector', label:'Tilt detector', desc:'Revenge trading & overtrading signals', def:false, icon:'🧠'},
+        {id:'best-setup', label:'Your Edge', desc:'Auto-detected best pair, session & day', def:false, icon:'⚡'},
+        {id:'ai-narrative', label:'AI Weekly Narrative', desc:'AI insight on your recent trading', def:false, icon:'🤖'}
       ]
     }
   ];
@@ -41125,73 +41163,64 @@ window.toggleSidebar = function(){
       var grid = document.getElementById('dash-w-hour-grid');
       var summary = document.getElementById('dash-w-hour-summary');
       if(grid){
-        var hourPnl = new Array(24).fill(0);
-        var hourCount = new Array(24).fill(0);
+        // Build 2D matrix: rows=days (Mon-Fri), cols=hours (6-20)
+        var HOURS = [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
+        var DAYS = ['Mon','Tue','Wed','Thu','Fri'];
+        var DAY_IDX = {Mon:1,Tue:2,Wed:3,Thu:4,Fri:5};
+        var matrix = {};
+        DAYS.forEach(function(d){ matrix[d]={}; HOURS.forEach(function(h){ matrix[d][h]={pnl:0,n:0}; }); });
+
         trades.forEach(function(t){
-          var h = -1;
-          if(t.entryTime){ var m=String(t.entryTime).match(/^(\d{1,2})/); if(m) h=parseInt(m[1],10); }
-          if(h<0 || h>23) return;
-          hourPnl[h] += _pnlOf(t);
-          hourCount[h]++;
+          if(!t.date||!t.entryTime) return;
+          var hm=String(t.entryTime).match(/^(\d{1,2})/); if(!hm) return;
+          var h=parseInt(hm[1],10); if(h<6||h>20) return;
+          var dm=String(t.date).match(/^(\d{4})-(\d{2})-(\d{2})/);
+          var d=dm?new Date(parseInt(dm[1]),parseInt(dm[2])-1,parseInt(dm[3])):new Date(t.date);
+          var dow=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];
+          if(!matrix[dow]) return;
+          var p=_pnlOf(t);
+          matrix[dow][h].pnl+=p; matrix[dow][h].n++;
         });
-        var maxAbs = Math.max(1, Math.max.apply(Math, hourPnl.map(Math.abs)));
-        var bestH = hourPnl.indexOf(Math.max.apply(Math, hourPnl));
-        var worstH0 = hourPnl.indexOf(Math.min.apply(Math, hourPnl));
-        grid.innerHTML = hourPnl.map(function(p, h){
-          var intensity = Math.abs(p)/maxAbs;
-          var bg = 'rgba(255,255,255,.03)';
-          var glow = '';
-          if(hourCount[h]>0){
-            if(p>0){
-              if(intensity>0.85) { bg = 'rgba('+TG_RGB+',.95)'; glow = 'box-shadow:0 0 8px rgba('+TG_RGB+',.4);'; }
-              else if(intensity>0.5) bg = 'rgba('+TG_RGB+','+(0.4+intensity*0.4).toFixed(2)+')';
-              else bg = 'rgba('+TG_RGB+','+(0.15+intensity*0.4).toFixed(2)+')';
-            } else if(p<0) {
-              bg = 'rgba('+TR_RGB+','+(0.2+intensity*0.6).toFixed(2)+')';
+
+        var allVals=[]; DAYS.forEach(function(d){ HOURS.forEach(function(h){ if(matrix[d][h].n>0) allVals.push(Math.abs(matrix[d][h].pnl)); }); });
+        var maxAbs=Math.max(1,Math.max.apply(Math,allVals.concat([0])));
+
+        // Build 2D grid HTML: header row + data rows
+        var hdrRow='<div></div>'+HOURS.map(function(h){ return '<div style="text-align:center;font-size:9px;color:var(--text3);font-weight:700;padding-bottom:3px">'+String(h).padStart(2,'0')+'</div>'; }).join('');
+        var dataRows=DAYS.map(function(dow){
+          var cells=HOURS.map(function(h){
+            var cell=matrix[dow][h];
+            var bg='rgba(255,255,255,.03)';
+            if(cell.n>0){
+              var intensity=Math.abs(cell.pnl)/maxAbs;
+              if(cell.pnl>0) bg='rgba('+TG_RGB+','+(0.15+intensity*0.75).toFixed(2)+')';
+              else bg='rgba('+TR_RGB+','+(0.15+intensity*0.75).toFixed(2)+')';
             }
-          }
-          var ring = '';
-          if(hourCount[h]>0 && h === bestH && p > 0) ring = 'border:1.5px solid rgba(255,255,255,.7);';
-          else if(hourCount[h]>0 && h === worstH0 && p < 0) ring = 'border:1.5px solid rgba(255,255,255,.7);';
-          var sign = p>=0?'+':'';
-          var title = String(h).padStart(2,'0')+':00 · '+sign+ci.sym+Math.round(p)+' · '+hourCount[h]+' tr';
-          return '<div title="'+title+'" style="border-radius:3px;background:'+bg+';'+glow+ring+'"></div>';
+            var title=dow+' '+String(h).padStart(2,'0')+':00'+(cell.n>0?' · '+(cell.pnl>=0?'+':'')+ci.sym+Math.round(cell.pnl)+' · '+cell.n+' tr':'· no trades');
+            return '<div title="'+title+'" style="border-radius:2px;background:'+bg+';height:22px"></div>';
+          }).join('');
+          return '<div style="text-align:right;font-size:9.5px;color:var(--text3);font-weight:700;display:flex;align-items:center;padding-right:4px">'+dow+'</div>'+cells;
         }).join('');
+
+        grid.style.display='grid';
+        grid.style.gridTemplateColumns='28px repeat('+HOURS.length+',1fr)';
+        grid.style.gap='2px';
+        grid.innerHTML=hdrRow+dataRows;
+
         if(summary){
-          var worstH = worstH0;
-          var bestStr = hourCount[bestH]>0 && hourPnl[bestH]>0 ? String(bestH).padStart(2,'0')+':00 · '+(hourPnl[bestH]>=0?'+':'')+ci.sym+Math.round(hourPnl[bestH])+' · '+hourCount[bestH]+' tr' : '—';
-          var worstStr = hourCount[worstH]>0 && hourPnl[worstH]<0 ? String(worstH).padStart(2,'0')+':00 · '+ci.sym+Math.round(hourPnl[worstH])+' · '+hourCount[worstH]+' tr' : '—';
-          summary.innerHTML =
-            '<div style="display:flex;gap:14px;padding-bottom:12px;border-bottom:0.5px solid var(--border)">' +
-              '<div style="flex:1"><div style="color:var(--text3);font-size:12px;letter-spacing:.4px;margin-bottom:6px;font-weight:700">BEST HOUR</div><div style="color:'+TG+';font-family:Inter,sans-serif;font-variant-numeric:tabular-nums;font-size:18px;font-weight:700">'+bestStr+'</div></div>' +
-              '<div style="flex:1"><div style="color:var(--text3);font-size:12px;letter-spacing:.4px;margin-bottom:6px;font-weight:700">WORST HOUR</div><div style="color:'+TR+';font-family:Inter,sans-serif;font-variant-numeric:tabular-nums;font-size:18px;font-weight:700">'+worstStr+'</div></div>' +
+          // Find best and worst cell
+          var bestCell={pnl:-Infinity,dow:'',h:0}, worstCell={pnl:Infinity,dow:'',h:0};
+          DAYS.forEach(function(d){ HOURS.forEach(function(h){ var c=matrix[d][h]; if(c.n>0){if(c.pnl>bestCell.pnl)bestCell={pnl:c.pnl,dow:d,h:h,n:c.n};if(c.pnl<worstCell.pnl)worstCell={pnl:c.pnl,dow:d,h:h,n:c.n};} }); });
+          var bestStr=bestCell.dow?bestCell.dow+' '+String(bestCell.h).padStart(2,'0')+':00 · +'+(ci.sym)+Math.round(bestCell.pnl):'—';
+          var worstStr=worstCell.dow&&worstCell.pnl<0?worstCell.dow+' '+String(worstCell.h).padStart(2,'0')+':00 · '+(ci.sym)+Math.abs(Math.round(worstCell.pnl)):'—';
+          summary.innerHTML=
+            '<div style="display:flex;gap:14px;padding-top:10px;border-top:0.5px solid var(--border);margin-top:8px">'+
+              '<div style="flex:1"><div style="color:var(--text3);font-size:10px;letter-spacing:.4px;margin-bottom:4px;font-weight:700">BEST SLOT</div><div style="color:'+TG+';font-family:Inter,sans-serif;font-size:13px;font-weight:700">'+bestStr+'</div></div>'+
+              '<div style="flex:1"><div style="color:var(--text3);font-size:10px;letter-spacing:.4px;margin-bottom:4px;font-weight:700">WORST SLOT</div><div style="color:'+TR+';font-family:Inter,sans-serif;font-size:13px;font-weight:700">'+worstStr+'</div></div>'+
             '</div>';
         }
-        // "Most active hours" — fills the remaining card space with a useful ranked list
         var activeEl = document.getElementById('dash-w-hour-active');
-        if (activeEl) {
-          var ranked = hourPnl.map(function(p,h){ return {h:h, p:p, c:hourCount[h]}; })
-            .filter(function(x){ return x.c > 0; })
-            .sort(function(a,b){ return b.c - a.c; })
-            .slice(0,3);
-          if (ranked.length) {
-            var maxC = ranked[0].c;
-            activeEl.innerHTML =
-              '<div style="font-size:12px;color:var(--text3);font-weight:700;letter-spacing:.4px;margin-bottom:10px">MOST ACTIVE HOURS</div>' +
-              ranked.map(function(x){
-                var w = (x.c/maxC*100).toFixed(0);
-                var col = x.p >= 0 ? TG : TR;
-                return '<div style="display:flex;align-items:center;gap:12px;padding:6px 0">' +
-                  '<span style="width:50px;font-size:14px;color:var(--text);font-weight:700;font-family:Inter,sans-serif">'+String(x.h).padStart(2,'0')+':00</span>' +
-                  '<div style="flex:1;height:7px;background:rgba(255,255,255,.04);border-radius:3px;overflow:hidden"><div style="width:'+w+'%;height:100%;background:'+col+';opacity:.6;border-radius:3px"></div></div>' +
-                  '<span style="width:38px;text-align:right;font-size:13px;color:var(--text2);font-weight:600">'+x.c+'x</span>' +
-                  '<span style="width:74px;text-align:right;font-size:14px;font-weight:700;color:'+col+';font-family:Inter,sans-serif">'+(x.p>=0?'+':'-')+ci.sym+Math.abs(Math.round(x.p))+'</span>' +
-                '</div>';
-              }).join('');
-          } else {
-            activeEl.innerHTML = '';
-          }
-        }
+        if(activeEl) activeEl.innerHTML='';
       }
     }catch(_wErr){if(typeof console!=='undefined')console.error('[dash widget hour-heatmap]',_wErr);} }
 
@@ -41568,6 +41597,283 @@ window.toggleSidebar = function(){
   }
   // Expose to window so updateDashboard can call it via window.renderDashExtras (May 2026 fix)
   window.renderDashExtras = renderDashExtras;
+
+  // ═══════════════════════════════════════════════════════════
+  // 1. DAILY READINESS SCORE
+  // ═══════════════════════════════════════════════════════════
+  function renderDashReadiness(trades) {
+    var bar = document.getElementById('dash-readiness-bar');
+    var scoreEl = document.getElementById('dash-readiness-score');
+    var fillEl = document.getElementById('dash-readiness-fill');
+    var msgEl = document.getElementById('dash-readiness-msg');
+    var factorsEl = document.getElementById('dash-readiness-factors');
+    if (!bar || !scoreEl) return;
+
+    if (!trades || trades.length < 3) { bar.style.display = 'none'; return; }
+
+    var sorted = trades.slice().sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+    var score = 100;
+    var factors = [];
+
+    // Factor 1: Current streak (most recent consecutive W/L)
+    var streak = 0, streakType = null;
+    for (var i = 0; i < sorted.length; i++) {
+      var p = (typeof tqConvertTradePnl==='function') ? tqConvertTradePnl(sorted[i]) : (parseFloat(sorted[i].pnl)||0);
+      if (Math.abs(p) <= 1) continue;
+      var ty = p > 0 ? 'W' : 'L';
+      if (streakType === null) { streakType = ty; streak = 1; }
+      else if (ty === streakType) streak++;
+      else break;
+    }
+    if (streakType === 'L') {
+      var penalty = streak >= 5 ? 35 : streak >= 3 ? 20 : streak >= 2 ? 10 : 5;
+      score -= penalty;
+      factors.push({icon:'📉', label: streak+'L streak', color:'var(--red)'});
+    } else if (streakType === 'W' && streak >= 2) {
+      score = Math.min(100, score + 5);
+      factors.push({icon:'🔥', label: streak+'W streak', color:'var(--green)'});
+    }
+
+    // Factor 2: Yesterday's P&L
+    var _today = new Date();
+    var _yest = new Date(_today); _yest.setDate(_today.getDate() - 1);
+    var _yestKey = _yest.getFullYear()+'-'+String(_yest.getMonth()+1).padStart(2,'0')+'-'+String(_yest.getDate()).padStart(2,'0');
+    var yesterdayPnl = 0;
+    sorted.forEach(function(t){ if(String(t.date||'').slice(0,10) === _yestKey) yesterdayPnl += (typeof tqConvertTradePnl==='function')?tqConvertTradePnl(t):(parseFloat(t.pnl)||0); });
+    if (yesterdayPnl < -200) { score -= 20; factors.push({icon:'💸', label:'Bad yesterday', color:'var(--red)'}); }
+    else if (yesterdayPnl < 0) { score -= 8; factors.push({icon:'📊', label:'Loss yesterday', color:'var(--red)'}); }
+    else if (yesterdayPnl > 100) { score = Math.min(100, score + 5); factors.push({icon:'✅', label:'Win yesterday', color:'var(--green)'}); }
+
+    // Factor 3: Last 5 trades win rate
+    var last5 = sorted.slice(0, 5);
+    var l5W = last5.filter(function(t){ var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(t):(parseFloat(t.pnl)||0); return p>1; }).length;
+    var l5wr = last5.length ? l5W/last5.length : 0;
+    if (l5wr < 0.2 && last5.length >= 5) { score -= 15; factors.push({icon:'⚠️', label:'Poor recent WR', color:'var(--red)'}); }
+    else if (l5wr > 0.6 && last5.length >= 5) { score = Math.min(100, score + 5); factors.push({icon:'🎯', label:'Hot recent WR', color:'var(--green)'}); }
+
+    // Factor 4: Overall win rate vs breakeven
+    var allW = trades.filter(function(t){ var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(t):(parseFloat(t.pnl)||0); return p>1; }).length;
+    var wr = trades.length ? allW/trades.length : 0;
+    if (wr < 0.3 && trades.length >= 10) { score -= 10; }
+
+    score = Math.max(0, Math.min(100, Math.round(score)));
+
+    var color = score >= 70 ? 'var(--green)' : score >= 45 ? '#fbbf24' : 'var(--red)';
+    var label = score >= 80 ? '🟢 Go trade. Conditions look good.' :
+                score >= 65 ? '🟡 Trade carefully. Stay disciplined.' :
+                score >= 45 ? '🟠 Caution. Reduce position size today.' :
+                score >= 25 ? '🔴 High risk. Consider sitting out.' :
+                              '⛔ Stop. Your edge is compromised right now.';
+
+    scoreEl.textContent = score;
+    scoreEl.style.color = color;
+    if (fillEl) { fillEl.style.width = score+'%'; fillEl.style.background = color; }
+    if (msgEl) msgEl.textContent = label;
+    if (factorsEl) {
+      factorsEl.innerHTML = factors.slice(0,3).map(function(f){
+        return '<div style="text-align:center;padding:4px 8px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--border)">' +
+          '<div style="font-size:14px">'+f.icon+'</div>' +
+          '<div style="font-size:10px;color:var(--text3);margin-top:2px;font-weight:600;white-space:nowrap">'+f.label+'</div>' +
+        '</div>';
+      }).join('');
+    }
+    bar.style.display = 'block';
+  }
+  window.renderDashReadiness = renderDashReadiness;
+
+  // ═══════════════════════════════════════════════════════════
+  // 2. PROP CHALLENGE MINI WIDGET
+  // ═══════════════════════════════════════════════════════════
+  function renderDashPropMini(trades) {
+    var el = document.getElementById('dash-prop-mini');
+    if (!el) return;
+    try {
+      var accs = JSON.parse(rfxGet('rf_accounts')||'[]').filter(function(a){ return !a.deleted && (typeof tqIsProp==='function' ? tqIsProp(a) : a.type==='prop'); });
+      if (!accs.length) { el.style.display='none'; return; }
+
+      var ccy = (typeof tqGetDisplayCurrency==='function') ? tqGetDisplayCurrency() : 'USD';
+      var sym = {USD:'$',EUR:'€',GBP:'£',JPY:'¥',CHF:'CHF ',CAD:'C$',AUD:'A$',NZD:'NZ$'}[ccy]||'$';
+
+      var cards = accs.slice(0,4).map(function(a) {
+        var accTrades = trades.filter(function(t){ return t.account === a.id; });
+        var netPnl = accTrades.reduce(function(s,t){ return s+(typeof tqConvertTradePnl==='function'?tqConvertTradePnl(t):(parseFloat(t.pnl)||0)); }, 0);
+        var startBal = parseFloat(a.startingBalance||a.balance||10000);
+        var target = a.profitTarget; // % or null
+        var pct = netPnl / startBal * 100;
+        var targetPct = target ? (typeof target === 'number' && target < 50 ? target : target/startBal*100) : null;
+        var progress = targetPct ? Math.min(100, Math.max(0, pct/targetPct*100)) : null;
+        var statusColor = netPnl >= 0 ? 'var(--green)' : 'var(--red)';
+
+        return '<div style="flex:1;min-width:160px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px">' +
+          '<div style="font-size:11px;font-weight:700;color:var(--text3);margin-bottom:6px;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(a.name||'Account').toUpperCase()+'</div>' +
+          '<div style="font-size:20px;font-weight:700;color:'+statusColor+';font-variant-numeric:tabular-nums;letter-spacing:-.5px">'+(netPnl>=0?'+':'-')+sym+Math.abs(Math.round(netPnl)).toLocaleString()+'</div>' +
+          (targetPct !== null ?
+            '<div style="margin-top:8px"><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:4px"><span>Progress</span><span>'+pct.toFixed(1)+'% / '+targetPct+'%</span></div>' +
+            '<div style="height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+progress.toFixed(0)+'%;background:'+(progress>=100?'var(--green)':'var(--accent)')+';border-radius:3px;transition:width .4s"></div></div></div>'
+            : '<div style="font-size:10px;color:var(--text3);margin-top:6px">'+pct.toFixed(2)+'% return</div>') +
+        '</div>';
+      }).join('');
+
+      el.innerHTML = '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">'+cards+'</div>';
+      el.style.display = 'block';
+    } catch(e) { el.style.display='none'; }
+  }
+  window.renderDashPropMini = renderDashPropMini;
+
+  // ═══════════════════════════════════════════════════════════
+  // 3. BEST SETUP (YOUR EDGE) WIDGET
+  // ═══════════════════════════════════════════════════════════
+  function _renderBestSetupWidget(trades) {
+    if (!_isWidgetVisible('best-setup')) return;
+    var el = document.getElementById('dash-w-best-setup-content');
+    if (!el) return;
+    if (!trades || trades.length < 5) { el.innerHTML = _emptyState('best-setup','Not enough trades','Log at least 5 trades to detect your edge'); return; }
+
+    var ccy = (typeof tqGetDisplayCurrency==='function') ? tqGetDisplayCurrency() : 'USD';
+    var sym = {USD:'$',EUR:'€',GBP:'£',JPY:'¥'}[ccy]||'$';
+
+    // Best pair
+    var byPair = {};
+    trades.forEach(function(t){
+      var pair = t.pair||t.symbol||'Unknown';
+      if(!byPair[pair]) byPair[pair]={w:0,l:0,pnl:0,n:0};
+      var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(t):(parseFloat(t.pnl)||0);
+      byPair[pair].n++; byPair[pair].pnl+=p;
+      if(p>1)byPair[pair].w++;else if(p<-1)byPair[pair].l++;
+    });
+    var bestPair = Object.keys(byPair).filter(function(k){return byPair[k].n>=2;}).sort(function(a,b){return byPair[b].pnl-byPair[a].pnl;})[0];
+
+    // Best session
+    var bySess = {};
+    trades.forEach(function(t){
+      var s=t.session||'Unknown';
+      if(!bySess[s]) bySess[s]={w:0,l:0,pnl:0,n:0};
+      var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(t):(parseFloat(t.pnl)||0);
+      bySess[s].n++; bySess[s].pnl+=p;
+      if(p>1)bySess[s].w++;else if(p<-1)bySess[s].l++;
+    });
+    var sessions = Object.keys(bySess).filter(function(k){return k!=='Unknown'&&bySess[k].n>=2;});
+    var bestSess = sessions.sort(function(a,b){return bySess[b].pnl-bySess[a].pnl;})[0];
+
+    // Best day of week
+    var byDow = {Mon:{w:0,l:0,pnl:0,n:0},Tue:{w:0,l:0,pnl:0,n:0},Wed:{w:0,l:0,pnl:0,n:0},Thu:{w:0,l:0,pnl:0,n:0},Fri:{w:0,l:0,pnl:0,n:0}};
+    var dowNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    trades.forEach(function(t){
+      if(!t.date) return;
+      var dm=String(t.date).match(/^(\d{4})-(\d{2})-(\d{2})/);
+      var d=dm?new Date(parseInt(dm[1]),parseInt(dm[2])-1,parseInt(dm[3])):new Date(t.date);
+      var dn=dowNames[d.getDay()];
+      if(!byDow[dn]) return;
+      var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(t):(parseFloat(t.pnl)||0);
+      byDow[dn].n++; byDow[dn].pnl+=p;
+      if(p>1)byDow[dn].w++;else if(p<-1)byDow[dn].l++;
+    });
+    var bestDow = Object.keys(byDow).filter(function(k){return byDow[k].n>=2;}).sort(function(a,b){return byDow[b].pnl-byDow[a].pnl;})[0];
+
+    var rows = [];
+    if (bestPair) {
+      var bp = byPair[bestPair];
+      var bpWr = bp.n ? Math.round(bp.w/bp.n*100) : 0;
+      rows.push({icon:'💹', label:'Best pair', value:bestPair, sub:bpWr+'% WR · '+(bp.pnl>=0?'+':'')+sym+Math.round(bp.pnl)+' ('+bp.n+' trades)', color:'var(--green)'});
+    }
+    if (bestSess) {
+      var bs = bySess[bestSess];
+      var bsWr = bs.n ? Math.round(bs.w/bs.n*100) : 0;
+      rows.push({icon:'🕐', label:'Best session', value:bestSess, sub:bsWr+'% WR · '+(bs.pnl>=0?'+':'')+sym+Math.round(bs.pnl), color:'var(--accent3)'});
+    }
+    if (bestDow) {
+      var bd = byDow[bestDow];
+      var bdWr = bd.n ? Math.round(bd.w/bd.n*100) : 0;
+      rows.push({icon:'📅', label:'Best day', value:bestDow, sub:bdWr+'% WR · '+(bd.pnl>=0?'+':'')+sym+Math.round(bd.pnl), color:'#fbbf24'});
+    }
+
+    el.innerHTML = rows.map(function(r){
+      return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">' +
+        '<span style="font-size:18px">'+r.icon+'</span>' +
+        '<div style="flex:1">' +
+          '<div style="font-size:10px;color:var(--text3);font-weight:600;letter-spacing:.3px">'+r.label.toUpperCase()+'</div>' +
+          '<div style="font-size:16px;font-weight:700;color:'+r.color+';margin:1px 0">'+r.value+'</div>' +
+          '<div style="font-size:11px;color:var(--text3)">'+r.sub+'</div>' +
+        '</div>' +
+      '</div>';
+    }).join('') + (rows.length===0?'<div style="color:var(--text3);font-size:12px">Not enough data yet per category</div>':'');
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // 4. AI WEEKLY NARRATIVE
+  // ═══════════════════════════════════════════════════════════
+  function dashAINarrativeRefresh() {
+    if (!_isWidgetVisible('ai-narrative')) return;
+    var el = document.getElementById('dash-w-narrative-content');
+    if (!el) return;
+    var trades = window._dashLastTrades || [];
+    if (trades.length < 5) { el.innerHTML = '<span style="color:var(--text3)">Log at least 5 trades to generate a narrative.</span>'; return; }
+
+    el.innerHTML = '<div style="display:flex;align-items:center;gap:8px;color:var(--text3);font-size:12px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Analyzing your trades…</div>';
+
+    var ccy = (typeof tqGetDisplayCurrency==='function') ? tqGetDisplayCurrency() : 'USD';
+    var sym = {USD:'$',EUR:'€',GBP:'£',JPY:'¥'}[ccy]||'$';
+    var sorted = trades.slice().sort(function(a,b){return (b.date||'').localeCompare(a.date||'');});
+    var net = trades.reduce(function(s,t){return s+(typeof tqConvertTradePnl==='function'?tqConvertTradePnl(t):(parseFloat(t.pnl)||0));},0);
+    var wins = trades.filter(function(t){var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(t):(parseFloat(t.pnl)||0);return p>1;});
+    var wr = trades.length ? Math.round(wins.length/trades.length*100) : 0;
+    var pairs = {}; trades.forEach(function(t){var pr=t.pair||t.symbol||'?'; pairs[pr]=(pairs[pr]||0)+1;});
+    var topPair = Object.keys(pairs).sort(function(a,b){return pairs[b]-pairs[a];})[0]||'?';
+    var sessions = {}; trades.forEach(function(t){if(t.session)sessions[t.session]=(sessions[t.session]||0)+1;});
+    var topSess = Object.keys(sessions).sort(function(a,b){return sessions[b]-sessions[a];})[0]||null;
+    var lastDate = sorted[0]?sorted[0].date:'?';
+    var firstDate = sorted[sorted.length-1]?sorted[sorted.length-1].date:'?';
+
+    var prompt = 'You are a trading coach. Analyze this trader\'s recent performance and write a concise 3-4 sentence narrative insight. Be specific, honest, and actionable. Do not use bullet points.\n\nStats:\n- Trades: '+trades.length+' (from '+firstDate+' to '+lastDate+')\n- Net P&L: '+(net>=0?'+':'')+sym+Math.abs(Math.round(net))+'\n- Win rate: '+wr+'%\n- Most traded: '+topPair+(topSess?' ('+topSess+' session)':'')+'\n- Last 3 trades: '+sorted.slice(0,3).map(function(t){var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(t):(parseFloat(t.pnl)||0);return (p>=0?'+':'')+sym+Math.round(p);}).join(', ')+'\n\nWrite the narrative as if speaking directly to the trader. Focus on one key pattern and one actionable suggestion.';
+
+    fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:250,messages:[{role:'user',content:prompt}]})
+    }).then(function(r){return r.json();}).then(function(data){
+      var text = data.content && data.content[0] ? data.content[0].text : '';
+      if (text) {
+        el.innerHTML = '<div style="font-size:13px;color:var(--text2);line-height:1.75;font-weight:500">'+text+'</div>' +
+          '<div style="font-size:10.5px;color:var(--text3);margin-top:10px;display:flex;align-items:center;gap:5px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Generated '+new Date().toLocaleDateString()+'</div>';
+        // Cache it
+        try{rfxSet('tq_dash_narrative',JSON.stringify({text:text,ts:Date.now(),count:trades.length}));}catch(e){}
+      } else { el.innerHTML = '<span style="color:var(--text3);font-size:12px">Could not generate narrative. Try again.</span>'; }
+    }).catch(function(){
+      // Try to show cached version
+      try{
+        var cached=JSON.parse(rfxGet('tq_dash_narrative')||'null');
+        if(cached&&cached.text){ el.innerHTML='<div style="font-size:13px;color:var(--text2);line-height:1.75;opacity:.8">'+cached.text+'</div><div style="font-size:10.5px;color:var(--text3);margin-top:8px">Cached · '+new Date(cached.ts).toLocaleDateString()+'</div>'; return; }
+      }catch(e){}
+      el.innerHTML = '<span style="color:var(--text3);font-size:12px">Offline. Check connection.</span>';
+    });
+  }
+  window.dashAINarrativeRefresh = dashAINarrativeRefresh;
+
+  function _renderAINarrativeWidget() {
+    if (!_isWidgetVisible('ai-narrative')) return;
+    var el = document.getElementById('dash-w-narrative-content');
+    if (!el) return;
+    // Show cached if available, otherwise prompt to generate
+    try{
+      var cached=JSON.parse(rfxGet('tq_dash_narrative')||'null');
+      var trades = window._dashLastTrades || [];
+      if(cached&&cached.text&&Math.abs(cached.count-(trades.length))<=2){
+        el.innerHTML='<div style="font-size:13px;color:var(--text2);line-height:1.75;font-weight:500">'+cached.text+'</div><div style="font-size:10.5px;color:var(--text3);margin-top:8px">'+new Date(cached.ts).toLocaleDateString()+' · <button onclick="dashAINarrativeRefresh()" style="background:none;border:none;color:var(--accent3);cursor:pointer;font-size:10.5px;font-family:Inter,sans-serif;padding:0">Refresh ↗</button></div>';
+        return;
+      }
+    }catch(e){}
+    el.innerHTML='<div style="color:var(--text3);font-size:12.5px;line-height:1.6">Click refresh to generate an AI insight based on your recent trades.</div>';
+  }
+
+  // Hook new widgets into renderDashExtras
+  var _origRenderDashExtras = window.renderDashExtras;
+  window.renderDashExtras = function(trades) {
+    _origRenderDashExtras(trades);
+    try{ renderDashReadiness(trades); }catch(e){}
+    try{ renderDashPropMini(trades); }catch(e){}
+    try{ _renderBestSetupWidget(trades); }catch(e){}
+    try{ _renderAINarrativeWidget(); }catch(e){}
+  };
 
   function renderDashCharts(trades, byDay, accBal) {
     var Chart = window.Chart;
