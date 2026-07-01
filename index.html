@@ -6228,27 +6228,28 @@ window.toggleSidebar = function(){
     <style>@keyframes tiltPulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(239,68,68,.4)}50%{opacity:.7;box-shadow:0 0 0 6px rgba(239,68,68,0)}}</style>
 
     <!-- DAILY READINESS SCORE -->
-    <div id="dash-readiness-bar" style="display:none;margin-bottom:14px;border-radius:12px;border:1px solid var(--border);background:var(--card);padding:14px 20px;font-family:Inter,sans-serif">
-      <div style="display:flex;align-items:center;gap:14px">
-        <div style="flex-shrink:0">
-          <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.5px;margin-bottom:4px">READINESS</div>
-          <div style="display:flex;align-items:baseline;gap:3px">
-            <span id="dash-readiness-score" style="font-size:28px;font-weight:700;letter-spacing:-1px;color:var(--green)">—</span>
-            <span style="font-size:12px;color:var(--text3)">/100</span>
+    <div id="dash-readiness-bar" style="display:none;margin-bottom:10px;border-radius:10px;border:1px solid var(--border);background:var(--card);padding:11px 18px;font-family:Inter,sans-serif">
+      <div style="display:flex;align-items:center;gap:16px">
+        <div style="flex-shrink:0;text-align:center;min-width:54px">
+          <div style="font-size:9px;font-weight:700;color:var(--text3);letter-spacing:.5px;margin-bottom:2px">READINESS</div>
+          <div style="display:flex;align-items:baseline;gap:2px;justify-content:center">
+            <span id="dash-readiness-score" style="font-size:24px;font-weight:700;letter-spacing:-1px;color:var(--green)">—</span>
+            <span style="font-size:10px;color:var(--text3)">/100</span>
           </div>
         </div>
-        <div style="flex:1">
-          <div style="height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;margin-bottom:8px">
+        <div style="width:1px;height:32px;background:var(--border);flex-shrink:0"></div>
+        <div style="flex:1;min-width:0">
+          <div style="height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;margin-bottom:6px">
             <div id="dash-readiness-fill" style="height:100%;border-radius:3px;transition:width .6s ease;background:var(--green);width:0%"></div>
           </div>
-          <div id="dash-readiness-msg" style="font-size:12.5px;color:var(--text2);font-weight:500"></div>
+          <div id="dash-readiness-msg" style="font-size:12px;color:var(--text2);font-weight:500"></div>
         </div>
-        <div id="dash-readiness-factors" style="display:flex;gap:8px;flex-shrink:0"></div>
+        <div id="dash-readiness-factors" style="display:flex;gap:6px;flex-shrink:0"></div>
       </div>
     </div>
 
     <!-- PROP CHALLENGE MINI -->
-    <div id="dash-prop-mini" style="display:none;margin-bottom:14px"></div>
+    <div id="dash-prop-mini" style="display:none;margin-bottom:10px"></div>
 
     <!-- AI TRADE COACH — moved into AI HUB above -->
     <div id="dash-ai-coach" style="display:none"></div>
@@ -41671,9 +41672,9 @@ window.toggleSidebar = function(){
     if (msgEl) msgEl.textContent = label;
     if (factorsEl) {
       factorsEl.innerHTML = factors.slice(0,3).map(function(f){
-        return '<div style="text-align:center;padding:4px 8px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--border)">' +
-          '<div style="font-size:14px">'+f.icon+'</div>' +
-          '<div style="font-size:10px;color:var(--text3);margin-top:2px;font-weight:600;white-space:nowrap">'+f.label+'</div>' +
+        var badgeColor = f.color === 'var(--green)' ? 'rgba(29,233,182,.12)' : f.color === 'var(--red)' ? 'rgba(239,68,68,.12)' : 'rgba(251,191,36,.12)';
+        return '<div style="padding:4px 9px;border-radius:20px;background:'+badgeColor+';border:1px solid '+f.color.replace('var(--green)','rgba(29,233,182,.25)').replace('var(--red)','rgba(239,68,68,.25)').replace('var(--yellow)','rgba(251,191,36,.25)').replace('var(--text)','rgba(255,255,255,.1)')+'">' +
+          '<div style="font-size:10px;color:'+f.color+';font-weight:700;white-space:nowrap">'+f.label+'</div>' +
         '</div>';
       }).join('');
     }
@@ -41688,35 +41689,71 @@ window.toggleSidebar = function(){
     var el = document.getElementById('dash-prop-mini');
     if (!el) return;
     try {
-      var accs = JSON.parse(rfxGet('rf_accounts')||'[]').filter(function(a){ return !a.deleted && (typeof tqIsProp==='function' ? tqIsProp(a) : a.type==='prop'); });
+      var accs = JSON.parse(rfxGet('rf_accounts')||'[]').filter(function(a){
+        return !a.deleted && (a.type==='prop' || (typeof tqIsProp==='function' && tqIsProp(a)));
+      });
       if (!accs.length) { el.style.display='none'; return; }
 
       var ccy = (typeof tqGetDisplayCurrency==='function') ? tqGetDisplayCurrency() : 'USD';
       var sym = {USD:'$',EUR:'€',GBP:'£',JPY:'¥',CHF:'CHF ',CAD:'C$',AUD:'A$',NZD:'NZ$'}[ccy]||'$';
 
-      var cards = accs.slice(0,4).map(function(a) {
+      // Compute per-account stats
+      var accStats = accs.map(function(a) {
         var accTrades = trades.filter(function(t){ return t.account === a.id; });
         var netPnl = accTrades.reduce(function(s,t){ return s+(typeof tqConvertTradePnl==='function'?tqConvertTradePnl(t):(parseFloat(t.pnl)||0)); }, 0);
         var startBal = parseFloat(a.startingBalance||a.balance||10000);
-        var target = a.profitTarget; // % or null
-        var pct = netPnl / startBal * 100;
-        var targetPct = target ? (typeof target === 'number' && target < 50 ? target : target/startBal*100) : null;
+        var pct = startBal > 0 ? netPnl/startBal*100 : 0;
+        // profitTarget can be % (e.g. 10) or absolute $ (e.g. 3000)
+        var target = parseFloat(a.profitTarget||0);
+        var targetPct = target > 0 ? (target < 100 ? target : target/startBal*100) : null;
         var progress = targetPct ? Math.min(100, Math.max(0, pct/targetPct*100)) : null;
-        var statusColor = netPnl >= 0 ? 'var(--green)' : 'var(--red)';
+        return {a:a, netPnl:netPnl, pct:pct, targetPct:targetPct, progress:progress, startBal:startBal};
+      });
 
-        return '<div style="flex:1;min-width:160px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px">' +
-          '<div style="font-size:11px;font-weight:700;color:var(--text3);margin-bottom:6px;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(a.name||'Account').toUpperCase()+'</div>' +
-          '<div style="font-size:20px;font-weight:700;color:'+statusColor+';font-variant-numeric:tabular-nums;letter-spacing:-.5px">'+(netPnl>=0?'+':'-')+sym+Math.abs(Math.round(netPnl)).toLocaleString()+'</div>' +
-          (targetPct !== null ?
-            '<div style="margin-top:8px"><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:4px"><span>Progress</span><span>'+pct.toFixed(1)+'% / '+targetPct+'%</span></div>' +
-            '<div style="height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+progress.toFixed(0)+'%;background:'+(progress>=100?'var(--green)':'var(--accent)')+';border-radius:3px;transition:width .4s"></div></div></div>'
-            : '<div style="font-size:10px;color:var(--text3);margin-top:6px">'+pct.toFixed(2)+'% return</div>') +
+      // Summary totals
+      var totalNet = accStats.reduce(function(s,x){return s+x.netPnl;},0);
+      var funded = accStats.filter(function(x){return x.progress!==null&&x.progress>=100;}).length;
+      var passing = accStats.filter(function(x){return x.netPnl>=0;}).length;
+
+      var summaryHtml =
+        '<div style="display:flex;align-items:center;gap:16px;padding:10px 16px;border-bottom:1px solid var(--border);font-family:Inter,sans-serif">' +
+          '<div>' +
+            '<div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.4px">TOTAL NET</div>' +
+            '<div style="font-size:18px;font-weight:700;color:'+(totalNet>=0?'var(--green)':'var(--red)')+';font-variant-numeric:tabular-nums">'+(totalNet>=0?'+':'')+sym+Math.abs(Math.round(totalNet)).toLocaleString()+'</div>' +
+          '</div>' +
+          '<div style="width:1px;height:32px;background:var(--border)"></div>' +
+          '<div><div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.4px">ACCOUNTS</div><div style="font-size:18px;font-weight:700;color:var(--text)">'+accs.length+'</div></div>' +
+          '<div style="width:1px;height:32px;background:var(--border)"></div>' +
+          '<div><div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.4px">IN PROFIT</div><div style="font-size:18px;font-weight:700;color:var(--green)">'+passing+'</div></div>' +
+          (funded > 0 ? '<div style="width:1px;height:32px;background:var(--border)"></div><div><div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.4px">PASSED</div><div style="font-size:18px;font-weight:700;color:var(--green)">'+funded+'</div></div>' : '') +
+          '<div style="flex:1"></div>' +
+          '<button onclick="showPage(\'mc\')" style="background:rgba(124,90,240,.1);border:1px solid rgba(124,90,240,.2);color:var(--accent3);padding:5px 12px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">Mission Control →</button>' +
+        '</div>';
+
+      // Compact list rows (scrollable if > 4)
+      var listRows = accStats.map(function(x) {
+        var barColor = x.progress !== null ? (x.progress >= 100 ? 'var(--green)' : 'var(--accent)') : (x.netPnl >= 0 ? 'var(--green)' : 'var(--red)');
+        var pnlColor = x.netPnl >= 0 ? 'var(--green)' : 'var(--red)';
+        var statusDot = x.progress !== null && x.progress >= 100 ? '🏆' : x.netPnl >= 0 ? '🟢' : '🔴';
+        var progressBar = x.targetPct !== null ?
+          '<div style="flex:1;height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden"><div style="width:'+x.progress.toFixed(0)+'%;height:100%;background:'+barColor+';border-radius:2px;transition:width .4s"></div></div>' +
+          '<span style="font-size:10px;color:var(--text3);white-space:nowrap;font-weight:600">'+x.pct.toFixed(1)+'% / '+x.targetPct+'%</span>' :
+          '<div style="flex:1;height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden"><div style="width:'+(x.netPnl>=0?Math.min(100,Math.abs(x.pct)*5):0)+'%;height:100%;background:'+barColor+';border-radius:2px"></div></div>' +
+          '<span style="font-size:10px;color:var(--text3);white-space:nowrap;font-weight:600">'+x.pct.toFixed(2)+'%</span>';
+        return '<div style="display:flex;align-items:center;gap:10px;padding:8px 16px;border-bottom:1px solid var(--border)">' +
+          '<span style="font-size:13px">'+statusDot+'</span>' +
+          '<span style="font-size:12px;font-weight:600;color:var(--text);min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(x.a.name||'Account')+'</span>' +
+          '<span style="font-size:13px;font-weight:700;color:'+pnlColor+';font-variant-numeric:tabular-nums;white-space:nowrap">'+(x.netPnl>=0?'+':'')+sym+Math.abs(Math.round(x.netPnl)).toLocaleString()+'</span>' +
+          '<div style="display:flex;align-items:center;gap:6px;width:160px">'+progressBar+'</div>' +
         '</div>';
       }).join('');
 
-      el.innerHTML = '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">'+cards+'</div>';
+      el.innerHTML = '<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:2px">' +
+        summaryHtml +
+        '<div style="max-height:'+Math.min(accs.length, 4)*49+'px;overflow-y:auto">'+listRows+'</div>' +
+        '</div>';
       el.style.display = 'block';
-    } catch(e) { el.style.display='none'; }
+    } catch(e) { console.error('propMini', e); el.style.display='none'; }
   }
   window.renderDashPropMini = renderDashPropMini;
 
