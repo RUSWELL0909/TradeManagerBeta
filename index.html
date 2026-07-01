@@ -6231,8 +6231,8 @@ window.toggleSidebar = function(){
     <div id="dash-readiness-bar" style="display:none;margin-bottom:10px;border-radius:12px;border:1px solid var(--border);background:var(--card);padding:14px 20px;font-family:Inter,sans-serif;overflow:hidden;position:relative">
       <div style="display:flex;align-items:center;gap:20px">
         <!-- Semi-circle gauge -->
-        <div style="flex-shrink:0;position:relative;width:90px;height:52px">
-          <svg width="90" height="52" viewBox="0 0 100 58" style="display:block">
+        <div style="flex-shrink:0;position:relative;width:96px;height:60px">
+          <svg width="96" height="60" viewBox="0 0 100 64" style="display:block">
             <defs>
               <linearGradient id="readGrad" x1="0%" y1="0%" x2="100%" y2="0%">
                 <stop offset="0%" stop-color="#ef4444"/>
@@ -6241,17 +6241,16 @@ window.toggleSidebar = function(){
               </linearGradient>
             </defs>
             <!-- Track -->
-            <path d="M 10 54 A 40 40 0 0 1 90 54" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="6" stroke-linecap="round"/>
+            <path d="M 10 58 A 40 40 0 0 1 90 58" fill="none" stroke="rgba(0,0,0,.08)" stroke-width="6" stroke-linecap="round"/>
             <!-- Fill arc -->
-            <path id="dash-readiness-arc" d="M 10 54 A 40 40 0 0 1 90 54" fill="none" stroke="url(#readGrad)" stroke-width="6" stroke-linecap="round" stroke-dasharray="0 126" style="transition:stroke-dasharray .7s ease"/>
+            <path id="dash-readiness-arc" d="M 10 58 A 40 40 0 0 1 90 58" fill="none" stroke="url(#readGrad)" stroke-width="6" stroke-linecap="round" stroke-dasharray="0 126" style="transition:stroke-dasharray .7s ease"/>
           </svg>
-          <!-- Score overlay -->
-          <div style="position:absolute;bottom:0;left:0;right:0;text-align:center">
-            <span id="dash-readiness-score" style="font-size:22px;font-weight:800;letter-spacing:-1px;color:var(--green)">—</span>
-            <span style="font-size:9px;color:var(--text3);font-weight:600">/100</span>
-          </div>
-          <div style="position:absolute;top:2px;left:0;right:0;text-align:center">
-            <span style="font-size:8px;font-weight:700;color:var(--text3);letter-spacing:.6px">READINESS</span>
+          <!-- Score centered in the arc -->
+          <div style="position:absolute;bottom:2px;left:0;right:0;text-align:center;line-height:1">
+            <div style="font-size:8px;font-weight:700;color:var(--text3);letter-spacing:.5px;margin-bottom:1px">READINESS</div>
+            <div>
+              <span id="dash-readiness-score" style="font-size:22px;font-weight:800;letter-spacing:-1.5px;color:var(--green)">—</span><span style="font-size:9px;color:var(--text3);font-weight:500">/100</span>
+            </div>
           </div>
         </div>
         <div style="width:1px;height:40px;background:var(--border);flex-shrink:0"></div>
@@ -41234,7 +41233,7 @@ window.toggleSidebar = function(){
           var bestCell={pnl:-Infinity,dow:'',h:0}, worstCell={pnl:Infinity,dow:'',h:0};
           DAYS.forEach(function(d){ HOURS.forEach(function(h){ var c=matrix[d][h]; if(c.n>0){if(c.pnl>bestCell.pnl)bestCell={pnl:c.pnl,dow:d,h:h,n:c.n};if(c.pnl<worstCell.pnl)worstCell={pnl:c.pnl,dow:d,h:h,n:c.n};} }); });
           var bestStr=bestCell.dow?bestCell.dow+' '+String(bestCell.h).padStart(2,'0')+':00 · +'+(ci.sym)+Math.round(bestCell.pnl):'—';
-          var worstStr=worstCell.dow&&worstCell.pnl<0?worstCell.dow+' '+String(worstCell.h).padStart(2,'0')+':00 · '+(ci.sym)+Math.abs(Math.round(worstCell.pnl)):'—';
+          var worstStr=worstCell.dow&&worstCell.pnl<0?worstCell.dow+' '+String(worstCell.h).padStart(2,'0')+':00 · -'+(ci.sym)+Math.abs(Math.round(worstCell.pnl)):'—';
           summary.innerHTML=
             '<div style="display:flex;gap:14px;padding-top:10px;border-top:0.5px solid var(--border);margin-top:8px">'+
               '<div style="flex:1"><div style="color:var(--text3);font-size:10px;letter-spacing:.4px;margin-bottom:4px;font-weight:700">BEST SLOT</div><div style="color:'+TG+';font-family:Inter,sans-serif;font-size:13px;font-weight:700">'+bestStr+'</div></div>'+
@@ -41774,7 +41773,7 @@ window.toggleSidebar = function(){
       var summaryHtml =
         '<div style="display:flex;align-items:center;gap:0;padding:10px 16px 10px;border-bottom:1px solid var(--border)">' +
           '<div style="flex:1;display:flex;gap:20px;align-items:center">' +
-            '<div><div style="font-size:9px;font-weight:700;color:var(--text3);letter-spacing:.4px">TOTAL</div><div style="font-size:17px;font-weight:700;color:'+(totalNet>=0?'var(--green)':'var(--red)')+';font-variant-numeric:tabular-nums">'+(totalNet>=0?'+':'')+sym+Math.abs(Math.round(totalNet)).toLocaleString()+'</div></div>' +
+            '<div><div style="font-size:9px;font-weight:700;color:var(--text3);letter-spacing:.4px">TOTAL</div><div style="font-size:17px;font-weight:700;color:'+(totalNet>=0?'var(--green)':'var(--red)')+';font-variant-numeric:tabular-nums">'+(totalNet>=0?'+':'-')+sym+Math.abs(Math.round(totalNet)).toLocaleString()+'</div></div>' +
             '<div style="width:1px;height:28px;background:var(--border)"></div>' +
             '<div><div style="font-size:9px;font-weight:700;color:var(--text3);letter-spacing:.4px">ACCOUNTS</div><div style="font-size:17px;font-weight:700;color:var(--text)">'+accs.length+'</div></div>' +
             '<div style="width:1px;height:28px;background:var(--border)"></div>' +
@@ -41881,17 +41880,17 @@ window.toggleSidebar = function(){
     if (bestPair) {
       var bp = byPair[bestPair];
       var bpWr = bp.n ? Math.round(bp.w/bp.n*100) : 0;
-      rows.push({icon:'💹', label:'Best pair', value:bestPair, sub:bpWr+'% WR · '+(bp.pnl>=0?'+':'')+sym+Math.round(bp.pnl)+' ('+bp.n+' trades)', color:'var(--green)'});
+      rows.push({icon:'💹', label:'Best pair', value:bestPair, sub:bpWr+'% WR · '+(bp.pnl>=0?'+':'-')+sym+Math.abs(Math.round(bp.pnl))+' ('+bp.n+' trades)', color:'var(--green)'});
     }
     if (bestSess) {
       var bs = bySess[bestSess];
       var bsWr = bs.n ? Math.round(bs.w/bs.n*100) : 0;
-      rows.push({icon:'🕐', label:'Best session', value:bestSess, sub:bsWr+'% WR · '+(bs.pnl>=0?'+':'')+sym+Math.round(bs.pnl), color:'var(--accent3)'});
+      rows.push({icon:'🕐', label:'Best session', value:bestSess, sub:bsWr+'% WR · '+(bs.pnl>=0?'+':'-')+sym+Math.abs(Math.round(bs.pnl)), color:'var(--accent3)'});
     }
     if (bestDow) {
       var bd = byDow[bestDow];
       var bdWr = bd.n ? Math.round(bd.w/bd.n*100) : 0;
-      rows.push({icon:'📅', label:'Best day', value:bestDow, sub:bdWr+'% WR · '+(bd.pnl>=0?'+':'')+sym+Math.round(bd.pnl), color:'#fbbf24'});
+      rows.push({icon:'📅', label:'Best day', value:bestDow, sub:bdWr+'% WR · '+(bd.pnl>=0?'+':'-')+sym+Math.abs(Math.round(bd.pnl)), color:'#fbbf24'});
     }
 
     el.innerHTML = rows.map(function(r){
