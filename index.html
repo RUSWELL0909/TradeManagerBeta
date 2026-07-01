@@ -41447,9 +41447,24 @@ window.toggleSidebar = function(){
       if(el){
         var winDur = [], lossDur = [];
         trades.forEach(function(t){
-          if(!t.duration && !t.holdMinutes) return;
-          var min = parseFloat(t.duration || t.holdMinutes);
-          if(isNaN(min) || min<=0) return;
+          var min = 0;
+          // 1. Use pre-calculated field if available
+          if(t.duration && parseFloat(t.duration) > 0) {
+            min = parseFloat(t.duration);
+          } else if(t.holdMinutes && parseFloat(t.holdMinutes) > 0) {
+            min = parseFloat(t.holdMinutes);
+          } else if(t.entryTime && t.exitTime) {
+            // 2. Calculate from entryTime / exitTime strings (HH:MM or HH:MM:SS)
+            function _toMin(s){
+              var m=String(s).match(/^(\d{1,2}):(\d{2})/);
+              return m ? parseInt(m[1],10)*60 + parseInt(m[2],10) : -1;
+            }
+            var eMin = _toMin(t.entryTime), xMin = _toMin(t.exitTime);
+            if(eMin >= 0 && xMin >= 0) {
+              min = xMin >= eMin ? xMin - eMin : (xMin + 1440) - eMin; // handle overnight
+            }
+          }
+          if(isNaN(min) || min <= 0) return;
           var p = _pnlOf(t);
           if(p>0) winDur.push(min);
           else if(p<0) lossDur.push(min);
