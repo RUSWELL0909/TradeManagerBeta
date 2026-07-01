@@ -6228,23 +6228,38 @@ window.toggleSidebar = function(){
     <style>@keyframes tiltPulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(239,68,68,.4)}50%{opacity:.7;box-shadow:0 0 0 6px rgba(239,68,68,0)}}</style>
 
     <!-- DAILY READINESS SCORE -->
-    <div id="dash-readiness-bar" style="display:none;margin-bottom:10px;border-radius:10px;border:1px solid var(--border);background:var(--card);padding:11px 18px;font-family:Inter,sans-serif">
-      <div style="display:flex;align-items:center;gap:16px">
-        <div style="flex-shrink:0;text-align:center;min-width:54px">
-          <div style="font-size:9px;font-weight:700;color:var(--text3);letter-spacing:.5px;margin-bottom:2px">READINESS</div>
-          <div style="display:flex;align-items:baseline;gap:2px;justify-content:center">
-            <span id="dash-readiness-score" style="font-size:24px;font-weight:700;letter-spacing:-1px;color:var(--green)">—</span>
-            <span style="font-size:10px;color:var(--text3)">/100</span>
+    <div id="dash-readiness-bar" style="display:none;margin-bottom:10px;border-radius:12px;border:1px solid var(--border);background:var(--card);padding:14px 20px;font-family:Inter,sans-serif;overflow:hidden;position:relative">
+      <div style="display:flex;align-items:center;gap:20px">
+        <!-- Semi-circle gauge -->
+        <div style="flex-shrink:0;position:relative;width:90px;height:52px">
+          <svg width="90" height="52" viewBox="0 0 100 58" style="display:block">
+            <defs>
+              <linearGradient id="readGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#ef4444"/>
+                <stop offset="45%" stop-color="#fbbf24"/>
+                <stop offset="100%" stop-color="#1de9b6"/>
+              </linearGradient>
+            </defs>
+            <!-- Track -->
+            <path d="M 10 54 A 40 40 0 0 1 90 54" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="6" stroke-linecap="round"/>
+            <!-- Fill arc -->
+            <path id="dash-readiness-arc" d="M 10 54 A 40 40 0 0 1 90 54" fill="none" stroke="url(#readGrad)" stroke-width="6" stroke-linecap="round" stroke-dasharray="0 126" style="transition:stroke-dasharray .7s ease"/>
+          </svg>
+          <!-- Score overlay -->
+          <div style="position:absolute;bottom:0;left:0;right:0;text-align:center">
+            <span id="dash-readiness-score" style="font-size:22px;font-weight:800;letter-spacing:-1px;color:var(--green)">—</span>
+            <span style="font-size:9px;color:var(--text3);font-weight:600">/100</span>
+          </div>
+          <div style="position:absolute;top:2px;left:0;right:0;text-align:center">
+            <span style="font-size:8px;font-weight:700;color:var(--text3);letter-spacing:.6px">READINESS</span>
           </div>
         </div>
-        <div style="width:1px;height:32px;background:var(--border);flex-shrink:0"></div>
+        <div style="width:1px;height:40px;background:var(--border);flex-shrink:0"></div>
+        <!-- Message + factors -->
         <div style="flex:1;min-width:0">
-          <div style="height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;margin-bottom:6px">
-            <div id="dash-readiness-fill" style="height:100%;border-radius:3px;transition:width .6s ease;background:var(--green);width:0%"></div>
-          </div>
-          <div id="dash-readiness-msg" style="font-size:12px;color:var(--text2);font-weight:500"></div>
+          <div id="dash-readiness-msg" style="font-size:13px;color:var(--text);font-weight:600;margin-bottom:8px"></div>
+          <div id="dash-readiness-factors" style="display:flex;gap:6px;flex-wrap:wrap"></div>
         </div>
-        <div id="dash-readiness-factors" style="display:flex;gap:6px;flex-shrink:0"></div>
       </div>
     </div>
 
@@ -35546,6 +35561,7 @@ window.toggleSidebar = function(){
     var borderColor = 'rgba(29,233,182,.18)';
     var pillBg = 'rgba(29,233,182,.15)';
     var pillColor = 'var(--green)';
+    var isPinned = (rfxGet('tq_dash_pinned_account')||'') === acc.id;
 
     if(st && st.breaches.length > 0){
       statusLevel = 'critical';
@@ -35690,8 +35706,13 @@ window.toggleSidebar = function(){
       'title="Click to view this account\'s trades &amp; performance">'+
       // Edit icon (top-right, fades in on hover)
       '<button class="mc-card-edit" onclick="event.stopPropagation();showPage(\'accounts\');setTimeout(function(){if(window.openEditAccountModal)openEditAccountModal(\''+acc.id+'\');},150)" title="Edit account rules" '+
-        'style="position:absolute;top:8px;right:8px;width:24px;height:24px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3);opacity:0;transition:opacity .15s;z-index:2">'+
+        'style="position:absolute;top:8px;right:36px;width:24px;height:24px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3);opacity:0;transition:opacity .15s;z-index:2">'+
         '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>'+
+      '</button>'+
+      // Pin to Dashboard icon
+      '<button class="mc-card-edit" onclick="event.stopPropagation();dashPinAccount(\''+acc.id+'\')" title="Pin to Dashboard" '+
+        'style="position:absolute;top:8px;right:8px;width:24px;height:24px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;z-index:2;font-size:12px;color:var(--accent3)">'+
+        (isPinned ? '★' : '☆')+
       '</button>'+
       // Firm badge
       '<div style="width:44px;height:44px;background:'+pillBg+';border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:'+accent+';letter-spacing:.5px">'+firmAbbr+'</div>'+
@@ -41660,22 +41681,29 @@ window.toggleSidebar = function(){
     score = Math.max(0, Math.min(100, Math.round(score)));
 
     var color = score >= 70 ? 'var(--green)' : score >= 45 ? '#fbbf24' : 'var(--red)';
-    var label = score >= 80 ? '🟢 Go trade. Conditions look good.' :
-                score >= 65 ? '🟡 Trade carefully. Stay disciplined.' :
-                score >= 45 ? '🟠 Caution. Reduce position size today.' :
-                score >= 25 ? '🔴 High risk. Consider sitting out.' :
-                              '⛔ Stop. Your edge is compromised right now.';
+    var label = score >= 80 ? 'Good to go. Conditions look favourable.' :
+                score >= 65 ? 'Trade carefully. Stay disciplined.' :
+                score >= 45 ? 'Caution — consider reducing size today.' :
+                score >= 25 ? 'High risk. Consider sitting out.' :
+                              'Stop. Your edge is compromised right now.';
 
     scoreEl.textContent = score;
     scoreEl.style.color = color;
-    if (fillEl) { fillEl.style.width = score+'%'; fillEl.style.background = color; }
-    if (msgEl) msgEl.textContent = label;
+
+    // Animate SVG semi-circle arc: arc length ≈ π * 40 ≈ 125.7
+    var arcEl = document.getElementById('dash-readiness-arc');
+    if (arcEl) {
+      var fill = (score / 100 * 125.7).toFixed(1);
+      arcEl.style.strokeDasharray = fill + ' 126';
+    }
+
+    if (msgEl) { msgEl.textContent = label; msgEl.style.color = color; }
     if (factorsEl) {
       factorsEl.innerHTML = factors.slice(0,3).map(function(f){
-        var badgeColor = f.color === 'var(--green)' ? 'rgba(29,233,182,.12)' : f.color === 'var(--red)' ? 'rgba(239,68,68,.12)' : 'rgba(251,191,36,.12)';
-        return '<div style="padding:4px 9px;border-radius:20px;background:'+badgeColor+';border:1px solid '+f.color.replace('var(--green)','rgba(29,233,182,.25)').replace('var(--red)','rgba(239,68,68,.25)').replace('var(--yellow)','rgba(251,191,36,.25)').replace('var(--text)','rgba(255,255,255,.1)')+'">' +
-          '<div style="font-size:10px;color:'+f.color+';font-weight:700;white-space:nowrap">'+f.label+'</div>' +
-        '</div>';
+        var isBad = f.color==='var(--red)', isGood = f.color==='var(--green)';
+        var bg = isBad?'rgba(239,68,68,.1)':isGood?'rgba(29,233,182,.1)':'rgba(251,191,36,.1)';
+        var bd = isBad?'rgba(239,68,68,.3)':isGood?'rgba(29,233,182,.3)':'rgba(251,191,36,.3)';
+        return '<div style="padding:3px 10px;border-radius:20px;background:'+bg+';border:1px solid '+bd+'"><span style="font-size:10.5px;color:'+f.color+';font-weight:700">'+f.label+'</span></div>';
       }).join('');
     }
     bar.style.display = 'block';
@@ -41683,8 +41711,26 @@ window.toggleSidebar = function(){
   window.renderDashReadiness = renderDashReadiness;
 
   // ═══════════════════════════════════════════════════════════
-  // 2. PROP CHALLENGE MINI WIDGET
+  // 2. PROP CHALLENGE MINI WIDGET (premium redesign)
   // ═══════════════════════════════════════════════════════════
+  function dashPinAccount(id) {
+    var current = rfxGet('tq_dash_pinned_account');
+    rfxSet('tq_dash_pinned_account', current === id ? '' : id);
+    if (typeof renderDashPropMini === 'function') try{ renderDashPropMini(window._dashLastTrades||[]); }catch(e){}
+  }
+  window.dashPinAccount = dashPinAccount;
+
+  function _makeRing(progress, color, size) {
+    // SVG mini circular ring showing progress %
+    var r = size/2 - 3, cx = size/2, cy = size/2;
+    var circ = 2 * Math.PI * r;
+    var fill = Math.min(1, Math.max(0, (progress||0)/100)) * circ;
+    return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'" style="flex-shrink:0;transform:rotate(-90deg)">' +
+      '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="2.5"/>' +
+      '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+color+'" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="'+fill.toFixed(1)+' '+circ.toFixed(1)+'"/>' +
+    '</svg>';
+  }
+
   function renderDashPropMini(trades) {
     var el = document.getElementById('dash-prop-mini');
     if (!el) return;
@@ -41696,64 +41742,88 @@ window.toggleSidebar = function(){
 
       var ccy = (typeof tqGetDisplayCurrency==='function') ? tqGetDisplayCurrency() : 'USD';
       var sym = {USD:'$',EUR:'€',GBP:'£',JPY:'¥',CHF:'CHF ',CAD:'C$',AUD:'A$',NZD:'NZ$'}[ccy]||'$';
+      var pinned = rfxGet('tq_dash_pinned_account') || '';
 
-      // Compute per-account stats
       var accStats = accs.map(function(a) {
         var accTrades = trades.filter(function(t){ return t.account === a.id; });
         var netPnl = accTrades.reduce(function(s,t){ return s+(typeof tqConvertTradePnl==='function'?tqConvertTradePnl(t):(parseFloat(t.pnl)||0)); }, 0);
         var startBal = parseFloat(a.startingBalance||a.balance||10000);
         var pct = startBal > 0 ? netPnl/startBal*100 : 0;
-        // profitTarget can be % (e.g. 10) or absolute $ (e.g. 3000)
         var target = parseFloat(a.profitTarget||0);
         var targetPct = target > 0 ? (target < 100 ? target : target/startBal*100) : null;
         var progress = targetPct ? Math.min(100, Math.max(0, pct/targetPct*100)) : null;
-        return {a:a, netPnl:netPnl, pct:pct, targetPct:targetPct, progress:progress, startBal:startBal};
+        var maxDDLimit = parseFloat(a.maxDrawdownLimit||0);
+        var ddUsedPct = maxDDLimit > 0 ? Math.min(100, Math.abs(Math.min(0,pct))/maxDDLimit*100) : null;
+        // Health: red if DD > 70%, yellow > 40%, green otherwise
+        var health = ddUsedPct !== null ? (ddUsedPct > 70 ? 'red' : ddUsedPct > 40 ? 'yellow' : 'green') : (netPnl >= 0 ? 'green' : 'red');
+        var healthColor = health==='red'?'var(--red)':health==='yellow'?'#fbbf24':'var(--green)';
+        return {a:a, netPnl:netPnl, pct:pct, targetPct:targetPct, progress:progress, ddUsedPct:ddUsedPct, health:health, healthColor:healthColor, trades:accTrades.length};
       });
 
-      // Summary totals
+      // Sort: pinned first, then by health (green first), then by P&L
+      accStats.sort(function(a,b){
+        if(a.a.id===pinned) return -1;
+        if(b.a.id===pinned) return 1;
+        var hOrder = {green:0,yellow:1,red:2};
+        return (hOrder[a.health]||0) - (hOrder[b.health]||0) || b.netPnl - a.netPnl;
+      });
+
       var totalNet = accStats.reduce(function(s,x){return s+x.netPnl;},0);
-      var funded = accStats.filter(function(x){return x.progress!==null&&x.progress>=100;}).length;
       var passing = accStats.filter(function(x){return x.netPnl>=0;}).length;
 
       var summaryHtml =
-        '<div style="display:flex;align-items:center;gap:16px;padding:10px 16px;border-bottom:1px solid var(--border);font-family:Inter,sans-serif">' +
-          '<div>' +
-            '<div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.4px">TOTAL NET</div>' +
-            '<div style="font-size:18px;font-weight:700;color:'+(totalNet>=0?'var(--green)':'var(--red)')+';font-variant-numeric:tabular-nums">'+(totalNet>=0?'+':'')+sym+Math.abs(Math.round(totalNet)).toLocaleString()+'</div>' +
+        '<div style="display:flex;align-items:center;gap:0;padding:10px 16px 10px;border-bottom:1px solid var(--border)">' +
+          '<div style="flex:1;display:flex;gap:20px;align-items:center">' +
+            '<div><div style="font-size:9px;font-weight:700;color:var(--text3);letter-spacing:.4px">TOTAL</div><div style="font-size:17px;font-weight:700;color:'+(totalNet>=0?'var(--green)':'var(--red)')+';font-variant-numeric:tabular-nums">'+(totalNet>=0?'+':'')+sym+Math.abs(Math.round(totalNet)).toLocaleString()+'</div></div>' +
+            '<div style="width:1px;height:28px;background:var(--border)"></div>' +
+            '<div><div style="font-size:9px;font-weight:700;color:var(--text3);letter-spacing:.4px">ACCOUNTS</div><div style="font-size:17px;font-weight:700;color:var(--text)">'+accs.length+'</div></div>' +
+            '<div style="width:1px;height:28px;background:var(--border)"></div>' +
+            '<div><div style="font-size:9px;font-weight:700;color:var(--text3);letter-spacing:.4px">IN PROFIT</div><div style="font-size:17px;font-weight:700;color:var(--green)">'+passing+' / '+accs.length+'</div></div>' +
           '</div>' +
-          '<div style="width:1px;height:32px;background:var(--border)"></div>' +
-          '<div><div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.4px">ACCOUNTS</div><div style="font-size:18px;font-weight:700;color:var(--text)">'+accs.length+'</div></div>' +
-          '<div style="width:1px;height:32px;background:var(--border)"></div>' +
-          '<div><div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.4px">IN PROFIT</div><div style="font-size:18px;font-weight:700;color:var(--green)">'+passing+'</div></div>' +
-          (funded > 0 ? '<div style="width:1px;height:32px;background:var(--border)"></div><div><div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.4px">PASSED</div><div style="font-size:18px;font-weight:700;color:var(--green)">'+funded+'</div></div>' : '') +
-          '<div style="flex:1"></div>' +
-          '<button onclick="showPage(\'mc\')" style="background:rgba(124,90,240,.1);border:1px solid rgba(124,90,240,.2);color:var(--accent3);padding:5px 12px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">Mission Control →</button>' +
+          '<button onclick="showPage(\'mc\')" style="background:rgba(124,90,240,.08);border:1px solid rgba(124,90,240,.18);color:var(--accent3);padding:5px 12px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;white-space:nowrap">Mission Control →</button>' +
         '</div>';
 
-      // Compact list rows (scrollable if > 4)
       var listRows = accStats.map(function(x) {
-        var barColor = x.progress !== null ? (x.progress >= 100 ? 'var(--green)' : 'var(--accent)') : (x.netPnl >= 0 ? 'var(--green)' : 'var(--red)');
+        var isPinned = x.a.id === pinned;
+        var ringProgress = x.progress !== null ? x.progress : (x.netPnl >= 0 ? Math.min(100, Math.abs(x.pct)*8) : 0);
+        var ringColor = x.progress !== null && x.progress >= 100 ? 'var(--green)' : x.healthColor;
+        var ring = _makeRing(ringProgress, ringColor, 36);
+
         var pnlColor = x.netPnl >= 0 ? 'var(--green)' : 'var(--red)';
-        var statusDot = x.progress !== null && x.progress >= 100 ? '🏆' : x.netPnl >= 0 ? '🟢' : '🔴';
-        var progressBar = x.targetPct !== null ?
-          '<div style="flex:1;height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden"><div style="width:'+x.progress.toFixed(0)+'%;height:100%;background:'+barColor+';border-radius:2px;transition:width .4s"></div></div>' +
-          '<span style="font-size:10px;color:var(--text3);white-space:nowrap;font-weight:600">'+x.pct.toFixed(1)+'% / '+x.targetPct+'%</span>' :
-          '<div style="flex:1;height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden"><div style="width:'+(x.netPnl>=0?Math.min(100,Math.abs(x.pct)*5):0)+'%;height:100%;background:'+barColor+';border-radius:2px"></div></div>' +
-          '<span style="font-size:10px;color:var(--text3);white-space:nowrap;font-weight:600">'+x.pct.toFixed(2)+'%</span>';
-        return '<div style="display:flex;align-items:center;gap:10px;padding:8px 16px;border-bottom:1px solid var(--border)">' +
-          '<span style="font-size:13px">'+statusDot+'</span>' +
-          '<span style="font-size:12px;font-weight:600;color:var(--text);min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(x.a.name||'Account')+'</span>' +
-          '<span style="font-size:13px;font-weight:700;color:'+pnlColor+';font-variant-numeric:tabular-nums;white-space:nowrap">'+(x.netPnl>=0?'+':'')+sym+Math.abs(Math.round(x.netPnl)).toLocaleString()+'</span>' +
-          '<div style="display:flex;align-items:center;gap:6px;width:160px">'+progressBar+'</div>' +
+        var pnlStr = (x.netPnl>=0?'+':'')+sym+Math.abs(Math.round(x.netPnl)).toLocaleString();
+
+        // Sub-info: progress or return %
+        var subInfo = x.targetPct !== null
+          ? '<span style="color:var(--text3)">'+x.pct.toFixed(1)+'% of '+x.targetPct+'% target</span>'
+          : '<span style="color:var(--text3)">'+x.pct.toFixed(2)+'% return · '+x.trades+' trades</span>';
+
+        // DD bar (only if DD limit configured)
+        var ddBar = x.ddUsedPct !== null
+          ? '<div style="height:3px;background:rgba(255,255,255,.05);border-radius:2px;margin-top:3px;overflow:hidden"><div style="height:100%;width:'+x.ddUsedPct.toFixed(0)+'%;background:'+(x.ddUsedPct>70?'var(--red)':x.ddUsedPct>40?'#fbbf24':'rgba(255,255,255,.2)')+';border-radius:2px;transition:width .4s"></div></div>' : '';
+
+        return '<div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);'+(isPinned?'background:rgba(124,90,240,.04);':'')+'">' +
+          ring +
+          '<div style="flex:1;min-width:0">' +
+            '<div style="display:flex;align-items:center;gap:6px">' +
+              '<span style="font-size:12.5px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(x.a.name||'Account')+'</span>' +
+              (isPinned ? '<span style="font-size:9px;color:var(--accent3);background:rgba(124,90,240,.12);border:1px solid rgba(124,90,240,.2);border-radius:4px;padding:1px 5px;font-weight:700">PINNED</span>' : '') +
+            '</div>' +
+            '<div style="font-size:11px;margin-top:1px">'+subInfo+'</div>' +
+            ddBar +
+          '</div>' +
+          '<div style="text-align:right;flex-shrink:0">' +
+            '<div style="font-size:15px;font-weight:700;color:'+pnlColor+';font-variant-numeric:tabular-nums">'+pnlStr+'</div>' +
+            '<button onclick="dashPinAccount(\''+x.a.id+'\')" title="'+(isPinned?'Unpin':'Pin to Dashboard')+'" style="background:none;border:none;cursor:pointer;font-size:13px;color:'+(isPinned?'var(--accent3)':'var(--text3)')+';padding:0;margin-top:2px;line-height:1">'+(isPinned?'★':'☆')+'</button>' +
+          '</div>' +
         '</div>';
       }).join('');
 
-      el.innerHTML = '<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:2px">' +
+      el.innerHTML = '<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden">' +
         summaryHtml +
-        '<div style="max-height:'+Math.min(accs.length, 4)*49+'px;overflow-y:auto">'+listRows+'</div>' +
+        '<div style="max-height:'+Math.min(accs.length,4)*60+'px;overflow-y:auto">'+listRows+'</div>' +
         '</div>';
       el.style.display = 'block';
-    } catch(e) { console.error('propMini', e); el.style.display='none'; }
+    } catch(e) { console.error('propMini',e); el.style.display='none'; }
   }
   window.renderDashPropMini = renderDashPropMini;
 
