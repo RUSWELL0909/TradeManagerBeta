@@ -32046,7 +32046,7 @@ window.toggleSidebar = function(){
     else if(tradesPerWeek > 10) personality += '<strong>Active trader</strong>. ';
     else personality += '<strong>Patient trader</strong>. ';
     if(edge.raw.wr > 60) personality += 'Your win rate suggests a <strong>precision profile</strong> — waits for high-probability setups. ';
-    else if(pf > 2) personality += 'Lower WR but high PF = <strong>swing trader profile</strong> — you let winners run. ';
+    else if(edge.raw.pf > 2) personality += 'Lower WR but high PF = <strong>swing trader profile</strong> — you let winners run. ';
     else personality += 'Needs tightening — consider whether you\'re the precision or swing profile. ';
     if(edge.components.discipline >= 80) personality += 'Discipline is a <strong>strength</strong>. ';
     else personality += 'Discipline needs work. ';
