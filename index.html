@@ -6078,12 +6078,12 @@ window.toggleSidebar = function(){
           <button class="dash-view-btn" data-view="percent" onclick="dashSetView('percent')" title="Percentage view" style="padding:5px 10px;border:none;background:transparent;color:var(--text3);border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">%</button>
           <button class="dash-view-btn" data-view="privacy" onclick="dashSetView('privacy')" title="Privacy view (hide amounts)" style="padding:5px 10px;border:none;background:transparent;color:var(--text3);border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">👁</button>
         </div>
-        <button class="btn btn-ghost" id="dash-edit-layout-btn" style="font-size:12px;padding:8px 14px;display:flex;align-items:center;gap:6px" onclick="dashEditToggle()" title="Reorder & hide tiles">
+        <button class="btn btn-ghost" id="dash-edit-layout-btn" style="font-size:12px;padding:8px 10px;display:flex;align-items:center;gap:5px" onclick="dashEditToggle()" title="Edit layout — reorder & hide tiles">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-          <span id="dash-edit-layout-label">Edit layout</span>
+          <span id="dash-edit-layout-label" style="display:none">Edit layout</span>
         </button>
-        <button class="btn btn-ghost" style="font-size:12px;padding:8px 14px;display:flex;align-items:center;gap:6px" onclick="dashCustomizeOpen()" title="Customize widgets"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Customize</button>
-        <button class="btn btn-primary" style="font-size:12px;font-weight:600;padding:8px 16px;display:flex;align-items:center;gap:7px;white-space:nowrap;flex-shrink:0" onclick="showPage('cockpit')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>Start my day</button>
+        <button class="btn btn-ghost" style="font-size:12px;padding:8px 10px;display:flex;align-items:center;gap:5px" onclick="dashCustomizeOpen()" title="Customize widgets"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
+        <button class="btn btn-primary" style="font-size:12px;font-weight:600;padding:8px 14px;display:flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0" onclick="showPage('cockpit')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>Start my day</button>
       </div>
     </div>
 
