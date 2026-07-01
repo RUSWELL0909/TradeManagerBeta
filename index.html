@@ -4807,12 +4807,12 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
 .kpi-tile-value.red{color:var(--red)}
 .kpi-tile-value.purple{color:var(--accent3)}
 .kpi-tile-value-suffix{font-size:16px;color:var(--text3);font-weight:400}
-.kpi-tile-mini{display:flex;gap:2px;margin:10px 0 6px;height:5px;align-items:center}
-.kpi-tile-mini div{flex:1;background:rgba(255,255,255,.06);border-radius:1px;height:3px;transition:all .15s}
-.kpi-tile-mini div.on{height:5px}
-.kpi-tile-mini div.win{background:var(--green)}
-.kpi-tile-mini div.loss{background:var(--red)}
-[data-theme="light"] .kpi-tile-mini div:not(.win):not(.loss){background:rgba(0,0,0,.07)}
+.kpi-tile-mini{display:flex;gap:2px;margin:8px 0 5px;height:4px;align-items:center}
+.kpi-tile-mini div{flex:1;background:rgba(255,255,255,.06);border-radius:1px;height:4px;transition:background .15s}
+.kpi-tile-mini div.on{height:4px}
+.kpi-tile-mini div.win{background:var(--green);opacity:.85}
+.kpi-tile-mini div.loss{background:var(--red);opacity:.85}
+[data-theme="light"] .kpi-tile-mini div:not(.win):not(.loss){background:rgba(0,0,0,.08)}
 [data-theme="light"] .kpi-tile-info{background:rgba(0,0,0,.04)}
 [data-theme="light"] .kpi-tile::before{width:3px}
 .kpi-tile-foot{font-family:Inter,sans-serif;font-size:12px;font-weight:500;color:var(--text2);margin-top:auto;letter-spacing:.1px;opacity:.9}
@@ -6362,7 +6362,7 @@ window.toggleSidebar = function(){
             </div>
           </div>
           <div class="card" data-widget="chart-dailypnl" style="padding:18px 20px 10px">
-            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px;padding-right:26px">
               <div>
                 <div class="dash-label" style="font-size:14px;font-weight:600;color:var(--text);letter-spacing:-.1px">Net daily P&L</div>
                 <div id="dash-bar-sub" style="font-size:12.5px;color:var(--text3);margin-top:3px;font-weight:500">&#8212;</div>
@@ -6377,7 +6377,7 @@ window.toggleSidebar = function(){
             </div>
           </div>
           <div class="card" data-widget="chart-balance" style="padding:18px 20px 10px">
-            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px;padding-right:26px">
               <div>
                 <div class="dash-label" style="font-size:14px;font-weight:600;color:var(--text);letter-spacing:-.1px">Account Balance</div>
                 <div id="dash-bal-sub" style="font-size:12.5px;color:var(--text3);margin-top:3px;font-weight:500">&#8212;</div>
@@ -6392,7 +6392,7 @@ window.toggleSidebar = function(){
             </div>
           </div>
           <div class="card" data-widget="chart-drawdown" style="padding:18px 20px 10px">
-            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px;padding-right:26px">
               <div>
                 <div class="dash-label" style="font-size:14px;font-weight:600;color:var(--text);letter-spacing:-.1px">Drawdown</div>
                 <div id="dash-dd-sub" style="font-size:12.5px;color:var(--text3);margin-top:3px;font-weight:500">&#8212;</div>
@@ -39609,8 +39609,9 @@ window.toggleSidebar = function(){
         else if(mode==='percent') val = '-'+maxPct.toFixed(2)+'%';
         else if(mode==='rmultiple') val = _fmtAmt(-maxDD, 'rmultiple', sym, {trades:t});
         else val = '-'+sym+Math.round(maxDD).toLocaleString();
-        var ddFillPct = Math.min(100, maxPct);
-        var mdMini = '<div style="flex:1;height:100%;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden"><div style="width:'+ddFillPct.toFixed(0)+'%;height:100%;background:var(--red);border-radius:2px"></div></div>';
+        // sqrt scale: even small DD% shows meaningful bar (2.4%→31%, 10%→63%, 20%→89%)
+        var ddFillPct = Math.min(100, Math.sqrt(maxPct / 25) * 100);
+        var mdMini = '<div style="flex:1;height:100%;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden"><div style="width:'+ddFillPct.toFixed(0)+'%;height:100%;background:var(--red);opacity:.85;border-radius:2px"></div></div>';
         return {
           value: val,
           valueColor: maxDD>0?'red':'',
