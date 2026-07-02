@@ -41639,6 +41639,42 @@ window.toggleSidebar = function(){
               '<div style="height:7px;background:rgba(255,255,255,.04);border-radius:3px;overflow:hidden"><div style="width:'+(al/maxv*100).toFixed(0)+'%;height:100%;background:'+TR+'"></div></div>' +
             '</div>' +
             (aw>0&&al>0 ? '<div style="font-size:12px;color:var(--text2);font-weight:600;margin-top:10px">Ratio: '+(aw/al).toFixed(1)+':1 '+(aw>=al?'· healthy ✓':'· cut winners early')+'</div>' : '');
+
+          // Breakdown by session (fills empty space meaningfully)
+          var sessWin={}, sessLoss={};
+          trades.forEach(function(t){
+            var min=0;
+            if(t.duration&&parseFloat(t.duration)>0) min=parseFloat(t.duration);
+            else if(t.holdMinutes&&parseFloat(t.holdMinutes)>0) min=parseFloat(t.holdMinutes);
+            else if(t.entryTime&&t.exitTime){
+              function _toMin2(s){var m=String(s).match(/^(\d{1,2}):(\d{2})/);return m?parseInt(m[1],10)*60+parseInt(m[2],10):-1;}
+              var em=_toMin2(t.entryTime),xm=_toMin2(t.exitTime);
+              if(em>=0&&xm>=0) min=xm>=em?xm-em:(xm+1440)-em;
+            }
+            if(!min||min<=0) return;
+            var sess=t.session||'Unknown';
+            var p=_pnlOf(t);
+            if(p>1){if(!sessWin[sess])sessWin[sess]={sum:0,n:0};sessWin[sess].sum+=min;sessWin[sess].n++;}
+            else if(p<-1){if(!sessLoss[sess])sessLoss[sess]={sum:0,n:0};sessLoss[sess].sum+=min;sessLoss[sess].n++;}
+          });
+          var sessKeys=Object.keys(Object.assign({},sessWin,sessLoss)).filter(function(k){return k!=='Unknown';});
+          if(sessKeys.length>=2){
+            el.innerHTML+='<div style="margin-top:14px;padding-top:12px;border-top:0.5px solid var(--border)">' +
+              '<div class="dw-label" style="margin-bottom:8px">BY SESSION</div>' +
+              sessKeys.map(function(sess){
+                var w=sessWin[sess]?sessWin[sess].sum/sessWin[sess].n:0;
+                var l=sessLoss[sess]?sessLoss[sess].sum/sessLoss[sess].n:0;
+                function fmt2(m){if(!m)return '—';if(m<60)return Math.round(m)+'m';var h=Math.floor(m/60);var mn=Math.round(m%60);return h+'h'+(mn>0?' '+mn+'m':'');}
+                return '<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;font-size:12px;border-bottom:0.5px solid var(--border)">' +
+                  '<span style="color:var(--text2);font-weight:500">'+sess+'</span>' +
+                  '<div style="display:flex;gap:14px">' +
+                    (w?'<span style="color:var(--green);font-variant-numeric:tabular-nums">W '+fmt2(w)+'</span>':'') +
+                    (l?'<span style="color:var(--red);font-variant-numeric:tabular-nums">L '+fmt2(l)+'</span>':'') +
+                  '</div>' +
+                '</div>';
+              }).join('') +
+            '</div>';
+          }
         }
       }
     }catch(_wErr){if(typeof console!=='undefined')console.error('[dash widget duration-bars]',_wErr);} }
@@ -42127,25 +42163,29 @@ window.toggleSidebar = function(){
 
     var prompt = 'You are a trading coach. Analyze this trader\'s recent performance and write a concise 3-4 sentence narrative insight. Be specific, honest, and actionable. Do not use bullet points.\n\nStats:\n- Trades: '+trades.length+' (from '+firstDate+' to '+lastDate+')\n- Net P&L: '+(net>=0?'+':'')+sym+Math.abs(Math.round(net))+'\n- Win rate: '+wr+'%\n- Most traded: '+topPair+(topSess?' ('+topSess+' session)':'')+'\n- Last 3 trades: '+sorted.slice(0,3).map(function(t){var p=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(t):(parseFloat(t.pnl)||0);return (p>=0?'+':'')+sym+Math.round(p);}).join(', ')+'\n\nWrite the narrative as if speaking directly to the trader. Focus on one key pattern and one actionable suggestion.';
 
-    fetch('https://api.anthropic.com/v1/messages', {
+    var _narrativeWorkerUrl = (typeof window.TQ_AI_WORKER_URL !== 'undefined' && window.TQ_AI_WORKER_URL.indexOf('CHANGE-ME') === -1)
+      ? window.TQ_AI_WORKER_URL
+      : 'https://tradequill-ai.gaipov-rustam.workers.dev';
+
+    fetch(_narrativeWorkerUrl, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:250,messages:[{role:'user',content:prompt}]})
+      body:JSON.stringify({type:'narrative', prompt:prompt, model:'claude-sonnet-4-6', max_tokens:250})
     }).then(function(r){return r.json();}).then(function(data){
-      var text = data.content && data.content[0] ? data.content[0].text : '';
+      // Worker returns {content:[{text:'...'}]} or {result:'...'} or {text:'...'}
+      var text = (data.content && data.content[0] && data.content[0].text)
+               || data.result || data.text || '';
       if (text) {
         el.innerHTML = '<div style="font-size:13px;color:var(--text2);line-height:1.75;font-weight:500">'+text+'</div>' +
-          '<div style="font-size:10.5px;color:var(--text3);margin-top:10px;display:flex;align-items:center;gap:5px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Generated '+new Date().toLocaleDateString()+'</div>';
-        // Cache it
+          '<div style="font-size:10.5px;color:var(--text3);margin-top:10px;display:flex;align-items:center;gap:5px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Generated '+tqLocalDateStr(new Date())+'</div>';
         try{rfxSet('tq_dash_narrative',JSON.stringify({text:text,ts:Date.now(),count:trades.length}));}catch(e){}
-      } else { el.innerHTML = '<span style="color:var(--text3);font-size:12px">Could not generate narrative. Try again.</span>'; }
+      } else { el.innerHTML = '<span style="color:var(--text3);font-size:12px">Could not generate. Try again.</span>'; }
     }).catch(function(){
-      // Try to show cached version
       try{
         var cached=JSON.parse(rfxGet('tq_dash_narrative')||'null');
         if(cached&&cached.text){ el.innerHTML='<div style="font-size:13px;color:var(--text2);line-height:1.75;opacity:.8">'+cached.text+'</div><div style="font-size:10.5px;color:var(--text3);margin-top:8px">Cached · '+new Date(cached.ts).toLocaleDateString()+'</div>'; return; }
       }catch(e){}
-      el.innerHTML = '<span style="color:var(--text3);font-size:12px">Offline. Check connection.</span>';
+      el.innerHTML = '<span style="color:var(--text3);font-size:12px">Could not reach AI. Check your Worker URL in Settings.</span>';
     });
   }
   window.dashAINarrativeRefresh = dashAINarrativeRefresh;
