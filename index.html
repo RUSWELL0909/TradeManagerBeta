@@ -4823,6 +4823,29 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
 .kpi-tile-badge.green{background:rgba(29,233,182,.12);color:var(--green)}
 .kpi-tile-badge.red{background:rgba(239,68,68,.12);color:var(--red)}
 .kpi-tile-badge.purple{background:rgba(124,90,240,.12);color:var(--accent3)}
+
+/* ── Dashboard Widget Design System ─────────────────────────────────────────
+   All dashboard widget cards share these tokens. Use classes instead of
+   inline styles so one edit here propagates everywhere.
+   ─────────────────────────────────────────────────────────────────────────── */
+.dw-card{padding:20px 22px;display:flex;flex-direction:column;min-height:220px;position:relative}
+.dw-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;padding-right:26px}
+.dw-title{font-size:14px;font-weight:600;color:var(--text);letter-spacing:-.1px;font-family:Inter,sans-serif}
+.dw-sub{font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:14px;font-weight:500;line-height:1.4}
+.dw-label{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.4px;text-transform:uppercase;font-family:Inter,sans-serif}
+.dw-body{font-size:13px;color:var(--text2);font-weight:500;font-family:Inter,sans-serif;line-height:1.55}
+.dw-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:100px;font-size:11.5px;font-weight:600;font-family:Inter,sans-serif}
+.dw-chip.green{background:rgba(29,233,182,.08);border:0.5px solid rgba(29,233,182,.2);color:var(--green)}
+.dw-chip.red{background:rgba(239,68,68,.08);border:0.5px solid rgba(239,68,68,.2);color:var(--red)}
+.dw-chip.amber{background:rgba(251,191,36,.08);border:0.5px solid rgba(251,191,36,.2);color:#fbbf24}
+.dw-chip.purple{background:rgba(124,90,240,.08);border:0.5px solid rgba(124,90,240,.2);color:var(--accent3)}
+.dw-divider{border:none;border-top:0.5px solid var(--border);margin:12px 0}
+.dw-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:0.5px solid var(--border);font-family:Inter,sans-serif}
+.dw-row:last-child{border-bottom:none}
+.dw-bar-track{flex:1;height:5px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden}
+[data-theme="light"] .dw-bar-track{background:rgba(0,0,0,.06)}
+.dw-bar-fill{height:100%;border-radius:3px;transition:width .4s ease}
+.dw-big{font-size:38px;font-weight:700;letter-spacing:-1.5px;line-height:1;font-variant-numeric:tabular-nums;font-family:Inter,sans-serif}
 .kpi-tile-badge.amber{background:rgba(240,180,41,.12);color:#f0b429}
 .kpi-tile-badge.neutral{background:rgba(255,255,255,.04);color:var(--text3)}
 [data-theme="light"] .kpi-tile-badge.green{background:#ecfdf5;color:#059669}
@@ -6072,11 +6095,18 @@ window.toggleSidebar = function(){
           <option value="AUD">AUD (A$)</option>
           <option value="NZD">NZD (NZ$)</option>
         </select>
+        <!-- Period filter -->
+        <div id="dash-period-btns" style="display:flex;gap:2px;padding:3px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;flex-shrink:0">
+          <button class="dash-period-btn" onclick="setDashPeriod(this,'day')" title="Today only" style="padding:5px 8px;border:none;background:transparent;color:var(--text3);border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;white-space:nowrap">1D</button>
+          <button class="dash-period-btn" onclick="setDashPeriod(this,'thisweek')" title="This calendar week (Mon–today)" style="padding:5px 8px;border:none;background:transparent;color:var(--text3);border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;white-space:nowrap">1W</button>
+          <button class="dash-period-btn" onclick="setDashPeriod(this,'thismonth')" title="This calendar month" style="padding:5px 8px;border:none;background:transparent;color:var(--text3);border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;white-space:nowrap">1M</button>
+          <button class="dash-period-btn active" onclick="setDashPeriod(this,'all')" title="All time" style="padding:5px 8px;border:none;background:var(--accent);color:white;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;white-space:nowrap">All</button>
+        </div>
         <div id="dash-view-switcher" style="display:flex;gap:2px;padding:3px;background:var(--bg2);border:1px solid var(--border);border-radius:8px">
-          <button class="dash-view-btn active" data-view="dollar" onclick="dashSetView('dollar')" title="Dollar view (display currency)" style="padding:5px 10px;border:none;background:var(--accent);color:white;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">$</button>
-          <button class="dash-view-btn" data-view="rmultiple" onclick="dashSetView('rmultiple')" title="R-Multiple view (P&L in R units of risk)" style="padding:5px 10px;border:none;background:transparent;color:var(--text3);border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">R</button>
+          <button class="dash-view-btn active" data-view="dollar" onclick="dashSetView('dollar')" title="Dollar view" style="padding:5px 10px;border:none;background:var(--accent);color:white;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">$</button>
+          <button class="dash-view-btn" data-view="rmultiple" onclick="dashSetView('rmultiple')" title="R-Multiple view" style="padding:5px 10px;border:none;background:transparent;color:var(--text3);border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">R</button>
           <button class="dash-view-btn" data-view="percent" onclick="dashSetView('percent')" title="Percentage view" style="padding:5px 10px;border:none;background:transparent;color:var(--text3);border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">%</button>
-          <button class="dash-view-btn" data-view="privacy" onclick="dashSetView('privacy')" title="Privacy view (hide amounts)" style="padding:5px 10px;border:none;background:transparent;color:var(--text3);border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">👁</button>
+          <button class="dash-view-btn" data-view="privacy" onclick="dashSetView('privacy')" title="Privacy mode" style="padding:5px 10px;border:none;background:transparent;color:var(--text3);border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">👁</button>
         </div>
         <button class="btn btn-ghost" id="dash-edit-layout-btn" style="font-size:12px;padding:8px 10px;display:flex;align-items:center;gap:5px" onclick="dashEditToggle()" title="Edit layout — reorder & hide tiles">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
@@ -6230,27 +6260,27 @@ window.toggleSidebar = function(){
     <!-- DAILY READINESS SCORE -->
     <div id="dash-readiness-bar" style="display:none;margin-bottom:10px;border-radius:12px;border:1px solid var(--border);background:var(--card);padding:14px 20px;font-family:Inter,sans-serif;overflow:hidden;position:relative">
       <div style="display:flex;align-items:center;gap:20px">
-        <!-- Semi-circle gauge -->
-        <div style="flex-shrink:0;position:relative;width:96px;height:60px">
-          <svg width="96" height="60" viewBox="0 0 100 64" style="display:block">
+        <!-- Semi-circle gauge: r=48, center=(55,52), arc M7,52→103,52 -->
+        <div style="flex-shrink:0;position:relative;width:110px;height:70px">
+          <svg width="110" height="58" viewBox="0 0 110 58" style="display:block">
             <defs>
               <linearGradient id="readGrad" x1="0%" y1="0%" x2="100%" y2="0%">
                 <stop offset="0%" stop-color="#ef4444"/>
-                <stop offset="45%" stop-color="#fbbf24"/>
+                <stop offset="40%" stop-color="#fbbf24"/>
                 <stop offset="100%" stop-color="#1de9b6"/>
               </linearGradient>
             </defs>
-            <!-- Track -->
-            <path d="M 10 58 A 40 40 0 0 1 90 58" fill="none" stroke="rgba(0,0,0,.08)" stroke-width="6" stroke-linecap="round"/>
-            <!-- Fill arc -->
-            <path id="dash-readiness-arc" d="M 10 58 A 40 40 0 0 1 90 58" fill="none" stroke="url(#readGrad)" stroke-width="6" stroke-linecap="round" stroke-dasharray="0 126" style="transition:stroke-dasharray .7s ease"/>
+            <!-- Track: semi-circle, r=48 -->
+            <path d="M 7 54 A 48 48 0 0 1 103 54" fill="none" stroke="rgba(0,0,0,.07)" stroke-width="8" stroke-linecap="round"/>
+            <!-- Fill: arc-length = π*48 ≈ 150.8 -->
+            <path id="dash-readiness-arc" d="M 7 54 A 48 48 0 0 1 103 54" fill="none" stroke="url(#readGrad)" stroke-width="8" stroke-linecap="round" stroke-dasharray="0 151" style="transition:stroke-dasharray .8s cubic-bezier(.4,0,.2,1)"/>
           </svg>
-          <!-- Score centered in the arc -->
-          <div style="position:absolute;bottom:2px;left:0;right:0;text-align:center;line-height:1">
-            <div style="font-size:8px;font-weight:700;color:var(--text3);letter-spacing:.5px;margin-bottom:1px">READINESS</div>
-            <div>
-              <span id="dash-readiness-score" style="font-size:22px;font-weight:800;letter-spacing:-1.5px;color:var(--green)">—</span><span style="font-size:9px;color:var(--text3);font-weight:500">/100</span>
-            </div>
+          <!-- Score label sits below the SVG, inside the parent 70px tall box -->
+          <div style="position:absolute;bottom:0;left:0;right:0;text-align:center;line-height:1">
+            <span id="dash-readiness-score" style="font-size:24px;font-weight:800;letter-spacing:-1.5px;color:var(--green)">—</span><span style="font-size:9px;color:var(--text3);font-weight:500"> /100</span>
+          </div>
+          <div style="position:absolute;top:0;left:0;right:0;text-align:center">
+            <span style="font-size:8px;font-weight:700;color:var(--text3);letter-spacing:.7px">READINESS</span>
           </div>
         </div>
         <div style="width:1px;height:40px;background:var(--border);flex-shrink:0"></div>
@@ -6276,12 +6306,12 @@ window.toggleSidebar = function(){
         <div class="dash-section" data-section="advanced-metrics">
         <div class="dash-advanced-grid" data-widget="advanced-metrics" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:0">
           <!-- Recovery Factor -->
-          <div class="card" data-widget="recovery-factor" style="padding:22px 24px;display:flex;flex-direction:column;min-height:220px;position:relative;overflow:hidden">
+          <div class="card" data-widget="recovery-factor" style="padding:20px 22px;display:flex;flex-direction:column;min-height:220px;position:relative;overflow:hidden">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;padding-right:26px">
-              <span style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:600">Recovery Factor</span>
+              <span class="dw-title">Recovery Factor</span>
               <span class="info-icon" data-tip="Net profit ÷ Max Drawdown. Higher = better recovery from losses. 2.0+ is strong.">i</span>
             </div>
-            <div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:14px">Net profit ÷ max drawdown</div>
+            <div class="dw-sub">Net profit ÷ max drawdown</div>
             <div id="dash-recovery" style="font-size:48px;font-weight:400;letter-spacing:-.8px;line-height:1;color:var(--green);font-variant-numeric:tabular-nums;margin-bottom:4px">&#8212;</div>
             <div id="dash-recovery-breakdown" style="font-size:12px;color:var(--text3);font-weight:500;margin-bottom:10px"></div>
             <svg id="dash-recovery-spark" style="height:42px;margin:6px 0 12px;width:100%" viewBox="0 0 100 30" preserveAspectRatio="none">
@@ -6307,12 +6337,12 @@ window.toggleSidebar = function(){
             </div>
           </div>
           <!-- Consistency -->
-          <div class="card" data-widget="consistency" style="padding:22px 24px;display:flex;flex-direction:column;min-height:220px">
+          <div class="card" data-widget="consistency" style="padding:20px 22px;display:flex;flex-direction:column;min-height:220px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;padding-right:26px">
-              <span style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:600">Consistency</span>
+              <span class="dw-title">Consistency</span>
               <span class="info-icon" data-tip="Score = 100 − (volatility ÷ avg daily P&L) × 20. Measures how erratic your day-to-day results are, not whether you're profitable. A profitable trader with wildly swinging days can still score low.">i</span>
             </div>
-            <div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:14px">Daily return stability score</div>
+            <div class="dw-sub">Daily return stability score</div>
             <div style="display:flex;align-items:center;gap:22px">
               <div style="position:relative;flex-shrink:0">
                 <svg width="100" height="100" viewBox="0 0 36 36">
@@ -6339,9 +6369,9 @@ window.toggleSidebar = function(){
             <div id="dash-consistency-spread" style="margin-top:16px;padding-top:12px;border-top:0.5px solid var(--border)"></div>
           </div>
           <!-- Goals -->
-          <div class="card" data-widget="goals" style="padding:22px 24px;display:flex;flex-direction:column;min-height:220px">
+          <div class="card" data-widget="goals" style="padding:20px 22px;display:flex;flex-direction:column;min-height:220px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;padding-right:26px">
-              <span style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:500">Goals</span>
+              <span class="dw-title">Goals</span>
               <button onclick="tqOpenGoals()" style="background:transparent;border:0.5px solid var(--border);color:var(--text3);cursor:pointer;font-size:16px;width:28px;height:28px;border-radius:6px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-weight:400" title="Manage goals">+</button>
             </div>
             <div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:18px">Track weekly &amp; monthly targets</div>
@@ -6354,12 +6384,12 @@ window.toggleSidebar = function(){
         <div class="dash-section" data-section="recent-calendar">
         <div class="dash-charts-split" style="display:grid;grid-template-columns:30fr 70fr;gap:12px;margin-top:12px">
           <!-- Recent Trades -->
-          <div class="card" data-widget="recent-trades" style="padding:14px 16px">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-right:26px">
-              <span class="dash-label" style="font-size:13px;font-weight:600;color:var(--text)">Recent Trades</span>
+          <div class="card" data-widget="recent-trades" style="padding:20px 22px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-right:26px">
+              <span class="dw-title">Recent Trades</span>
               <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px;font-weight:600" onclick="showPage('journal')">View all →</button>
             </div>
-            <div id="dash-recent-summary" style="font-size:11.5px;color:var(--text3);font-weight:500;margin-bottom:8px"></div>
+            <div id="dash-recent-summary" class="dw-sub" style="margin-bottom:8px"></div>
             <div style="display:grid;grid-template-columns:90px 1fr 80px;font-size:11px;color:var(--text3);font-family:Inter,sans-serif;font-weight:600;padding:0 2px;margin-bottom:6px">
               <span>Date</span><span>Symbol</span><span class="tq-right">P&L</span>
             </div>
@@ -6367,9 +6397,9 @@ window.toggleSidebar = function(){
             </div>
           </div>
           <!-- Calendar -->
-          <div class="card" data-widget="pnl-calendar" style="padding:16px 18px">
+          <div class="card" data-widget="pnl-calendar" style="padding:20px 22px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-right:26px">
-              <div class="tq-row"><button id="dash-cal-prev" class="dash-cal-nav">&#8249;</button><span id="dash-cal-title" style="font-size:12px;font-weight:600;font-family:Inter,sans-serif;letter-spacing:-.3px"></span><button id="dash-cal-next" class="dash-cal-nav">&#8250;</button></div>
+              <div class="tq-row"><button id="dash-cal-prev" class="dash-cal-nav">&#8249;</button><span id="dash-cal-title" style="font-size:13px;font-weight:600;font-family:Inter,sans-serif;letter-spacing:-.3px"></span><button id="dash-cal-next" class="dash-cal-nav">&#8250;</button></div>
               <div class="tq-row"><div id="dash-cal-month-total" style="font-size:12px;font-weight:600;font-family:Inter,sans-serif;color:var(--text3)"></div><button class="btn btn-ghost" style="font-size:10px;padding:3px 8px" id="dash-cal-today">This month</button></div>
             </div>
             <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px"><div class="dash-cal-hdr">SUN</div><div class="dash-cal-hdr">MON</div><div class="dash-cal-hdr">TUE</div><div class="dash-cal-hdr">WED</div><div class="dash-cal-hdr">THU</div><div class="dash-cal-hdr">FRI</div><div class="dash-cal-hdr">SAT</div></div>
@@ -6382,10 +6412,10 @@ window.toggleSidebar = function(){
         <!-- ALL 4 CHARTS — 2×2 compact -->
         <div class="dash-section" data-section="charts">
         <div class="dash-bottom-grid" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:1fr 1fr;gap:10px;margin-top:12px">
-          <div class="card" data-widget="chart-cumpnl" style="padding:18px 20px 10px">
+          <div class="card" data-widget="chart-cumpnl" style="padding:20px 22px 10px">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px;padding-right:26px">
               <div>
-                <div class="dash-label" style="font-size:14px;font-weight:600;color:var(--text);letter-spacing:-.1px">Daily net cumulative P&L</div>
+                <div class="dw-title">Daily net cumulative P&L</div>
                 <div id="dash-cum-sub" style="font-size:12.5px;color:var(--text3);margin-top:3px;font-weight:500">&#8212;</div>
               </div>
               <div id="dash-cum-total" class="dash-big-num green" style="font-size:24px;letter-spacing:-.5px;font-weight:700">&#8212;</div>
@@ -6399,10 +6429,10 @@ window.toggleSidebar = function(){
               <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:8px;height:8px;border-radius:50%;background:#ffd166;display:inline-block"></span>Peak</span>
             </div>
           </div>
-          <div class="card" data-widget="chart-dailypnl" style="padding:18px 20px 10px">
+          <div class="card" data-widget="chart-dailypnl" style="padding:20px 22px 10px">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px;padding-right:26px">
               <div>
-                <div class="dash-label" style="font-size:14px;font-weight:600;color:var(--text);letter-spacing:-.1px">Net daily P&L</div>
+                <div class="dw-title">Net daily P&L</div>
                 <div id="dash-bar-sub" style="font-size:12.5px;color:var(--text3);margin-top:3px;font-weight:500">&#8212;</div>
               </div>
               <div id="dash-bar-days" style="font-size:12px;color:var(--text3);white-space:nowrap;margin-top:3px">&#8212; days</div>
@@ -6414,10 +6444,10 @@ window.toggleSidebar = function(){
               <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:10px;height:0;border-top:2px dashed rgba(168,158,196,.6);display:inline-block"></span>Avg/day</span>
             </div>
           </div>
-          <div class="card" data-widget="chart-balance" style="padding:18px 20px 10px">
+          <div class="card" data-widget="chart-balance" style="padding:20px 22px 10px">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px;padding-right:26px">
               <div>
-                <div class="dash-label" style="font-size:14px;font-weight:600;color:var(--text);letter-spacing:-.1px">Account Balance</div>
+                <div class="dw-title">Account Balance</div>
                 <div id="dash-bal-sub" style="font-size:12.5px;color:var(--text3);margin-top:3px;font-weight:500">&#8212;</div>
               </div>
               <div id="dash-bal-total" class="dash-big-num" style="font-size:22px;letter-spacing:-.5px;font-weight:700;white-space:nowrap">&#8212;</div>
@@ -6429,10 +6459,10 @@ window.toggleSidebar = function(){
               <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:10px;height:0;border-top:2px dotted #ffd166;display:inline-block"></span>High-water mark</span>
             </div>
           </div>
-          <div class="card" data-widget="chart-drawdown" style="padding:18px 20px 10px">
+          <div class="card" data-widget="chart-drawdown" style="padding:20px 22px 10px">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px;padding-right:26px">
               <div>
-                <div class="dash-label" style="font-size:14px;font-weight:600;color:var(--text);letter-spacing:-.1px">Drawdown</div>
+                <div class="dw-title">Drawdown</div>
                 <div id="dash-dd-sub" style="font-size:12.5px;color:var(--text3);margin-top:3px;font-weight:500">&#8212;</div>
               </div>
               <span id="dash-max-dd" style="font-size:22px;font-weight:700;color:var(--red);font-family:Inter,sans-serif;white-space:nowrap">0.00%</span>
@@ -6455,53 +6485,53 @@ window.toggleSidebar = function(){
         <div class="dash-extras-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px">
 
           <!-- Pair distribution donut -->
-          <div class="card" data-widget="pair-distribution" data-widget-hidden="true" style="padding:22px 24px;min-height:220px">
-            <div style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:500;margin-bottom:14px">Pair distribution</div>
+          <div class="card" data-widget="pair-distribution" data-widget-hidden="true" style="padding:20px 22px;min-height:216px">
+            <div class="dw-header"><span class="dw-title">Pair distribution</span></div><div class="dw-sub">Performance breakdown by currency pair</div>
             <div id="dash-w-pair-content" style="display:flex;align-items:center;gap:16px"></div>
           </div>
 
           <!-- Win rate by setup -->
-          <div class="card" data-widget="win-by-setup" data-widget-hidden="true" style="padding:22px 24px;min-height:220px">
-            <div style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:500;margin-bottom:14px">Win rate by setup</div>
+          <div class="card" data-widget="win-by-setup" data-widget-hidden="true" style="padding:20px 22px;min-height:216px">
+            <div class="dw-header"><span class="dw-title">Win rate by setup</span></div><div class="dw-sub">Best strategies by win rate</div>
             <div id="dash-w-setup-content" style="font-size:11px"></div>
           </div>
 
           <!-- Performance by session -->
-          <div class="card" data-widget="session-perf" data-widget-hidden="true" style="padding:22px 24px;min-height:220px">
+          <div class="card" data-widget="session-perf" data-widget-hidden="true" style="padding:20px 22px;min-height:216px">
             <div style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:600;margin-bottom:14px">Performance by session</div>
             <div id="dash-w-session-content" style="font-size:13px"></div>
           </div>
 
           <!-- Session Matrix (was Hour-of-day heatmap) -->
-          <div class="card" data-widget="hour-heatmap" data-widget-hidden="true" style="padding:22px 24px;min-height:220px">
+          <div class="card" data-widget="hour-heatmap" data-widget-hidden="true" style="padding:20px 22px;min-height:216px">
             <div style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:600;margin-bottom:4px">Session matrix</div>
-            <div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:12px">P&L by hour × day · hover cell for details</div>
+            <div id="dash-w-session-matrix-sub" class="dw-sub">P&L by hour × day · hover cell for details</div>
             <div id="dash-w-hour-grid" style="gap:2px"></div>
             <div id="dash-w-hour-summary"></div>
             <div id="dash-w-hour-active"></div>
           </div>
 
           <!-- Day of week -->
-          <div class="card" data-widget="dow-bars" data-widget-hidden="true" style="padding:22px 24px;min-height:220px">
+          <div class="card" data-widget="dow-bars" data-widget-hidden="true" style="padding:20px 22px;min-height:216px">
             <div style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:600;margin-bottom:14px">Day of week performance</div>
             <div id="dash-w-dow-content" style="font-size:13px"></div>
           </div>
 
           <!-- Top costly mistakes -->
-          <div class="card" data-widget="top-mistakes" data-widget-hidden="true" style="padding:22px 24px;min-height:220px">
+          <div class="card" data-widget="top-mistakes" data-widget-hidden="true" style="padding:20px 22px;min-height:216px">
             <div style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:600;margin-bottom:14px">Top costly mistakes</div>
             <div id="dash-w-mistakes-content" style="font-size:13px"></div>
           </div>
 
           <!-- Win/Loss split donut -->
-          <div class="card" data-widget="wl-donut" data-widget-hidden="true" style="padding:22px 24px;min-height:220px">
-            <div style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:500;margin-bottom:14px">Win/Loss split</div>
+          <div class="card" data-widget="wl-donut" data-widget-hidden="true" style="padding:20px 22px;min-height:216px">
+            <div class="dw-header"><span class="dw-title">Win/Loss split</span></div>
             <div id="dash-w-wl-content"></div>
           </div>
 
           <!-- Avg duration W vs L -->
-          <div class="card" data-widget="duration-bars" data-widget-hidden="true" style="padding:22px 24px;min-height:220px">
-            <div style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:500;margin-bottom:14px">Avg duration · win vs loss</div>
+          <div class="card" data-widget="duration-bars" data-widget-hidden="true" style="padding:20px 22px;min-height:216px">
+            <div class="dw-header"><span class="dw-title">Avg duration · win vs loss</span></div>
             <div id="dash-w-duration-content" style="display:flex;flex-direction:column;gap:14px;font-size:11px"></div>
           </div>
 
@@ -6516,42 +6546,42 @@ window.toggleSidebar = function(){
           </div>
 
           <!-- R-multiple distribution -->
-          <div class="card" data-widget="r-distribution" data-widget-hidden="true" style="padding:22px 24px;min-height:220px">
+          <div class="card" data-widget="r-distribution" data-widget-hidden="true" style="padding:20px 22px;min-height:216px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;padding-right:26px">
               <span style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:500">R-multiple distribution</span>
               <span class="info-icon" data-tip="Histogram of trade outcomes in R (risk units). Shows the real shape of your edge — a healthy system has small losses clustered at -1R and a tail of bigger wins.">i</span>
             </div>
-            <div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:14px">Outcome shape in risk units</div>
+            <div class="dw-sub">Outcome shape in risk units</div>
             <div id="dash-w-rdist-content"></div>
           </div>
 
           <!-- Tilt detector -->
-          <div class="card" data-widget="tilt-detector" data-widget-hidden="true" style="padding:22px 24px;min-height:220px">
+          <div class="card" data-widget="tilt-detector" data-widget-hidden="true" style="padding:20px 22px;min-height:216px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;padding-right:26px">
               <span style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:500">Tilt detector</span>
               <span class="info-icon" data-tip="Behavioral patterns that hurt P&L — revenge trading after losses, overtrading, and performance after a first win of the day.">i</span>
             </div>
-            <div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:14px">Behavioral risk signals</div>
+            <div class="dw-sub">Behavioral risk signals</div>
             <div id="dash-w-tilt-content" style="display:flex;flex-direction:column;gap:10px"></div>
           </div>
 
           <!-- Best Setup (Your Edge highlight) -->
-          <div class="card" data-widget="best-setup" data-widget-hidden="true" style="padding:22px 24px;min-height:220px">
+          <div class="card" data-widget="best-setup" data-widget-hidden="true" style="padding:20px 22px;min-height:216px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;padding-right:26px">
               <span style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:600">Your Edge</span>
               <span class="info-icon" data-tip="Auto-detected best performing pair, session, and day based on your trade history.">i</span>
             </div>
-            <div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:14px">Best performing setup</div>
+            <div class="dw-sub">Best performing setup</div>
             <div id="dash-w-best-setup-content"></div>
           </div>
 
           <!-- AI Weekly Narrative -->
-          <div class="card" data-widget="ai-narrative" data-widget-hidden="true" style="padding:22px 24px;min-height:220px">
+          <div class="card" data-widget="ai-narrative" data-widget-hidden="true" style="padding:20px 22px;min-height:216px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;padding-right:26px">
               <span style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:600">AI Weekly Narrative</span>
               <button onclick="dashAINarrativeRefresh()" title="Refresh" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:2px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>
             </div>
-            <div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:14px">AI insight on your recent trading</div>
+            <div class="dw-sub">AI insight on your recent trading</div>
             <div id="dash-w-narrative-content" style="font-size:13px;color:var(--text2);line-height:1.7;font-weight:500"></div>
           </div>
 
@@ -10298,7 +10328,7 @@ window.toggleSidebar = function(){
       var url = URL.createObjectURL(blob);
       var a = document.createElement('a');
       a.href = url;
-      a.download = 'tradequill-backup-'+new Date().toISOString().slice(0,10)+'.json';
+      a.download = 'tradequill-backup-'+tqLocalDateStr(new Date())+'.json';
       a.click();
       URL.revokeObjectURL(url);
     } catch(e){ alert('Export failed: '+e.message); }
@@ -10459,7 +10489,7 @@ window.toggleSidebar = function(){
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
     a.href = url;
-    a.download = 'tradequill-export-' + new Date().toISOString().slice(0,10) + '.json';
+    a.download = 'tradequill-export-' + tqLocalDateStr(new Date()) + '.json';
     document.body.appendChild(a);
     a.click();
     setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); }, 100);
@@ -10971,6 +11001,28 @@ window.toggleSidebar = function(){
   }
   window.tqNormalizeDate = tqNormalizeDate;
 
+  // ── UTC-safe date helpers ────────────────────────────────────────────────
+  // Problem: new Date("2026-06-18").getDay() parses as UTC midnight, then
+  // .getDay()/.getMonth() read back in LOCAL timezone → silently shifts 1 day
+  // for anyone east of UTC (Tashkent = UTC+5 → 23:00 prev day local time).
+  // Solution: always parse YYYY-MM-DD components manually into local Date.
+  window.tqDateObj = function(s){
+    var m=String(s||'').match(/^(\d{4})-(\d{2})-(\d{2})/);
+    return m?new Date(parseInt(m[1]),parseInt(m[2])-1,parseInt(m[3])):new Date(s);
+  };
+  window.tqDow     = function(s){ return window.tqDateObj(s).getDay(); };
+  window.tqDowName = function(s,lc){ return window.tqDateObj(s).toLocaleDateString(lc||'en-US',{weekday:'long'}); };
+  window.tqDowShort= function(s,lc){ return window.tqDateObj(s).toLocaleDateString(lc||'en-US',{weekday:'short'}); };
+  // Convert a local Date to YYYY-MM-DD without UTC shift
+  window.tqLocalDateStr = function(d){
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  };
+  // UTC-safe "N days ago" cutoff string
+  window.tqDaysAgoCutoff = function(n){
+    var d=new Date(); d.setDate(d.getDate()-n); d.setHours(0,0,0,0);
+    return window.tqLocalDateStr(d);
+  };
+
   // ── Global active-account filter ──
   // Shared across Dashboard, Day View (and any future page) so picking an account
   // on one page applies everywhere. 'all' = combined view.
@@ -11272,10 +11324,9 @@ window.toggleSidebar = function(){
       _tqFxRerenderQueued = true;
       _tqFxFetch().then(function(){
         _tqFxRerenderQueued = false;
-        // Re-render aggregations once fresh rates arrive
         if(typeof updateDashboard === 'function') try{ updateDashboard(); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
         if(typeof updateReports === 'function') try{ updateReports(); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
-      });
+      }).catch(function(){ _tqFxRerenderQueued = false; });
     }
     return {USD:1, EUR:1, GBP:1, JPY:1, CHF:1, CAD:1, AUD:1, NZD:1, SGD:1, HKD:1, SEK:1};
   }
@@ -14390,8 +14441,8 @@ window.toggleSidebar = function(){
   // ══ COCKPIT SESSIONS SYNC ══
   function tqCkToRow(d){
     return {
-      external_id: d.date||new Date().toISOString().slice(0,10),
-      date: d.date||new Date().toISOString().slice(0,10),
+      external_id: d.date||tqLocalDateStr(new Date()),
+      date: d.date||tqLocalDateStr(new Date()),
       session_name: d.session||'',
       data: d,
       // Touch updated_at so multi-device conflict detection can use it
@@ -14413,7 +14464,7 @@ window.toggleSidebar = function(){
   window.tqPushCockpit=tqPushCockpit;
   function tqPullCockpit(){
     if(!_tqSupa||!_tqUser)return;
-    var today=new Date().toISOString().slice(0,10);
+    var today=tqLocalDateStr(new Date());
     _tqSupa.from('cockpit_sessions').select('*').eq('user_id',_tqUser.id).eq('date',today).maybeSingle().then(function(res){
       if(res.error||!res.data)return;
       var local=null;try{local=JSON.parse(rfxGet('rossfx-cockpit3'));}catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
@@ -15952,7 +16003,7 @@ window.toggleSidebar = function(){
         }
         return true;
       });
-      var today = new Date().toISOString().slice(0,10);
+      var today = tqLocalDateStr(new Date());
 
       // Daily P&L (today only)
       var todayPnl = trades.reduce(function(s,t){
@@ -16277,7 +16328,7 @@ window.toggleSidebar = function(){
       var simulatedTrades = allTrades.slice();
       // Inject simulated trade
       simulatedTrades.push({
-        date: new Date().toISOString().slice(0,10),
+        date: tqLocalDateStr(new Date()),
         account: accountId,
         pnl: simulatedPnl,
         _simulated: true
@@ -16750,7 +16801,7 @@ window.toggleSidebar = function(){
         return items.join('');
       }
 
-      var today = new Date().toISOString().slice(0,10);
+      var today = tqLocalDateStr(new Date());
       var startBal = parseFloat(acc.startingBalance||acc.balance)||0;
       // Pre-fill suggestion: if a reset is already active, suggest its balance (most users reset to the same target each time)
       var spForModal = (typeof accGetStartingPoint==='function') ? accGetStartingPoint(acc) : null;
@@ -20485,7 +20536,21 @@ window.toggleSidebar = function(){
         try{ rfxSet('nav_more_open', '1'); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
       }
     }
-    if (id === 'dashboard') updateDashboard();
+    if (id === 'dashboard') {
+      updateDashboard();
+      // Restore period button active state from saved preference
+      var savedPeriod = rfxGet('rf_dash_period') || 'all';
+      if (savedPeriod !== 'all') setDashPeriod(null, savedPeriod);
+      else {
+        document.querySelectorAll('.dash-period-btn').forEach(function(b){
+          var oc = b.getAttribute('onclick')||'';
+          var isAll = oc.indexOf("'all'")>=0;
+          b.style.background = isAll ? 'var(--accent)' : 'transparent';
+          b.style.color = isAll ? 'white' : 'var(--text3)';
+          if(isAll) b.classList.add('active'); else b.classList.remove('active');
+        });
+      }
+    }
     if (id === 'accounts' && window.renderAccountsPage) window.renderAccountsPage();
     if (id === 'reports') {
       // If lazy-skipped during background operations, force re-render
@@ -21734,11 +21799,11 @@ window.toggleSidebar = function(){
 
     // Get user's last 7 days trades (Mon-Sun rolling)
     var trades = (typeof getTradesArr === 'function') ? getTradesArr().filter(function(t){return !t._demo && !t.deleted;}) : [];
-    var weekAgo = new Date();
-    weekAgo.setDate(weekAgo.getDate() - 7);
+    var _waD = new Date(); _waD.setDate(_waD.getDate()-7); _waD.setHours(0,0,0,0);
+    var weekAgoCutoff = (typeof tqLocalDateStr==='function') ? tqLocalDateStr(_waD) : _waD.toISOString().slice(0,10);
     var weekTrades = trades.filter(function(t){
       if(!t.date) return false;
-      return new Date(t.date) >= weekAgo;
+      return String(t.date).slice(0,10) >= weekAgoCutoff;
     });
 
     if(weekTrades.length === 0){
@@ -21821,18 +21886,18 @@ window.toggleSidebar = function(){
     var dtEl = document.getElementById('pdf-date-to');
     if(!dfEl || !dtEl) return;
     var now = new Date();
-    var to = now.toISOString().slice(0,10);
+    var to = tqLocalDateStr(now);
     var from = '';
     if(key === 'week'){
-      var w = new Date(now - 7*86400000);
-      from = w.toISOString().slice(0,10);
+      var _w=new Date(now);_w.setDate(now.getDate()-7);_w.setHours(0,0,0,0);
+      from = tqLocalDateStr(_w);
     } else if(key === 'month'){
-      var mo = new Date(now - 30*86400000);
-      from = mo.toISOString().slice(0,10);
+      var _mo=new Date(now);_mo.setDate(now.getDate()-30);_mo.setHours(0,0,0,0);
+      from = tqLocalDateStr(_mo);
     } else if(key === 'mtd'){
-      from = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0,10);
+      from = tqLocalDateStr(new Date(now.getFullYear(), now.getMonth(), 1));
     } else if(key === 'ytd'){
-      from = new Date(now.getFullYear(), 0, 1).toISOString().slice(0,10);
+      from = tqLocalDateStr(new Date(now.getFullYear(), 0, 1));
     } else if(key === 'all'){
       from = '';
       to = '';
@@ -22038,7 +22103,7 @@ window.toggleSidebar = function(){
     for(var i=0;i<7;i++) byDow[i] = {pnl:0, count:0, wins:0};
     trades.forEach(function(t){
       if(!t.date) return;
-      var d = new Date(t.date).getDay();
+      var d = tqDow(t.date);
       byDow[d].pnl += _pnl(t);
       byDow[d].count++;
       if(_pnl(t) > 0) byDow[d].wins++;
@@ -23136,9 +23201,9 @@ window.toggleSidebar = function(){
       if(!wkEl||sorted.length===0)return;
       var weeks={};
       sorted.forEach(function(x){
-        var d=new Date(x.date||'2025-01-01');
+        var d=tqDateObj(x.date||'2025-01-01');
         var startOfWeek=new Date(d);startOfWeek.setDate(d.getDate()-d.getDay()+1);
-        var wk=startOfWeek.toISOString().slice(0,10);
+        var wk=tqLocalDateStr(startOfWeek);
         if(!weeks[wk])weeks[wk]={total:0,followed:0};
         weeks[wk].total++;
         if(x.planFollowed==='yes')weeks[wk].followed++;
@@ -25606,7 +25671,13 @@ window.toggleSidebar = function(){
       }
       var parsed = JSON.parse(raw);
       if(!Array.isArray(parsed)) return [];
-      parsed.forEach(autoDetectSession);
+      // autoDetectSession mutates trades in-memory — write back if any trade got a new session tag
+      var _anyNew = false;
+      parsed.forEach(function(t){ var before = t.session; autoDetectSession(t); if(!before && t.session) _anyNew = true; });
+      if(_anyNew){
+        // Write back silently, suppressing cache invalidation (would loop)
+        try{ localStorage.setItem('rf_trades', JSON.stringify(parsed)); }catch(e){}
+      }
       var active = parsed.filter(function(t){return !t.deleted;});
       _gtCache = { ts: Date.now(), all: parsed, active: active, raw: raw };
       return _applyViewModeFilter(active);
@@ -25853,7 +25924,7 @@ window.toggleSidebar = function(){
       }
     } else {
       // Default date to today
-      document.getElementById('jr-date').value = new Date().toISOString().slice(0,10);
+      document.getElementById('jr-date').value = tqLocalDateStr(new Date());
       jrSetDir('buy');
     }
     // Reset Direction group visibility (Cockpit-simple path may hide it later)
@@ -26741,7 +26812,7 @@ window.toggleSidebar = function(){
     btn.parentNode.querySelectorAll('.jr-conf-pill').forEach(function(b){b.classList.remove('on');});
     btn.classList.add('on');
     var d=new Date();if(when==='yesterday')d.setDate(d.getDate()-1);
-    document.getElementById('jr-date').value=d.toISOString().slice(0,10);
+    document.getElementById('jr-date').value=tqLocalDateStr(d);
   }
   window.jrSetDateQuick=jrSetDateQuick;
 
@@ -26894,7 +26965,7 @@ window.toggleSidebar = function(){
     if(!t) return;
     var dup=JSON.parse(JSON.stringify(t));
     dup.id='tr_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
-    dup.date=new Date().toISOString().slice(0,10);
+    dup.date=tqLocalDateStr(new Date());
     dup.created=new Date().toISOString();
     dup.pnl=0;dup.grossPnl=0;dup.exit=0;dup.exitTime='';dup.notes='';dup.screenshots=[];
     // Open modal with duplicated data
@@ -27352,7 +27423,7 @@ window.toggleSidebar = function(){
     // Date stamp
     ctx.font='400 9px sans-serif';
     ctx.fillStyle='#3a3560';
-    var stamp=new Date().toISOString().slice(0,10);
+    var stamp=tqLocalDateStr(new Date());
     ctx.fillText(stamp,W-32-ctx.measureText(stamp).width,H-20);
 
     // ── Download ──
@@ -27578,7 +27649,7 @@ window.toggleSidebar = function(){
     var blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
     var a=document.createElement('a');
     a.href=URL.createObjectURL(blob);
-    a.download='tradequill-trades-'+new Date().toISOString().slice(0,10)+'.csv';
+    a.download='tradequill-trades-'+tqLocalDateStr(new Date())+'.csv';
     a.click();
     rfxRecordBackup();
   }
@@ -27612,7 +27683,7 @@ window.toggleSidebar = function(){
     var blob=new Blob([json],{type:'application/json'});
     var a=document.createElement('a');
     a.href=URL.createObjectURL(blob);
-    a.download='tradequill-backup-'+new Date().toISOString().slice(0,10)+'.json';
+    a.download='tradequill-backup-'+tqLocalDateStr(new Date())+'.json';
     a.click();
     rfxSet('rf_last_backup',new Date().toISOString());
     rfxSet('rf_backup_counter','0');
@@ -28971,7 +29042,7 @@ window.toggleSidebar = function(){
 
         var t = {
           id: 'tr_demo_'+Date.now()+'_'+i+'_'+Math.random().toString(36).slice(2,5),
-          date: date.toISOString().slice(0,10),
+          date: tqLocalDateStr(date),
           pair: pair,
           symbol: pair,
           account: 'acc_demo_sample',
@@ -29127,7 +29198,7 @@ window.toggleSidebar = function(){
     }
     var pct = target > 0 ? Math.min(100, Math.max(0, (current / target) * 100)) : 0;
 
-    // Days remaining in the period + pace needed (for $ and trade-count goals — % goals don't have a meaningful "pace")
+    // Days remaining + pace needed
     var daysLeft = null, paceLabel = null;
     if (goal.period === 'week' || goal.period === 'month' || goal.period === 'year') {
       var periodEnd;
@@ -29139,11 +29210,23 @@ window.toggleSidebar = function(){
         periodEnd = new Date(now.getFullYear(), 11, 31);
       }
       daysLeft = Math.max(0, Math.ceil((periodEnd - now) / 86400000));
-      if (daysLeft > 0 && pct < 100 && (goal.type === 'pnl' || goal.type === 'trades')) {
+      if (daysLeft > 0 && pct < 100) {
         var remaining = target - current;
         if (remaining > 0) {
-          var perDay = remaining / daysLeft;
-          paceLabel = goal.type === 'pnl' ? (sym + Math.round(perDay).toLocaleString() + '/day needed') : (Math.ceil(perDay) + '/day needed');
+          if (goal.type === 'pnl') {
+            paceLabel = sym + Math.round(remaining/daysLeft).toLocaleString() + '/day needed';
+          } else if (goal.type === 'trades') {
+            paceLabel = Math.ceil(remaining/daysLeft) + '/day needed';
+          } else if (goal.type === 'win_rate') {
+            // How many more wins needed from remaining trades to hit target WR
+            var totalTrd = trades.length;
+            var currentWins = Math.round(current/100 * totalTrd);
+            // If we trade N more, need X more wins: (currentWins+X)/(total+N) = target/100
+            // X = target/100*(total+N) - currentWins → show minimum wins per day estimate
+            paceLabel = 'Need ' + (target - Math.round(current)) + '% more WR';
+          } else if (goal.type === 'profit_factor') {
+            paceLabel = 'Need PF ' + target.toFixed(2) + ' (currently ' + current.toFixed(2) + ')';
+          }
         }
       }
     }
@@ -29758,7 +29841,7 @@ window.toggleSidebar = function(){
         todayCard.style.display='flex';
         // Label: show actual date if not literally today
         var todayLabel=document.getElementById('jr-today-label');
-        var realToday=new Date().toISOString().slice(0,10);
+        var realToday=tqLocalDateStr(new Date());
         if(todayLabel) todayLabel.textContent=(latestDay===realToday)?'TODAY':'LATEST · '+latestDay.slice(5);
         // Stats
         var tdPnl=todayTrades.reduce(function(a,x){return a+tqConvertTradePnl(x);},0);
@@ -30149,7 +30232,7 @@ window.toggleSidebar = function(){
     var firstDay=new Date(dvYear,dvMonth,1);
     var daysInMonth=new Date(dvYear,dvMonth+1,0).getDate();
     var startDow=(firstDay.getDay()+6)%7;
-    var todayStr=new Date().toISOString().slice(0,10);
+    var todayStr=tqLocalDateStr(new Date());
     var h='';
     dayNames.forEach(function(d){h+='<div class="dv-cal-head">'+d+'</div>';});
     var adj=showWkd?startDow:(startDow>=5?0:startDow);
@@ -30624,7 +30707,7 @@ window.toggleSidebar = function(){
     var tradingDays=Object.keys(dayMap).length;
 
     // Today's P&L
-    var today=new Date().toISOString().slice(0,10);
+    var today=tqLocalDateStr(new Date());
     var todayTrades=trades.filter(function(t){return t.date===today;});
     var todayPnl=todayTrades.reduce(function(a,t){return a+tqConvertTradePnl(t);},0);
 
@@ -30922,8 +31005,8 @@ window.toggleSidebar = function(){
     // Weekly insight — auto-generated
     var insightEl=$('pt-weekly-insight');
     if(insightEl&&trades.length>0){
-      var now3=new Date();var weekAgo2=new Date(now3);weekAgo2.setDate(weekAgo2.getDate()-7);
-      var ws2=weekAgo2.toISOString().slice(0,10);
+      var now3=new Date();var weekAgo2=new Date(now3);weekAgo2.setDate(weekAgo2.getDate()-7);weekAgo2.setHours(0,0,0,0);
+      var ws2=tqLocalDateStr(weekAgo2);
       var weekT=trades.filter(function(t){return t.date>=ws2;});
       var weekPnl=weekT.reduce(function(a,t){return a+tqConvertTradePnl(t);},0);
       var weekWins=weekT.filter(function(t){return tqConvertTradePnl(t)>0;}).length;
@@ -30948,7 +31031,7 @@ window.toggleSidebar = function(){
   window.ptRender=ptRender;
   setTimeout(function(){ptRender();ptInitReviews();if(typeof aiGenerateDaily==='function')aiGenerateDaily();if(typeof aiGenerateWeekly==='function')aiGenerateWeekly();
     // Set default date on AI filter to avoid Russian placeholder
-    var aiDate=document.getElementById('ai-filter-date');if(aiDate&&!aiDate.value)aiDate.value=new Date().toISOString().slice(0,10);
+    var aiDate=document.getElementById('ai-filter-date');if(aiDate&&!aiDate.value)aiDate.value=tqLocalDateStr(new Date());
   },650);
 
   // ── Monthly Report Card ──
@@ -30964,7 +31047,7 @@ window.toggleSidebar = function(){
       ptRenderMonthCard();
     }
     // Populate week selector
-    var weeks={};trades.forEach(function(t){if(t.date){var d=new Date(t.date);var start=new Date(d);start.setDate(d.getDate()-d.getDay()+1);var wk=start.toISOString().slice(0,10);weeks[wk]=true;}});
+    var weeks={};trades.forEach(function(t){if(t.date){var d=tqDateObj(t.date);var start=new Date(d);start.setDate(d.getDate()-d.getDay()+1);var wk=tqLocalDateStr(start);weeks[wk]=true;}});
     var wArr=Object.keys(weeks).sort().reverse();
     var wSel=document.getElementById('pt-week-select');
     if(wSel){
@@ -31020,8 +31103,8 @@ window.toggleSidebar = function(){
     var el=document.getElementById('pt-week-review');
     if(!wSel||!el) return;
     var week=wSel.value;if(!week){el.innerHTML='<div style="color:var(--text3);font-size:12px">No data</div>';return;}
-    var wStart=new Date(week);var wEnd=new Date(wStart);wEnd.setDate(wStart.getDate()+6);
-    var ws=wStart.toISOString().slice(0,10);var we=wEnd.toISOString().slice(0,10);
+    var wStart=tqDateObj(week);var wEnd=new Date(wStart);wEnd.setDate(wStart.getDate()+6);
+    var ws=tqLocalDateStr(wStart);var we=tqLocalDateStr(wEnd);
     var trades=((typeof getActiveTrades==='function')?getActiveTrades():JSON.parse(rfxGet('rf_trades')||'[]').filter(function(t){return !t.deleted;}));
     var wt=trades.filter(function(t){return t.date&&t.date>=ws&&t.date<=we;});
     if(!wt.length){el.innerHTML='<div style="color:var(--text3);font-size:12px">No trades this week</div>';return;}
@@ -31064,7 +31147,7 @@ window.toggleSidebar = function(){
   function aiGenerateDaily(){
     var el2=document.getElementById('ai-daily-analysis');if(!el2)return;
     var trades=getTradesArr();if(trades.length<5){el2.innerHTML='<div class="tq-text-muted">Need at least 5 trades for analysis</div>';return;}
-    var today=new Date().toISOString().slice(0,10);
+    var today=tqLocalDateStr(new Date());
     var sorted2=trades.slice().sort(function(a,b){return(a.date||'').localeCompare(b.date||'');});
     var todayT=sorted2.filter(function(t){return t.date===today;});
     // If no trades today, use last trading day
@@ -31147,13 +31230,13 @@ window.toggleSidebar = function(){
 
     // Get this week's trades (Mon-Sun)
     var now=new Date();var dow=now.getDay();var mondayOff=dow===0?6:dow-1;
-    var monday=new Date(now);monday.setDate(monday.getDate()-mondayOff);
-    var monKey=monday.toISOString().slice(0,10);
+    var monday=new Date(now);monday.setDate(monday.getDate()-mondayOff);monday.setHours(0,0,0,0);
+    var monKey=tqLocalDateStr(monday);
     var weekT=sorted3.filter(function(t){return(t.date||'')>=monKey;});
     // If no trades this week, use last week
     if(weekT.length===0){
       var lastMon=new Date(monday);lastMon.setDate(lastMon.getDate()-7);
-      var lastMonKey=lastMon.toISOString().slice(0,10);
+      var lastMonKey=tqLocalDateStr(lastMon);
       weekT=sorted3.filter(function(t){return(t.date||'')>=lastMonKey&&(t.date||'')<monKey;});
       monKey=lastMonKey;
     }
@@ -31167,7 +31250,7 @@ window.toggleSidebar = function(){
 
     // Previous week comparison
     var prevMon=new Date(monday);prevMon.setDate(prevMon.getDate()-7);
-    var prevMonKey=prevMon.toISOString().slice(0,10);
+    var prevMonKey=tqLocalDateStr(prevMon);
     var prevWeekT=sorted3.filter(function(t){return(t.date||'')>=prevMonKey&&(t.date||'')<monKey;});
     var prevPnl=prevWeekT.reduce(function(a,t){return a+tqConvertTradePnl(t);},0);
     var prevWR=prevWeekT.length>0?(prevWeekT.filter(function(t){return tqConvertTradePnl(t)>0;}).length/prevWeekT.length*100):0;
@@ -31282,7 +31365,7 @@ window.toggleSidebar = function(){
     } else if(period==='week'){
       var dt2=new Date(targetDate+'T12:00:00');var dw=dt2.getDay();var mo=dw===0?6:dw-1;
       var m2=new Date(dt2);m2.setDate(m2.getDate()-mo);var s2=new Date(m2);s2.setDate(s2.getDate()+6);
-      var mk=m2.toISOString().slice(0,10),sk=s2.toISOString().slice(0,10);
+      var mk=tqLocalDateStr(m2),sk=tqLocalDateStr(s2);
       filteredTrades=sorted4.filter(function(t){return(t.date||'')>=mk&&(t.date||'')<=sk;});
       tradeData='WEEKLY ANALYSIS for '+mk+' to '+sk+'\n';
     } else {
@@ -31582,7 +31665,7 @@ window.toggleSidebar = function(){
       var dow = new Date(trade.date).toLocaleDateString('en-US',{weekday:'long'});
       var dowTrades = allTrades.filter(function(t){
         if(!t.date) return false;
-        try { return new Date(t.date).toLocaleDateString('en-US',{weekday:'long'})===dow; } catch(e){ return false; }
+        try { return tqDowName(t.date,'en-US')===dow; } catch(e){ return false; }
       });
       var d = _stats(dowTrades);
       if(d && d.count>2){
@@ -31660,7 +31743,7 @@ window.toggleSidebar = function(){
     // 1. Rapid trading — 3+ trades in last 30 minutes
     var now = justAddedTrade && justAddedTrade.date ? new Date(justAddedTrade.date) : new Date();
     // Note: we don't have timestamps so use count of today's trades
-    var today = (justAddedTrade && justAddedTrade.date) || new Date().toISOString().slice(0,10);
+    var today = (justAddedTrade && justAddedTrade.date) || tqLocalDateStr(new Date());
     var todayTrades = trades.filter(function(t){return t.date===today;});
     if(todayTrades.length >= 5){
       alerts.push({
@@ -31807,7 +31890,7 @@ window.toggleSidebar = function(){
     // Need at least some trades this week
     var trades = _aiGetTradesSorted();
     var weekAgoDate = new Date(today.getTime() - 7*24*60*60*1000);
-    var weekAgo = weekAgoDate.toISOString().slice(0,10);
+    var weekAgo = tqLocalDateStr(weekAgoDate);
     var weekTrades = trades.filter(function(t){return t.date && t.date >= weekAgo;});
     if(weekTrades.length < 3) return;
 
@@ -31970,7 +32053,7 @@ window.toggleSidebar = function(){
     trades.forEach(function(t){
       if(!t.date) return;
       try {
-        var d = new Date(t.date).toLocaleDateString('en-US',{weekday:'long'});
+        var d = tqDowName(t.date,'en-US');
         if(!days[d]) days[d] = {c:0, w:0, pnl:0};
         days[d].c++;
         days[d].pnl += tqConvertTradePnl(t);
@@ -32367,7 +32450,7 @@ window.toggleSidebar = function(){
     var todayDow = today.toLocaleDateString('en-US',{weekday:'long'});
     var dowPairTrades = pairTrades.filter(function(t){
       if(!t.date) return false;
-      try { return new Date(t.date).toLocaleDateString('en-US',{weekday:'long'})===todayDow; } catch(e){ return false; }
+      try { return tqDowName(t.date,'en-US')===todayDow; } catch(e){ return false; }
     });
     if(dowPairTrades.length >= 4){
       var dWins = dowPairTrades.filter(function(t){return tqConvertTradePnl(t)>0;}).length;
@@ -32401,7 +32484,7 @@ window.toggleSidebar = function(){
       var s=t.session||'Other';if(!sessions5[s])sessions5[s]={pnl:0,c:0,w:0};sessions5[s].pnl += tqConvertTradePnl(t);sessions5[s].c++;if(tqConvertTradePnl(t)>0)sessions5[s].w++;
       var st=t.setup||'None';if(!setups5[st])setups5[st]={pnl:0,c:0,w:0};setups5[st].pnl += tqConvertTradePnl(t);setups5[st].c++;if(tqConvertTradePnl(t)>0)setups5[st].w++;
       if(t.emotion){emotions5[t.emotion]=(emotions5[t.emotion]||0)+1;}
-      if(t.date){try{var dow=new Date(t.date).toLocaleDateString('en-US',{weekday:'short'});if(!daysOfWeek[dow])daysOfWeek[dow]={pnl:0,c:0,w:0};daysOfWeek[dow].pnl += tqConvertTradePnl(t);daysOfWeek[dow].c++;if(tqConvertTradePnl(t)>0)daysOfWeek[dow].w++;}catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}}
+      if(t.date){try{var dow=tqDowShort(t.date,'en-US');if(!daysOfWeek[dow])daysOfWeek[dow]={pnl:0,c:0,w:0};daysOfWeek[dow].pnl += tqConvertTradePnl(t);daysOfWeek[dow].c++;if(tqConvertTradePnl(t)>0)daysOfWeek[dow].w++;}catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}}
     });
     var totalPnl=trades.reduce(function(a,t){return a+tqConvertTradePnl(t);},0);
     var wins=trades.filter(function(t){return tqConvertTradePnl(t)>0;}).length;
@@ -32826,7 +32909,7 @@ window.toggleSidebar = function(){
     var html='<!DOCTYPE html><html><head><meta charset="utf-8"><title>TradeQuill AI '+type+' Analysis</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Inter,sans-serif;padding:40px 50px;color:#1a1a2e;font-size:12px;line-height:1.6}h1{font-size:18px;color:#7c5af0;margin-bottom:16px}.footer{margin-top:30px;padding-top:10px;border-top:1px solid #eee;color:#aaa;font-size:9px}</style></head><body>';
     html+='<h1>TradeQuill AI '+(type==='daily'?'Daily':'Weekly')+' Analysis</h1>';
     html+=el5.innerHTML.replace(/var\(--green\)/g,'#0a7a50').replace(/var\(--red\)/g,'#b91c1c').replace(/var\(--yellow\)/g,'#d97706').replace(/var\(--accent3?\)/g,'#7c5af0').replace(/var\(--text3?\)/g,'#888').replace(/var\(--text\)/g,'#1a1a2e').replace(/var\(--bg\)/g,'#f8f7fc');
-    html+='<div class="footer">TradeQuill — Your edge, written. · '+new Date().toISOString().slice(0,10)+'</div></body></html>';
+    html+='<div class="footer">TradeQuill — Your edge, written. · '+tqLocalDateStr(new Date())+'</div></body></html>';
     var win=window.open('','_blank','width=800,height=600');
     win.document.write(html);win.document.close();
     setTimeout(function(){win.print();},500);
@@ -32927,10 +33010,10 @@ window.toggleSidebar = function(){
   var ckData=null;
   var ckRoadmaps=[];
 
-  function ckLoad(){try{var d=JSON.parse(rfxGet(CK_KEY));if(d&&d.date===new Date().toISOString().slice(0,10))return d;return null;}catch(e){return null;}}
+  function ckLoad(){try{var d=JSON.parse(rfxGet(CK_KEY));if(d&&d.date===tqLocalDateStr(new Date()))return d;return null;}catch(e){return null;}}
 
   function ckAutoSave(){
-    if(!ckData)ckData={date:new Date().toISOString().slice(0,10),session:'',notes:'',pairs:{},roadmaps:[]};
+    if(!ckData)ckData={date:tqLocalDateStr(new Date()),session:'',notes:'',pairs:{},roadmaps:[]};
     ckData.session=ckGetActiveBtn('ck-session-row');
     ckData.notes=(document.getElementById('ck-session-notes')||{}).value||'';
     ckData.roadmaps=ckRoadmaps;
@@ -33125,7 +33208,7 @@ window.toggleSidebar = function(){
   function ckAddPair(){
     var sel=document.getElementById('ck-pair-select');if(!sel||!sel.value)return;
     var pair=sel.value;
-    if(!ckData)ckData={date:new Date().toISOString().slice(0,10),session:'',notes:'',pairs:{},roadmaps:[],selectedPairs:[]};
+    if(!ckData)ckData={date:tqLocalDateStr(new Date()),session:'',notes:'',pairs:{},roadmaps:[],selectedPairs:[]};
     if(!ckData.selectedPairs)ckData.selectedPairs=[];
     if(ckData.selectedPairs.indexOf(pair)>=0){sel.value='';return;} // already added
     ckData.selectedPairs.push(pair);
@@ -33375,7 +33458,7 @@ window.toggleSidebar = function(){
   function ckRenderBoards(){
     var container=document.getElementById('ck-boards');if(!container)return;
     var pairs=ckGetSelectedPairs();
-    if(!ckData)ckData=ckLoad()||{date:new Date().toISOString().slice(0,10),session:'',notes:'',pairs:{},roadmaps:[]};
+    if(!ckData)ckData=ckLoad()||{date:tqLocalDateStr(new Date()),session:'',notes:'',pairs:{},roadmaps:[]};
     if(pairs.length===0){container.innerHTML='<div class="ck-card" style="text-align:center;padding:40px;color:var(--text3)">Select pairs above to start your analysis</div>';return;}
 
     var preset = ckGetPreset();
@@ -33510,7 +33593,7 @@ window.toggleSidebar = function(){
 
   // Set decision + re-render (handles collapse/expand for skip)
   window.ckSetDecision = function(pair, val){
-    if(!ckData) ckData = ckLoad() || {date:new Date().toISOString().slice(0,10),session:'',notes:'',pairs:{},roadmaps:[]};
+    if(!ckData) ckData = ckLoad() || {date:tqLocalDateStr(new Date()),session:'',notes:'',pairs:{},roadmaps:[]};
     if(!ckData.pairs[pair]) ckData.pairs[pair] = {};
     // Toggle off if same value clicked again
     ckData.pairs[pair].setupType = (ckData.pairs[pair].setupType === val) ? '' : val;
@@ -33697,7 +33780,7 @@ window.toggleSidebar = function(){
       ckUpdateProgress();
     } else {
       // No saved data for today — start fresh
-      ckData={date:new Date().toISOString().slice(0,10),session:'',notes:'',pairs:{},roadmaps:[],selectedPairs:[]};
+      ckData={date:tqLocalDateStr(new Date()),session:'',notes:'',pairs:{},roadmaps:[],selectedPairs:[]};
       ckRoadmaps=[];
       var sessBtns=document.querySelectorAll('#ck-session-row .ck-btn');
       if(sessBtns)sessBtns.forEach(function(b){b.classList.remove('on');});
@@ -33765,13 +33848,13 @@ window.toggleSidebar = function(){
     var now = new Date();
     var cutoff;
     if(period === 'today'){
-      cutoff = now.toISOString().slice(0,10);
+      cutoff = tqLocalDateStr(now);
       return trades.filter(function(t){ return (t.date||'') >= cutoff; });
     } else if(period === 'week'){
-      var weekAgo = new Date(now.getTime() - 7*86400000).toISOString().slice(0,10);
+      var _wa=new Date(now);_wa.setDate(now.getDate()-7);_wa.setHours(0,0,0,0);var weekAgo=tqLocalDateStr(_wa);
       return trades.filter(function(t){ return (t.date||'') >= weekAgo; });
     } else if(period === 'month'){
-      var monthAgo = new Date(now.getTime() - 30*86400000).toISOString().slice(0,10);
+      var _ma=new Date(now);_ma.setDate(now.getDate()-30);_ma.setHours(0,0,0,0);var monthAgo=tqLocalDateStr(_ma);
       return trades.filter(function(t){ return (t.date||'') >= monthAgo; });
     }
     return trades;
@@ -34279,7 +34362,7 @@ window.toggleSidebar = function(){
         accountId: accountId,
         accountName: acc.name,
         amount: Number(amount),
-        date: new Date().toISOString().slice(0,10),
+        date: tqLocalDateStr(new Date()),
         createdAt: new Date().toISOString()
       });
       mcSavePayoutLog(log);
@@ -34652,7 +34735,7 @@ window.toggleSidebar = function(){
     });
 
     // Trade pattern summary (last 30 days, on prop accounts)
-    var thirtyDaysAgo = new Date(Date.now() - 30*86400000).toISOString().slice(0,10);
+    var _30d=new Date(Date.now()-30*86400000);_30d.setHours(0,0,0,0);var thirtyDaysAgo=tqLocalDateStr(_30d);
     var propAccIds = propAccs.map(function(a){return a.id;});
     var recentTrades = allTrades.filter(function(t){
       return propAccIds.indexOf(t.account) >= 0 && (t.date||'') >= thirtyDaysAgo;
@@ -34671,7 +34754,7 @@ window.toggleSidebar = function(){
     var dowStats = [0,0,0,0,0,0,0].map(function(){return {count:0,wins:0,pnl:0};});
     recentTrades.forEach(function(t){
       if(!t.date) return;
-      var d = new Date(t.date).getDay();
+      var d = tqDow(t.date);
       var _p5=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(t):(parseFloat(t.pnl)||0);
       dowStats[d].count++;
       dowStats[d].pnl += _p5;
@@ -34992,7 +35075,7 @@ window.toggleSidebar = function(){
       var blob = new Blob([csv], {type:'text/csv'});
       var a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = 'tradequill-payouts-'+new Date().toISOString().slice(0,10)+'.csv';
+      a.download = 'tradequill-payouts-'+tqLocalDateStr(new Date())+'.csv';
       a.click();
       if(typeof tqToast==='function') tqToast('Payouts exported', {type:'success'});
     }catch(e){ console.error(e); }
@@ -35746,10 +35829,10 @@ window.toggleSidebar = function(){
   function ckChecklistLoad(){
     try{
       var data = JSON.parse(rfxGet(CK_CHECKLIST_KEY)||'{}');
-      var today = new Date().toISOString().slice(0,10);
+      var today = tqLocalDateStr(new Date());
       if(data.date !== today) return {date: today, items: {}};
       return data;
-    }catch(e){ return {date: new Date().toISOString().slice(0,10), items: {}}; }
+    }catch(e){ return {date: tqLocalDateStr(new Date()), items: {}}; }
   }
   function ckChecklistSave(state){
     rfxSet(CK_CHECKLIST_KEY, JSON.stringify(state));
@@ -36301,7 +36384,7 @@ window.toggleSidebar = function(){
         }
 
         // Date = today
-        document.getElementById('jr-date').value=new Date().toISOString().slice(0,10);
+        document.getElementById('jr-date').value=tqLocalDateStr(new Date());
 
         // Daily Bias
         if(pf.dailyBias){
@@ -36660,7 +36743,7 @@ window.toggleSidebar = function(){
   function nbSetMood(val,btn){nbMoodVal=val;document.querySelectorAll('.nb-mood').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');}
   window.nbSetMood=nbSetMood;
 
-  function nbTypeChanged(){if(!nbEditId){var type=document.getElementById('nb-type').value;var names={'pre-market':'Pre-Market Plan','intraday':'Intraday Check-In','post-market':'Post-Market Review','weekly':'Weekly Review','monthly':'Monthly Review','quarterly':'Quarterly Review','trade-idea':'Trade Idea','observation':'Observation','free':'Note'};var today=document.getElementById('nb-date').value||new Date().toISOString().slice(0,10);document.getElementById('nb-title').value=(names[type]||'Note')+' \u2014 '+today;nbInsertTemplate();}}
+  function nbTypeChanged(){if(!nbEditId){var type=document.getElementById('nb-type').value;var names={'pre-market':'Pre-Market Plan','intraday':'Intraday Check-In','post-market':'Post-Market Review','weekly':'Weekly Review','monthly':'Monthly Review','quarterly':'Quarterly Review','trade-idea':'Trade Idea','observation':'Observation','free':'Note'};var today=document.getElementById('nb-date').value||tqLocalDateStr(new Date());document.getElementById('nb-title').value=(names[type]||'Note')+' \u2014 '+today;nbInsertTemplate();}}
   window.nbTypeChanged=nbTypeChanged;
 
   function nbDateChanged(){nbShowDayStats();if(!nbEditId){nbTypeChanged();}}
@@ -36682,7 +36765,7 @@ window.toggleSidebar = function(){
 
   function nbInsertTemplate(){
     var type=document.getElementById('nb-type').value;
-    var date=document.getElementById('nb-date').value||new Date().toISOString().slice(0,10);
+    var date=document.getElementById('nb-date').value||tqLocalDateStr(new Date());
     var el=document.getElementById('nb-content');
     if(el.value.trim()&&!confirm('Replace current content with template?'))return;
     var trades=nbGetTrades();
@@ -36774,8 +36857,8 @@ window.toggleSidebar = function(){
     nbEditId=null;nbMoodVal=0;
     document.getElementById('nb-modal-title').textContent='New Note';
     document.getElementById('nb-type').value='pre-market';
-    document.getElementById('nb-date').value=new Date().toISOString().slice(0,10);
-    document.getElementById('nb-title').value='Pre-Market Plan \u2014 '+new Date().toISOString().slice(0,10);
+    document.getElementById('nb-date').value=tqLocalDateStr(new Date());
+    document.getElementById('nb-title').value='Pre-Market Plan \u2014 '+tqLocalDateStr(new Date());
     document.getElementById('nb-content').value='';
     document.getElementById('nb-pinned').checked=false;
     document.getElementById('nb-delete-btn').style.display='none';
@@ -37898,25 +37981,49 @@ window.toggleSidebar = function(){
   // }
 
 
-  var _dashPeriod = 'all';
+  var _dashPeriod = rfxGet('rf_dash_period') || 'all';
 
   function setDashPeriod(btn, period) {
     _dashPeriod = period;
-    document.querySelectorAll('.dash-period-btn').forEach(function(b){ b.classList.remove('active'); });
-    if (btn) btn.classList.add('active');
+    rfxSet('rf_dash_period', period);
+    document.querySelectorAll('.dash-period-btn').forEach(function(b){ b.classList.remove('active'); b.style.background='transparent'; b.style.color='var(--text3)'; });
+    if (btn) { btn.classList.add('active'); btn.style.background='var(--accent)'; btn.style.color='white'; }
+    else {
+      // Restore active state on page load without a btn reference
+      document.querySelectorAll('.dash-period-btn').forEach(function(b){
+        if(b.getAttribute('onclick') && b.getAttribute('onclick').indexOf("'"+period+"'")>=0){
+          b.classList.add('active'); b.style.background='var(--accent)'; b.style.color='white';
+        }
+      });
+    }
     updateDashboard();
   }
+  window.setDashPeriod = setDashPeriod;
 
   function filterByPeriod(trades, period) {
     if (period === 'all') return trades;
     var now = new Date();
     var cutoff = new Date();
-    if (period === 'day') { cutoff.setHours(0,0,0,0); }
-    else if (period === 'week') { cutoff.setDate(now.getDate() - 7); }
-    else if (period === 'month') { cutoff.setDate(now.getDate() - 30); }
+    if (period === 'day') {
+      cutoff.setHours(0,0,0,0);
+    } else if (period === 'week') {
+      // Rolling 7 days
+      cutoff.setDate(now.getDate() - 7);
+    } else if (period === 'thisweek') {
+      // Calendar week: Monday 00:00 → today
+      var dow = now.getDay() === 0 ? 6 : now.getDay() - 1; // Mon=0
+      cutoff = new Date(now.getFullYear(), now.getMonth(), now.getDate() - dow);
+    } else if (period === 'month') {
+      // Rolling 30 days
+      cutoff.setDate(now.getDate() - 30);
+    } else if (period === 'thismonth') {
+      // Calendar month: 1st → today
+      cutoff = new Date(now.getFullYear(), now.getMonth(), 1);
+    }
+    var cutoffStr = cutoff.getFullYear() + '-' + String(cutoff.getMonth()+1).padStart(2,'0') + '-' + String(cutoff.getDate()).padStart(2,'0');
     return trades.filter(function(t){
-      var d = new Date(t.date || t.closeDate || '2020-01-01');
-      return d >= cutoff;
+      var d = String(t.date || t.closeDate || '').slice(0, 10);
+      return d >= cutoffStr;
     });
   }
 
@@ -38255,6 +38362,11 @@ window.toggleSidebar = function(){
       ['dash-pnl','dash-winrate','dash-pf','dash-daywr','dash-avgwl'].forEach(function(id){
         var el = document.getElementById(id); if(el) el.textContent = '—';
       });
+      // Hide new widgets that might show stale data from previous render cycle
+      var _rbEl = document.getElementById('dash-readiness-bar');
+      if(_rbEl) _rbEl.style.display = 'none';
+      var _pmEl = document.getElementById('dash-prop-mini');
+      if(_pmEl) _pmEl.style.display = 'none';
       renderDashCalendar({}, {});
       rfxUpdateBackupStatus();
       return;
@@ -38427,15 +38539,16 @@ window.toggleSidebar = function(){
     var selAccId = filter ? filter.value : 'all';
     var accBal = 0;
     if(selAccId === 'all'){
-      allAccs.forEach(function(a){accBal += (a.balance||0);});
+      allAccs.forEach(function(a){ accBal += parseFloat(a.startingBalance || a.balance || 0); });
     } else if(selAccId === 'all_prop' || selAccId === 'all_personal'){
       var wantProp = (selAccId === 'all_prop');
       allAccs.forEach(function(a){
-        if(typeof tqIsProp==='function' && tqIsProp(a) === wantProp) accBal += (a.balance||0);
+        if(typeof tqIsProp==='function' && tqIsProp(a) === wantProp)
+          accBal += parseFloat(a.startingBalance || a.balance || 0);
       });
     } else {
       var found = allAccs.find(function(a){return a.id===selAccId;});
-      if(found) accBal = found.balance||0;
+      if(found) accBal = parseFloat(found.startingBalance || found.balance || 0);
     }
     var kpBalVal = document.getElementById('kpi-bal-val');
     var curBalance = accBal > 0 ? accBal + netPnl : netPnl;
@@ -38449,6 +38562,11 @@ window.toggleSidebar = function(){
     // Aggregate filtered trades (active, non-deleted) for new metrics.
     // 'filtered' is set earlier in updateDashboard from selAcc filter.
     var _newKpiTrades = (typeof filtered !== 'undefined' && Array.isArray(filtered)) ? filtered.filter(function(t){return t && !t.deleted;}) : [];
+
+    // _newKpiTrades MUST match the same period+account filter as `trades` (used by charts/widgets)
+    // Using `filtered` (pre-period) caused KPI tiles to show all-time data while
+    // charts showed period-filtered data — a silent inconsistency.
+    var _newKpiTrades = trades.filter(function(t){return t && !t.deleted;});
 
     // Day Win % — group trades by date, count days net-positive
     (function(){
@@ -38829,7 +38947,7 @@ window.toggleSidebar = function(){
       var last5losses=last5.filter(function(x){return tqConvertTradePnl(x)<0;}).length;
       var last3=trades.slice(0,3);
       var last3losses=last3.filter(function(x){return tqConvertTradePnl(x)<0;}).length;
-      var todayKey=new Date().toISOString().slice(0,10);
+      var todayKey=tqLocalDateStr(new Date());
       var todayTrades2=trades.filter(function(x){return x.date===todayKey;});
       var todayLosses=todayTrades2.filter(function(x){return tqConvertTradePnl(x)<0;}).length;
       var todayPnl2=todayTrades2.reduce(function(a,x){return a+tqConvertTradePnl(x);},0);
@@ -38841,6 +38959,7 @@ window.toggleSidebar = function(){
       if(todayLosses>=3){tiltLevel=Math.max(tiltLevel,2);msgs.push('3+ losses today. Consider stopping for the day.');}
       if(todayPnl2<-500){tiltLevel=Math.max(tiltLevel,2);msgs.push('Down $'+Math.abs(todayPnl2).toFixed(0)+' today. Protect your capital.');}
       if(revenge){tiltLevel=Math.max(tiltLevel,3);msgs.push('Revenge/FOMO emotions detected. Walk away.');}
+      window._tqCurrentTiltLevel = tiltLevel; // exposed for Readiness score
       if(tiltLevel>=2){
         tiltBanner.style.display='';
         tiltTitle.textContent=tiltLevel>=3?'⛔ HEAVY TILT — STOP TRADING':'⚠️ TILT WARNING';
@@ -38868,8 +38987,16 @@ window.toggleSidebar = function(){
       var avgL3=losses.length>0?grossLoss/losses.length:0;
       var wlRatio=avgL3>0?avgW3/avgL3:99;
       // Best pair
-      var pairData={};trades.forEach(function(x){var p=x.pair||'Other';if(!pairData[p])pairData[p]={pnl:0,count:0};pairData[p].pnl += tqConvertTradePnl(x);pairData[p].count++;});
-      var bestPair=Object.keys(pairData).sort(function(a,b){return pairData[b].pnl-pairData[a].pnl;})[0];
+      var pairData={};trades.forEach(function(x){var p=x.pair||'Other';if(!pairData[p])pairData[p]={pnl:0,count:0,wins:0};pairData[p].pnl+=tqConvertTradePnl(x);pairData[p].count++;if(tqConvertTradePnl(x)>1)pairData[p].wins++;});
+      // Best pair: profitable pairs first, then sort by WR then P&L
+      var profPairs=Object.keys(pairData).filter(function(k){return pairData[k].pnl>0&&pairData[k].count>=2;});
+      var sortedPairs=(profPairs.length?profPairs:Object.keys(pairData)).sort(function(a,b){
+        var sa=pairData[a],sb=pairData[b];
+        if((sa.pnl>0)!==(sb.pnl>0)) return sb.pnl>0?1:-1;
+        var aWr=sa.count>0?sa.wins/sa.count:0,bWr=sb.count>0?sb.wins/sb.count:0;
+        return Math.abs(aWr-bWr)>0.05?bWr-aWr:sb.pnl-sa.pnl;
+      });
+      var bestPair=sortedPairs[0];
       var worstPair=Object.keys(pairData).sort(function(a,b){return pairData[a].pnl-pairData[b].pnl;})[0];
       // Best session
       var sessData={};trades.forEach(function(x){var s=x.session||'Other';if(!sessData[s])sessData[s]={pnl:0,count:0};sessData[s].pnl += tqConvertTradePnl(x);sessData[s].count++;});
@@ -38918,9 +39045,9 @@ window.toggleSidebar = function(){
         var dd = peak - cum;
         if(dd > maxDD){ maxDD = dd; maxDDDate = t.date || ''; }
       });
-      // Reuse accBal (already respects the account filter: all / all_prop / all_personal / specific —
-      // see the fix in §0 of METRICS_LOGIC_SPEC.md) instead of re-summing every account unconditionally.
-      var startBal = (typeof accBal === 'number' && accBal > 0) ? accBal : 10000;
+      // Use _dashStartingBalance() for % — respects account filter and startingBalance field.
+      // Fallback chain: _dashStartingBalance() → accBal (if in scope) → 50000 (safe default)
+      var startBal = (typeof _dashStartingBalance==='function' ? _dashStartingBalance() : 0) || (typeof accBal==='number'&&accBal>0?accBal:0) || 50000;
       var maxDDPct = startBal>0 ? (maxDD/startBal*100) : 0;
 
       var ddEl = document.getElementById('dash-maxdd');
@@ -39680,7 +39807,7 @@ window.toggleSidebar = function(){
       }
     },
     streak: {
-      name: 'Streak', desc: 'Current consecutive wins or losses',
+      name: 'Streak', desc: 'Current consecutive wins or losses (BE trades within ±$1 are skipped — they do not break or extend the streak)',
       accent: 'amber',
       render: function(t, ccy, sym, mode){
         var sorted=t.slice().sort(function(a,b){return new Date(b.date||0)-new Date(a.date||0);});
@@ -40770,7 +40897,7 @@ window.toggleSidebar = function(){
     keys.forEach(function(k){
       var day = byDay[k];
       var isToday = k === newsFmtDayKey(now);
-      day.events.sort(function(a,b){return new Date(a.date) - new Date(b.date);});
+      day.events.sort(function(a,b){return (a.date||'').localeCompare(b.date||'');});
       html += '<div class="news-day-sep '+(isToday?'is-today':'')+'" data-day="'+k+'">'+(isToday?'⚡ TODAY · ':'')+newsFmtDayLabel(day.date)+'</div>';
       day.events.forEach(function(e){
         html += newsRenderEventRow(e, now);
@@ -41013,7 +41140,14 @@ window.toggleSidebar = function(){
           '<text x="50" y="60" text-anchor="middle" font-size="8" fill="var(--text3)" font-family="Inter" letter-spacing="1">PAIRS</text></svg>';
 
         // Best/worst pair for footer chips
-        var bestPair = topPairs.slice().filter(function(p){return p.p!=='Other';}).sort(function(a,b){return b.pnl-a.pnl;})[0];
+        var nonOther = topPairs.slice().filter(function(p){return p.p!=='Other';});
+        var profitNonOther = nonOther.filter(function(p){return p.pnl>0;});
+        var candidatePool = profitNonOther.length ? profitNonOther : nonOther;
+        var bestPair = candidatePool.sort(function(a,b){
+          if((a.pnl>0)!==(b.pnl>0)) return b.pnl>0?1:-1;
+          var aWr=a.c>0?a.w/a.c:0,bWr=b.c>0?b.w/b.c:0;
+          return Math.abs(aWr-bWr)>0.05?bWr-aWr:b.pnl-a.pnl;
+        })[0];
         var worstPair = topPairs.slice().filter(function(p){return p.p!=='Other';}).sort(function(a,b){return a.pnl-b.pnl;})[0];
 
         // Rich legend rows — name/swatch, WR mini-bar, avg/trade, total P&L, share%
@@ -41052,7 +41186,7 @@ window.toggleSidebar = function(){
         var footer = '';
         if(bestPair && worstPair && bestPair.p!==worstPair.p){
           var bestIsProfit = bestPair.pnl>=0;
-          var bestLabel = bestIsProfit ? 'TOP PERFORMER' : 'LEAST WORST';
+          var bestLabel = bestIsProfit ? 'TOP PERFORMER' : 'MOST STABLE';
           var bestAccent = bestIsProfit ? 'var(--green)' : 'var(--text3)';
           footer = '<div style="display:flex;gap:10px;margin-top:14px">' +
             '<div style="flex:1;background:color-mix(in srgb, '+bestAccent+' '+(bestIsProfit?'10%':'6%')+', transparent);border:1px solid color-mix(in srgb, '+bestAccent+' '+(bestIsProfit?'25%':'18%')+', transparent);border-radius:10px;padding:10px 12px">' +
@@ -41104,18 +41238,20 @@ window.toggleSidebar = function(){
             '<button onclick="showPage(\'journal\');setTimeout(function(){if(window.jrOpenBulkEdit)jrOpenBulkEdit();},200)" style="padding:8px 16px;background:rgba(124,90,240,.1);color:var(--accent3);border:1px solid rgba(124,90,240,.2);border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">Bulk-fill setups →</button>'+
           '</div>';
         } else {
-          el.innerHTML = '<div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:14px">Min 3 trades to qualify</div>' +
+          el.innerHTML = '<div class="dw-sub" style="margin-bottom:10px">Min 3 trades · ranked by win rate</div>' +
             setups.map(function(s){
-              var color = s.wr>=60 ? '#1de9b6' : (s.wr>=50 ? 'rgba(29,233,182,.6)' : '#ef4444');
-              var grad = s.wr>=60 ? 'linear-gradient(90deg,#1de9b6,rgba(29,233,182,.5))'
-                       : s.wr>=50 ? 'linear-gradient(90deg,rgba(29,233,182,.7),rgba(29,233,182,.3))'
-                       : '#ef4444';
-              var label = s.s.length>14 ? s.s.slice(0,14)+'…' : s.s;
-              return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:0.5px dotted var(--border);font-variant-numeric:tabular-nums">' +
-                '<span style="width:110px;color:var(--text2);font-size:12px">'+label+'</span>' +
-                '<div style="flex:1;height:6px;background:rgba(255,255,255,.03);border-radius:3px;overflow:hidden"><div style="width:'+s.wr.toFixed(0)+'%;height:100%;background:'+grad+';border-radius:3px"></div></div>' +
-                '<span style="width:54px;text-align:right;font-size:12px;color:'+color+';font-family:Inter,sans-serif">'+s.wr.toFixed(0)+'%</span>' +
-                '<span style="width:34px;text-align:right;font-size:9px;color:var(--text3);font-family:Inter,sans-serif">'+s.total+' tr</span>' +
+              var color = s.wr>=60 ? 'var(--green)' : s.wr>=50 ? 'var(--green)' : 'var(--red)';
+              var grad = s.wr>=60
+                ? 'linear-gradient(90deg,var(--green),rgba('+TG_RGB+',.4))'
+                : s.wr>=50
+                ? 'rgba('+TG_RGB+',.45)'
+                : 'linear-gradient(90deg,var(--red),rgba('+TR_RGB+',.4))';
+              var label = s.s.length>16 ? s.s.slice(0,16)+'…' : s.s;
+              return '<div class="dw-row" style="gap:10px">' +
+                '<span style="min-width:100px;color:var(--text2);font-size:12.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+label+'</span>' +
+                '<div class="dw-bar-track"><div class="dw-bar-fill" style="width:'+s.wr.toFixed(0)+'%;background:'+grad+'"></div></div>' +
+                '<span style="min-width:38px;text-align:right;font-size:13px;color:'+color+';font-weight:700;font-family:Inter,sans-serif;font-variant-numeric:tabular-nums">'+s.wr.toFixed(0)+'%</span>' +
+                '<span style="min-width:26px;text-align:right;font-size:10px;color:var(--text3);font-weight:600">'+s.total+'x</span>' +
               '</div>';
             }).join('');
         }
@@ -41190,6 +41326,11 @@ window.toggleSidebar = function(){
         var DAY_IDX = {Mon:1,Tue:2,Wed:3,Thu:4,Fri:5};
         var matrix = {};
         DAYS.forEach(function(d){ matrix[d]={}; HOURS.forEach(function(h){ matrix[d][h]={pnl:0,n:0}; }); });
+        // Use local entry hour directly (matching what user sees on their charts).
+        // autoDetectSession uses UTC for session labels — we show local hours here
+        // and note the offset in the subtitle for transparency.
+        var _matrixTz = parseFloat(rfxGet('rossfx-tz')||'0');
+        var _tzLabel = _matrixTz !== 0 ? ' (local, UTC'+(+_matrixTz>=0?'+':'')+_matrixTz+')' : ' (local)';
 
         trades.forEach(function(t){
           if(!t.date||!t.entryTime) return;
@@ -41205,6 +41346,8 @@ window.toggleSidebar = function(){
 
         var allVals=[]; DAYS.forEach(function(d){ HOURS.forEach(function(h){ if(matrix[d][h].n>0) allVals.push(Math.abs(matrix[d][h].pnl)); }); });
         var maxAbs=Math.max(1,Math.max.apply(Math,allVals.concat([0])));
+        var _matSub = document.getElementById('dash-w-session-matrix-sub');
+        if (_matSub) _matSub.textContent = 'P&L by hour × day'+_tzLabel+' · hover for details';
 
         // Build 2D grid HTML: header row + data rows
         var hdrRow='<div></div>'+HOURS.map(function(h){ return '<div style="text-align:center;font-size:9px;color:var(--text3);font-weight:700;padding-bottom:3px">'+String(h).padStart(2,'0')+'</div>'; }).join('');
@@ -41692,6 +41835,16 @@ window.toggleSidebar = function(){
     var wr = trades.length ? allW/trades.length : 0;
     if (wr < 0.3 && trades.length >= 10) { score -= 10; }
 
+    // Factor 5: Tilt detector (calculated in updateDashboard, exposed on window)
+    var currentTilt = window._tqCurrentTiltLevel || 0;
+    if (currentTilt >= 3) {
+      score -= 40;
+      factors.push({label:'Heavy tilt', color:'var(--red)'});
+    } else if (currentTilt === 2) {
+      score -= 20;
+      factors.push({label:'Tilt warning', color:'#fbbf24'});
+    }
+
     score = Math.max(0, Math.min(100, Math.round(score)));
 
     var color = score >= 70 ? 'var(--green)' : score >= 45 ? '#fbbf24' : 'var(--red)';
@@ -41707,8 +41860,8 @@ window.toggleSidebar = function(){
     // Animate SVG semi-circle arc: arc length ≈ π * 40 ≈ 125.7
     var arcEl = document.getElementById('dash-readiness-arc');
     if (arcEl) {
-      var fill = (score / 100 * 125.7).toFixed(1);
-      arcEl.style.strokeDasharray = fill + ' 126';
+      var fill = (score / 100 * 150.8).toFixed(1);
+      arcEl.style.strokeDasharray = fill + ' 151';
     }
 
     if (msgEl) { msgEl.textContent = label; msgEl.style.color = color; }
@@ -41750,7 +41903,14 @@ window.toggleSidebar = function(){
     if (!el) return;
     try {
       var accs = JSON.parse(rfxGet('rf_accounts')||'[]').filter(function(a){
-        return !a.deleted && (a.type==='prop' || (typeof tqIsProp==='function' && tqIsProp(a)));
+        if(!a || a.deleted) return false;
+        if(a.type==='prop') return true;
+        if(typeof tqIsProp==='function' && tqIsProp(a)) return true;
+        // Fallback: firmName/name keywords for common prop firms
+        var fn=(a.firmName||a.name||'').toLowerCase();
+        return fn.indexOf('ftmo')>=0||fn.indexOf('funded')>=0||fn.indexOf('apex')>=0||
+               fn.indexOf('topstep')>=0||fn.indexOf('mff')>=0||fn.indexOf('myforex')>=0||
+               fn.indexOf('e8')>=0||fn.indexOf('challenge')>=0||fn.indexOf('prop')>=0;
       });
       if (!accs.length) { el.style.display='none'; return; }
 
@@ -41862,7 +42022,21 @@ window.toggleSidebar = function(){
       byPair[pair].n++; byPair[pair].pnl+=p;
       if(p>1)byPair[pair].w++;else if(p<-1)byPair[pair].l++;
     });
-    var bestPair = Object.keys(byPair).filter(function(k){return byPair[k].n>=2;}).sort(function(a,b){return byPair[b].pnl-byPair[a].pnl;})[0];
+    // Best pair — composite score: positive P&L first, then WR × P&L / trades
+    // Avoids showing a losing pair as "best" just because it has the least-negative P&L
+    var profitablePairs = Object.keys(byPair).filter(function(k){
+      return byPair[k].n >= 2 && byPair[k].pnl > 0;
+    });
+    var candidatePairs = profitablePairs.length > 0 ? profitablePairs : Object.keys(byPair).filter(function(k){return byPair[k].n>=2;});
+    var bestPair = candidatePairs.sort(function(a,b){
+      var sa = byPair[a], sb = byPair[b];
+      // Sort by: profitable first, then by WR, then by P&L
+      var aPnlPos = sa.pnl > 0 ? 1 : 0, bPnlPos = sb.pnl > 0 ? 1 : 0;
+      if(aPnlPos !== bPnlPos) return bPnlPos - aPnlPos;
+      var aWr = sa.n > 0 ? sa.w/sa.n : 0, bWr = sb.n > 0 ? sb.w/sb.n : 0;
+      if(Math.abs(aWr - bWr) > 0.05) return bWr - aWr; // prefer higher WR (>5% diff)
+      return sb.pnl - sa.pnl; // tiebreak by P&L
+    })[0];
 
     // Best session
     var bySess = {};
@@ -41895,7 +42069,13 @@ window.toggleSidebar = function(){
     if (bestPair) {
       var bp = byPair[bestPair];
       var bpWr = bp.n ? Math.round(bp.w/bp.n*100) : 0;
-      rows.push({icon:'💹', label:'Best pair', value:bestPair, sub:bpWr+'% WR · '+(bp.pnl>=0?'+':'-')+sym+Math.abs(Math.round(bp.pnl))+' ('+bp.n+' trades)', color:'var(--green)'});
+      rows.push({
+        icon:'💹',
+        label: bp.pnl >= 0 ? 'Best pair' : 'Most stable pair',
+        value: bestPair,
+        sub: bpWr+'% WR · '+(bp.pnl>=0?'+':'-')+sym+Math.abs(Math.round(bp.pnl))+' ('+bp.n+' trades)',
+        color: bp.pnl >= 0 ? 'var(--green)' : '#fbbf24'
+      });
     }
     if (bestSess) {
       var bs = bySess[bestSess];
@@ -44578,7 +44758,7 @@ CREATE POLICY "users manage own tokens" ON tq_share_tokens
     document.body.appendChild(modal);
 
     // Mark as shown today
-    rfxSet(TQ_DIGEST_KEY, new Date().toISOString().slice(0,10));
+    rfxSet(TQ_DIGEST_KEY, tqLocalDateStr(new Date()));
     if(typeof tqTrackEvent === 'function') tqTrackEvent('digest_shown', {trades: weekTrades.length, pnl: totalPnl});
   };
 
