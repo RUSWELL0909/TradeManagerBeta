@@ -126,7 +126,7 @@
 <style>
 /* ── DARK (default) ─────────────────────────── */
 :root, [data-theme="dark"] {
-  --bg:#0a0814; --bg2:#0f0d1c; --bg3:#151228;
+  --bg:#0a0814; --bg2:#0f0d1c; --bg3:#151228; --track:rgba(255,255,255,.08);
   --card:#181430; --border:#241e4a;
   --accent:#7c5af0; --accent2:#9b7ef8; --accent3:#b8a0ff;
   --green:#1de9b6; --red:#ef4444; --yellow:#f0b429;
@@ -186,7 +186,7 @@
   color-scheme: dark;
   /* Surfaces — Option 2: pure neutral, darker cards */
   --bg:#0a0a0a;              /* page — almost black */
-  --bg2:#0f0f0f;             /* sidebar — barely above bg */
+  --bg2:#0f0f0f; --track:rgba(255,255,255,.08);             /* sidebar — barely above bg */
   --bg3:#121212;             /* elevated panels — Option 2 */
   --card:#121212;            /* cards — Option 2 (darker than before) */
   --border:#1f1f1f;           /* subtle separator */
@@ -513,7 +513,7 @@
 [data-theme="light"] {
   /* Surfaces: cool slate, no warmth */
   --bg:#f8fafc;           /* page — slate-50, cool near-white */
-  --bg2:#f1f5f9;          /* sidebar + subtle panels — slate-100 */
+  --bg2:#f1f5f9; --track:rgba(0,0,0,.08);          /* sidebar + subtle panels — slate-100 */
   --bg3:#ffffff;          /* elevated */
   --card:#ffffff;         /* cards */
   --border:#e2e8f0;       /* slate-200 */
@@ -757,10 +757,10 @@
 }
 
 /* Common progress-bar tracks — apply by structural pattern via descendant selectors */
-[data-theme="light"] .card [style*="background:rgba(255,255,255,.03)"],
-[data-theme="light"] .card [style*="background:rgba(255,255,255,.04)"],
-[data-theme="light"] .card [style*="background:rgba(255,255,255,.05)"],
-[data-theme="light"] .card [style*="background:rgba(255,255,255,.06)"],
+[data-theme="light"] .card [style*="background:var(--track)"],
+[data-theme="light"] .card [style*="background:var(--track)"],
+[data-theme="light"] .card [style*="background:var(--track)"],
+[data-theme="light"] .card [style*="background:var(--track)"],
 [data-theme="light"] .card [style*="background:rgba(255,255,255,.07)"],
 [data-theme="light"] .card [style*="background:rgba(255,255,255,.08)"] {
   background: #f1f5f9 !important;
@@ -3147,7 +3147,7 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(124,90,240,.15);outlin
 .rpt-pair-row{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid rgba(124,90,240,.02)}
 .rpt-pair-row:last-child{border:none}
 .rpt-pair-name{width:80px;font-size:13px;font-weight:600;color:var(--text);font-family:Inter,sans-serif}
-.rpt-pair-bar{flex:1;height:12px;border-radius:6px;background:rgba(255,255,255,.03);overflow:hidden}
+.rpt-pair-bar{flex:1;height:12px;border-radius:6px;background:var(--track);overflow:hidden}
 .rpt-pair-fill{height:100%;border-radius:6px}
 /* Light theme pair bars — darker track + stronger fill */
 [data-theme="light"] .rpt-pair-bar{background:rgba(15,23,42,.06)}
@@ -3178,7 +3178,7 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(124,90,240,.15);outlin
 /* Gradient session strip */
 .rpt-sess-strip{display:flex;margin-bottom:10px;border-radius:10px;overflow:hidden;height:28px}
 .rpt-sess-strip-seg{display:flex;align-items:center;justify-content:center;gap:4px;font-size:9px;font-family:Inter,sans-serif;font-weight:600;letter-spacing:.5px;transition:all .2s;cursor:default;position:relative}
-.rpt-sess-strip-seg::after{content:'';position:absolute;right:0;top:20%;bottom:20%;width:1px;background:rgba(255,255,255,.06)}
+.rpt-sess-strip-seg::after{content:'';position:absolute;right:0;top:20%;bottom:20%;width:1px;background:var(--track)}
 .rpt-sess-strip-seg:last-child::after{display:none}
 .rpt-sess-strip-seg:hover{filter:brightness(1.3)}
 /* Light theme */
@@ -3593,7 +3593,7 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(124,90,240,.15);outlin
 .nb-card[data-type="post-market"] .nb-card-type{background:rgba(124,90,240,.1);color:var(--accent3)}
 .nb-card[data-type="weekly"] .nb-card-type{background:rgba(240,180,41,.1);color:#f0b429}
 .nb-card[data-type="observation"] .nb-card-type{background:rgba(96,165,250,.1);color:#60a5fa}
-.nb-card[data-type="free"] .nb-card-type{background:rgba(255,255,255,.05);color:var(--text3)}
+.nb-card[data-type="free"] .nb-card-type{background:var(--track);color:var(--text3)}
 .nb-card-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.4}
 .nb-card-preview{font-size:12px;color:var(--text3);line-height:1.7;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:14px}
 .nb-card-footer{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid rgba(124,90,240,.03)}
@@ -4800,7 +4800,7 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
 .kpi-tile:hover.accent-purple::before{background:rgba(124,90,240,1)}
 .kpi-tile:hover.accent-amber::before{opacity:1}
 .kpi-tile-label{font-family:Inter,sans-serif;font-size:11px;letter-spacing:.4px;color:var(--text3);margin-bottom:10px;font-weight:500;display:flex;justify-content:space-between;align-items:center;text-transform:uppercase}
-.kpi-tile-info{width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.05);display:inline-flex;align-items:center;justify-content:center;font-size:9px;color:var(--text3);font-style:italic;font-family:Inter,sans-serif;cursor:help;transition:all .15s}
+.kpi-tile-info{width:14px;height:14px;border-radius:50%;background:var(--track);display:inline-flex;align-items:center;justify-content:center;font-size:9px;color:var(--text3);font-style:italic;font-family:Inter,sans-serif;cursor:help;transition:all .15s}
 .kpi-tile-info:hover{background:rgba(124,90,240,.15);color:var(--accent3)}
 .kpi-tile-value{font-family:Inter,sans-serif;font-weight:600;font-size:30px;line-height:1;letter-spacing:-.7px;color:var(--text);font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1,"cv11" 1}
 .kpi-tile-value.green{color:var(--green)}
@@ -4808,7 +4808,7 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
 .kpi-tile-value.purple{color:var(--accent3)}
 .kpi-tile-value-suffix{font-size:16px;color:var(--text3);font-weight:400}
 .kpi-tile-mini{display:flex;gap:2px;margin:8px 0 5px;height:4px;align-items:center}
-.kpi-tile-mini div{flex:1;background:rgba(255,255,255,.06);border-radius:1px;height:4px;transition:background .15s}
+.kpi-tile-mini div{flex:1;background:var(--track);border-radius:1px;height:4px;transition:background .15s}
 .kpi-tile-mini div.on{height:4px}
 .kpi-tile-mini div.win{background:var(--green);opacity:.85}
 .kpi-tile-mini div.loss{background:var(--red);opacity:.85}
@@ -4842,12 +4842,12 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
 .dw-divider{border:none;border-top:0.5px solid var(--border);margin:12px 0}
 .dw-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:0.5px solid var(--border);font-family:Inter,sans-serif}
 .dw-row:last-child{border-bottom:none}
-.dw-bar-track{flex:1;height:5px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden}
+.dw-bar-track{flex:1;height:5px;background:var(--track);border-radius:3px;overflow:hidden}
 [data-theme="light"] .dw-bar-track{background:rgba(0,0,0,.06)}
 .dw-bar-fill{height:100%;border-radius:3px;transition:width .4s ease}
 .dw-big{font-size:38px;font-weight:700;letter-spacing:-1.5px;line-height:1;font-variant-numeric:tabular-nums;font-family:Inter,sans-serif}
 .kpi-tile-badge.amber{background:rgba(240,180,41,.12);color:#f0b429}
-.kpi-tile-badge.neutral{background:rgba(255,255,255,.04);color:var(--text3)}
+.kpi-tile-badge.neutral{background:var(--track);color:var(--text3)}
 [data-theme="light"] .kpi-tile-badge.green{background:#ecfdf5;color:#059669}
 [data-theme="light"] .kpi-tile-badge.red{background:#fef2f2;color:#dc2626}
 [data-theme="light"] .kpi-tile-badge.purple{background:#f5f3ff;color:#7c5af0}
@@ -4862,13 +4862,13 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
 .email-toggle-switch{position:relative;width:42px;height:24px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;transition:all .2s;flex-shrink:0}
 
 /* View Mode toggle (May 28 2026 — Prop Suite) */
-.vm-btn:hover{background:rgba(255,255,255,.04);color:var(--text)}
+.vm-btn:hover{background:var(--track);color:var(--text)}
 .vm-btn.active{background:var(--accent);color:#fff;box-shadow:0 1px 4px rgba(124,90,240,.4)}
 .vm-btn.active:hover{background:var(--accent);color:#fff}
 
 /* ═══ UTILITY CLASSES (May 28 2026 — Fix #3 Design System) ═══ */
 /* KPI card — uniform across Mission Control, Dashboard, etc */
-.tq-kpi-card{padding:14px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-lg)}
+.tq-kpi-card{padding:14px 16px;background:var(--track);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-lg)}
 .tq-kpi-card.tq-critical{background:var(--status-critical-bg);border-color:var(--status-critical-border)}
 .tq-kpi-card.tq-warning{background:var(--status-warning-bg);border-color:var(--status-warning-border)}
 .tq-kpi-label{font-size:9px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700}
@@ -5713,7 +5713,7 @@ window.toggleSidebar = function(){
     <!-- VIEW TOGGLE: Cards vs Table (table is better for comparing many accounts) -->
     <div id="mc-view-toggle" style="display:none;align-items:center;justify-content:space-between;margin-bottom:10px;gap:10px;flex-wrap:wrap">
       <div id="mc-table-tabs" style="display:flex;gap:6px;flex-wrap:wrap"></div>
-      <div style="display:flex;gap:4px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:3px">
+      <div style="display:flex;gap:4px;background:var(--track);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:3px">
         <button id="mc-view-cards" onclick="mcSetView('cards')" style="font-size:11px;padding:5px 12px;border:none;border-radius:6px;background:transparent;color:var(--text3);cursor:pointer;font-weight:600">Cards</button>
         <button id="mc-view-table" onclick="mcSetView('table')" style="font-size:11px;padding:5px 12px;border:none;border-radius:6px;background:transparent;color:var(--text3);cursor:pointer;font-weight:600">Table</button>
       </div>
@@ -5746,17 +5746,17 @@ window.toggleSidebar = function(){
 
         <!-- Value props grid -->
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:28px;text-align:left">
-          <div style="padding:14px 14px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px">
+          <div style="padding:14px 14px;background:var(--track);border:1px solid var(--border);border-radius:10px">
             <div style="font-size:18px;margin-bottom:6px">📊</div>
             <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:3px">Real-Time Monitoring</div>
             <div style="font-size:10px;color:var(--text3);line-height:1.4">DD, daily loss, profit target — auto-updated as you trade</div>
           </div>
-          <div style="padding:14px 14px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px">
+          <div style="padding:14px 14px;background:var(--track);border:1px solid var(--border);border-radius:10px">
             <div style="font-size:18px;margin-bottom:6px">🛡</div>
             <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:3px">Pre-Trade Compliance</div>
             <div style="font-size:10px;color:var(--text3);line-height:1.4">Blocks trades that would violate rules — saves your account</div>
           </div>
-          <div style="padding:14px 14px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px">
+          <div style="padding:14px 14px;background:var(--track);border:1px solid var(--border);border-radius:10px">
             <div style="font-size:18px;margin-bottom:6px">🧠</div>
             <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:3px">AI Risk Officer</div>
             <div style="font-size:10px;color:var(--text3);line-height:1.4">Smart insights across FTMO, TopStep, Apex, MFF, FundedNext</div>
@@ -6271,7 +6271,7 @@ window.toggleSidebar = function(){
               </linearGradient>
             </defs>
             <!-- Track: semi-circle, r=48 -->
-            <path d="M 7 54 A 48 48 0 0 1 103 54" fill="none" stroke="rgba(0,0,0,.07)" stroke-width="8" stroke-linecap="round"/>
+            <path d="M 7 54 A 48 48 0 0 1 103 54" fill="none" stroke="var(--track)" stroke-width="8" stroke-linecap="round"/>
             <!-- Fill: arc-length = π*48 ≈ 150.8 -->
             <path id="dash-readiness-arc" d="M 7 54 A 48 48 0 0 1 103 54" fill="none" stroke="url(#readGrad)" stroke-width="8" stroke-linecap="round" stroke-dasharray="0 151" style="transition:stroke-dasharray .8s cubic-bezier(.4,0,.2,1)"/>
           </svg>
@@ -6281,7 +6281,7 @@ window.toggleSidebar = function(){
           </div>
           <!-- Label below the arc -->
           <div style="position:absolute;bottom:0;left:0;right:0;text-align:center">
-            <span style="font-size:8px;font-weight:700;color:var(--text3);letter-spacing:.7px">READINESS</span>
+            <span style="font-size:8px;font-weight:700;color:var(--text3);letter-spacing:.7px">READINESS</span> <span class="info-icon" data-tip="0–100 score: should you trade today? Factors: current streak, yesterday's P&amp;L, last-5 win rate, overall WR and the tilt detector." style="font-size:8px;width:12px;height:12px;line-height:12px">i</span>
           </div>
         </div>
         <div style="width:1px;height:40px;background:var(--border);flex-shrink:0"></div>
@@ -6372,7 +6372,7 @@ window.toggleSidebar = function(){
           <!-- Goals -->
           <div class="card" data-widget="goals" style="padding:20px 22px;display:flex;flex-direction:column;min-height:220px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;padding-right:26px">
-              <span class="dw-title">Goals</span>
+              <span class="dw-title">Goals</span><span class="info-icon" data-tip="Weekly / monthly targets for P&amp;L, trade count, win rate or profit factor — with pace-per-day needed to hit them.">i</span>
               <button onclick="tqOpenGoals()" style="background:transparent;border:0.5px solid var(--border);color:var(--text3);cursor:pointer;font-size:16px;width:28px;height:28px;border-radius:6px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-weight:400" title="Manage goals">+</button>
             </div>
             <div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-bottom:18px">Track weekly &amp; monthly targets</div>
@@ -6387,7 +6387,7 @@ window.toggleSidebar = function(){
           <!-- Recent Trades -->
           <div class="card" data-widget="recent-trades" style="padding:20px 22px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-right:26px">
-              <span class="dw-title">Recent Trades</span>
+              <span class="dw-title">Recent Trades</span><span class="info-icon" data-tip="Last 12 trades in the selected period. Click a row to open it in the Journal.">i</span>
               <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px;font-weight:600" onclick="showPage('journal')">View all →</button>
             </div>
             <div id="dash-recent-summary" class="dw-sub" style="margin-bottom:8px"></div>
@@ -6400,7 +6400,7 @@ window.toggleSidebar = function(){
           <!-- Calendar -->
           <div class="card" data-widget="pnl-calendar" style="padding:20px 22px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-right:26px">
-              <div class="tq-row"><button id="dash-cal-prev" class="dash-cal-nav">&#8249;</button><span id="dash-cal-title" style="font-size:13px;font-weight:600;font-family:Inter,sans-serif;letter-spacing:-.3px"></span><button id="dash-cal-next" class="dash-cal-nav">&#8250;</button></div>
+              <div class="tq-row"><button id="dash-cal-prev" class="dash-cal-nav">&#8249;</button><span id="dash-cal-title" style="font-size:13px;font-weight:600;font-family:Inter,sans-serif;letter-spacing:-.3px"></span><span class="info-icon" data-tip="Daily net P&amp;L calendar. Color intensity = size of the day. Footer shows the month's best and worst day.">i</span><button id="dash-cal-next" class="dash-cal-nav">&#8250;</button></div>
               <div class="tq-row"><div id="dash-cal-month-total" style="font-size:12px;font-weight:600;font-family:Inter,sans-serif;color:var(--text3)"></div><button class="btn btn-ghost" style="font-size:10px;padding:3px 8px" id="dash-cal-today">This month</button></div>
             </div>
             <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px"><div class="dash-cal-hdr">SUN</div><div class="dash-cal-hdr">MON</div><div class="dash-cal-hdr">TUE</div><div class="dash-cal-hdr">WED</div><div class="dash-cal-hdr">THU</div><div class="dash-cal-hdr">FRI</div><div class="dash-cal-hdr">SAT</div></div>
@@ -6416,7 +6416,7 @@ window.toggleSidebar = function(){
           <div class="card" data-widget="chart-cumpnl" style="padding:20px 22px 10px">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px;padding-right:26px">
               <div>
-                <div class="dw-title">Daily net cumulative P&L</div>
+                <div class="dw-title">Daily net cumulative P&L <span class="info-icon" data-tip="Running total of daily P&amp;L (equity curve) with 5-day average and previous-period ghost line.">i</span></div>
                 <div id="dash-cum-sub" style="font-size:12.5px;color:var(--text3);margin-top:3px;font-weight:500">&#8212;</div>
               </div>
               <div id="dash-cum-total" class="dash-big-num green" style="font-size:24px;letter-spacing:-.5px;font-weight:700">&#8212;</div>
@@ -6433,7 +6433,7 @@ window.toggleSidebar = function(){
           <div class="card" data-widget="chart-dailypnl" style="padding:20px 22px 10px">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px;padding-right:26px">
               <div>
-                <div class="dw-title">Net daily P&L</div>
+                <div class="dw-title">Net daily P&L <span class="info-icon" data-tip="Each bar = one trading day. Green above zero, red below, with best/worst days marked.">i</span></div>
                 <div id="dash-bar-sub" style="font-size:12.5px;color:var(--text3);margin-top:3px;font-weight:500">&#8212;</div>
               </div>
               <div id="dash-bar-days" style="font-size:12px;color:var(--text3);white-space:nowrap;margin-top:3px">&#8212; days</div>
@@ -6448,7 +6448,7 @@ window.toggleSidebar = function(){
           <div class="card" data-widget="chart-balance" style="padding:20px 22px 10px">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px;padding-right:26px">
               <div>
-                <div class="dw-title">Account Balance</div>
+                <div class="dw-title">Account Balance <span class="info-icon" data-tip="Balance curve from starting balance, with high-water mark. Uses each account's configured starting balance.">i</span></div>
                 <div id="dash-bal-sub" style="font-size:12.5px;color:var(--text3);margin-top:3px;font-weight:500">&#8212;</div>
               </div>
               <div id="dash-bal-total" class="dash-big-num" style="font-size:22px;letter-spacing:-.5px;font-weight:700;white-space:nowrap">&#8212;</div>
@@ -6463,7 +6463,7 @@ window.toggleSidebar = function(){
           <div class="card" data-widget="chart-drawdown" style="padding:20px 22px 10px">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px;padding-right:26px">
               <div>
-                <div class="dw-title">Drawdown</div>
+                <div class="dw-title">Drawdown <span class="info-icon" data-tip="% below the high-water mark over time. Shows current drawdown and the worst point in the period.">i</span></div>
                 <div id="dash-dd-sub" style="font-size:12.5px;color:var(--text3);margin-top:3px;font-weight:500">&#8212;</div>
               </div>
               <span id="dash-max-dd" style="font-size:22px;font-weight:700;color:var(--red);font-family:Inter,sans-serif;white-space:nowrap">0.00%</span>
@@ -6487,25 +6487,25 @@ window.toggleSidebar = function(){
 
           <!-- Pair distribution donut -->
           <div class="card" data-widget="pair-distribution" data-widget-hidden="true" style="padding:20px 22px;min-height:216px">
-            <div class="dw-header"><span class="dw-title">Pair distribution</span></div><div class="dw-sub">Performance breakdown by currency pair</div>
+            <div class="dw-header"><span class="dw-title">Pair distribution</span><span class="info-icon" data-tip="Volume, win rate and P&amp;L per pair. Shows where your capital and edge actually are.">i</span></div><div class="dw-sub">Performance breakdown by currency pair</div>
             <div id="dash-w-pair-content" style="display:flex;align-items:center;gap:16px"></div>
           </div>
 
           <!-- Win rate by setup -->
           <div class="card" data-widget="win-by-setup" data-widget-hidden="true" style="padding:20px 22px;min-height:216px">
-            <div class="dw-header"><span class="dw-title">Win rate by setup</span></div><div class="dw-sub">Best strategies by win rate</div>
+            <div class="dw-header"><span class="dw-title">Win rate by setup</span><span class="info-icon" data-tip="Win rate per tagged setup (min 3 trades). Tells you which strategies deserve more size.">i</span></div><div class="dw-sub">Best strategies by win rate</div>
             <div id="dash-w-setup-content" style="font-size:11px"></div>
           </div>
 
           <!-- Performance by session -->
           <div class="card" data-widget="session-perf" data-widget-hidden="true" style="padding:20px 22px;min-height:216px">
-            <div style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:600;margin-bottom:14px">Performance by session</div>
+            <div class="dw-header"><span class="dw-title">Performance by session</span><span class="info-icon" data-tip="P&amp;L split by Asia / London / New York sessions based on entry time.">i</span></div><div class="dw-sub">Asia / London / NY breakdown</div>
             <div id="dash-w-session-content" style="font-size:13px"></div>
           </div>
 
           <!-- Session Matrix (was Hour-of-day heatmap) -->
           <div class="card" data-widget="hour-heatmap" data-widget-hidden="true" style="padding:20px 22px;min-height:216px">
-            <div style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:600;margin-bottom:4px">Session matrix</div>
+            <div class="dw-header"><span class="dw-title">Session matrix</span><span class="info-icon" data-tip="2D heatmap: hour of day × day of week. Green = profitable slot, red = losing slot. Intensity = size of P&amp;L.">i</span></div>
             <div id="dash-w-session-matrix-sub" class="dw-sub">P&L by hour × day · hover cell for details</div>
             <div id="dash-w-hour-grid" style="gap:2px"></div>
             <div id="dash-w-hour-summary"></div>
@@ -6514,25 +6514,25 @@ window.toggleSidebar = function(){
 
           <!-- Day of week -->
           <div class="card" data-widget="dow-bars" data-widget-hidden="true" style="padding:20px 22px;min-height:216px">
-            <div style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:600;margin-bottom:14px">Day of week performance</div>
+            <div class="dw-header"><span class="dw-title">Day of week performance</span><span class="info-icon" data-tip="Net P&amp;L per weekday. Weekday patterns often reveal schedule or news-day effects.">i</span></div>
             <div id="dash-w-dow-content" style="font-size:13px"></div>
           </div>
 
           <!-- Top costly mistakes -->
           <div class="card" data-widget="top-mistakes" data-widget-hidden="true" style="padding:20px 22px;min-height:216px">
-            <div style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:600;margin-bottom:14px">Top costly mistakes</div>
+            <div class="dw-header"><span class="dw-title">Top costly mistakes</span><span class="info-icon" data-tip="Total $ lost per psych tag (FOMO, Revenge, Early exit…). Your most expensive habits, ranked.">i</span></div>
             <div id="dash-w-mistakes-content" style="font-size:13px"></div>
           </div>
 
           <!-- Win/Loss split donut -->
           <div class="card" data-widget="wl-donut" data-widget-hidden="true" style="padding:20px 22px;min-height:216px">
-            <div class="dw-header"><span class="dw-title">Win/Loss split</span></div>
+            <div class="dw-header"><span class="dw-title">Win/Loss split</span><span class="info-icon" data-tip="Win rate, streaks, recent sequence and largest win vs loss for the selected period.">i</span></div>
             <div id="dash-w-wl-content"></div>
           </div>
 
           <!-- Avg duration W vs L -->
           <div class="card" data-widget="duration-bars" data-widget-hidden="true" style="padding:20px 22px;min-height:216px">
-            <div class="dw-header"><span class="dw-title">Avg duration · win vs loss</span></div>
+            <div class="dw-header"><span class="dw-title">Avg duration · win vs loss</span><span class="info-icon" data-tip="How long you hold winners vs losers. Healthy = winners held longer than losers (let winners run, cut losses fast).">i</span></div>
             <div id="dash-w-duration-content" style="display:flex;flex-direction:column;gap:14px;font-size:11px"></div>
           </div>
 
@@ -6579,7 +6579,7 @@ window.toggleSidebar = function(){
           <!-- AI Weekly Narrative -->
           <div class="card" data-widget="ai-narrative" data-widget-hidden="true" style="padding:20px 22px;min-height:216px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;padding-right:26px">
-              <span style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:600">AI Weekly Narrative</span>
+              <span class="dw-title">AI Weekly Narrative</span><span class="info-icon" data-tip="Claude analyzes your recent trades and writes a short coaching insight. Cached until your trade count changes.">i</span>
               <button onclick="dashAINarrativeRefresh()" title="Refresh" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:2px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>
             </div>
             <div class="dw-sub">AI insight on your recent trading</div>
@@ -9991,7 +9991,7 @@ window.toggleSidebar = function(){
   </div>
 
   <style>
-    .ps-firm-card{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:9px;cursor:pointer;transition:all .15s;position:relative}
+    .ps-firm-card{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:12px 14px;background:var(--track);border:1px solid var(--border);border-radius:9px;cursor:pointer;transition:all .15s;position:relative}
     .ps-firm-card:hover:not(.ps-firm-disabled){border-color:var(--accent);background:rgba(124,90,240,.05)}
     .ps-firm-card input{position:absolute;top:10px;right:10px;width:16px;height:16px;cursor:pointer}
     .ps-firm-card.checked{border-color:var(--accent);background:rgba(124,90,240,.08)}
@@ -22227,7 +22227,7 @@ window.toggleSidebar = function(){
       '.tq-brand{font-size:10px;letter-spacing:4px;color:rgba(255,255,255,.6);text-transform:uppercase;font-weight:700}' +
       '.tq-tagline{font-size:10px;color:rgba(255,255,255,.4);font-style:italic;margin-top:1px;letter-spacing:.3px}' +
       // Hero row (period + P&L + score in single line)
-      '.tq-hero{display:grid;grid-template-columns:1fr auto auto;gap:20px;align-items:center;padding:14px 18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px}' +
+      '.tq-hero{display:grid;grid-template-columns:1fr auto auto;gap:20px;align-items:center;padding:14px 18px;background:var(--track);border:1px solid rgba(255,255,255,.08);border-radius:12px}' +
       '.tq-eyebrow{font-size:9px;color:rgba(255,255,255,.5);letter-spacing:.6px;text-transform:uppercase;font-weight:700;margin-bottom:3px}' +
       '.tq-title{font-size:24px;font-weight:600;letter-spacing:-.7px;line-height:1.05;color:#fff}' +
       '.tq-meta{font-size:10px;color:rgba(255,255,255,.5);margin-top:4px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.2px}' +
@@ -22240,7 +22240,7 @@ window.toggleSidebar = function(){
       '.tq-score-pill{display:inline-block;font-size:8px;font-weight:700;letter-spacing:.5px;padding:2px 7px;border-radius:3px;text-transform:uppercase;margin-top:4px}' +
       // KPI grid
       '.tq-kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:10px}' +
-      '.tq-kpi{padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;position:relative;overflow:hidden}' +
+      '.tq-kpi{padding:10px 12px;background:var(--track);border:1px solid rgba(255,255,255,.08);border-radius:8px;position:relative;overflow:hidden}' +
       '.tq-kpi::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 2px 2px 0}' +
       '.tq-kpi.green::before{background:#1de9b6}' +
       '.tq-kpi.red::before{background:#ef4444}' +
@@ -22261,7 +22261,7 @@ window.toggleSidebar = function(){
       '.tq-insight-lbl{font-size:8px;color:#a78bfa;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px}' +
       '.tq-insight-text{font-size:11.5px;color:rgba(255,255,255,.92);line-height:1.45;font-weight:400}' +
       // Equity
-      '.tq-eq{margin-top:10px;padding:8px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px}' +
+      '.tq-eq{margin-top:10px;padding:8px 14px;background:var(--track);border:1px solid rgba(255,255,255,.08);border-radius:8px}' +
       '.tq-eq-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}' +
       '.tq-eq-title{font-size:9px;color:rgba(255,255,255,.55);font-weight:600;letter-spacing:.5px;text-transform:uppercase}' +
       '.tq-eq-val{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;font-weight:600}' +
@@ -22271,8 +22271,8 @@ window.toggleSidebar = function(){
       '.tq-sh-title{font-size:11px;font-weight:600;color:#fff;letter-spacing:-.1px}' +
       '.tq-sh-line{flex:1;height:1px;background:linear-gradient(90deg,rgba(124,90,240,.3),transparent)}' +
       // Tables
-      '.tq-tbl{width:100%;border-collapse:collapse;font-size:10px;background:rgba(255,255,255,.03);border-radius:7px;overflow:hidden}' +
-      '.tq-tbl th{text-align:left;padding:5px 8px;background:rgba(255,255,255,.06);font-size:8px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.4px;font-weight:700;border-bottom:1px solid rgba(255,255,255,.08)}' +
+      '.tq-tbl{width:100%;border-collapse:collapse;font-size:10px;background:var(--track);border-radius:7px;overflow:hidden}' +
+      '.tq-tbl th{text-align:left;padding:5px 8px;background:var(--track);font-size:8px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.4px;font-weight:700;border-bottom:1px solid rgba(255,255,255,.08)}' +
       '.tq-tbl th.r{text-align:right}' +
       '.tq-tbl td{padding:5px 8px;border-bottom:1px solid rgba(255,255,255,.05);font-variant-numeric:tabular-nums;color:rgba(255,255,255,.85)}' +
       '.tq-tbl td.r{text-align:right}' +
@@ -22303,7 +22303,7 @@ window.toggleSidebar = function(){
       '.tq-plan-stat-v{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:600;font-size:11px;color:#fff;margin-top:1px}' +
       // Action items
       '.tq-actions{display:flex;flex-direction:column;gap:4px;margin-top:4px}' +
-      '.tq-action{padding:7px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-left:3px solid #a78bfa;border-radius:0 7px 7px 0}' +
+      '.tq-action{padding:7px 12px;background:var(--track);border:1px solid rgba(255,255,255,.08);border-left:3px solid #a78bfa;border-radius:0 7px 7px 0}' +
       '.tq-action.red{border-left-color:#ef4444;background:linear-gradient(90deg,rgba(239,68,68,.10),rgba(255,255,255,.02))}' +
       '.tq-action.green{border-left-color:#1de9b6;background:linear-gradient(90deg,rgba(29,233,182,.10),rgba(255,255,255,.02))}' +
       '.tq-action.amber{border-left-color:#fbbf24;background:linear-gradient(90deg,rgba(251,191,36,.10),rgba(255,255,255,.02))}' +
@@ -29268,7 +29268,7 @@ window.toggleSidebar = function(){
                  '<span style="color:var(--text);font-weight:600"><span style="margin-right:8px;font-size:15px">'+icon+'</span>'+(g.name||g.type).replace(/</g,'&lt;')+'</span>' +
                  '<span style="color:'+col+';font-weight:700;font-size:14px;font-family:Inter,sans-serif;font-variant-numeric:tabular-nums">'+labelClean+'</span>' +
                '</div>' +
-               '<div style="background:rgba(255,255,255,.04);border-radius:3px;height:7px;overflow:hidden"><div style="background:'+barGrad+';height:100%;width:'+p.pct+'%;transition:width .4s;border-radius:3px"></div></div>' +
+               '<div style="background:var(--track);border-radius:3px;height:7px;overflow:hidden"><div style="background:'+barGrad+';height:100%;width:'+p.pct+'%;transition:width .4s;border-radius:3px"></div></div>' +
                (metaParts.length ? '<div style="font-size:11.5px;color:var(--text3);font-weight:500;margin-top:5px">'+metaParts.join(' &middot; ')+'</div>' : '') +
              '</div>';
     }).join('');
@@ -34121,7 +34121,7 @@ window.toggleSidebar = function(){
             console.error('MC card render failed for', item.acc && item.acc.name, err);
             var nm = (item.acc && item.acc.name) ? item.acc.name : 'Account';
             var pnlTxt = (item.pnl>=0?'+':'-')+'$'+Math.abs(item.pnl||0).toFixed(0);
-            return '<div onclick="mcDrillDown(\''+(item.acc?item.acc.id:'')+'\')" style="padding:14px 18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;display:flex;justify-content:space-between;align-items:center;cursor:pointer">'+
+            return '<div onclick="mcDrillDown(\''+(item.acc?item.acc.id:'')+'\')" style="padding:14px 18px;background:var(--track);border:1px solid rgba(255,255,255,.1);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;display:flex;justify-content:space-between;align-items:center;cursor:pointer">'+
               '<span style="font-size:13px;font-weight:600;color:var(--text)">'+nm+'</span>'+
               '<span style="font-size:16px;font-weight:600;color:'+(item.pnl>=0?'var(--green)':'var(--red)')+'">'+pnlTxt+'</span>'+
             '</div>';
@@ -34332,7 +34332,7 @@ window.toggleSidebar = function(){
       '</div>'+
       '<div style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:10px;overflow:hidden">'+
         '<table style="width:100%;border-collapse:collapse">'+
-          '<thead><tr style="background:rgba(255,255,255,.04)">'+
+          '<thead><tr style="background:var(--track)">'+
             '<th style="text-align:left;padding:9px 12px;font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:700">Account</th>'+
             '<th style="text-align:left;padding:9px 12px;font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:700">Schedule</th>'+
             '<th style="text-align:left;padding:9px 12px;font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:700">Split</th>'+
@@ -34489,7 +34489,7 @@ window.toggleSidebar = function(){
           '<div style="font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px">Best Strategies (all firms)</div>'+
           '<div style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:8px;overflow:hidden">'+
             '<table style="width:100%;border-collapse:collapse">'+
-              '<thead><tr style="background:rgba(255,255,255,.04)"><th style="text-align:left;padding:7px 12px;font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;font-weight:700">Setup</th><th style="text-align:right;padding:7px 12px;font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;font-weight:700">N</th><th style="text-align:right;padding:7px 12px;font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;font-weight:700">WR</th><th style="text-align:right;padding:7px 12px;font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;font-weight:700">P&amp;L</th></tr></thead>'+
+              '<thead><tr style="background:var(--track)"><th style="text-align:left;padding:7px 12px;font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;font-weight:700">Setup</th><th style="text-align:right;padding:7px 12px;font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;font-weight:700">N</th><th style="text-align:right;padding:7px 12px;font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;font-weight:700">WR</th><th style="text-align:right;padding:7px 12px;font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;font-weight:700">P&amp;L</th></tr></thead>'+
               '<tbody>'+(setupRows||'<tr><td colspan="4" style="padding:14px;text-align:center;font-size:11px;color:var(--text3)">Tag setups to see analysis</td></tr>')+'</tbody>'+
             '</table>'+
           '</div>'+
@@ -34498,7 +34498,7 @@ window.toggleSidebar = function(){
           '<div style="font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px">Performance by Firm</div>'+
           '<div style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:8px;overflow:hidden">'+
             '<table style="width:100%;border-collapse:collapse">'+
-              '<thead><tr style="background:rgba(255,255,255,.04)"><th style="text-align:left;padding:7px 12px;font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;font-weight:700">Firm</th><th style="text-align:right;padding:7px 12px;font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;font-weight:700">N</th><th style="text-align:right;padding:7px 12px;font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;font-weight:700">WR</th><th style="text-align:right;padding:7px 12px;font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;font-weight:700">P&amp;L</th></tr></thead>'+
+              '<thead><tr style="background:var(--track)"><th style="text-align:left;padding:7px 12px;font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;font-weight:700">Firm</th><th style="text-align:right;padding:7px 12px;font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;font-weight:700">N</th><th style="text-align:right;padding:7px 12px;font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;font-weight:700">WR</th><th style="text-align:right;padding:7px 12px;font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;font-weight:700">P&amp;L</th></tr></thead>'+
               '<tbody>'+firmRows+'</tbody>'+
             '</table>'+
           '</div>'+
@@ -34633,7 +34633,7 @@ window.toggleSidebar = function(){
               '<div style="font-size:9px;color:var(--text3);margin-top:2px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace">Updated '+ageStr+' · AI analysis</div>'+
             '</div>'+
           '</div>'+
-          '<button onclick="mcGenerateInsights(true)" id="mc-insights-refresh-btn" style="font-size:10px;padding:5px 12px;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text2);border-radius:6px;cursor:pointer;font-weight:600;letter-spacing:.3px;display:flex;align-items:center;gap:5px">'+
+          '<button onclick="mcGenerateInsights(true)" id="mc-insights-refresh-btn" style="font-size:10px;padding:5px 12px;background:var(--track);border:1px solid var(--border);color:var(--text2);border-radius:6px;cursor:pointer;font-weight:600;letter-spacing:.3px;display:flex;align-items:center;gap:5px">'+
             '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>'+
             'Refresh'+
           '</button>'+
@@ -34682,13 +34682,13 @@ window.toggleSidebar = function(){
           '</div>'+
         '</div>'+
         '<div style="margin-top:14px;display:flex;flex-direction:column;gap:8px">'+
-          '<div style="height:10px;background:rgba(255,255,255,.04);border-radius:4px;overflow:hidden;position:relative">'+
+          '<div style="height:10px;background:var(--track);border-radius:4px;overflow:hidden;position:relative">'+
             '<div style="position:absolute;top:0;left:-30%;width:30%;height:100%;background:linear-gradient(90deg,transparent,rgba(124,90,240,.5),transparent);animation:tqShimmer 1.4s linear infinite"></div>'+
           '</div>'+
-          '<div style="height:10px;background:rgba(255,255,255,.04);border-radius:4px;overflow:hidden;position:relative">'+
+          '<div style="height:10px;background:var(--track);border-radius:4px;overflow:hidden;position:relative">'+
             '<div style="position:absolute;top:0;left:-30%;width:30%;height:100%;background:linear-gradient(90deg,transparent,rgba(124,90,240,.5),transparent);animation:tqShimmer 1.4s linear infinite .2s"></div>'+
           '</div>'+
-          '<div style="height:10px;background:rgba(255,255,255,.04);border-radius:4px;overflow:hidden;position:relative;width:60%">'+
+          '<div style="height:10px;background:var(--track);border-radius:4px;overflow:hidden;position:relative;width:60%">'+
             '<div style="position:absolute;top:0;left:-30%;width:30%;height:100%;background:linear-gradient(90deg,transparent,rgba(124,90,240,.5),transparent);animation:tqShimmer 1.4s linear infinite .4s"></div>'+
           '</div>'+
         '</div>'+
@@ -35037,7 +35037,7 @@ window.toggleSidebar = function(){
       legend = '<div style="margin-top:8px;font-size:12px;color:var(--text3)">Combined across '+propAccs.length+' account'+(propAccs.length>1?'s':'')+' · <span style="color:'+fc+';font-weight:600">'+(finalV>=0?'+':'')+'$'+Math.abs(finalV).toFixed(0)+'</span> total</div>';
     }
 
-    var toggleBtns = '<div style="display:flex;gap:4px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:3px">'+
+    var toggleBtns = '<div style="display:flex;gap:4px;background:var(--track);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:3px">'+
       '<button onclick="mcSetEquityMode(\'combined\')" style="font-size:11px;padding:5px 12px;border:none;border-radius:6px;cursor:pointer;font-weight:600;'+(mode==='combined'?'background:rgba(124,90,240,.2);color:var(--accent3)':'background:transparent;color:var(--text3)')+'">Combined</button>'+
       '<button onclick="mcSetEquityMode(\'overlay\')" style="font-size:11px;padding:5px 12px;border:none;border-radius:6px;cursor:pointer;font-weight:600;'+(mode==='overlay'?'background:rgba(124,90,240,.2);color:var(--accent3)':'background:transparent;color:var(--text3)')+'">By account</button>'+
     '</div>';
@@ -35110,7 +35110,7 @@ window.toggleSidebar = function(){
     el.innerHTML = '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px">'+
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">'+
         '<div style="display:flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg><span style="font-size:14px;font-weight:600;color:var(--text)">Payout History</span></div>'+
-        '<button onclick="mcExportPayouts()" style="font-size:11px;padding:5px 12px;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text2);border-radius:6px;cursor:pointer;font-weight:600">Export CSV</button>'+
+        '<button onclick="mcExportPayouts()" style="font-size:11px;padding:5px 12px;background:var(--track);border:1px solid var(--border);color:var(--text2);border-radius:6px;cursor:pointer;font-weight:600">Export CSV</button>'+
       '</div>'+
       // Totals
       '<div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">'+
@@ -35750,7 +35750,7 @@ window.toggleSidebar = function(){
       var lostToday = st.dailyLossAbs || 0;
       var safeToRisk = Math.max(0, dailyLimitAbs - lostToday);
       var safeColor = safeToRisk <= dailyLimitAbs*0.2 ? 'var(--red)' : safeToRisk <= dailyLimitAbs*0.5 ? '#fbbf24' : 'var(--green)';
-      safeChip = '<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:3px 9px;background:rgba(255,255,255,.05);border:1px solid '+safeColor+'33;border-radius:5px;color:'+safeColor+';font-weight:600;white-space:nowrap" title="How much you can still lose today before breaching the daily loss limit">'+
+      safeChip = '<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:3px 9px;background:var(--track);border:1px solid '+safeColor+'33;border-radius:5px;color:'+safeColor+';font-weight:600;white-space:nowrap" title="How much you can still lose today before breaching the daily loss limit">'+
         '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'+
         'Safe today: $'+safeToRisk.toFixed(0)+'</span>';
     }
@@ -35789,12 +35789,12 @@ window.toggleSidebar = function(){
       'title="Click to view this account\'s trades &amp; performance">'+
       // Edit icon (top-right, fades in on hover)
       '<button class="mc-card-edit" onclick="event.stopPropagation();showPage(\'accounts\');setTimeout(function(){if(window.openEditAccountModal)openEditAccountModal(\''+acc.id+'\');},150)" title="Edit account rules" '+
-        'style="position:absolute;top:8px;right:36px;width:24px;height:24px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3);opacity:0;transition:opacity .15s;z-index:2">'+
+        'style="position:absolute;top:8px;right:36px;width:24px;height:24px;background:var(--track);border:1px solid rgba(255,255,255,.1);border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3);opacity:0;transition:opacity .15s;z-index:2">'+
         '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>'+
       '</button>'+
       // Pin to Dashboard icon
       '<button class="mc-card-edit" onclick="event.stopPropagation();dashPinAccount(\''+acc.id+'\')" title="Pin to Dashboard" '+
-        'style="position:absolute;top:8px;right:8px;width:24px;height:24px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;z-index:2;font-size:12px;color:var(--accent3)">'+
+        'style="position:absolute;top:8px;right:8px;width:24px;height:24px;background:var(--track);border:1px solid rgba(255,255,255,.1);border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;z-index:2;font-size:12px;color:var(--accent3)">'+
         (isPinned ? '★' : '☆')+
       '</button>'+
       // Firm badge
@@ -39798,7 +39798,7 @@ window.toggleSidebar = function(){
         else val = '-'+sym+Math.round(maxDD).toLocaleString();
         // sqrt scale: even small DD% shows meaningful bar (2.4%→31%, 10%→63%, 20%→89%)
         var ddFillPct = Math.min(100, Math.sqrt(maxPct / 25) * 100);
-        var mdMini = '<div style="flex:1;height:100%;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden"><div style="width:'+ddFillPct.toFixed(0)+'%;height:100%;background:var(--red);opacity:.85;border-radius:2px"></div></div>';
+        var mdMini = '<div style="flex:1;height:100%;background:var(--track);border-radius:2px;overflow:hidden"><div style="width:'+ddFillPct.toFixed(0)+'%;height:100%;background:var(--red);opacity:.85;border-radius:2px"></div></div>';
         return {
           value: val,
           valueColor: maxDD>0?'red':'',
@@ -41309,7 +41309,7 @@ window.toggleSidebar = function(){
           }
           el.innerHTML =
             '<div style="font-size:14px;color:var(--text);font-weight:600;margin-bottom:14px">'+sessions.length+' sessions tagged</div>' +
-            '<div style="display:flex;height:8px;border-radius:4px;overflow:hidden;margin-bottom:14px;background:rgba(255,255,255,.03);gap:1px">'+segs+'</div>' +
+            '<div style="display:flex;height:8px;border-radius:4px;overflow:hidden;margin-bottom:14px;background:var(--track);gap:1px">'+segs+'</div>' +
             '<div style="display:flex;flex-direction:column">'+rows+'</div>' +
             footer;
         }
@@ -41428,7 +41428,7 @@ window.toggleSidebar = function(){
               var borderCol = x.p>0 ? 'rgba('+TG_RGB+',.9)' : (x.p<0 ? 'rgba('+TR_RGB+',.9)' : 'transparent');
               return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%">' +
                 '<div style="font-size:15px;color:'+valColor+';font-family:Inter,sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:700">'+(x.p===0?ci.sym+'0':sign+ci.sym+Math.abs(Math.round(x.p)))+'</div>' +
-                '<div style="flex:1;width:80%;background:rgba(255,255,255,.03);border-radius:4px;display:flex;align-items:flex-end;overflow:hidden">' +
+                '<div style="flex:1;width:80%;background:var(--track);border-radius:4px;display:flex;align-items:flex-end;overflow:hidden">' +
                   '<div style="width:100%;height:'+height+'%;background:'+grad+';border:1.5px solid '+borderCol+';border-bottom:none;box-sizing:border-box;border-radius:4px 4px 0 0"></div>' +
                 '</div>' +
                 '<div style="font-size:14px;color:var(--text);font-weight:700">'+x.d+'</div>' +
@@ -41471,7 +41471,7 @@ window.toggleSidebar = function(){
               var avg = m.c>0 ? m.p/m.c : 0;
               return '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:0.5px dotted var(--border)">' +
                 '<span style="width:110px;color:var(--text);font-size:13px;font-weight:500">'+label+'</span>' +
-                '<div style="flex:1;height:6px;background:rgba(255,255,255,.03);border-radius:3px;overflow:hidden"><div style="width:'+width.toFixed(0)+'%;height:100%;background:linear-gradient(90deg,'+TR+',rgba('+TR_RGB+',.5));border-radius:3px"></div></div>' +
+                '<div style="flex:1;height:6px;background:var(--track);border-radius:3px;overflow:hidden"><div style="width:'+width.toFixed(0)+'%;height:100%;background:linear-gradient(90deg,'+TR+',rgba('+TR_RGB+',.5));border-radius:3px"></div></div>' +
                 '<span style="width:42px;text-align:right;font-size:11px;color:var(--text3)">'+m.c+'x</span>' +
                 '<span style="width:78px;text-align:right;font-size:13px;font-weight:700;color:'+TR+';font-family:Inter,sans-serif;font-variant-numeric:tabular-nums">-'+ci.sym+Math.abs(Math.round(m.p)).toLocaleString()+'</span>' +
               '</div>';
@@ -41562,7 +41562,7 @@ window.toggleSidebar = function(){
               '<div style="font-size:9.5px;color:var(--text3);letter-spacing:.3px;font-weight:700">CURRENT STREAK</div>' +
               '<div style="font-size:16px;font-weight:700;color:'+streakColor+';margin-top:2px">'+streakLabel+'</div>' +
             '</div>' +
-            '<div style="flex:1;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:9px;padding:7px 10px;text-align:center">' +
+            '<div style="flex:1;background:var(--track);border:1px solid var(--border);border-radius:9px;padding:7px 10px;text-align:center">' +
               '<div style="font-size:9.5px;color:var(--text3);letter-spacing:.3px;font-weight:700">BEST / WORST STREAK</div>' +
               '<div style="font-size:12px;font-weight:700;margin-top:4px"><span style="color:'+TG+'">'+(wlMx?wlMx.longestWinStreak:0)+'W</span> / <span style="color:'+TR+'">'+(wlMx?wlMx.longestLossStreak:0)+'L</span></div>' +
             '</div>' +
@@ -41577,9 +41577,9 @@ window.toggleSidebar = function(){
             return '<div class="dash-card-animate" style="margin-top:12px;padding-top:10px;border-top:0.5px solid var(--border)">' +
               '<div style="font-size:10.5px;color:var(--text3);font-weight:700;letter-spacing:.3px;margin-bottom:7px">LARGEST WIN VS LARGEST LOSS</div>' +
               '<div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:4px;font-weight:600"><span style="color:'+TG+'">Largest win</span><span style="color:'+TG+';font-weight:700">+'+ci.sym+mwAbs.toFixed(0)+'</span></div>' +
-              '<div style="height:6px;background:rgba(255,255,255,.04);border-radius:3px;overflow:hidden"><div style="width:'+(mwAbs/maxBoth*100).toFixed(0)+'%;height:100%;background:'+TG+'"></div></div>' +
+              '<div style="height:6px;background:var(--track);border-radius:3px;overflow:hidden"><div style="width:'+(mwAbs/maxBoth*100).toFixed(0)+'%;height:100%;background:'+TG+'"></div></div>' +
               '<div style="display:flex;justify-content:space-between;font-size:11.5px;margin:7px 0 4px;font-weight:600"><span style="color:'+TR+'">Largest loss</span><span style="color:'+TR+';font-weight:700">-'+ci.sym+mlAbs.toFixed(0)+'</span></div>' +
-              '<div style="height:6px;background:rgba(255,255,255,.04);border-radius:3px;overflow:hidden"><div style="width:'+(mlAbs/maxBoth*100).toFixed(0)+'%;height:100%;background:'+TR+'"></div></div>' +
+              '<div style="height:6px;background:var(--track);border-radius:3px;overflow:hidden"><div style="width:'+(mlAbs/maxBoth*100).toFixed(0)+'%;height:100%;background:'+TR+'"></div></div>' +
             '</div>';
           })() : '');
       }
@@ -41630,14 +41630,14 @@ window.toggleSidebar = function(){
                 '<span style="color:'+TG+'">Wins held</span>' +
                 '<span style="font-family:Inter,sans-serif;color:var(--text);font-variant-numeric:tabular-nums;font-weight:700">'+(winDur.length?fmt(aw):'—')+'</span>' +
               '</div>' +
-              '<div style="height:7px;background:rgba(255,255,255,.04);border-radius:3px;overflow:hidden"><div style="width:'+(aw/maxv*100).toFixed(0)+'%;height:100%;background:'+TG+'"></div></div>' +
+              '<div style="height:7px;background:var(--track);border-radius:3px;overflow:hidden"><div style="width:'+(aw/maxv*100).toFixed(0)+'%;height:100%;background:'+TG+'"></div></div>' +
             '</div>' +
             '<div style="margin-top:12px">' +
               '<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;font-weight:600">' +
                 '<span style="color:'+TR+'">Losses cut</span>' +
                 '<span style="font-family:Inter,sans-serif;color:var(--text);font-variant-numeric:tabular-nums;font-weight:700">'+(lossDur.length?fmt(al):'—')+'</span>' +
               '</div>' +
-              '<div style="height:7px;background:rgba(255,255,255,.04);border-radius:3px;overflow:hidden"><div style="width:'+(al/maxv*100).toFixed(0)+'%;height:100%;background:'+TR+'"></div></div>' +
+              '<div style="height:7px;background:var(--track);border-radius:3px;overflow:hidden"><div style="width:'+(al/maxv*100).toFixed(0)+'%;height:100%;background:'+TR+'"></div></div>' +
             '</div>' +
             (aw>0&&al>0 ? '<div style="font-size:12px;color:var(--text2);font-weight:600;margin-top:10px">Ratio: '+(aw/al).toFixed(1)+':1 '+(aw>=al?'· healthy ✓':'· cut winners early')+'</div>' : '');
 
@@ -41700,11 +41700,11 @@ window.toggleSidebar = function(){
             // Win vs loss size comparison bars
             '<div class="dash-card-animate" style="margin-top:14px">'+
               '<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;font-weight:600"><span style="color:var(--green)">Avg win</span><span style="color:var(--green);font-variant-numeric:tabular-nums;font-weight:700">+'+ci.sym+mx.avgWin.toFixed(0)+'</span></div>'+
-              '<div style="height:8px;background:rgba(255,255,255,.04);border-radius:3px;overflow:hidden"><div style="width:'+(mx.avgWin/maxWL*100).toFixed(0)+'%;height:100%;background:var(--green)"></div></div>'+
+              '<div style="height:8px;background:var(--track);border-radius:3px;overflow:hidden"><div style="width:'+(mx.avgWin/maxWL*100).toFixed(0)+'%;height:100%;background:var(--green)"></div></div>'+
             '</div>'+
             '<div class="dash-card-animate" style="margin-top:10px">'+
               '<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;font-weight:600"><span style="color:var(--red)">Avg loss</span><span style="color:var(--red);font-variant-numeric:tabular-nums;font-weight:700">-'+ci.sym+mx.avgLoss.toFixed(0)+'</span></div>'+
-              '<div style="height:8px;background:rgba(255,255,255,.04);border-radius:3px;overflow:hidden"><div style="width:'+(mx.avgLoss/maxWL*100).toFixed(0)+'%;height:100%;background:var(--red)"></div></div>'+
+              '<div style="height:8px;background:var(--track);border-radius:3px;overflow:hidden"><div style="width:'+(mx.avgLoss/maxWL*100).toFixed(0)+'%;height:100%;background:var(--red)"></div></div>'+
             '</div>'+
             '<div class="dash-card-animate" style="display:flex;justify-content:space-between;font-size:13px;padding-top:10px;margin-top:10px;border-top:1px solid var(--border)"><span style="color:var(--text2);font-weight:600">Per 100 trades</span><span style="color:'+expColor+';font-weight:700;font-variant-numeric:tabular-nums;font-size:14px">'+expSign+ci.sym+Math.abs(per100).toFixed(0)+'</span></div>'+
             // Breakeven win rate insight box
@@ -42010,7 +42010,7 @@ window.toggleSidebar = function(){
 
         // DD bar (only if DD limit configured)
         var ddBar = x.ddUsedPct !== null
-          ? '<div style="height:3px;background:rgba(255,255,255,.05);border-radius:2px;margin-top:3px;overflow:hidden"><div style="height:100%;width:'+x.ddUsedPct.toFixed(0)+'%;background:'+(x.ddUsedPct>70?'var(--red)':x.ddUsedPct>40?'#fbbf24':'rgba(255,255,255,.2)')+';border-radius:2px;transition:width .4s"></div></div>' : '';
+          ? '<div style="height:3px;background:var(--track);border-radius:2px;margin-top:3px;overflow:hidden"><div style="height:100%;width:'+x.ddUsedPct.toFixed(0)+'%;background:'+(x.ddUsedPct>70?'var(--red)':x.ddUsedPct>40?'#fbbf24':'rgba(255,255,255,.2)')+';border-radius:2px;transition:width .4s"></div></div>' : '';
 
         return '<div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);'+(isPinned?'background:rgba(124,90,240,.04);':'')+'">' +
           ring +
