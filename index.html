@@ -6260,8 +6260,8 @@ window.toggleSidebar = function(){
     <!-- DAILY READINESS SCORE -->
     <div id="dash-readiness-bar" style="display:none;margin-bottom:10px;border-radius:12px;border:1px solid var(--border);background:var(--card);padding:14px 20px;font-family:Inter,sans-serif;overflow:hidden;position:relative">
       <div style="display:flex;align-items:center;gap:20px">
-        <!-- Semi-circle gauge: r=48, center=(55,52), arc M7,52→103,52 -->
-        <div style="flex-shrink:0;position:relative;width:110px;height:70px">
+        <!-- Semi-circle gauge: r=48, center=(55,54) -->
+        <div style="flex-shrink:0;position:relative;width:110px;height:74px">
           <svg width="110" height="58" viewBox="0 0 110 58" style="display:block">
             <defs>
               <linearGradient id="readGrad" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -6275,11 +6275,12 @@ window.toggleSidebar = function(){
             <!-- Fill: arc-length = π*48 ≈ 150.8 -->
             <path id="dash-readiness-arc" d="M 7 54 A 48 48 0 0 1 103 54" fill="none" stroke="url(#readGrad)" stroke-width="8" stroke-linecap="round" stroke-dasharray="0 151" style="transition:stroke-dasharray .8s cubic-bezier(.4,0,.2,1)"/>
           </svg>
-          <!-- Score label sits below the SVG, inside the parent 70px tall box -->
-          <div style="position:absolute;bottom:0;left:0;right:0;text-align:center;line-height:1">
-            <span id="dash-readiness-score" style="font-size:24px;font-weight:800;letter-spacing:-1.5px;color:var(--green)">—</span><span style="font-size:9px;color:var(--text3);font-weight:500"> /100</span>
+          <!-- Score inside the arc hollow (arc inner radius = 44px, hollow is wide enough) -->
+          <div style="position:absolute;top:26px;left:0;right:0;text-align:center;line-height:1">
+            <span id="dash-readiness-score" style="font-size:23px;font-weight:800;letter-spacing:-1.5px;color:var(--green)">—</span><span style="font-size:9px;color:var(--text3);font-weight:500">/100</span>
           </div>
-          <div style="position:absolute;top:0;left:0;right:0;text-align:center">
+          <!-- Label below the arc -->
+          <div style="position:absolute;bottom:0;left:0;right:0;text-align:center">
             <span style="font-size:8px;font-weight:700;color:var(--text3);letter-spacing:.7px">READINESS</span>
           </div>
         </div>
