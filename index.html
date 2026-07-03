@@ -126,7 +126,7 @@
 <style>
 /* ── DARK (default) ─────────────────────────── */
 :root, [data-theme="dark"] {
-  --bg:#0a0814; --bg2:#0f0d1c; --bg3:#151228; --track:rgba(255,255,255,.08);
+  --bg:#0a0814; --bg2:#0f0d1c; --bg3:#151228; --track:rgba(255,255,255,.14);
   --card:#181430; --border:#241e4a;
   --accent:#7c5af0; --accent2:#9b7ef8; --accent3:#b8a0ff;
   --green:#1de9b6; --red:#ef4444; --yellow:#f0b429;
@@ -186,7 +186,7 @@
   color-scheme: dark;
   /* Surfaces — Option 2: pure neutral, darker cards */
   --bg:#0a0a0a;              /* page — almost black */
-  --bg2:#0f0f0f; --track:rgba(255,255,255,.08);             /* sidebar — barely above bg */
+  --bg2:#0f0f0f; --track:rgba(255,255,255,.14);             /* sidebar — barely above bg */
   --bg3:#121212;             /* elevated panels — Option 2 */
   --card:#121212;            /* cards — Option 2 (darker than before) */
   --border:#1f1f1f;           /* subtle separator */
@@ -41899,6 +41899,7 @@ window.toggleSidebar = function(){
     if (arcEl) {
       var fill = (score / 100 * 150.8).toFixed(1);
       arcEl.style.strokeDasharray = fill + ' 151';
+      arcEl.style.opacity = score > 0 ? '1' : '0'; // round linecap draws a dot at 0 length
     }
 
     if (msgEl) { msgEl.textContent = label; msgEl.style.color = color; }
