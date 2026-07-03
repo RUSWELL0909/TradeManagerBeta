@@ -38368,7 +38368,29 @@ window.toggleSidebar = function(){
       if(_rbEl) _rbEl.style.display = 'none';
       var _pmEl = document.getElementById('dash-prop-mini');
       if(_pmEl) _pmEl.style.display = 'none';
-      renderDashCalendar({}, {});
+      // Destroy charts — otherwise stale data stays on canvas and period switch looks broken
+      ['dash-cum-chart','dash-bar-chart','dash-balance-chart','dash-drawdown-chart'].forEach(function(id){
+        var cEl = document.getElementById(id);
+        if(cEl && cEl._chart){ try{ cEl._chart.destroy(); }catch(e){} cEl._chart = null; }
+      });
+      // Clear KPI tiles grid + Recent Trades + extras
+      var _kpiGrid = document.getElementById('dash-kpi-tiles');
+      if(_kpiGrid) _kpiGrid.querySelectorAll('.kpi-tile-val').forEach(function(v){ v.textContent='—'; });
+      var _rtEl = document.getElementById('dash-recent-trades');
+      if(_rtEl) _rtEl.innerHTML = '<div style="padding:18px 2px;color:var(--text3);font-size:12.5px">No trades in this period. Try a wider range (1M / All).</div>';
+      var _rsEl = document.getElementById('dash-recent-summary');
+      if(_rsEl) _rsEl.textContent = '';
+      try{ window._dashLastTrades = []; if(typeof window.renderDashExtras==='function') window.renderDashExtras([]); }catch(e){}
+      // Calendar keeps showing all-time (account-filtered) data even when the period is empty
+      var _bdC={}, _tbdC={};
+      filtered.forEach(function(t){
+        if(t.deleted) return;
+        var d = tqNormalizeDate(t.date||t.closeDate||'');
+        if(!d) return;
+        _bdC[d]=(_bdC[d]||0)+((typeof tqConvertTradePnl==='function')?tqConvertTradePnl(t):(t.pnl||0));
+        _tbdC[d]=(_tbdC[d]||0)+1;
+      });
+      renderDashCalendar(_bdC, _tbdC);
       rfxUpdateBackupStatus();
       return;
     }
@@ -38394,6 +38416,16 @@ window.toggleSidebar = function(){
       if (!byDay[d]) byDay[d] = 0;
       byDay[d] += (typeof tqConvertTradePnl==='function')?tqConvertTradePnl(t):(t.pnl||0);
       tradesByDay[d] = (tradesByDay[d] || 0) + 1;
+    });
+    // Calendar data: account-filtered but NOT period-filtered — the calendar has its
+    // own month navigation, so the 1D/1W/1M toolbar filter must not empty it.
+    var byDayCal = {}, tradesByDayCal = {};
+    filtered.forEach(function(t){
+      if(t.deleted) return;
+      var d = tqNormalizeDate(t.date||t.closeDate||'');
+      if (!d) return;
+      byDayCal[d] = (byDayCal[d]||0) + ((typeof tqConvertTradePnl==='function')?tqConvertTradePnl(t):(t.pnl||0));
+      tradesByDayCal[d] = (tradesByDayCal[d] || 0) + 1;
     });
     var days = Object.values(byDay);
     var winDays = days.filter(function(v){ return v > 0; }).length;
@@ -38880,7 +38912,7 @@ window.toggleSidebar = function(){
 
     // Charts
     try{ renderDashCharts(trades, byDay, accBal); }catch(e){ console.error('Dashboard charts error:', e); }
-    try{ renderDashCalendar(byDay, tradesByDay); }catch(e){ console.error('Dashboard calendar error:', e); }
+    try{ renderDashCalendar(byDayCal, tradesByDayCal); }catch(e){ console.error('Dashboard calendar error:', e); }
     // Extra widgets (May 2026 — only render if not hidden, avoid wasted CPU)
     try{ if(typeof window.renderDashExtras === 'function'){ window._dashLastTrades = trades; window.renderDashExtras(trades); } }catch(e){ console.error('Dash extras error:', e); }
 
