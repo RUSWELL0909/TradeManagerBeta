@@ -13927,6 +13927,96 @@ window.toggleSidebar = function(){
     });
   }
 
+  // ══ STRATEGY LAB SYNC — research_projects + research_samples tables ══
+  // Same generic-blob pattern as playbook_models: external_id + name + data JSON + timestamps.
+  // Requires these tables to exist in Supabase (see setup SQL provided separately).
+  function tqProjectToRow(p){
+    return { external_id:p.id||null, name:p.name||'Untitled', data:p, created_at:p.created||new Date().toISOString(), updated_at:new Date().toISOString() };
+  }
+  function tqRowToProject(row){ var d=row.data||{}; d._supaId=row.id; if(!d.id)d.id=row.external_id||row.id; return d; }
+  function tqPushResearchProject(project){
+    if(!_tqSupa||!_tqUser)return;
+    var row=tqProjectToRow(project);row.user_id=_tqUser.id;
+    _tqSupa.from('research_projects').upsert(row,{onConflict:'user_id,external_id'}).then(function(r){
+      if(r.error)console.error('Research project push error:',r.error);
+    });
+  }
+  window.tqPushResearchProject=tqPushResearchProject;
+  function tqDeleteResearchProject(projectId){
+    if(!_tqSupa||!_tqUser)return;
+    _tqSupa.from('research_projects').delete().eq('user_id',_tqUser.id).eq('external_id',projectId).then(function(r){
+      if(r.error)console.error('Research project delete error:',r.error);
+    });
+  }
+  window.tqDeleteResearchProject=tqDeleteResearchProject;
+  function tqPullResearchProjects(){
+    if(!_tqSupa||!_tqUser)return;
+    _tqSupa.from('research_projects').select('*').eq('user_id',_tqUser.id).then(function(res){
+      if(res.error){console.error('Research projects pull error:',res.error);return;}
+      var cloud=res.data||[];
+      var local=JSON.parse(rfxGet('rf_research_projects')||'[]');
+      if(cloud.length===0&&local.length>0){
+        var rows=local.map(function(p){var r=tqProjectToRow(p);r.user_id=_tqUser.id;return r;});
+        _tqSupa.from('research_projects').upsert(rows,{onConflict:'user_id,external_id'}).then(function(r2){
+          if(!r2.error)console.log('TradeQuill: Pushed',local.length,'research projects to cloud');
+        });
+        return;
+      }
+      var cloudMap={};cloud.forEach(function(r){if(r.external_id)cloudMap[r.external_id]=r;});
+      var merged=[];var toPush=[];
+      cloud.forEach(function(r){ merged.push(tqRowToProject(r)); });
+      local.forEach(function(p){ if(p.deleted) return; if(!cloudMap[p.id]){merged.push(p);toPush.push(p);} });
+      rfxSet('rf_research_projects',JSON.stringify(merged));
+      console.log('TradeQuill: Merged',merged.length,'research projects');
+      if(toPush.length>0){
+        var rows=toPush.map(function(p){var r=tqProjectToRow(p);r.user_id=_tqUser.id;return r;});
+        _tqSupa.from('research_projects').upsert(rows,{onConflict:'user_id,external_id'});
+      }
+      if(typeof renderSlCards==='function')renderSlCards();
+    });
+  }
+  window.tqPullResearchProjects=tqPullResearchProjects;
+
+  function tqSampleToRow(s){
+    return { external_id:s.id||null, project_external_id:s.projectId||null, data:s, created_at:s.created||new Date().toISOString(), updated_at:new Date().toISOString() };
+  }
+  function tqRowToSample(row){ var d=row.data||{}; d._supaId=row.id; if(!d.id)d.id=row.external_id||row.id; if(!d.projectId)d.projectId=row.project_external_id; return d; }
+  function tqPushResearchSample(sample){
+    if(!_tqSupa||!_tqUser)return;
+    var row=tqSampleToRow(sample);row.user_id=_tqUser.id;
+    _tqSupa.from('research_samples').upsert(row,{onConflict:'user_id,external_id'}).then(function(r){
+      if(r.error)console.error('Research sample push error:',r.error);
+    });
+  }
+  window.tqPushResearchSample=tqPushResearchSample;
+  function tqPullResearchSamples(){
+    if(!_tqSupa||!_tqUser)return;
+    _tqSupa.from('research_samples').select('*').eq('user_id',_tqUser.id).then(function(res){
+      if(res.error){console.error('Research samples pull error:',res.error);return;}
+      var cloud=res.data||[];
+      var local=JSON.parse(rfxGet('rf_research_samples')||'[]');
+      if(cloud.length===0&&local.length>0){
+        var rows=local.map(function(s){var r=tqSampleToRow(s);r.user_id=_tqUser.id;return r;});
+        _tqSupa.from('research_samples').upsert(rows,{onConflict:'user_id,external_id'}).then(function(r2){
+          if(!r2.error)console.log('TradeQuill: Pushed',local.length,'research samples to cloud');
+        });
+        return;
+      }
+      var cloudMap={};cloud.forEach(function(r){if(r.external_id)cloudMap[r.external_id]=r;});
+      var merged=[];var toPush=[];
+      cloud.forEach(function(r){ merged.push(tqRowToSample(r)); });
+      local.forEach(function(s){ if(s.deleted) return; if(!cloudMap[s.id]){merged.push(s);toPush.push(s);} });
+      rfxSet('rf_research_samples',JSON.stringify(merged));
+      console.log('TradeQuill: Merged',merged.length,'research samples');
+      if(toPush.length>0){
+        var rows=toPush.map(function(s){var r=tqSampleToRow(s);r.user_id=_tqUser.id;return r;});
+        _tqSupa.from('research_samples').upsert(rows,{onConflict:'user_id,external_id'});
+      }
+      if(typeof slDetailId!=='undefined' && slDetailId && typeof slViewDetail==='function') slViewDetail(slDetailId);
+    });
+  }
+  window.tqPullResearchSamples=tqPullResearchSamples;
+
   // ══ ACCOUNTS SYNC ══
   function tqAccToRow(a){
     return {
@@ -14406,6 +14496,8 @@ window.toggleSidebar = function(){
     setTimeout(tqSubscribeRealtime, 3000);
     setTimeout(function(){ if(typeof tqSubscribeAIRealtime==='function') tqSubscribeAIRealtime(); }, 3500);
     setTimeout(tqPullCaseStudies, 3000);
+    setTimeout(function(){ if(typeof tqPullResearchProjects==='function') tqPullResearchProjects(); }, 2800);
+    setTimeout(function(){ if(typeof tqPullResearchSamples==='function') tqPullResearchSamples(); }, 3200);
     // Flush any pending sync items from previous offline session
     setTimeout(function(){ if(typeof tqFlushPendingSync === 'function') tqFlushPendingSync(); }, 4000);
     // Mark data ready after all pulls have had time to complete (5s window)
@@ -37961,9 +38053,19 @@ window.toggleSidebar = function(){
   var SL_SAMPLES_KEY = 'rf_research_samples';
 
   function slGetProjects(){ try{ return JSON.parse(rfxGet(SL_PROJECTS_KEY)||'[]').filter(function(p){return !p.deleted;}); }catch(e){ return []; } }
-  function slSaveProjects(arr){ rfxSet(SL_PROJECTS_KEY, JSON.stringify(arr)); }
+  function slSaveProjects(arr){
+    rfxSet(SL_PROJECTS_KEY, JSON.stringify(arr));
+    if(typeof _tqSupa!=='undefined'&&_tqSupa&&_tqUser){
+      arr.forEach(function(p){ if(typeof tqPushResearchProject==='function') tqPushResearchProject(p); });
+    }
+  }
   function slGetSamples(){ try{ return JSON.parse(rfxGet(SL_SAMPLES_KEY)||'[]').filter(function(s){return !s.deleted;}); }catch(e){ return []; } }
-  function slSaveSamples(arr){ rfxSet(SL_SAMPLES_KEY, JSON.stringify(arr)); }
+  function slSaveSamples(arr){
+    rfxSet(SL_SAMPLES_KEY, JSON.stringify(arr));
+    if(typeof _tqSupa!=='undefined'&&_tqSupa&&_tqUser){
+      arr.forEach(function(s){ if(typeof tqPushResearchSample==='function') tqPushResearchSample(s); });
+    }
+  }
   function slSamplesFor(projectId){ return slGetSamples().filter(function(s){ return s.projectId===projectId; }); }
 
   // ── Confidence Score: combines sample size, expectancy, WR, losing streak, consistency ──
@@ -38233,10 +38335,18 @@ window.toggleSidebar = function(){
   function slDeleteProject(){
     if(!slDetailId) return;
     if(!confirm('Delete this research project and all its samples? This cannot be undone.')) return;
-    var projects = slGetProjects().filter(function(p){ return p.id!==slDetailId; });
+    var deletedId = slDetailId;
+    var projects = slGetProjects().filter(function(p){ return p.id!==deletedId; });
     slSaveProjects(projects);
-    var samples = slGetSamples().filter(function(s){ return s.projectId!==slDetailId; });
+    var deletedSamples = slGetSamples().filter(function(s){ return s.projectId===deletedId; });
+    var samples = slGetSamples().filter(function(s){ return s.projectId!==deletedId; });
     slSaveSamples(samples);
+    if(typeof _tqSupa!=='undefined'&&_tqSupa&&_tqUser){
+      if(typeof tqDeleteResearchProject==='function') tqDeleteResearchProject(deletedId);
+      deletedSamples.forEach(function(s){
+        _tqSupa.from('research_samples').delete().eq('user_id',_tqUser.id).eq('external_id',s.id).then(function(){});
+      });
+    }
     slCloseDetail();
     renderSlCards();
   }
