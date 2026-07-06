@@ -4642,6 +4642,11 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
   #mc-hero-sub{font-size:12px!important}
   #mc-hero-pnl{font-size:26px!important}
   #mc-hero-pnl-sub{font-size:11px!important}
+  /* Mission Status hero — mobile */
+  #mc-mission-hero{padding:20px!important}
+  #mc-hero-status{font-size:28px!important}
+  #mc-hero-metrics{grid-template-columns:repeat(2,1fr)!important;gap:14px 16px!important;width:100%}
+  #mc-hero-highest-risk{max-width:140px!important}
 
   /* Time filter — bigger tap targets */
   #mc-time-filter{gap:6px!important;margin-bottom:12px!important;flex-wrap:wrap!important}
@@ -5647,31 +5652,60 @@ window.toggleSidebar = function(){
   <!-- ═══ COCKPIT ═══ -->
   <!-- ═══ MISSION CONTROL (May 2026 — Prop Suite) ═══ -->
   <div id="page-missioncontrol" class="page">
-    <!-- HERO HEADER -->
-    <div style="position:relative;margin-bottom:18px;padding:26px 28px;background:linear-gradient(135deg,rgba(124,90,240,.08),rgba(29,233,182,.04));border:1px solid rgba(124,90,240,.18);border-radius:14px;overflow:hidden">
-      <div style="position:absolute;top:-80px;right:-60px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(124,90,240,.18) 0%,transparent 65%);pointer-events:none"></div>
-      <div style="position:relative;display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap">
-        <div>
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent3)" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
-            <div style="font-size:11px;letter-spacing:4px;color:var(--accent3);text-transform:uppercase;font-weight:700">Mission Control</div>
-            <span style="font-size:8px;font-weight:700;padding:2px 6px;background:rgba(124,90,240,.15);color:var(--accent3);border-radius:3px;letter-spacing:.4px">PROP SUITE</span>
+    <!-- MISSION STATUS HERO — "Today Command Center" -->
+    <div id="mc-mission-hero" style="position:relative;margin-bottom:18px;padding:32px 36px;border-radius:20px;overflow:hidden;border:1px solid var(--border);background:var(--card);transition:background .4s ease,border-color .4s ease">
+      <!-- ambient glow, color set by JS based on status -->
+      <div id="mc-hero-glow" style="position:absolute;inset:0;pointer-events:none;opacity:.5;transition:opacity .4s ease"></div>
+      <div style="position:relative;display:flex;align-items:flex-start;justify-content:space-between;gap:32px;flex-wrap:wrap">
+        <!-- Left: status + AI officer message -->
+        <div style="flex:1;min-width:280px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span style="font-size:10.5px;letter-spacing:3px;color:var(--text3);text-transform:uppercase;font-weight:700">Mission Status</span>
           </div>
-          <div style="font-size:24px;font-weight:600;letter-spacing:-.5px;color:var(--text)" id="mc-hero-title">All accounts at a glance</div>
-          <div style="font-size:12px;color:var(--text2);margin-top:4px" id="mc-hero-sub">Real-time rule monitoring across your prop firms</div>
+          <div id="mc-hero-status" style="font-size:44px;font-weight:800;letter-spacing:-1.5px;line-height:1;color:var(--green)">SAFE TO TRADE</div>
+          <div id="mc-hero-ai-msg" style="margin-top:16px;font-size:14px;color:var(--text2);font-weight:500;line-height:1.6;max-width:520px;display:flex;gap:9px;align-items:flex-start">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent3)" stroke-width="2" style="flex-shrink:0;margin-top:2px"><path d="M12 2a5 5 0 0 0-5 5c0 1.9 1 3.5 2.5 4.5V14a2.5 2.5 0 0 0 5 0v-2.5C15.9 10.5 17 8.9 17 7a5 5 0 0 0-5-5z"/><path d="M9 18h6M10 21h4"/></svg>
+            <span id="mc-hero-ai-text">Checking your accounts…</span>
+          </div>
         </div>
-        <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+        <!-- Right: risk metric grid -->
+        <div id="mc-hero-metrics" style="display:grid;grid-template-columns:repeat(2,minmax(140px,1fr));gap:20px 32px;flex-shrink:0">
           <div>
-            <div style="font-size:10px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700">Aggregate P&amp;L</div>
-            <div id="mc-hero-pnl" style="font-size:30px;font-weight:600;color:var(--green);letter-spacing:-.8px;font-variant-numeric:tabular-nums;line-height:1;margin-top:3px">$0</div>
-            <div id="mc-hero-pnl-sub" style="font-size:10px;color:var(--text3);margin-top:4px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace">across all accounts</div>
+            <div style="font-size:9.5px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700;margin-bottom:5px">Daily DD Left</div>
+            <div id="mc-hero-dd-left" style="font-size:22px;font-weight:700;color:var(--text);letter-spacing:-.5px;font-variant-numeric:tabular-nums">—</div>
           </div>
-          <button onclick="mcOpenAddPropAccount()" style="font-size:11px;padding:8px 14px;background:var(--accent);border:none;color:#fff;border-radius:7px;cursor:pointer;font-weight:600;letter-spacing:.3px;box-shadow:0 1px 4px rgba(124,90,240,.4);display:flex;align-items:center;gap:6px">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Add Prop Account
-          </button>
+          <div>
+            <div style="font-size:9.5px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700;margin-bottom:5px">Recommended Risk</div>
+            <div id="mc-hero-rec-risk" style="font-size:22px;font-weight:700;color:var(--text);letter-spacing:-.5px;font-variant-numeric:tabular-nums">—</div>
+          </div>
+          <div>
+            <div style="font-size:9.5px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700;margin-bottom:5px">Accounts Active</div>
+            <div id="mc-hero-accounts" style="font-size:22px;font-weight:700;color:var(--text);letter-spacing:-.5px;font-variant-numeric:tabular-nums">—</div>
+          </div>
+          <div>
+            <div style="font-size:9.5px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700;margin-bottom:5px">Highest Risk</div>
+            <div id="mc-hero-highest-risk" style="font-size:15px;font-weight:700;color:var(--text);letter-spacing:-.2px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px">—</div>
+          </div>
         </div>
       </div>
+    </div>
+
+    <!-- Aggregate P&L + Add Account row (secondary, was primary before) -->
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px;flex-wrap:wrap">
+      <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap">
+        <div style="display:flex;align-items:baseline;gap:10px">
+          <span style="font-size:11px;color:var(--text3);letter-spacing:.4px;text-transform:uppercase;font-weight:700">Aggregate P&amp;L</span>
+          <span id="mc-hero-pnl" style="font-size:22px;font-weight:700;color:var(--green);letter-spacing:-.5px;font-variant-numeric:tabular-nums">$0</span>
+          <span id="mc-hero-pnl-sub" style="font-size:11px;color:var(--text3)">across all accounts</span>
+        </div>
+        <span id="mc-hero-title" style="display:none"></span>
+        <span id="mc-hero-sub" style="font-size:11.5px;color:var(--text3)"></span>
+      </div>
+      <button onclick="mcOpenAddPropAccount()" style="font-size:12px;padding:9px 16px;background:var(--accent);border:none;color:#fff;border-radius:9px;cursor:pointer;font-weight:600;letter-spacing:.3px;box-shadow:0 1px 4px rgba(124,90,240,.35);display:flex;align-items:center;gap:6px">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Prop Account
+      </button>
     </div>
 
     <!-- TIME PERIOD FILTER (Phase 3 polish) -->
@@ -34064,6 +34098,9 @@ window.toggleSidebar = function(){
       return ha - hb;
     });
 
+    // ── Mission Status hero (Today Command Center) ──
+    if(typeof mcRenderMissionHero === 'function') mcRenderMissionHero(accountStatuses);
+
     // ── Can I take this trade? (risk calculator hero) ──
     if(typeof mcRenderTradeCheck === 'function') mcRenderTradeCheck(accountStatuses);
 
@@ -35208,6 +35245,111 @@ window.toggleSidebar = function(){
     if(inp2){ inp2.focus(); if(caret!=null) try{ inp2.setSelectionRange(caret,caret); }catch(e){} }
   };
 
+  // ── MISSION STATUS HERO — "Today Command Center" ──
+  // Computes one dominant SAFE/CAUTION/STOP verdict across all prop accounts,
+  // plus the metrics a trader needs before deciding to open a position today.
+  function mcRenderMissionHero(accountStatuses){
+    var heroEl = document.getElementById('mc-mission-hero');
+    if(!heroEl) return;
+
+    if(!accountStatuses || accountStatuses.length === 0){
+      // No prop accounts yet — neutral state
+      var statusEl0 = document.getElementById('mc-hero-status');
+      var aiText0 = document.getElementById('mc-hero-ai-text');
+      var glow0 = document.getElementById('mc-hero-glow');
+      if(statusEl0){ statusEl0.textContent='NO ACCOUNTS YET'; statusEl0.style.color='var(--text3)'; }
+      if(aiText0) aiText0.textContent='Add a prop firm account to activate real-time risk monitoring.';
+      if(glow0) glow0.style.background='';
+      heroEl.style.borderColor='var(--border)';
+      ['mc-hero-dd-left','mc-hero-rec-risk','mc-hero-accounts','mc-hero-highest-risk'].forEach(function(id){
+        var e=document.getElementById(id); if(e) e.textContent='—';
+      });
+      return;
+    }
+
+    var risk = (typeof mcGetTradeRisk==='function') ? mcGetTradeRisk() : 0;
+    var ccy = (typeof tqGetDisplayCurrency==='function') ? tqGetDisplayCurrency() : 'USD';
+    var sym = {USD:'$',EUR:'€',GBP:'£',JPY:'¥',CHF:'CHF ',CAD:'C$',AUD:'A$',NZD:'NZ$'}[ccy]||'$';
+
+    // Per-account DD room + breach/warning aggregation
+    var worstDDRoomAbs = Infinity, worstAcc = null;
+    var hasBreach = false, hasWarning = false;
+    var activeCount = 0, totalCount = accountStatuses.length;
+    var recRiskCandidates = [];
+
+    accountStatuses.forEach(function(it){
+      var acc = it.acc, st = it.status;
+      if(!st) return;
+      if(st.breaches && st.breaches.length > 0) hasBreach = true;
+      else if(st.warnings && st.warnings.length > 0) hasWarning = true;
+      if(!(st.breaches && st.breaches.length > 0)) activeCount++;
+
+      var sb = (typeof accGetStartingPoint==='function') ? (accGetStartingPoint(acc).balance||0) : (parseFloat(acc.startingBalance||acc.balance)||0);
+      var ddRoomAbs = null;
+      if(acc.dailyLossLimit != null){
+        var dailyLimitAbs = acc.ddMode==='dollar' ? acc.dailyLossLimit : (sb*acc.dailyLossLimit/100);
+        var lostToday = st.dailyLossAbs || 0;
+        ddRoomAbs = Math.max(0, dailyLimitAbs - lostToday);
+      }
+      if(st.maxDdAbs != null){
+        var maxRoomAbs = Math.max(0, st.maxDdAbs - (st.currentDdAbs||0));
+        ddRoomAbs = ddRoomAbs != null ? Math.min(ddRoomAbs, maxRoomAbs) : maxRoomAbs;
+      }
+      if(ddRoomAbs != null && ddRoomAbs < worstDDRoomAbs){
+        worstDDRoomAbs = ddRoomAbs;
+        worstAcc = acc;
+      }
+      if(ddRoomAbs != null) recRiskCandidates.push(ddRoomAbs);
+    });
+
+    if(worstDDRoomAbs === Infinity) worstDDRoomAbs = null;
+
+    // Recommended risk: conservative — 20% of the tightest account's remaining room,
+    // capped so a single trade never risks blowing more than one account.
+    var recommendedRisk = recRiskCandidates.length
+      ? Math.max(0, Math.min.apply(Math, recRiskCandidates) * 0.2)
+      : null;
+
+    // Overall verdict
+    var overall, overallColor, glowColor, aiMsg;
+    if(hasBreach){
+      overall='STOP'; overallColor='var(--red)'; glowColor='rgba(239,68,68,.10)';
+      aiMsg='At least one account has breached its rules. Trading is blocked until you review and reset.';
+    } else if(hasWarning){
+      overall='CAUTION'; overallColor='#fbbf24'; glowColor='rgba(251,191,36,.09)';
+      aiMsg='One or more accounts are approaching their limits. Reduce size and watch drawdown closely today.';
+    } else {
+      overall='SAFE TO TRADE'; overallColor='var(--green)'; glowColor='rgba(29,233,182,.09)';
+      aiMsg = risk > 0
+        ? 'All accounts are within healthy limits. Your current risk size looks reasonable — stay disciplined.'
+        : 'All accounts are within healthy limits. Set a risk amount below to check a specific trade.';
+    }
+
+    // Paint hero
+    heroEl.style.borderColor = 'color-mix(in srgb, '+overallColor+' 35%, var(--border))';
+    var glowEl = document.getElementById('mc-hero-glow');
+    if(glowEl) glowEl.style.background = 'radial-gradient(ellipse 60% 100% at 0% 0%,'+glowColor+',transparent 70%)';
+
+    var statusEl = document.getElementById('mc-hero-status');
+    if(statusEl){ statusEl.textContent = overall; statusEl.style.color = overallColor; }
+
+    var aiTextEl = document.getElementById('mc-hero-ai-text');
+    if(aiTextEl) aiTextEl.textContent = aiMsg;
+
+    var ddLeftEl = document.getElementById('mc-hero-dd-left');
+    if(ddLeftEl) ddLeftEl.textContent = worstDDRoomAbs != null ? sym+Math.round(worstDDRoomAbs).toLocaleString() : '—';
+
+    var recRiskEl = document.getElementById('mc-hero-rec-risk');
+    if(recRiskEl) recRiskEl.textContent = recommendedRisk != null ? sym+Math.round(recommendedRisk).toLocaleString() : '—';
+
+    var accountsEl = document.getElementById('mc-hero-accounts');
+    if(accountsEl) accountsEl.textContent = activeCount+' / '+totalCount;
+
+    var highestRiskEl = document.getElementById('mc-hero-highest-risk');
+    if(highestRiskEl) highestRiskEl.textContent = worstAcc ? (worstAcc.name || worstAcc.propFirm || '—') : '—';
+  }
+  window.mcRenderMissionHero = mcRenderMissionHero;
+
   function mcRenderTradeCheck(accountStatuses){
     var el = document.getElementById('mc-trade-check');
     if(!el) return;
@@ -35277,12 +35419,7 @@ window.toggleSidebar = function(){
           '<input id="mc-tc-input" type="number" inputmode="decimal" value="'+(risk||'')+'" placeholder="0" oninput="mcSetTradeRisk(this.value)" style="width:90px;padding:7px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;font-weight:600;text-align:right;font-variant-numeric:tabular-nums">'+
         '</div>'+
       '</div>'+
-      // Overall verdict banner
-      '<div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:'+overallBg+';border-radius:10px;margin-bottom:12px">'+
-        '<span style="width:28px;height:28px;border-radius:50%;background:'+overallColor+'22;color:'+overallColor+';display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700">'+overallIcon+'</span>'+
-        '<span style="font-size:16px;font-weight:700;color:'+overallColor+';letter-spacing:.3px">'+overall+'</span>'+
-        (risk>0?'<span style="font-size:12px;color:var(--text3);margin-left:auto">risking $'+risk.toFixed(0)+' per account</span>':'<span style="font-size:12px;color:var(--text3);margin-left:auto">enter a risk amount to check</span>')+
-      '</div>'+
+      (risk<=0?'<div style="font-size:12px;color:var(--text3);margin-bottom:12px">Enter a risk amount to see the per-account verdict below.</div>':'')+
       // Per-account rows
       '<div>'+rows+'</div>'+
     '</div>';
