@@ -3362,29 +3362,31 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(124,90,240,.15);outlin
 .jr-view-btn:hover{border-color:var(--accent);color:var(--accent3)}
 .jr-view-btn.active{background:rgba(124,90,240,.06);border-color:var(--accent);color:var(--accent3)}
 /* Table view */
-.jr-table-wrap{overflow-x:auto;background:var(--card);border:1px solid var(--border);border-radius:14px}
+.jr-table-wrap{overflow-x:auto;background:var(--card);border:1px solid var(--border);border-radius:16px}
 .jr-table{width:100%;border-collapse:separate;border-spacing:0;min-width:900px}
-.jr-table th{font-size:11px;color:var(--text3);font-family:Inter,sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:.5px;padding:12px 14px;text-align:left;border-bottom:1px solid var(--border);background:rgba(124,90,240,.01);cursor:pointer;user-select:none;white-space:nowrap;transition:color .15s}
+.jr-table th{font-size:10.5px;color:var(--text3);font-family:Inter,sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:14px 18px;text-align:left;border-bottom:1px solid var(--border);background:transparent;cursor:pointer;user-select:none;white-space:nowrap;transition:color .15s}
 .jr-table th:hover{color:var(--accent3)}
 .jr-table th:active{color:var(--accent)}
-.jr-table td{font-size:12px;padding:12px 14px;border-bottom:1px solid rgba(124,90,240,.02);transition:background .1s}
-.jr-table tr:hover td{background:rgba(124,90,240,.01)}
+.jr-table td{font-size:13px;padding:16px 18px;border-bottom:1px solid var(--border);transition:background .15s;line-height:1.4}
+.jr-table tr:hover td{background:rgba(124,90,240,.035)}
 .jr-table tr:last-child td{border-bottom:none}
-.jr-table tr.jr-glow-win{box-shadow:inset 4px 0 0 var(--green)}
-.jr-table tr.jr-glow-loss{box-shadow:inset 4px 0 0 var(--red)}
-.jr-table tr.jr-glow-be{box-shadow:inset 4px 0 0 var(--accent)}
+.jr-table tr.jr-glow-win{box-shadow:inset 3px 0 0 var(--green)}
+.jr-table tr.jr-glow-loss{box-shadow:inset 3px 0 0 var(--red)}
+.jr-table tr.jr-glow-be{box-shadow:inset 3px 0 0 var(--accent)}
+/* Right-align numeric columns (RR, P&L, Running) for financial-terminal readability */
+.jr-table td.jr-num, .jr-table th.jr-num{text-align:right;font-variant-numeric:tabular-nums}
 .jr-day-sep{background:rgba(124,90,240,.02)}
 .jr-day-sep td{padding:8px 16px!important;font-size:12px!important;font-family:Inter,sans-serif!important;color:var(--text3)!important;border-bottom:1px solid rgba(124,90,240,.03)!important}
 .jr-grade-a{color:var(--green);font-weight:600;font-family:Inter,sans-serif}
 .jr-grade-b{color:var(--accent3);font-weight:600;font-family:Inter,sans-serif}
 .jr-grade-c{color:#f0b429;font-weight:600;font-family:Inter,sans-serif}
 .jr-grade-d{color:var(--red);font-weight:600;font-family:Inter,sans-serif}
-.jr-pill{display:inline-block;padding:2px 8px;border-radius:5px;font-size:11px;font-family:Inter,sans-serif;font-weight:600}
+.jr-pill{display:inline-block;padding:3px 9px;border-radius:6px;font-size:10.5px;font-family:Inter,sans-serif;font-weight:700;letter-spacing:.3px}
 .jr-pill-win{background:rgba(29,233,182,.1);color:var(--green)}
 .jr-pill-loss{background:rgba(239,68,68,.1);color:var(--red)}
-.jr-pill-be{background:rgba(124,90,240,.04);color:var(--accent3)}
-.jr-pill-buy{background:rgba(29,233,182,.06);color:var(--green);border:1px solid rgba(29,233,182,.1)}
-.jr-pill-sell{background:rgba(239,68,68,.06);color:var(--red);border:1px solid rgba(239,68,68,.1)}
+.jr-pill-be{background:rgba(124,90,240,.06);color:var(--accent3)}
+.jr-pill-buy{background:rgba(29,233,182,.07);color:var(--green);border:0.5px solid rgba(29,233,182,.15)}
+.jr-pill-sell{background:rgba(239,68,68,.07);color:var(--red);border:0.5px solid rgba(239,68,68,.15)}
 /* Card view */
 .jr-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
 .jr-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:0;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
@@ -4653,10 +4655,10 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
   .mc-tf-btn{font-size:12px!important;padding:8px 14px!important;min-height:36px!important}
 
   /* KPI strip — 2x2 */
-  #mc-agg-strip{grid-template-columns:repeat(2,1fr)!important;gap:8px!important;margin-bottom:14px!important}
-  #mc-agg-strip > div{padding:12px 14px!important}
-  #mc-agg-strip > div > div:first-child{font-size:10px!important}
-  #mc-agg-strip > div > div:last-child{font-size:20px!important;margin-top:5px!important}
+  #mc-agg-strip{grid-template-columns:repeat(2,1fr)!important;gap:10px!important;margin-bottom:16px!important}
+  #mc-agg-strip > div{padding:16px 16px!important}
+  #mc-agg-strip > div > div:first-child{font-size:24px!important}
+  #mc-agg-strip > div > div:nth-child(2){font-size:9.5px!important;margin-top:6px!important}
 
   /* Account cards — 2-col grid, P&L moves to bottom row */
   #mc-account-cards > div{
@@ -5508,18 +5510,41 @@ const _tqSupabaseLoad = (async () => {
       <div id="tq-viewmode-hint" style="font-size:8px;color:var(--text3);margin-top:5px;padding:0 4px;line-height:1.4">Showing all accounts</div>
     </div>
 
-    <div class="nav-label">Core</div>
+    <div class="nav-label">Command</div>
     <div class="nav-item active" id="nav-dashboard">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
       Dashboard
+    </div>
+    <div class="nav-item" id="nav-missioncontrol">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+      Mission Control
+      <span style="margin-left:auto;font-size:8px;font-weight:700;padding:2px 5px;background:rgba(124,90,240,.2);color:var(--accent3);border-radius:3px;letter-spacing:.4px">PROP</span>
     </div>
     <div class="nav-item" id="nav-cockpit">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>
       Cockpit
     </div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Journal</div>
     <div class="nav-item" id="nav-journal">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h8"/></svg>
       Journal
+    </div>
+    <div class="nav-item" id="nav-reports">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+      Reports
+    </div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Prop &amp; Risk</div>
+    <div class="nav-item" id="nav-accounts">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+      My Accounts
+    </div>
+    <div class="nav-item" id="nav-riskmonitor">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18"/><path d="M7 14l4-5 3 3 5-7"/><circle cx="19" cy="5" r="1.5" fill="currentColor"/></svg>
+      Risk Monitor
     </div>
     <div class="nav-item" id="nav-trademanager">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
@@ -5527,30 +5552,15 @@ const _tqSupabaseLoad = (async () => {
     </div>
   </div>
   <div class="nav-section">
-    <div class="nav-label">Prop Control</div>
-    <div class="nav-item" id="nav-missioncontrol">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
-      Mission Control
-      <span style="margin-left:auto;font-size:8px;font-weight:700;padding:2px 5px;background:rgba(124,90,240,.2);color:var(--accent3);border-radius:3px;letter-spacing:.4px">PROP</span>
-    </div>
-    <div class="nav-item" id="nav-riskmonitor">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      Risk Monitor
-    </div>
-    <div class="nav-item" id="nav-accounts">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
-      My Accounts
-    </div>
-  </div>
-  <div class="nav-section">
     <div class="nav-label">Growth</div>
-    <div class="nav-item" id="nav-reports">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
-      Reports
+    <div class="nav-item" id="nav-stratlab">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 3h6M10 3v5.5L5 18a1.5 1.5 0 001.3 2.2h11.4A1.5 1.5 0 0019 18l-5-9.5V3"/><path d="M7.5 15h9"/></svg>
+      Strategy Lab
+      <span style="margin-left:auto;font-size:8px;font-weight:700;padding:2px 5px;background:rgba(251,191,36,.15);color:#fbbf24;border-radius:3px;letter-spacing:.4px">TEST</span>
     </div>
-    <div class="nav-item" id="nav-progress">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-      Progress Tracker
+    <div class="nav-item" id="nav-playbook">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><path d="M8 7h8M8 11h5"/></svg>
+      Playbook
     </div>
     <div class="nav-item" id="nav-aicoach">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2a4 4 0 014 4v1a2 2 0 012 2v1a2 2 0 01-2 2H8a2 2 0 01-2-2V9a2 2 0 012-2V6a4 4 0 014-4z"/><path d="M6 12v2a6 6 0 0012 0v-2"/><path d="M12 18v4"/></svg>
@@ -5560,9 +5570,9 @@ const _tqSupabaseLoad = (async () => {
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
       Your Edge
     </div>
-    <div class="nav-item" id="nav-playbook">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><path d="M8 7h8M8 11h5"/></svg>
-      Playbook
+    <div class="nav-item" id="nav-progress">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      Progress Tracker
     </div>
   </div>
   <div class="nav-section">
@@ -5584,7 +5594,7 @@ const _tqSupabaseLoad = (async () => {
         Economic Calendar
       </div>
       <div class="nav-item" id="nav-casestudies">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/><path d="M6 8h2M16 8h2"/></svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 3H4a1 1 0 00-1 1v16a1 1 0 001 1h16a1 1 0 001-1V8l-6-5z"/><path d="M14 3v5h6"/><circle cx="9" cy="14" r="1.5"/><path d="M9 15.5V17"/></svg>
         Case Studies
       </div>
       <div class="nav-item" id="nav-resources">
@@ -5722,7 +5732,7 @@ window.toggleSidebar = function(){
     <div id="mc-trade-check" style="display:none;margin-bottom:18px"></div>
 
     <!-- AGGREGATE KPI STRIP -->
-    <div id="mc-agg-strip" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px"></div>
+    <div id="mc-agg-strip" style="display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr;gap:14px;margin-bottom:24px"></div>
 
     <!-- PORTFOLIO INSIGHTS (6 metrics with mini-charts) -->
     <div id="mc-portfolio-insights" style="display:none;margin-bottom:18px"></div>
@@ -5901,6 +5911,9 @@ window.toggleSidebar = function(){
       <div id="ck-checklist-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:8px"></div>
       <div id="ck-checklist-banner" style="margin-top:10px;display:none"></div>
     </div>
+
+    <!-- APPROVED STRATEGY MATCH — cross-checks selected pair/session against Playbook setups promoted from Strategy Lab -->
+    <div id="ck-strategy-match" style="display:none;margin-bottom:14px"></div>
 
     <!-- METHODOLOGY PRESET SELECTOR -->
     <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 18px;margin-bottom:14px;flex-wrap:wrap">
@@ -6455,7 +6468,7 @@ window.toggleSidebar = function(){
               </div>
               <div id="dash-cum-total" class="dash-big-num green" style="font-size:24px;letter-spacing:-.5px;font-weight:700">&#8212;</div>
             </div>
-            <div style="height:160px;position:relative;margin-top:6px"><canvas id="dash-cum-chart"></canvas></div>
+            <div style="height:260px;position:relative;margin-top:10px"><canvas id="dash-cum-chart"></canvas></div>
             <div style="display:flex;gap:14px;margin-top:8px;flex-wrap:wrap">
               <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:10px;height:2px;background:var(--green);display:inline-block;border-radius:1px"></span>Equity curve</span>
               <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:10px;height:0;border-top:2px dashed rgba(124,90,240,.6);display:inline-block"></span>5-day avg</span>
@@ -6472,7 +6485,7 @@ window.toggleSidebar = function(){
               </div>
               <div id="dash-bar-days" style="font-size:12px;color:var(--text3);white-space:nowrap;margin-top:3px">&#8212; days</div>
             </div>
-            <div style="height:160px;position:relative;margin-top:6px"><canvas id="dash-bar-chart"></canvas></div>
+            <div style="height:260px;position:relative;margin-top:10px"><canvas id="dash-bar-chart"></canvas></div>
             <div style="display:flex;gap:14px;margin-top:8px;flex-wrap:wrap">
               <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:9px;height:9px;border-radius:2px;background:var(--green);display:inline-block"></span>Win day</span>
               <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:9px;height:9px;border-radius:2px;background:var(--red);display:inline-block"></span>Loss day</span>
@@ -6487,7 +6500,7 @@ window.toggleSidebar = function(){
               </div>
               <div id="dash-bal-total" class="dash-big-num" style="font-size:22px;letter-spacing:-.5px;font-weight:700;white-space:nowrap">&#8212;</div>
             </div>
-            <div style="height:160px;position:relative;margin-top:6px"><canvas id="dash-balance-chart"></canvas></div>
+            <div style="height:260px;position:relative;margin-top:10px"><canvas id="dash-balance-chart"></canvas></div>
             <div style="display:flex;gap:14px;margin-top:8px;flex-wrap:wrap">
               <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:10px;height:2px;background:#7c5af0;display:inline-block;border-radius:1px"></span>Balance</span>
               <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:10px;height:0;border-top:2px dashed rgba(239,68,68,.6);display:inline-block"></span>Starting balance</span>
@@ -6502,7 +6515,7 @@ window.toggleSidebar = function(){
               </div>
               <span id="dash-max-dd" style="font-size:22px;font-weight:700;color:var(--red);font-family:Inter,sans-serif;white-space:nowrap">0.00%</span>
             </div>
-            <div style="height:160px;position:relative;margin-top:6px"><canvas id="dash-drawdown-chart"></canvas></div>
+            <div style="height:260px;position:relative;margin-top:10px"><canvas id="dash-drawdown-chart"></canvas></div>
             <div style="display:flex;gap:14px;margin-top:8px;flex-wrap:wrap">
               <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:10px;height:2px;background:var(--red);display:inline-block;border-radius:1px"></span>Drawdown curve</span>
               <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><span style="width:8px;height:8px;border-radius:50%;background:#e05c7a;display:inline-block"></span>Current</span>
@@ -6598,6 +6611,16 @@ window.toggleSidebar = function(){
             </div>
             <div class="dw-sub">Behavioral risk signals</div>
             <div id="dash-w-tilt-content" style="display:flex;flex-direction:column;gap:10px"></div>
+          </div>
+
+          <!-- Discipline Score — flagship behavioral metric -->
+          <div class="card" data-widget="discipline-score" data-widget-hidden="true" style="padding:20px 22px;min-height:216px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;padding-right:26px">
+              <span style="font-size:14px;color:var(--text);letter-spacing:-.1px;font-weight:500">Discipline Score</span>
+              <span class="info-icon" data-tip="One number combining plan adherence, revenge/FOMO trades, overtrading and tilt streaks. Higher = more consistent execution, independent of P&L.">i</span>
+            </div>
+            <div class="dw-sub">How well you follow your own rules</div>
+            <div id="dash-w-discipline-content"></div>
           </div>
 
           <!-- Best Setup (Your Edge highlight) -->
@@ -7307,7 +7330,14 @@ window.toggleSidebar = function(){
       <button class="btn btn-ghost" id="btn-clear-cs">Clear</button>
     </div>
     <div id="cs-grid" class="cs-grid">
-      <div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">◉</div><div class="empty-text">No case studies yet.</div></div>
+      <div class="empty-state" style="grid-column:1/-1;padding:60px 30px;text-align:center">
+        <div style="width:72px;height:72px;margin:0 auto 20px;background:rgba(124,90,240,.08);border-radius:18px;display:flex;align-items:center;justify-content:center">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><path d="M9 3H4a1 1 0 00-1 1v16a1 1 0 001 1h16a1 1 0 001-1V8l-6-5z"/><path d="M14 3v5h6"/><circle cx="9" cy="14" r="1.5"/></svg>
+        </div>
+        <div style="font-size:17px;font-weight:600;color:var(--text);margin-bottom:8px">No case studies yet</div>
+        <div style="font-size:12.5px;color:var(--text2);max-width:340px;margin:0 auto 20px;line-height:1.6">Document your best and worst trades in depth — screenshots, reasoning, and lessons — to build a searchable library of what actually works for you.</div>
+        <button class="btn btn-primary" onclick="document.getElementById('btn-add-cs').click()" style="font-size:13px;padding:10px 20px">+ Add Your First Case Study</button>
+      </div>
     </div>
   </div>
 
@@ -8286,6 +8316,7 @@ window.toggleSidebar = function(){
       <button class="rpt-tab" onclick="rptTab('duration',this)">Duration</button>
       <button class="rpt-tab" onclick="rptTab('tags',this)" title="Mistake & custom tag analytics">🏷 Tags</button>
       <button class="rpt-tab" onclick="rptTab('cross',this)" title="Cross-dimensional analysis (e.g. Pair × Day of Week)">⚡ Cross Analysis</button>
+      <button class="rpt-tab" onclick="rptTab('stratlab',this)" title="Strategy Lab research health — backtest vs live">🧪 Strategy Health</button>
     </div>
 
     <!-- OVERVIEW -->
@@ -9083,6 +9114,21 @@ window.toggleSidebar = function(){
         <div id="rpt-cross-insights" style="display:grid;grid-template-columns:1fr 1fr;gap:12px"></div>
       </div>
     </div>
+
+    <!-- STRATEGY HEALTH — Strategy Lab research status, kept separate from ordinary P&L reports -->
+    <div class="rpt-tc" id="rpt-stratlab">
+      <div class="pb-stats" style="margin-bottom:14px">
+        <div class="pb-stat"><div class="pb-stat-val" id="rpt-sl-researched">0</div><div class="pb-stat-label">BACKTESTED SETUPS</div></div>
+        <div class="pb-stat"><div class="pb-stat-val tq-green" id="rpt-sl-approved">0</div><div class="pb-stat-label">APPROVED SETUPS</div></div>
+        <div class="pb-stat"><div class="pb-stat-val" id="rpt-sl-best">—</div><div class="pb-stat-label">BEST RESEARCHED STRATEGY</div></div>
+        <div class="pb-stat"><div class="pb-stat-val" id="rpt-sl-weakest" style="color:var(--red)">—</div><div class="pb-stat-label">WEAKEST LIVE EXECUTION</div></div>
+      </div>
+      <div class="card" style="padding:18px 22px">
+        <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px">Backtest vs Live, per approved strategy</div>
+        <div style="font-size:11.5px;color:var(--text3);margin-bottom:16px">Only strategies promoted from Strategy Lab appear here — this never mixes with ordinary trade P&L.</div>
+        <div id="rpt-sl-table"></div>
+      </div>
+    </div>
     </div><!-- /reports-content -->
 
   </div>
@@ -9158,6 +9204,25 @@ window.toggleSidebar = function(){
           Generate PDF
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- STRATEGY LAB — research projects & backtest samples, separate from live Journal -->
+  <div id="page-stratlab" class="page">
+    <div class="page-header">
+      <div><div class="page-title">Strategy Lab</div><div class="page-sub">Test hypotheses before risking real capital · Journal = what you traded · Strategy Lab = what you're testing</div></div>
+      <button class="btn btn-primary" onclick="slOpenProjectModal()">+ New Research Project</button>
+    </div>
+
+    <div class="pb-stats" id="sl-stats">
+      <div class="pb-stat"><div class="pb-stat-val" id="sl-total-projects">0</div><div class="pb-stat-label">PROJECTS</div></div>
+      <div class="pb-stat"><div class="pb-stat-val" id="sl-testing-count">0</div><div class="pb-stat-label">TESTING</div></div>
+      <div class="pb-stat"><div class="pb-stat-val tq-green" id="sl-approved-count">0</div><div class="pb-stat-label">APPROVED</div></div>
+      <div class="pb-stat"><div class="pb-stat-val" id="sl-total-samples">0</div><div class="pb-stat-label">TOTAL SAMPLES</div></div>
+    </div>
+
+    <div class="pb-grid" id="sl-grid">
+      <!-- Cards injected by JS -->
     </div>
   </div>
 
@@ -9290,6 +9355,159 @@ window.toggleSidebar = function(){
           <button class="pb-btn pb-btn-ghost" onclick="pbDuplicateFromDetail()">Duplicate</button>
         </div>
         <button class="pb-btn pb-btn-primary" onclick="pbEditFromDetail()">Edit Setup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STRATEGY LAB — New Research Project modal -->
+  <div class="pb-overlay" id="sl-project-overlay">
+    <div class="pb-builder" style="max-width:560px">
+      <div class="pb-builder-header">
+        <div class="pb-builder-title" id="sl-project-modal-title">New Research Project</div>
+        <button class="pb-builder-close" onclick="slCloseProjectModal()">✕</button>
+      </div>
+      <div class="pb-builder-body" style="max-height:70vh">
+        <div style="font-size:11.5px;color:var(--text3);margin-bottom:16px;line-height:1.5">Define exactly what you're testing before adding samples. Be specific — "NY Silver Bullet on GBPUSD after a liquidity sweep, 10:00–11:00 NY" beats "scalping".</div>
+
+        <div style="margin-bottom:14px">
+          <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">HYPOTHESIS / STRATEGY NAME</label>
+          <input type="text" id="sl-f-name" class="form-input" placeholder="e.g. NY Silver Bullet — liquidity sweep entries" style="width:100%">
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">MARKET / PAIR</label>
+            <input type="text" id="sl-f-pair" class="form-input" placeholder="GBPUSD" style="width:100%">
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">SESSION</label>
+            <select id="sl-f-session" class="form-select" style="width:100%">
+              <option value="">Any</option>
+              <option>Asia</option><option>London</option><option>New York</option><option>London/NY Overlap</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-bottom:14px">
+          <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">SETUP TYPE</label>
+          <input type="text" id="sl-f-setuptype" class="form-input" placeholder="e.g. Liquidity sweep + MSS, Order block retest" style="width:100%">
+        </div>
+
+        <div style="margin-bottom:14px">
+          <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">ENTRY RULES</label>
+          <textarea id="sl-f-entry" class="form-input" rows="3" placeholder="Exact conditions that trigger an entry" style="width:100%;resize:vertical"></textarea>
+        </div>
+
+        <div style="margin-bottom:14px">
+          <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">INVALIDATION RULES</label>
+          <textarea id="sl-f-invalid" class="form-input" rows="2" placeholder="What proves this setup wrong / skip the trade" style="width:100%;resize:vertical"></textarea>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">TP MODEL</label>
+            <input type="text" id="sl-f-tpmodel" class="form-input" placeholder="e.g. 2R fixed, next liquidity pool" style="width:100%">
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">MIN. SAMPLES NEEDED</label>
+            <select id="sl-f-minsamples" class="form-select" style="width:100%">
+              <option value="30">30</option>
+              <option value="50" selected>50</option>
+              <option value="100">100</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="pb-builder-footer">
+        <button class="pb-btn pb-btn-ghost" onclick="slCloseProjectModal()">Cancel</button>
+        <button class="pb-btn pb-btn-primary" onclick="slSaveProject()">Create Research Project</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STRATEGY LAB — Project detail overlay (samples, report, promote) -->
+  <div class="pb-overlay" id="sl-detail-overlay">
+    <div class="pb-builder" style="max-width:720px">
+      <div class="pb-builder-header">
+        <div class="pb-builder-title" id="sl-detail-title">Research Project</div>
+        <button class="pb-builder-close" onclick="slCloseDetail()">✕</button>
+      </div>
+      <div class="pb-builder-body" id="sl-detail-body" style="max-height:70vh">
+        <!-- Injected by JS -->
+      </div>
+      <div class="pb-builder-footer">
+        <div style="display:flex;gap:8px">
+          <button class="pb-btn pb-btn-ghost" style="color:var(--red);border-color:rgba(239,68,68,.2)" onclick="slDeleteProject()">Delete</button>
+          <button class="pb-btn pb-btn-ghost" onclick="slEditProject()">Edit</button>
+        </div>
+        <button class="pb-btn pb-btn-primary" onclick="slOpenSampleModal()">+ Add Sample</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STRATEGY LAB — Add Sample modal (backtest data point, no live-account fields) -->
+  <div class="pb-overlay" id="sl-sample-overlay">
+    <div class="pb-builder" style="max-width:520px">
+      <div class="pb-builder-header">
+        <div class="pb-builder-title">Add Backtest Sample</div>
+        <button class="pb-builder-close" onclick="slCloseSampleModal()">✕</button>
+      </div>
+      <div class="pb-builder-body" style="max-height:70vh">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">DATE</label>
+            <input type="date" id="sl-s-date" class="form-input" style="width:100%">
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">RESULT</label>
+            <select id="sl-s-result" class="form-select" style="width:100%">
+              <option value="win">Win</option>
+              <option value="loss">Loss</option>
+              <option value="be">Breakeven</option>
+              <option value="missed">Missed (valid setup, no entry)</option>
+              <option value="no_trade">No trade (invalidated)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">RESULT (R)</label>
+            <input type="number" step="0.1" id="sl-s-r" class="form-input" placeholder="e.g. 2.3 or -1" style="width:100%">
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">SETUP QUALITY</label>
+            <select id="sl-s-quality" class="form-select" style="width:100%">
+              <option value="A">A — Textbook</option>
+              <option value="B" selected>B — Good</option>
+              <option value="C">C — Marginal</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-bottom:14px">
+          <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">RULE FOLLOWED?</label>
+          <div style="display:flex;gap:8px">
+            <button type="button" class="pb-btn pb-btn-ghost sl-yn-btn" data-val="yes" onclick="slSetYN('rule',this)" style="flex:1">Yes</button>
+            <button type="button" class="pb-btn pb-btn-ghost sl-yn-btn" data-val="no" onclick="slSetYN('rule',this)" style="flex:1">No</button>
+          </div>
+        </div>
+
+        <div style="margin-bottom:14px">
+          <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">MARKET CONDITION</label>
+          <input type="text" id="sl-s-condition" class="form-input" placeholder="e.g. Trending, ranging, high volatility news day" style="width:100%">
+        </div>
+
+        <div style="margin-bottom:14px">
+          <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">NOTES / REASON FOR ENTRY</label>
+          <textarea id="sl-s-notes" class="form-input" rows="3" placeholder="Why this qualified as a valid sample" style="width:100%;resize:vertical"></textarea>
+        </div>
+
+        <div style="font-size:10.5px;color:var(--text3);line-height:1.5;padding:10px 12px;background:var(--track);border-radius:8px">This is backtest research data only — no account, emotions, or prop rules attached. Promote this strategy to Playbook once it's validated to start tracking live execution.</div>
+      </div>
+      <div class="pb-builder-footer">
+        <button class="pb-btn pb-btn-ghost" onclick="slCloseSampleModal()">Cancel</button>
+        <button class="pb-btn pb-btn-primary" onclick="slSaveSample()">Save Sample</button>
       </div>
     </div>
   </div>
@@ -20603,6 +20821,7 @@ window.toggleSidebar = function(){
       }
     };
     if (id === 'playbook') _tqRenderAfterPaint(renderPbCards);
+    if (id === 'stratlab') _tqRenderAfterPaint(renderSlCards);
     if (id === 'journal') _tqRenderAfterPaint(renderJournal);
     if (id === 'dayview'){
       window._dvDirty = false;
@@ -20942,7 +21161,7 @@ window.toggleSidebar = function(){
     }
   })();
 
-  ['dashboard','dayview','journal','notebook','reports','playbook','riskmonitor','accounts','trademanager','casestudies','progress','resources','cockpit','missioncontrol','news','aicoach','youredge','trash'].forEach(function(id) {
+  ['dashboard','dayview','journal','notebook','reports','playbook','stratlab','riskmonitor','accounts','trademanager','casestudies','progress','resources','cockpit','missioncontrol','news','aicoach','youredge','trash'].forEach(function(id) {
     var el = $('nav-' + id);
     if (el) el.addEventListener('click', function(){ showPage(id); });
   });
@@ -20959,8 +21178,64 @@ window.toggleSidebar = function(){
     btn.classList.add('active');
     if(id === 'cross') setTimeout(rptRenderCross, 50);
     if(id === 'tags') setTimeout(rptRenderTags, 50);
+    if(id === 'stratlab') setTimeout(rptRenderStrategyHealth, 50);
   }
   window.rptTab = rptTab;
+
+  // ═══ STRATEGY HEALTH — Strategy Lab research status, separate from ordinary P&L reports ═══
+  function rptRenderStrategyHealth(){
+    var tableEl = document.getElementById('rpt-sl-table');
+    if(!tableEl) return;
+
+    var allSetups = (typeof getPlaybooks==='function') ? getPlaybooks() : [];
+    var btSetups = allSetups.filter(function(s){ return s._backtestStats && s._backtestStats.n>0; });
+    var researchProjects = (typeof slGetProjects==='function') ? slGetProjects() : [];
+    var allTrades = getTradesArr();
+
+    document.getElementById('rpt-sl-researched').textContent = researchProjects.length;
+    document.getElementById('rpt-sl-approved').textContent = btSetups.length;
+
+    if(!btSetups.length){
+      tableEl.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--text3);font-size:12.5px">No strategies promoted from Strategy Lab yet. Once you validate a hypothesis and promote it, its backtest-vs-live comparison will show up here.</div>';
+      document.getElementById('rpt-sl-best').textContent = '—';
+      document.getElementById('rpt-sl-weakest').textContent = '—';
+      return;
+    }
+
+    var rows = btSetups.map(function(s){
+      var bt = s._backtestStats;
+      var liveTrades = allTrades.filter(function(t){ return t.setupId===s.id || (t.setup||'')===s.name; });
+      var liveWins = liveTrades.filter(function(t){ return tqConvertTradePnl(t)>0; }).length;
+      var liveWr = liveTrades.length ? (liveWins/liveTrades.length*100) : null;
+      var livePnl = liveTrades.reduce(function(a,t){return a+tqConvertTradePnl(t);},0);
+      var gapWr = liveWr!=null ? (liveWr - bt.wr) : null;
+      return {setup:s, bt:bt, liveCount:liveTrades.length, liveWr:liveWr, livePnl:livePnl, gapWr:gapWr};
+    });
+
+    // Best researched strategy = highest backtest expectancy among promoted setups
+    var best = rows.slice().sort(function(a,b){ return b.bt.avgR-a.bt.avgR; })[0];
+    document.getElementById('rpt-sl-best').textContent = best ? best.setup.name : '—';
+
+    // Weakest live execution = biggest negative gap (live underperforming backtest), needs >=5 live trades
+    var withGap = rows.filter(function(r){ return r.gapWr!=null && r.liveCount>=5; });
+    var weakest = withGap.slice().sort(function(a,b){ return a.gapWr-b.gapWr; })[0];
+    document.getElementById('rpt-sl-weakest').textContent = weakest ? weakest.setup.name : '—';
+
+    tableEl.innerHTML = '<div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:8px;padding:8px 4px;font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.4px;text-transform:uppercase;border-bottom:1px solid var(--border)">'
+      +'<div>Strategy</div><div class="tq-right">Backtest</div><div class="tq-right">Live</div><div class="tq-right">Gap</div></div>'
+      + rows.map(function(r){
+        var gapColor = r.gapWr==null ? 'var(--text3)' : r.gapWr < -15 ? 'var(--red)' : r.gapWr < 0 ? '#fbbf24' : 'var(--green)';
+        var gapText = r.gapWr==null ? 'no live data' : (r.gapWr>=0?'+':'')+r.gapWr.toFixed(0)+' pts';
+        return '<div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:8px;padding:12px 4px;font-size:12.5px;border-bottom:1px solid var(--border);align-items:center">'
+          +'<div style="cursor:pointer;color:var(--accent3);font-weight:600" onclick="showPage(\'playbook\');setTimeout(function(){viewSetup(\''+r.setup.id+'\')},150)">'+escapeHtml(r.setup.name)+'</div>'
+          +'<div class="tq-right" style="color:var(--text2)">'+r.bt.wr.toFixed(0)+'% · '+(r.bt.avgR>=0?'+':'')+r.bt.avgR.toFixed(2)+'R</div>'
+          +'<div class="tq-right" style="color:var(--text2)">'+(r.liveCount>0?r.liveWr.toFixed(0)+'% ('+r.liveCount+'t)':'—')+'</div>'
+          +'<div class="tq-right" style="color:'+gapColor+';font-weight:700">'+gapText+'</div>'
+        +'</div>';
+      }).join('');
+  }
+  window.rptRenderStrategyHealth = rptRenderStrategyHealth;
+
 
   // ═══ CROSS ANALYSIS — pivot by 2 dimensions ═══
   var _rptCrossMetric = 'pnl';
@@ -29602,15 +29877,22 @@ window.toggleSidebar = function(){
 
     if(!allTrades || allTrades.length===0){
       list.innerHTML =
-        '<div style="text-align:center;padding:80px 40px;font-family:Inter,sans-serif">' +
+        '<div style="text-align:center;padding:70px 40px;font-family:Inter,sans-serif">' +
           '<div style="width:96px;height:96px;margin:0 auto 24px;background:rgba(124,90,240,.08);border-radius:24px;display:flex;align-items:center;justify-content:center">' +
             '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M12 18v-6M9 15h6"/></svg>' +
           '</div>' +
-          '<div style="font-size:20px;font-weight:600;color:var(--text);margin-bottom:8px">No trades yet</div>' +
-          '<div style="font-size:13px;color:var(--text2);max-width:380px;margin:0 auto 28px;line-height:1.6">Start logging trades to unlock the full TradeQuill experience — analytics, AI insights, and your edge over time.</div>' +
+          '<div style="font-size:20px;font-weight:600;color:var(--text);margin-bottom:10px">Your edge map is empty</div>' +
+          '<div style="font-size:13px;color:var(--text2);max-width:400px;margin:0 auto 18px;line-height:1.6">Import your trade history or add a trade manually to unlock:</div>' +
+          '<div style="display:inline-block;text-align:left;margin:0 auto 26px;font-size:12.5px;color:var(--text2);line-height:2.1">' +
+            '<div>✓ Discipline Score — how well you follow your own rules</div>' +
+            '<div>✓ Risk analysis — drawdown, R-multiples, expectancy</div>' +
+            '<div>✓ Setup performance — which strategies actually work</div>' +
+            '<div>✓ AI coaching — personalized insights on your patterns</div>' +
+          '</div>' +
           '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">' +
-            '<button onclick="openJrModal()" style="background:var(--accent);color:#fff;border:none;padding:11px 22px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Add first trade</button>' +
-            '<button onclick="document.getElementById(\'jr-csv-input\').click()" style="background:var(--bg3);color:var(--text);border:1px solid var(--border);padding:11px 22px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>Import CSV / Excel</button>' +
+            '<button onclick="openJrModal()" style="background:var(--accent);color:#fff;border:none;padding:11px 22px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Add trade</button>' +
+            '<button onclick="document.getElementById(\'jr-csv-input\').click()" style="background:var(--bg3);color:var(--text);border:1px solid var(--border);padding:11px 22px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>Import MT5 / CSV</button>' +
+            '<button onclick="if(typeof tqLoadSampleData===\'function\')tqLoadSampleData()" style="background:transparent;color:var(--text2);border:1px solid var(--border);padding:11px 22px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>Try demo data</button>' +
           '</div>' +
           '<div style="font-size:11px;color:var(--text3);margin-top:18px">Tip: press <kbd style="padding:2px 6px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;font-size:10px">n</kbd> anywhere to start a new trade</div>' +
         '</div>';
@@ -29932,7 +30214,7 @@ window.toggleSidebar = function(){
       pbSetups.forEach(function(s){setupColorMap[s.name]=s.color;setupColorMap[s.id]=s.color;});
 
       var sortArrow=function(col){var cur=sort;if(cur.indexOf(col)===0)return cur.indexOf('-desc')>0?' &#9660;':' &#9650;';return '';};
-      var h='<div class="jr-table-wrap"><table class="jr-table"><thead><tr><th style="width:30px"><input type="checkbox" class="jr-bulk-cb" onchange="jrBulkAll(this.checked)"></th><th onclick="jrColSort(\'date\')" style="cursor:pointer">Date'+sortArrow('date')+'</th><th onclick="jrColSort(\'pair\')" style="cursor:pointer">Pair'+sortArrow('pair')+'</th><th>Dir</th><th>Setup</th><th onclick="jrColSort(\'grade\')" style="cursor:pointer">Grade'+sortArrow('grade')+'</th><th>Emotion</th><th onclick="jrColSort(\'rr\')" style="cursor:pointer">R:R'+sortArrow('rr')+'</th><th onclick="jrColSort(\'pnl\')" style="cursor:pointer">P&L'+sortArrow('pnl')+'</th><th>Cumulative</th><th>Result</th><th></th></tr></thead><tbody>';
+      var h='<div class="jr-table-wrap"><table class="jr-table"><thead><tr><th style="width:30px"><input type="checkbox" class="jr-bulk-cb" onchange="jrBulkAll(this.checked)"></th><th onclick="jrColSort(\'date\')" style="cursor:pointer">Date'+sortArrow('date')+'</th><th onclick="jrColSort(\'pair\')" style="cursor:pointer">Pair'+sortArrow('pair')+'</th><th>Dir</th><th>Setup</th><th onclick="jrColSort(\'grade\')" style="cursor:pointer">Grade'+sortArrow('grade')+'</th><th>Emotion</th><th class="jr-num" onclick="jrColSort(\'rr\')" style="cursor:pointer">R:R'+sortArrow('rr')+'</th><th class="jr-num" onclick="jrColSort(\'pnl\')" style="cursor:pointer">P&L'+sortArrow('pnl')+'</th><th class="jr-num">Cumulative</th><th>Result</th><th></th></tr></thead><tbody>';
       // Running P&L calc (date asc)
       var runningPnl=0;
       var tSorted=t.slice().sort(function(a,b){return (a.date||'').localeCompare(b.date||'');});
@@ -29990,15 +30272,15 @@ window.toggleSidebar = function(){
 
           h+='<tr class="'+glowCls+'" style="cursor:pointer" onclick="jrViewDetail(\''+tr.id+'\')">'
             +'<td onclick="event.stopPropagation()"><input type="checkbox" class="jr-bulk-cb jr-row-cb" data-id="'+tr.id+'" onchange="jrToggleBulk(\''+tr.id+'\',this)"></td>'
-            +'<td style="font-family:Inter,sans-serif;font-size:11px;color:var(--text3)">'+(tr.date||'—').slice(5)+'</td>'
-            +'<td style="font-weight:600">'+tr.pair+'</td>'
+            +'<td style="font-family:Inter,sans-serif;font-size:11.5px;color:var(--text3)">'+(tr.date||'—').slice(5)+'</td>'
+            +'<td style="font-weight:700;color:var(--text)">'+tr.pair+'</td>'
             +'<td><span class="jr-pill '+dirCls+'">'+dirLabel+'</span></td>'
-            +'<td style="font-size:11px;color:var(--text2)">'+setupText+(confCount>0?' <span style="color:var(--accent);font-size:9px;font-family:Inter,sans-serif">'+confCount+'cf</span>':'')+'</td>'
+            +'<td style="font-size:12px;color:var(--text2)">'+setupText+(confCount>0?' <span style="color:var(--accent);font-size:9px;font-family:Inter,sans-serif">'+confCount+'cf</span>':'')+'</td>'
             +'<td><span class="'+gradeClass(tr.grade)+'">'+(tr.grade||'<span class="tq-text-muted">—</span>')+'</span></td>'
-            +'<td style="font-size:11px">'+(tr.emotion||'<span class="tq-text-muted">—</span>')+'</td>'
-            +'<td style="font-family:Inter,sans-serif;font-size:11px">'+rr+'</td>'
-            +'<td style="font-weight:600;font-family:Inter,sans-serif;color:'+(pnl2>=0?'var(--green)':'var(--red)')+'">'+(pnl2>=0?'+':'')+' $'+Math.abs(pnl2).toLocaleString('en-US')+'</td>'
-            +'<td class="jr-running" style="color:'+(running>=0?'var(--green)':'var(--red)')+'">'+(running>=0?'+':'')+' $'+Math.abs(running).toLocaleString('en-US')+'</td>'
+            +'<td style="font-size:12px">'+(tr.emotion||'<span class="tq-text-muted">—</span>')+'</td>'
+            +'<td class="jr-num" style="font-family:Inter,sans-serif;font-size:12px;color:var(--text2)">'+rr+'</td>'
+            +'<td class="jr-num" style="font-weight:700;font-family:Inter,sans-serif;color:'+(pnl2>=0?'var(--green)':'var(--red)')+'">'+(pnl2>=0?'+':'-')+'$'+Math.abs(pnl2).toLocaleString('en-US')+'</td>'
+            +'<td class="jr-num jr-running" style="color:'+(running>=0?'var(--green)':'var(--red)')+'">'+(running>=0?'+':'-')+'$'+Math.abs(running).toLocaleString('en-US')+'</td>'
             +'<td><span class="jr-pill '+resultCls+'">'+result+'</span></td>'
             +'<td onclick="event.stopPropagation()" style="white-space:nowrap"><button style="background:none;border:none;color:'+(tr.pinned?'#f0b429':'var(--text3)')+';cursor:pointer;font-size:13px;padding:4px" onclick="jrTogglePin(\''+tr.id+'\')" title="'+(tr.pinned?'Unpin':'Pin for later review')+'">'+(tr.pinned?'★':'☆')+'</button><button style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:13px;padding:4px 6px" onclick="aiChatOpen(\''+tr.id+'\')" title="Ask AI about this trade">✨</button><button style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;padding:4px" onclick="jrDeleteTrade(\''+tr.id+'\')" title="Delete trade">✕</button></td>'
             +'</tr>';
@@ -32551,6 +32833,37 @@ window.toggleSidebar = function(){
 
     td+='─ LAST 20 TRADES DETAIL ─\n';
     sorted5.slice(-20).forEach(function(t,i){td+=(i+1)+'. '+t.date+' '+t.pair+' '+(t.direction||'')+' $'+tqConvertTradePnl(t).toFixed(2)+' '+(t.session||'')+' '+(t.setup||'')+' '+(t.emotion||'')+' Plan:'+(t.planFollowed||'?')+'\n';});
+
+    // ── STRATEGY LAB / PLAYBOOK: backtest vs live gap ──
+    // Lets AI Coach say things like "your backtest edge on X is +0.5R but live is -0.1R —
+    // that's an execution problem, not a bad model" or flag approved setups barely traded live.
+    try{
+      var allSetups = (typeof getPlaybooks==='function') ? getPlaybooks() : [];
+      var btSetups = allSetups.filter(function(s){ return s._backtestStats && s._backtestStats.n>0; });
+      if(btSetups.length){
+        td += '\n─ STRATEGY LAB: BACKTEST vs LIVE ─\n';
+        btSetups.forEach(function(s){
+          var bt = s._backtestStats;
+          var liveTrades = trades.filter(function(t){ return t.setupId===s.id || (t.setup||'')===s.name; });
+          var liveWins = liveTrades.filter(function(t){ return tqConvertTradePnl(t)>0; }).length;
+          var liveWr = liveTrades.length ? Math.round(liveWins/liveTrades.length*100) : null;
+          var livePnl = liveTrades.reduce(function(a,t){return a+tqConvertTradePnl(t);},0);
+          td += s.name+': backtest '+bt.n+' samples, '+bt.wr.toFixed(0)+'% WR, '+(bt.avgR>=0?'+':'')+bt.avgR.toFixed(2)+'R expectancy'
+              + ' | live '+liveTrades.length+' trades'+(liveWr!=null?', '+liveWr+'% WR, $'+livePnl.toFixed(0):' (not yet traded live)')+'\n';
+        });
+      }
+      // Research projects still in testing (not yet promoted) — flag if strong edge is sitting unused
+      var researchProjects = (typeof slGetProjects==='function') ? slGetProjects() : [];
+      var testingProjects = researchProjects.filter(function(p){ return p.status==='testing' || !p.status; });
+      if(testingProjects.length){
+        td += '\n─ STRATEGY LAB: UNPROMOTED RESEARCH ─\n';
+        testingProjects.forEach(function(p){
+          var st = (typeof slComputeStats==='function') ? slComputeStats(p.id, p.minSamples) : {n:0,confidence:0};
+          if(st.n>0) td += p.name+': '+st.n+' samples, confidence '+st.confidence+'/100, '+(st.confidenceLabel||'')+'\n';
+        });
+      }
+    }catch(e){ if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'ai_strategy_lab_context'}); }
+
     return td;
   }
 
@@ -32600,7 +32913,7 @@ window.toggleSidebar = function(){
     if(typeof tqPushAIMessage==='function'){ tqPushAIMessage(_aiActiveConvKey, 'user', q); }
 
     var __methDesc = (typeof tqGetMethodologyDescriptor === 'function') ? tqGetMethodologyDescriptor() : 'WWA methodology';
-    var systemPrompt='You are an experienced trading mentor talking with a trader who follows the '+__methDesc+'. You are having an ongoing conversation — remember everything the user has said in this conversation and reference it when relevant.\n\nBe direct, supportive, and concise. Use specific numbers from their data. Avoid generic advice. When the user asks a follow-up question, build on what was discussed earlier in this chat.\n\nTRADER DATA (current snapshot):\n'+aiBuildTraderContext();
+    var systemPrompt='You are an experienced trading mentor talking with a trader who follows the '+__methDesc+'. You are having an ongoing conversation — remember everything the user has said in this conversation and reference it when relevant.\n\nBe direct, supportive, and concise. Use specific numbers from their data. Avoid generic advice. When the user asks a follow-up question, build on what was discussed earlier in this chat.\n\nIf the data includes a STRATEGY LAB section: compare backtest vs live stats for each setup. If live win rate or expectancy is meaningfully worse than backtest, say so plainly and frame it as an execution/discipline issue, not a bad model. If an approved setup has strong backtest data but almost no live trades, point that out — it\'s a validated edge sitting unused. If a setup performs negatively live despite a positive backtest, ask directly why it\'s still active. Only bring this up when the data actually shows a gap — don\'t force it.\n\nTRADER DATA (current snapshot):\n'+aiBuildTraderContext();
 
     fetch(AI_WORKER_URL,{
       method:'POST',
@@ -33236,7 +33549,7 @@ window.toggleSidebar = function(){
     var idx=(ckData.selectedPairs||[]).indexOf(pair);
     if(idx>=0)ckData.selectedPairs.splice(idx,1);
     delete ckData.pairs[pair];
-    ckAutoSave();ckRenderPairChips();ckRenderBoards();
+    ckAutoSave();ckRenderPairChips();ckRenderBoards();if(typeof ckRenderStrategyMatch==='function')ckRenderStrategyMatch();
   }
   window.ckTogPairBtn=ckTogPairBtn;
 
@@ -33248,7 +33561,7 @@ window.toggleSidebar = function(){
     if(ckData.selectedPairs.indexOf(pair)>=0){sel.value='';return;} // already added
     ckData.selectedPairs.push(pair);
     sel.value='';
-    ckAutoSave();ckRenderPairChips();ckRenderBoards();
+    ckAutoSave();ckRenderPairChips();ckRenderBoards();if(typeof ckRenderStrategyMatch==='function')ckRenderStrategyMatch();
   }
   window.ckAddPair=ckAddPair;
 
@@ -33321,6 +33634,69 @@ window.toggleSidebar = function(){
   function ckGetSelectedPairs(){
     return (ckData&&ckData.selectedPairs)||[];
   }
+
+  // ── APPROVED STRATEGY MATCH — cross-checks the pair(s) selected in Cockpit against
+  // Playbook setups that were promoted from Strategy Lab (i.e. have real backtest data).
+  // This is the pre-trade "does this match a validated model?" check. ──
+  function ckRenderStrategyMatch(){
+    var el = document.getElementById('ck-strategy-match');
+    if(!el) return;
+    var selectedPairs = ckGetSelectedPairs();
+    if(!selectedPairs.length){ el.style.display='none'; el.innerHTML=''; return; }
+
+    var setups = (typeof getPlaybooks==='function') ? getPlaybooks() : [];
+    var approvedSetups = setups.filter(function(s){ return s._backtestStats && s._backtestStats.n>0 && s.active!==false; });
+    var currentSessionLabel = (function(){
+      var lEl = document.getElementById('ck-session-label');
+      return lEl ? lEl.textContent.trim() : '';
+    })();
+
+    var rows = selectedPairs.map(function(pair){
+      // Find approved setups whose `pairs` list includes this pair (case-insensitive)
+      var matches = approvedSetups.filter(function(s){
+        return (s.pairs||[]).some(function(p){ return p.toUpperCase()===pair.toUpperCase(); });
+      });
+      if(matches.length === 0){
+        return {pair:pair, matched:false};
+      }
+      // Prefer a match whose session also lines up with the currently active session
+      var best = matches.find(function(s){
+        return (s.sessions||[]).some(function(sess){ return currentSessionLabel && sess.toLowerCase().indexOf(currentSessionLabel.toLowerCase())>=0; });
+      }) || matches[0];
+      return {pair:pair, matched:true, setup:best};
+    });
+
+    var html = '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px">'
+      +'<div style="display:flex;align-items:center;gap:9px;margin-bottom:12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent3)" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg><span style="font-size:13px;font-weight:600;color:var(--text)">Approved Strategy Match</span></div>'
+      + rows.map(function(r){
+          if(r.matched){
+            var bt = r.setup._backtestStats;
+            return '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;background:rgba(29,233,182,.06);border:1px solid rgba(29,233,182,.15);margin-bottom:8px">'
+              +'<span style="font-size:15px;color:var(--green)">✅</span>'
+              +'<div style="flex:1;min-width:0">'
+                +'<div style="font-size:12.5px;color:var(--text);font-weight:600">'+r.pair+' matches <strong style="color:var(--green)">'+escapeHtml(r.setup.name)+'</strong></div>'
+                +'<div style="font-size:11px;color:var(--text3);margin-top:2px">Backtested: '+bt.n+' samples · '+bt.wr.toFixed(0)+'% WR · '+(bt.avgR>=0?'+':'')+bt.avgR.toFixed(2)+'R expectancy</div>'
+              +'</div>'
+              +'<button onclick="viewSetup(\''+r.setup.id+'\')" style="background:none;border:1px solid rgba(29,233,182,.25);color:var(--green);border-radius:6px;padding:4px 10px;font-size:10.5px;font-weight:600;cursor:pointer;white-space:nowrap">View →</button>'
+            +'</div>';
+          } else {
+            return '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.15);margin-bottom:8px">'
+              +'<span style="font-size:15px">⚠️</span>'
+              +'<div style="flex:1;min-width:0">'
+                +'<div style="font-size:12.5px;color:var(--text);font-weight:600">'+r.pair+' has no validated backtest data</div>'
+                +'<div style="font-size:11px;color:var(--text3);margin-top:2px">You\'re trading this without a tested edge. Consider sizing down or researching it in Strategy Lab first.</div>'
+              +'</div>'
+              +'<button onclick="showPage(\'stratlab\')" style="background:none;border:1px solid rgba(251,191,36,.25);color:#fbbf24;border-radius:6px;padding:4px 10px;font-size:10.5px;font-weight:600;cursor:pointer;white-space:nowrap">Research →</button>'
+            +'</div>';
+          }
+        }).join('')
+    +'</div>';
+
+    el.innerHTML = html;
+    el.style.display = 'block';
+  }
+  window.ckRenderStrategyMatch = ckRenderStrategyMatch;
+
 
   // ── Cockpit methodology preset ──
   // Built-in: 'wwa' (full WWA/SMC board), 'simple' (lightweight board).
@@ -33831,6 +34207,8 @@ window.toggleSidebar = function(){
     if(typeof apRender==='function') apRender();
     // Render pre-trade checklist
     if(typeof ckRenderChecklist==='function') ckRenderChecklist();
+    // Cross-check selected pair against approved backtested strategies (Strategy Lab → Playbook)
+    if(typeof ckRenderStrategyMatch==='function') ckRenderStrategyMatch();
     // Sync methodology preset selector (rebuilds options incl. custom presets)
     if(typeof ckRefreshPresetSelector==='function') ckRefreshPresetSelector();
   }
@@ -34047,31 +34425,22 @@ window.toggleSidebar = function(){
     var healthColor = avgHealth >= 70 ? 'var(--green)' : avgHealth >= 40 ? '#fbbf24' : 'var(--red)';
     var criticalColor = criticalCount > 0 ? 'var(--red)' : 'var(--text)';
 
-    // Reusable tile builder: accent bar + icon + label + value (+ optional pulse dot)
+    // Reusable tile builder — premium fintech style: big number, small label, short subtext.
+    // No icons, no accent bars — number size and color carry all the meaning.
     function _mcAggTile(opts){
-      var accent = opts.accent;
-      var pulse = opts.pulse ? '<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:'+accent+';margin-left:7px;animation:mcPulseDot 1.6s ease-in-out infinite"></span>' : '';
-      return '<div style="position:relative;padding:14px 16px 14px 18px;background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden">'+
-        '<div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:'+accent+';opacity:.85"></div>'+
-        '<div style="display:flex;align-items:center;gap:7px">'+
-          '<span style="display:flex;color:'+accent+';opacity:.9">'+opts.icon+'</span>'+
-          '<span style="font-size:11px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700">'+opts.label+'</span>'+
-        '</div>'+
-        '<div style="font-size:21px;font-weight:600;margin-top:6px;color:'+opts.valueColor+';font-variant-numeric:tabular-nums;letter-spacing:-.4px;display:flex;align-items:center">'+opts.value+pulse+'</div>'+
+      var pulse = opts.pulse ? '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:'+opts.valueColor+';margin-left:8px;animation:mcPulseDot 1.6s ease-in-out infinite;vertical-align:middle"></span>' : '';
+      return '<div style="padding:20px 22px;background:var(--card);border:1px solid var(--border);border-radius:16px">'+
+        '<div style="font-size:32px;font-weight:700;color:'+opts.valueColor+';font-variant-numeric:tabular-nums;letter-spacing:-1px;line-height:1">'+opts.value+pulse+'</div>'+
+        '<div style="font-size:10.5px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700;margin-top:9px">'+opts.label+'</div>'+
+        (opts.sub ? '<div style="font-size:11.5px;color:var(--text3);margin-top:3px">'+opts.sub+'</div>' : '')+
       '</div>';
     }
 
-    // Icons (16px line svg)
-    var icoFunded = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>';
-    var icoDD = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>';
-    var icoAlert = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>';
-    var icoHealth = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>';
-
     aggEl.innerHTML =
-      _mcAggTile({label:'Total Funded', value:'$'+totalFunded.toLocaleString(), valueColor:'var(--text)', accent:'#7c5af0', icon:icoFunded})+
-      _mcAggTile({label:'DD Room Available', value:'$'+totalRisk.toFixed(0), valueColor:'#fbbf24', accent:'#fbbf24', icon:icoDD})+
-      _mcAggTile({label:'Critical Alerts', value:criticalCount+(warningCount>0?'<span style="font-size:11px;color:#fbbf24;margin-left:6px">+'+warningCount+' warn</span>':''), valueColor:criticalColor, accent:criticalCount>0?'#ef4444':'#3f3f5a', icon:icoAlert, pulse:criticalCount>0})+
-      _mcAggTile({label:'Avg Health', value:avgHealth+'%', valueColor:healthColor, accent:healthColor, icon:icoHealth, pulse:avgHealth<40});
+      _mcAggTile({label:'Funded Capital', value:'$'+totalFunded.toLocaleString(), valueColor:'var(--text)', sub:propAccs.length+' active account'+(propAccs.length!==1?'s':'')})+
+      _mcAggTile({label:'Available DD', value:'$'+totalRisk.toFixed(0), valueColor:'#fbbf24', sub:'across all accounts'})+
+      _mcAggTile({label:'Account Health', value:avgHealth+'%', valueColor:healthColor, sub:avgHealth>=80?'all accounts clear':avgHealth>=50?'monitor closely':'action needed', pulse:avgHealth<40})+
+      _mcAggTile({label:'Alerts', value:String(criticalCount), valueColor:criticalColor, sub:warningCount>0?('+'+warningCount+' warning'+(warningCount!==1?'s':'')):(criticalCount>0?'needs attention':'no critical issues'), pulse:criticalCount>0});
 
     // Critical warnings banner
     var criticalAccs = accountStatuses.filter(function(x){ return x.status && x.status.breaches.length > 0; });
@@ -35020,13 +35389,36 @@ window.toggleSidebar = function(){
       });
     }
 
+    // ── Summary stats (always computed on combined portfolio data, regardless of view mode) ──
+    var combinedByDay = {};
+    dates.forEach(function(d){
+      var t = 0;
+      allByAcc.forEach(function(s){ t += (s.byDay[d]||0); });
+      combinedByDay[d] = t;
+    });
+    var startBalance = propAccs.reduce(function(sum,a){
+      var sp = (typeof accGetStartingPoint==='function') ? accGetStartingPoint(a) : null;
+      return sum + ((sp && sp.balance>0) ? sp.balance : (parseFloat(a.startingBalance||a.balance)||0));
+    }, 0);
+    var combinedCum = 0, peak = 0, maxDD = 0;
+    var bestDayD = null, bestDayV = -Infinity, worstDayD = null, worstDayV = Infinity;
+    dates.forEach(function(d){
+      combinedCum += combinedByDay[d];
+      if(combinedCum > peak) peak = combinedCum;
+      var dd = peak - combinedCum;
+      if(dd > maxDD) maxDD = dd;
+      if(combinedByDay[d] > bestDayV){ bestDayV = combinedByDay[d]; bestDayD = d; }
+      if(combinedByDay[d] < worstDayV){ worstDayV = combinedByDay[d]; worstDayD = d; }
+    });
+    var currentEquity = startBalance + combinedCum;
+
     // Scale
     var allVals = [];
     lines.forEach(function(l){ l.pts.forEach(function(v){ allVals.push(v); }); });
     allVals.push(0);
     var minV = Math.min.apply(null, allVals), maxV = Math.max.apply(null, allVals);
     var range = (maxV - minV) || 1;
-    var W = 1000, H = 130, padL = 8, padR = 8, padT = 14, padB = 14;
+    var W = 1000, H = 260, padL = 8, padR = 8, padT = 24, padB = 24;
     var plotW = W - padL - padR, plotH = H - padT - padB;
     function xAt(i){ return padL + (i/(dates.length-1))*plotW; }
     function yAt(v){ return padT + (1 - (v-minV)/range)*plotH; }
@@ -35057,7 +35449,7 @@ window.toggleSidebar = function(){
         var areaD = d + ' L '+xAt(l.pts.length-1).toFixed(1)+' '+zeroY.toFixed(1)+' L '+xAt(0).toFixed(1)+' '+zeroY.toFixed(1)+' Z';
         area = '<path d="'+areaD+'" fill="url(#mcEqGrad)" opacity="0.5"/>';
       }
-      return area + '<path d="'+d+'" fill="none" stroke="'+l.color+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'+dot;
+      return area + '<path d="'+d+'" fill="none" stroke="'+l.color+'" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>'+dot;
     }).join('');
 
     // Legend (overlay mode)
@@ -35086,16 +35478,23 @@ window.toggleSidebar = function(){
       '<text x="'+(W-padR)+'" y="'+(yAt(minV)+15).toFixed(1)+'" text-anchor="end" font-size="14" font-weight="600" fill="var(--text2)" font-family="Inter,sans-serif">'+minLabel+'</text>';
 
     el.style.display='block';
-    el.innerHTML = '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px">'+
-      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">'+
+    el.innerHTML = '<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px 24px">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">'+
         '<div style="display:flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent3)" stroke-width="2"><path d="M3 3v18h18"/><path d="M19 9l-5 5-4-4-3 3"/></svg><span style="font-size:14px;font-weight:600;color:var(--text);letter-spacing:.2px">Portfolio Equity Curve</span></div>'+
         toggleBtns+
       '</div>'+
-      '<svg width="100%" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" style="display:block;height:140px">'+
+      '<svg width="100%" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" style="display:block;height:280px">'+
         '<defs><linearGradient id="mcEqGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7c5af0" stop-opacity="0.28"/><stop offset="100%" stop-color="#7c5af0" stop-opacity="0"/></linearGradient></defs>'+
         zeroLine + paths + axisLabels +
       '</svg>'+
       legend+
+      '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">'+
+        '<div><div style="font-size:9.5px;color:var(--text3);letter-spacing:.4px;text-transform:uppercase;font-weight:700;margin-bottom:4px">Start Balance</div><div style="font-size:15px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums">$'+Math.round(startBalance).toLocaleString()+'</div></div>'+
+        '<div><div style="font-size:9.5px;color:var(--text3);letter-spacing:.4px;text-transform:uppercase;font-weight:700;margin-bottom:4px">Current Equity</div><div style="font-size:15px;font-weight:700;color:'+(currentEquity>=startBalance?'var(--green)':'var(--red)')+';font-variant-numeric:tabular-nums">$'+Math.round(currentEquity).toLocaleString()+'</div></div>'+
+        '<div><div style="font-size:9.5px;color:var(--text3);letter-spacing:.4px;text-transform:uppercase;font-weight:700;margin-bottom:4px">Max Drawdown</div><div style="font-size:15px;font-weight:700;color:var(--red);font-variant-numeric:tabular-nums">-$'+Math.round(maxDD).toLocaleString()+'</div></div>'+
+        '<div><div style="font-size:9.5px;color:var(--text3);letter-spacing:.4px;text-transform:uppercase;font-weight:700;margin-bottom:4px">Best Day</div><div style="font-size:15px;font-weight:700;color:var(--green);font-variant-numeric:tabular-nums">'+(bestDayD?'+$'+Math.round(bestDayV).toLocaleString():'—')+'</div></div>'+
+        '<div><div style="font-size:9.5px;color:var(--text3);letter-spacing:.4px;text-transform:uppercase;font-weight:700;margin-bottom:4px">Worst Day</div><div style="font-size:15px;font-weight:700;color:var(--red);font-variant-numeric:tabular-nums">'+(worstDayD?'-$'+Math.abs(Math.round(worstDayV)).toLocaleString():'—')+'</div></div>'+
+      '</div>'+
     '</div>';
   }
 
@@ -37553,6 +37952,387 @@ window.toggleSidebar = function(){
   window.pbTab = pbTab;
 
   // ── Render setup cards ──
+  // ═══════════════════════════════════════════════════════════════════════
+  // STRATEGY LAB — research projects (hypotheses) + backtest samples
+  // Separate entity from Journal (real trades) and Playbook (approved strategies).
+  // Local-first (localStorage via rfxGet/rfxSet); no Supabase table yet — v1 scope.
+  // ═══════════════════════════════════════════════════════════════════════
+  var SL_PROJECTS_KEY = 'rf_research_projects';
+  var SL_SAMPLES_KEY = 'rf_research_samples';
+
+  function slGetProjects(){ try{ return JSON.parse(rfxGet(SL_PROJECTS_KEY)||'[]').filter(function(p){return !p.deleted;}); }catch(e){ return []; } }
+  function slSaveProjects(arr){ rfxSet(SL_PROJECTS_KEY, JSON.stringify(arr)); }
+  function slGetSamples(){ try{ return JSON.parse(rfxGet(SL_SAMPLES_KEY)||'[]').filter(function(s){return !s.deleted;}); }catch(e){ return []; } }
+  function slSaveSamples(arr){ rfxSet(SL_SAMPLES_KEY, JSON.stringify(arr)); }
+  function slSamplesFor(projectId){ return slGetSamples().filter(function(s){ return s.projectId===projectId; }); }
+
+  // ── Confidence Score: combines sample size, expectancy, WR, losing streak, consistency ──
+  function slComputeStats(projectId, minSamples){
+    var samples = slSamplesFor(projectId).filter(function(s){ return s.result!=='no_trade'; });
+    var n = samples.length;
+    if(n===0) return {n:0, confidence:0, confidenceLabel:'No data yet'};
+
+    var wins = samples.filter(function(s){ return s.result==='win'; });
+    var losses = samples.filter(function(s){ return s.result==='loss'; });
+    var rVals = samples.map(function(s){ return parseFloat(s.rMultiple)||0; });
+    var avgR = rVals.reduce(function(a,b){return a+b;},0)/n;
+    var wr = n>0 ? (wins.length/n*100) : 0;
+    var expectancy = avgR; // avg R across all samples IS the expectancy in R terms
+
+    // Max losing streak
+    var sorted = samples.slice().sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); });
+    var maxStreak=0, cur=0;
+    sorted.forEach(function(s){ if(s.result==='loss'){ cur++; if(cur>maxStreak)maxStreak=cur; } else if(s.result==='win'){ cur=0; } });
+
+    // Consistency across conditions (how many distinct market conditions tested)
+    var conditions = {}; samples.forEach(function(s){ if(s.marketCondition) conditions[s.marketCondition]=true; });
+    var conditionCount = Object.keys(conditions).length;
+
+    // Confidence score 0-100
+    var sampleRatio = Math.min(1, n/(minSamples||50));
+    var conf = sampleRatio * 50; // up to 50 pts just for sample size
+    if(expectancy > 0) conf += 25; else if(expectancy < 0) conf -= 15;
+    if(wr >= 45) conf += 10;
+    if(maxStreak <= 4) conf += 10;
+    if(conditionCount >= 2) conf += 5;
+    conf = Math.max(0, Math.min(100, Math.round(conf)));
+
+    var confLabel = n < (minSamples||50)*0.5 ? 'Too early — need more data'
+      : conf >= 70 ? 'Strong edge detected'
+      : conf >= 45 ? 'Promising — keep testing'
+      : 'Weak — reconsider this hypothesis';
+
+    return {n:n, wins:wins.length, losses:losses.length, wr:wr, avgR:avgR, expectancy:expectancy,
+             maxStreak:maxStreak, conditionCount:conditionCount, confidence:conf, confidenceLabel:confLabel};
+  }
+
+  function slBestPairSessionDay(projectId){
+    var samples = slSamplesFor(projectId).filter(function(s){ return s.result==='win'||s.result==='loss'; });
+    if(!samples.length) return {};
+    var byCondition = {};
+    samples.forEach(function(s){
+      var k = s.marketCondition || 'Unspecified';
+      if(!byCondition[k]) byCondition[k] = {r:0,n:0};
+      byCondition[k].r += parseFloat(s.rMultiple)||0; byCondition[k].n++;
+    });
+    var bestCond = Object.keys(byCondition).sort(function(a,b){ return byCondition[b].r-byCondition[a].r; })[0];
+    return {bestCondition: bestCond};
+  }
+
+  // ── Modal: New/Edit Research Project ──
+  var slEditingProjectId = null;
+  function slOpenProjectModal(projectId){
+    slEditingProjectId = projectId || null;
+    var titleEl = document.getElementById('sl-project-modal-title');
+    if(projectId){
+      var p = slGetProjects().find(function(x){return x.id===projectId;});
+      if(!p) return;
+      titleEl.textContent = 'Edit Research Project';
+      document.getElementById('sl-f-name').value = p.name||'';
+      document.getElementById('sl-f-pair').value = p.pair||'';
+      document.getElementById('sl-f-session').value = p.session||'';
+      document.getElementById('sl-f-setuptype').value = p.setupType||'';
+      document.getElementById('sl-f-entry').value = p.entryRules||'';
+      document.getElementById('sl-f-invalid').value = p.invalidationRules||'';
+      document.getElementById('sl-f-tpmodel').value = p.tpModel||'';
+      document.getElementById('sl-f-minsamples').value = p.minSamples||50;
+    } else {
+      titleEl.textContent = 'New Research Project';
+      ['sl-f-name','sl-f-pair','sl-f-setuptype','sl-f-entry','sl-f-invalid','sl-f-tpmodel'].forEach(function(id){ document.getElementById(id).value=''; });
+      document.getElementById('sl-f-session').value = '';
+      document.getElementById('sl-f-minsamples').value = '50';
+    }
+    document.getElementById('sl-project-overlay').classList.add('open');
+  }
+  window.slOpenProjectModal = slOpenProjectModal;
+
+  function slCloseProjectModal(){
+    document.getElementById('sl-project-overlay').classList.remove('open');
+    slEditingProjectId = null;
+  }
+  window.slCloseProjectModal = slCloseProjectModal;
+
+  function slSaveProject(){
+    var name = document.getElementById('sl-f-name').value.trim();
+    if(!name){ if(typeof tqToast==='function') tqToast('Give this hypothesis a name', {type:'error'}); return; }
+    var projects = slGetProjects();
+    var data = {
+      name: name,
+      pair: document.getElementById('sl-f-pair').value.trim(),
+      session: document.getElementById('sl-f-session').value,
+      setupType: document.getElementById('sl-f-setuptype').value.trim(),
+      entryRules: document.getElementById('sl-f-entry').value.trim(),
+      invalidationRules: document.getElementById('sl-f-invalid').value.trim(),
+      tpModel: document.getElementById('sl-f-tpmodel').value.trim(),
+      minSamples: parseInt(document.getElementById('sl-f-minsamples').value,10)||50
+    };
+    if(slEditingProjectId){
+      var existing = projects.find(function(p){return p.id===slEditingProjectId;});
+      if(existing) Object.assign(existing, data);
+    } else {
+      data.id = 'sl_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+      data.status = 'testing'; // testing | approved | rejected
+      data.created = new Date().toISOString();
+      projects.push(data);
+    }
+    slSaveProjects(projects);
+    slCloseProjectModal();
+    renderSlCards();
+    if(typeof tqToast==='function') tqToast(slEditingProjectId?'Project updated':'Research project created', {type:'success'});
+  }
+  window.slSaveProject = slSaveProject;
+
+  // ── Add Sample modal ──
+  var slSampleProjectId = null;
+  var slSampleRuleFollowed = null;
+  function slOpenSampleModal(){
+    if(!slDetailId) return;
+    slSampleProjectId = slDetailId;
+    document.getElementById('sl-s-date').value = tqLocalDateStr(new Date());
+    document.getElementById('sl-s-result').value = 'win';
+    document.getElementById('sl-s-r').value = '';
+    document.getElementById('sl-s-quality').value = 'B';
+    document.getElementById('sl-s-condition').value = '';
+    document.getElementById('sl-s-notes').value = '';
+    slSampleRuleFollowed = null;
+    document.querySelectorAll('.sl-yn-btn').forEach(function(b){ b.style.background='transparent'; b.style.color='var(--text2)'; });
+    document.getElementById('sl-sample-overlay').classList.add('open');
+  }
+  window.slOpenSampleModal = slOpenSampleModal;
+
+  function slCloseSampleModal(){
+    document.getElementById('sl-sample-overlay').classList.remove('open');
+  }
+  window.slCloseSampleModal = slCloseSampleModal;
+
+  window.slSetYN = function(field, btn){
+    slSampleRuleFollowed = btn.dataset.val;
+    btn.parentNode.querySelectorAll('.sl-yn-btn').forEach(function(b){ b.style.background='transparent'; b.style.color='var(--text2)'; });
+    btn.style.background = btn.dataset.val==='yes' ? 'rgba(29,233,182,.12)' : 'rgba(239,68,68,.12)';
+    btn.style.color = btn.dataset.val==='yes' ? 'var(--green)' : 'var(--red)';
+  };
+
+  function slSaveSample(){
+    if(!slSampleProjectId) return;
+    var samples = slGetSamples();
+    samples.push({
+      id: 'sls_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+      projectId: slSampleProjectId,
+      date: document.getElementById('sl-s-date').value || tqLocalDateStr(new Date()),
+      result: document.getElementById('sl-s-result').value,
+      rMultiple: parseFloat(document.getElementById('sl-s-r').value)||0,
+      setupQuality: document.getElementById('sl-s-quality').value,
+      ruleFollowed: slSampleRuleFollowed,
+      marketCondition: document.getElementById('sl-s-condition').value.trim(),
+      notes: document.getElementById('sl-s-notes').value.trim(),
+      created: new Date().toISOString()
+    });
+    slSaveSamples(samples);
+    slCloseSampleModal();
+    if(typeof tqToast==='function') tqToast('Sample added', {type:'success'});
+    slViewDetail(slSampleProjectId); // refresh detail view with new stats
+    renderSlCards();
+  }
+  window.slSaveSample = slSaveSample;
+
+  // ── Project detail (samples list + confidence report + promote) ──
+  var slDetailId = null;
+  function slViewDetail(projectId){
+    var p = slGetProjects().find(function(x){return x.id===projectId;});
+    if(!p) return;
+    slDetailId = projectId;
+    document.getElementById('sl-detail-title').textContent = p.name;
+
+    var stats = slComputeStats(projectId, p.minSamples);
+    var bpsd = slBestPairSessionDay(projectId);
+    var samples = slSamplesFor(projectId).slice().sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+
+    var progressPct = Math.min(100, (stats.n/(p.minSamples||50))*100);
+    var confColor = stats.confidence>=70?'var(--green)':stats.confidence>=45?'#fbbf24':'var(--red)';
+
+    var h = '';
+    // Meta + status
+    h += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">'
+      +'<span style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:5px;background:'+(p.status==='approved'?'rgba(29,233,182,.12)':p.status==='rejected'?'rgba(239,68,68,.12)':'rgba(251,191,36,.12)')+';color:'+(p.status==='approved'?'var(--green)':p.status==='rejected'?'var(--red)':'#fbbf24')+'">'+(p.status||'testing').toUpperCase()+'</span>'
+      +'<span style="font-size:11px;color:var(--text3)">'+(p.pair||'Any pair')+(p.session?' · '+p.session:'')+(p.setupType?' · '+p.setupType:'')+'</span>'
+      +'</div>';
+
+    // Sample progress
+    h += '<div style="margin-bottom:18px">'
+      +'<div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--text2);margin-bottom:6px"><span>Sample Progress</span><span><strong>'+stats.n+'</strong> / '+(p.minSamples||50)+' required</span></div>'
+      +'<div class="dw-bar-track" style="height:7px"><div class="dw-bar-fill" style="width:'+progressPct.toFixed(0)+'%;background:var(--accent)"></div></div>'
+      +'</div>';
+
+    // Confidence score — the flagship element
+    h += '<div style="display:flex;align-items:center;gap:16px;padding:16px 18px;border-radius:12px;background:rgba(255,255,255,.02);border:1px solid var(--border);margin-bottom:18px">'
+      +'<div style="font-size:36px;font-weight:800;color:'+confColor+';letter-spacing:-1.5px;line-height:1">'+stats.confidence+'</div>'
+      +'<div><div style="font-size:13px;font-weight:700;color:'+confColor+'">'+stats.confidenceLabel+'</div><div style="font-size:11px;color:var(--text3);margin-top:2px">Confidence Score — based on sample size, expectancy, win rate &amp; consistency</div></div>'
+      +'</div>';
+
+    // Stats grid
+    if(stats.n>0){
+      h += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px">'
+        +'<div class="pb-stat"><div class="pb-stat-val" style="color:'+(stats.wr>=50?'var(--green)':'var(--text)')+'">'+stats.wr.toFixed(0)+'%</div><div class="pb-stat-label">WIN RATE</div></div>'
+        +'<div class="pb-stat"><div class="pb-stat-val" style="color:'+(stats.avgR>=0?'var(--green)':'var(--red)')+'">'+(stats.avgR>=0?'+':'')+stats.avgR.toFixed(2)+'R</div><div class="pb-stat-label">AVG R / EXPECTANCY</div></div>'
+        +'<div class="pb-stat"><div class="pb-stat-val" style="color:'+(stats.maxStreak>=5?'var(--red)':stats.maxStreak>=3?'#fbbf24':'var(--text)')+'">'+stats.maxStreak+'</div><div class="pb-stat-label">MAX LOSE STREAK</div></div>'
+        +'<div class="pb-stat"><div class="pb-stat-val">'+stats.n+'</div><div class="pb-stat-label">SAMPLES</div></div>'
+        +'</div>';
+    }
+
+    // Rules recap
+    if(p.entryRules || p.invalidationRules || p.tpModel){
+      h += '<div style="margin-bottom:18px;padding:14px;border-radius:10px;background:rgba(124,90,240,.02);border:1px solid rgba(124,90,240,.03);font-size:12px;color:var(--text2);line-height:1.7">'
+        +(p.entryRules?'<div><strong style="color:var(--accent3)">Entry:</strong> '+escapeHtml(p.entryRules)+'</div>':'')
+        +(p.invalidationRules?'<div><strong style="color:var(--accent3)">Invalidation:</strong> '+escapeHtml(p.invalidationRules)+'</div>':'')
+        +(p.tpModel?'<div><strong style="color:var(--accent3)">TP Model:</strong> '+escapeHtml(p.tpModel)+'</div>':'')
+        +'</div>';
+    }
+
+    // Promote to Playbook button (only when enough data + decent confidence)
+    if(stats.n >= (p.minSamples||50) && p.status==='testing'){
+      h += '<button class="pb-btn pb-btn-primary" style="width:100%;margin-bottom:18px" onclick="slPromoteToPlaybook(\''+p.id+'\')">🚀 Promote to Playbook</button>';
+    } else if(p.status==='approved'){
+      h += '<div style="text-align:center;padding:10px;color:var(--green);font-size:12px;font-weight:600;margin-bottom:18px">✓ Promoted to Playbook</div>';
+    }
+
+    // Samples list
+    h += '<div style="font-size:11px;font-weight:700;color:var(--accent3);margin-bottom:8px">SAMPLES ('+samples.length+')</div>';
+    if(!samples.length){
+      h += '<div style="text-align:center;padding:24px;color:var(--text3);font-size:12px">No samples yet. Click "+ Add Sample" below to start testing.</div>';
+    } else {
+      h += '<div style="max-height:200px;overflow-y:auto">' + samples.map(function(s){
+        var rc = s.result==='win'?'var(--green)':s.result==='loss'?'var(--red)':'var(--text3)';
+        return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border);font-size:12px">'
+          +'<span style="color:var(--text3);font-family:Inter,sans-serif;font-size:11px;width:70px">'+(s.date||'').slice(5)+'</span>'
+          +'<span style="color:'+rc+';font-weight:700;width:60px;text-transform:uppercase;font-size:10.5px">'+s.result+'</span>'
+          +'<span style="color:var(--text2);width:50px">'+(s.rMultiple>=0?'+':'')+s.rMultiple.toFixed(1)+'R</span>'
+          +'<span style="color:var(--text3);flex:1;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(s.marketCondition||'—')+'</span>'
+        +'</div>';
+      }).join('') + '</div>';
+    }
+
+    document.getElementById('sl-detail-body').innerHTML = h;
+    document.getElementById('sl-detail-overlay').classList.add('open');
+  }
+  window.slViewDetail = slViewDetail;
+
+  function slCloseDetail(){
+    document.getElementById('sl-detail-overlay').classList.remove('open');
+    slDetailId = null;
+  }
+  window.slCloseDetail = slCloseDetail;
+
+  function slEditProject(){
+    if(!slDetailId) return;
+    var id = slDetailId;
+    slCloseDetail();
+    slOpenProjectModal(id);
+  }
+  window.slEditProject = slEditProject;
+
+  function slDeleteProject(){
+    if(!slDetailId) return;
+    if(!confirm('Delete this research project and all its samples? This cannot be undone.')) return;
+    var projects = slGetProjects().filter(function(p){ return p.id!==slDetailId; });
+    slSaveProjects(projects);
+    var samples = slGetSamples().filter(function(s){ return s.projectId!==slDetailId; });
+    slSaveSamples(samples);
+    slCloseDetail();
+    renderSlCards();
+  }
+  window.slDeleteProject = slDeleteProject;
+
+  // ── Promote to Playbook: creates a real Playbook entry seeded from the research project ──
+  function slPromoteToPlaybook(projectId){
+    var p = slGetProjects().find(function(x){return x.id===projectId;});
+    if(!p) return;
+    if(!confirm('Promote "'+p.name+'" to your Playbook? This makes it available for live trading with its research stats attached.')) return;
+
+    var stats = slComputeStats(projectId, p.minSamples);
+    var playbooks = getPlaybooks();
+    var colors = ['#7c5af0','#1de9b6','#5cc8ff','#fbbf24','#ef4444'];
+    playbooks.push({
+      id: 'pb_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+      name: p.name,
+      description: 'Promoted from Strategy Lab · Backtest: '+stats.n+' samples, '+stats.wr.toFixed(0)+'% WR, '+(stats.avgR>=0?'+':'')+stats.avgR.toFixed(2)+'R expectancy.'+(p.entryRules?' Entry: '+p.entryRules:''),
+      color: colors[playbooks.length % colors.length],
+      confluences: p.setupType ? [p.setupType] : [],
+      triggers: p.entryRules ? [p.entryRules] : [],
+      management: p.invalidationRules ? ['Invalidation: '+p.invalidationRules] : [],
+      pairs: p.pair ? [p.pair] : [],
+      sessions: p.session ? [p.session] : [],
+      defaultRR: p.tpModel || '',
+      active: true,
+      created: new Date().toISOString(),
+      _fromResearch: projectId,
+      _backtestStats: {n:stats.n, wr:stats.wr, avgR:stats.avgR, maxStreak:stats.maxStreak, confidence:stats.confidence, confidenceLabel:stats.confidenceLabel}
+    });
+    savePlaybooks(playbooks);
+
+    // Mark research project as approved
+    var projects = slGetProjects();
+    var proj = projects.find(function(x){return x.id===projectId;});
+    if(proj) proj.status = 'approved';
+    slSaveProjects(projects);
+
+    slCloseDetail();
+    renderSlCards();
+    if(typeof tqToast==='function') tqToast('Promoted to Playbook — ready for live tracking', {type:'success', duration:4000});
+  }
+  window.slPromoteToPlaybook = slPromoteToPlaybook;
+
+  // ── Card grid render ──
+  function renderSlCards(){
+    var projects = slGetProjects();
+    var grid = document.getElementById('sl-grid');
+    if(!grid) return;
+
+    if(!projects.length){
+      grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 30px;font-family:Inter,sans-serif">'
+        +'<div style="width:72px;height:72px;margin:0 auto 20px;background:rgba(251,191,36,.08);border-radius:18px;display:flex;align-items:center;justify-content:center">'
+          +'<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="1.5"><path d="M9 3h6M10 3v5.5L5 18a1.5 1.5 0 001.3 2.2h11.4A1.5 1.5 0 0019 18l-5-9.5V3"/></svg>'
+        +'</div>'
+        +'<div style="font-size:17px;font-weight:600;color:var(--text);margin-bottom:8px">No research projects yet</div>'
+        +'<div style="font-size:12.5px;color:var(--text2);max-width:400px;margin:0 auto 20px;line-height:1.6">Test a hypothesis before risking real capital. Define exactly what you\'re testing, log backtest samples, and get a Confidence Score before promoting it to your live Playbook.</div>'
+        +'<button class="btn btn-primary" onclick="slOpenProjectModal()" style="font-size:13px;padding:10px 20px">+ New Research Project</button>'
+      +'</div>';
+    } else {
+      grid.innerHTML = projects.map(function(p){
+        var stats = slComputeStats(p.id, p.minSamples);
+        var progressPct = Math.min(100, (stats.n/(p.minSamples||50))*100);
+        var confColor = stats.confidence>=70?'var(--green)':stats.confidence>=45?'#fbbf24':'var(--red)';
+        var statusColor = p.status==='approved'?'var(--green)':p.status==='rejected'?'var(--red)':'#fbbf24';
+        var statusBg = p.status==='approved'?'rgba(29,233,182,.1)':p.status==='rejected'?'rgba(239,68,68,.1)':'rgba(251,191,36,.1)';
+        return '<div class="pb-card" onclick="slViewDetail(\''+p.id+'\')">'
+          +'<div class="pb-card-badge" style="background:'+statusBg+';color:'+statusColor+'">'+(p.status||'testing').toUpperCase()+'</div>'
+          +'<div class="pb-card-head">'
+            +'<div class="pb-card-icon" style="background:rgba(251,191,36,.1)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="1.5"><path d="M9 3h6M10 3v5.5L5 18a1.5 1.5 0 001.3 2.2h11.4A1.5 1.5 0 0019 18l-5-9.5V3"/></svg></div>'
+            +'<div><div class="pb-card-name">'+escapeHtml(p.name)+'</div><div style="font-size:11px;color:var(--text3);font-family:Inter,sans-serif">'+(p.pair||'Any pair')+(p.session?' · '+p.session:'')+'</div></div>'
+          +'</div>'
+          +'<div style="margin:10px 0"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--text3);margin-bottom:4px"><span>'+stats.n+' / '+(p.minSamples||50)+' samples</span><span style="color:'+confColor+';font-weight:700">Confidence '+stats.confidence+'</span></div>'
+            +'<div class="dw-bar-track" style="height:4px"><div class="dw-bar-fill" style="width:'+progressPct.toFixed(0)+'%;background:'+confColor+'"></div></div></div>'
+          +'<div class="pb-card-stats">'
+            +'<div><div class="pb-card-stat-val">'+stats.n+'</div><div class="pb-card-stat-label">SAMPLES</div></div>'
+            +'<div><div class="pb-card-stat-val" style="color:'+(stats.wr>=50?'var(--green)':'var(--text)')+'">'+(stats.n?stats.wr.toFixed(0)+'%':'—')+'</div><div class="pb-card-stat-label">WIN RATE</div></div>'
+            +'<div><div class="pb-card-stat-val" style="color:'+(stats.avgR>=0?'var(--green)':'var(--red)')+'">'+(stats.n?(stats.avgR>=0?'+':'')+stats.avgR.toFixed(2)+'R':'—')+'</div><div class="pb-card-stat-label">AVG R</div></div>'
+          +'</div></div>';
+      }).join('')
+      +'<div class="pb-card pb-card-add" onclick="slOpenProjectModal()">'
+        +'<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M5 12h14"/></svg>'
+        +'<span>New Research Project</span></div>';
+    }
+
+    // Stats bar
+    var testingCount = projects.filter(function(p){return p.status==='testing'||!p.status;}).length;
+    var approvedCount = projects.filter(function(p){return p.status==='approved';}).length;
+    var totalSamples = slGetSamples().length;
+    if(document.getElementById('sl-total-projects')) document.getElementById('sl-total-projects').textContent = projects.length;
+    if(document.getElementById('sl-testing-count')) document.getElementById('sl-testing-count').textContent = testingCount;
+    if(document.getElementById('sl-approved-count')) document.getElementById('sl-approved-count').textContent = approvedCount;
+    if(document.getElementById('sl-total-samples')) document.getElementById('sl-total-samples').textContent = totalSamples;
+  }
+  window.renderSlCards = renderSlCards;
+
   function renderPbCards(){
     var setups = getPlaybooks();
     var grid = document.getElementById('pb-grid');
@@ -37574,8 +38354,14 @@ window.toggleSidebar = function(){
       var confCount = (s.confluences||[]).length;
 
       var isPaused = s.active===false;
+      var quickBadge = '';
+      if(total>=5){
+        var wrNum = parseFloat(wr), pfNum = parseFloat(pf);
+        if(!isNaN(pfNum) && pfNum<1 && wrNum<45) quickBadge='<span style="font-size:9px;font-weight:700;color:var(--red);background:rgba(239,68,68,.1);padding:2px 7px;border-radius:4px;margin-left:6px">NEEDS REVIEW</span>';
+        else if(!isNaN(pfNum) && pfNum>=1.5 && wrNum>=50) quickBadge='<span style="font-size:9px;font-weight:700;color:var(--green);background:rgba(29,233,182,.1);padding:2px 7px;border-radius:4px;margin-left:6px">STRONG EDGE</span>';
+      }
       html += '<div class="pb-card" onclick="viewSetup(\''+s.id+'\')" style="'+(isPaused?'opacity:.5;':'')+'\">'
-        +'<div class="pb-card-badge" style="background:'+(isPaused?'rgba(239,68,68,.1)':'rgba(29,233,182,.1)')+';color:'+(isPaused?'var(--red)':'var(--green)')+'">'+(isPaused?'PAUSED':'ACTIVE')+'</div>'
+        +'<div class="pb-card-badge" style="background:'+(isPaused?'rgba(239,68,68,.1)':'rgba(29,233,182,.1)')+';color:'+(isPaused?'var(--red)':'var(--green)')+'">'+(isPaused?'PAUSED':'ACTIVE')+quickBadge+'</div>'
         +'<div class="pb-card-head">'
         +'<div class="pb-card-icon" style="background:'+s.color+'18"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="'+s.color+'" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>'
         +'<div><div class="pb-card-name">'+s.name+'</div><div style="font-size:11px;color:var(--text3);font-family:Inter,sans-serif">'+confCount+' confluences</div></div>'
@@ -37637,6 +38423,47 @@ window.toggleSidebar = function(){
     var pf = gl>0?(gw/gl).toFixed(2):'—';
     var exp = total>0?(pnl/total).toFixed(0):'—';
 
+    // ── Strategy Lab analytics: Avg R, Max Losing Streak, Best day, Worst session ──
+    var sorted = st.slice().sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); });
+    var avgLossProxy = (function(){ var losses=st.filter(function(t){return tqConvertTradePnl(t)<0;}); if(!losses.length) return 0; return Math.abs(losses.reduce(function(a,t){return a+tqConvertTradePnl(t);},0)/losses.length); })();
+    var rVals = st.map(function(t){
+      var pn = tqConvertTradePnl(t);
+      if(t.riskAmount && parseFloat(t.riskAmount)>0) return pn/parseFloat(t.riskAmount);
+      if(avgLossProxy>0) return pn/avgLossProxy;
+      return null;
+    }).filter(function(r){ return r!==null && isFinite(r); });
+    var avgR = rVals.length ? (rVals.reduce(function(a,b){return a+b;},0)/rVals.length) : null;
+
+    var maxLossStreak=0, curStreak=0;
+    sorted.forEach(function(t){
+      var pn=tqConvertTradePnl(t);
+      if(Math.abs(pn)<=1) return;
+      if(pn<0){ curStreak++; if(curStreak>maxLossStreak) maxLossStreak=curStreak; } else { curStreak=0; }
+    });
+
+    var byDow={}, bySess={};
+    st.forEach(function(t){
+      var pn=tqConvertTradePnl(t);
+      if(t.date){
+        var d=tqDateObj(t.date); var dn=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];
+        if(!byDow[dn]) byDow[dn]={pnl:0,n:0}; byDow[dn].pnl+=pn; byDow[dn].n++;
+      }
+      if(t.session){
+        if(!bySess[t.session]) bySess[t.session]={pnl:0,n:0}; bySess[t.session].pnl+=pn; bySess[t.session].n++;
+      }
+    });
+    var bestDay = Object.keys(byDow).filter(function(k){return byDow[k].n>=2;}).sort(function(a,b){return byDow[b].pnl-byDow[a].pnl;})[0];
+    var worstSess = Object.keys(bySess).filter(function(k){return bySess[k].n>=2;}).sort(function(a,b){return bySess[a].pnl-bySess[b].pnl;})[0];
+
+    var reco = null;
+    if(total>=5){
+      if(parseFloat(pf)<1 && parseFloat(wr)<45){ reco={tone:'red', text:'This setup is underperforming — losing money with a sub-45% win rate. Consider pausing it or tightening entry criteria.'}; }
+      else if(maxLossStreak>=5){ reco={tone:'amber', text:'You\'ve had a '+maxLossStreak+'-trade losing streak on this setup. Review recent losers for a common breakdown pattern.'}; }
+      else if(worstSess && bySess[worstSess].pnl<0 && bySess[worstSess].n>=3){ reco={tone:'amber', text:'This setup loses money in the '+worstSess+' session (-$'+Math.abs(Math.round(bySess[worstSess].pnl))+'). Consider restricting it to your other sessions.'}; }
+      else if(parseFloat(pf)>=1.5 && parseFloat(wr)>=50){ reco={tone:'green', text:'Strong setup — '+wr+'% win rate with '+pf+' profit factor. Consider increasing size within your risk limits.'}; }
+      else { reco={tone:'neutral', text:'Performance is within normal range. Keep logging trades to sharpen this read.'}; }
+    }
+
     document.getElementById('pb-detail-title').textContent = s.name;
     var h = '';
 
@@ -37656,9 +38483,57 @@ window.toggleSidebar = function(){
       +'<div class="pb-stat"><div class="pb-stat-val" style="color:'+(parseFloat(exp)>=0?'var(--green)':'var(--red)')+'">$'+exp+'</div><div class="pb-stat-label">EXPECTANCY</div></div>'
       +'</div>';
 
-    // Description
+    // Strategy Lab analytics row
+    h += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px">'
+      +'<div class="pb-stat"><div class="pb-stat-val" style="color:'+(avgR!=null?(avgR>=0?'var(--green)':'var(--red)'):'var(--text)')+'">'+(avgR!=null?(avgR>=0?'+':'')+avgR.toFixed(2)+'R':'—')+'</div><div class="pb-stat-label">AVG R</div></div>'
+      +'<div class="pb-stat"><div class="pb-stat-val" style="color:'+(maxLossStreak>=5?'var(--red)':maxLossStreak>=3?'#fbbf24':'var(--text)')+'">'+maxLossStreak+'</div><div class="pb-stat-label">MAX LOSE STREAK</div></div>'
+      +'<div class="pb-stat"><div class="pb-stat-val" style="color:var(--green);font-size:15px">'+(bestDay||'—')+'</div><div class="pb-stat-label">BEST DAY</div></div>'
+      +'<div class="pb-stat"><div class="pb-stat-val" style="color:var(--red);font-size:15px">'+(worstSess||'—')+'</div><div class="pb-stat-label">WORST SESSION</div></div>'
+      +'</div>';
+
+    // AI Recommendation
+    if(reco){
+      var recoColor = reco.tone==='red'?'var(--red)':reco.tone==='amber'?'#fbbf24':reco.tone==='green'?'var(--green)':'var(--text3)';
+      var recoBg = reco.tone==='red'?'rgba(239,68,68,.06)':reco.tone==='amber'?'rgba(251,191,36,.06)':reco.tone==='green'?'rgba(29,233,182,.06)':'rgba(255,255,255,.02)';
+      h += '<div style="display:flex;gap:10px;align-items:flex-start;padding:13px 16px;border-radius:10px;background:'+recoBg+';border:1px solid '+recoColor+'33;margin-bottom:20px">'
+        +'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="'+recoColor+'" stroke-width="2" style="flex-shrink:0;margin-top:2px"><path d="M12 2a5 5 0 0 0-5 5c0 1.9 1 3.5 2.5 4.5V14a2.5 2.5 0 0 0 5 0v-2.5C15.9 10.5 17 8.9 17 7a5 5 0 0 0-5-5z"/></svg>'
+        +'<span style="font-size:12px;color:var(--text2);line-height:1.6">'+reco.text+'</span>'
+        +'</div>';
+    }
     if(s.description){
       h += '<div style="margin-bottom:20px;padding:14px;border-radius:10px;background:rgba(124,90,240,.02);border:1px solid rgba(124,90,240,.03);font-size:11px;color:var(--text2);line-height:1.6">'+s.description+'</div>';
+    }
+
+    // ── LIVE vs BACKTEST GAP — only shown for setups promoted from Strategy Lab ──
+    if(s._backtestStats && s._backtestStats.n > 0){
+      var bt = s._backtestStats;
+      var liveWr = total>0 ? parseFloat(wr) : null;
+      var gapWr = liveWr!=null ? (liveWr - bt.wr) : null;
+      var gapR = (avgR!=null && !isNaN(avgR)) ? (avgR - bt.avgR) : null;
+      var gapColor = gapWr!=null ? (gapWr < -10 ? 'var(--red)' : gapWr < 0 ? '#fbbf24' : 'var(--green)') : 'var(--text3)';
+      var gapVerdict;
+      if(total < 5){
+        gapVerdict = 'Not enough live trades yet to compare against your backtest edge.';
+      } else if(gapWr!=null && gapWr < -15){
+        gapVerdict = 'Your live win rate is '+Math.abs(gapWr).toFixed(0)+' points below backtest. This points to an execution problem, not a bad model — review entry discipline and rule adherence on this setup.';
+      } else if(gapWr!=null && gapWr < -5){
+        gapVerdict = 'Live is running below backtest by '+Math.abs(gapWr).toFixed(0)+' points. Worth monitoring — could be normal variance or early execution drift.';
+      } else {
+        gapVerdict = 'Live performance is tracking close to (or better than) your backtest edge. Good execution.';
+      }
+      h += '<div style="margin-bottom:20px;padding:16px 18px;border-radius:12px;background:rgba(255,255,255,.02);border:1px solid var(--border)">'
+        +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent3)" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-5 3 3 5-7"/></svg><span style="font-size:12.5px;font-weight:700;color:var(--text)">Live vs Backtest Gap</span></div>'
+        +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:12px">'
+          +'<div><div style="font-size:9.5px;color:var(--text3);letter-spacing:.4px;text-transform:uppercase;font-weight:700;margin-bottom:6px">Backtest ('+bt.n+' samples)</div>'
+            +'<div style="font-size:18px;font-weight:700;color:var(--text)">'+bt.wr.toFixed(0)+'% WR</div>'
+            +'<div style="font-size:12px;color:'+(bt.avgR>=0?'var(--green)':'var(--red)')+'">'+(bt.avgR>=0?'+':'')+bt.avgR.toFixed(2)+'R expectancy</div></div>'
+          +'<div><div style="font-size:9.5px;color:var(--text3);letter-spacing:.4px;text-transform:uppercase;font-weight:700;margin-bottom:6px">Live ('+total+' trades)</div>'
+            +'<div style="font-size:18px;font-weight:700;color:var(--text)">'+(total>0?wr+'% WR':'—')+'</div>'
+            +'<div style="font-size:12px;color:var(--text3)">'+(total>0?'$'+pnl.toLocaleString()+' P&L':'no trades yet')+'</div></div>'
+        +'</div>'
+        +(gapWr!=null?'<div style="font-size:12px;font-weight:700;color:'+gapColor+';margin-bottom:8px">Gap: '+(gapWr>=0?'+':'')+gapWr.toFixed(0)+' points WR'+(gapR!=null?' · '+(gapR>=0?'+':'')+gapR.toFixed(2)+'R'+' vs backtest':'')+'</div>':'')
+        +'<div style="font-size:12px;color:var(--text2);line-height:1.6">'+gapVerdict+'</div>'
+      +'</div>';
     }
 
     // Context blocks
@@ -39490,6 +40365,7 @@ window.toggleSidebar = function(){
         {id:'expectancy', label:'Expectancy', desc:'Expected $ per trade — your edge', def:false, icon:'🎲'},
         {id:'r-distribution', label:'R-multiple distribution', desc:'Outcome shape in risk units', def:false, icon:'📊'},
         {id:'tilt-detector', label:'Tilt detector', desc:'Revenge trading & overtrading signals', def:false, icon:'🧠'},
+        {id:'discipline-score', label:'Discipline Score', desc:'One number: how well you follow your own rules', def:true, icon:'🎯'},
         {id:'best-setup', label:'Your Edge', desc:'Auto-detected best pair, session & day', def:false, icon:'⚡'},
         {id:'ai-narrative', label:'AI Weekly Narrative', desc:'AI insight on your recent trading', def:false, icon:'🤖'}
       ]
@@ -42361,6 +43237,87 @@ window.toggleSidebar = function(){
   }
   window.dashAINarrativeRefresh = dashAINarrativeRefresh;
 
+  // ═══════════════════════════════════════════════════════════
+  // DISCIPLINE SCORE — flagship behavioral metric (0-100)
+  // Combines: plan adherence, revenge/FOMO trades, overtrading days, tilt streaks.
+  // Independent of P&L — measures execution consistency, not profitability.
+  // ═══════════════════════════════════════════════════════════
+  function _calcDisciplineScore(trades){
+    if(!trades || trades.length < 5) return null;
+
+    var score = 100;
+    var factors = [];
+
+    // Factor 1: Plan adherence (planFollowed yes/no)
+    var tagged = trades.filter(function(t){ return t.planFollowed==='yes' || t.planFollowed==='no'; });
+    if(tagged.length >= 5){
+      var followed = tagged.filter(function(t){ return t.planFollowed==='yes'; }).length;
+      var adherencePct = followed/tagged.length*100;
+      if(adherencePct < 60){ score -= 30; factors.push({label:'Low plan adherence ('+Math.round(adherencePct)+'%)', bad:true}); }
+      else if(adherencePct < 80){ score -= 15; factors.push({label:'Plan adherence '+Math.round(adherencePct)+'%', bad:true}); }
+      else { factors.push({label:'Plan adherence '+Math.round(adherencePct)+'%', bad:false}); }
+    }
+
+    // Factor 2: Revenge/FOMO tagged trades
+    var emoTrades = trades.filter(function(t){
+      var e=(t.emotion||t.psychTag||'').toLowerCase();
+      return e.indexOf('revenge')>=0 || e.indexOf('fomo')>=0;
+    });
+    var emoPct = trades.length ? emoTrades.length/trades.length*100 : 0;
+    if(emoPct > 15){ score -= 25; factors.push({label:emoTrades.length+' revenge/FOMO trades', bad:true}); }
+    else if(emoPct > 5){ score -= 12; factors.push({label:emoTrades.length+' revenge/FOMO trades', bad:true}); }
+    else if(emoTrades.length===0){ factors.push({label:'No revenge/FOMO tags', bad:false}); }
+
+    // Factor 3: Overtrading — days with unusually high trade count
+    var byDate={}; trades.forEach(function(t){ if(t.date) byDate[t.date]=(byDate[t.date]||0)+1; });
+    var dayCounts=Object.values(byDate);
+    var avgPerDay = dayCounts.length ? dayCounts.reduce(function(a,b){return a+b;},0)/dayCounts.length : 0;
+    var overtradingDays = dayCounts.filter(function(c){ return c > Math.max(5, avgPerDay*2.5); }).length;
+    if(overtradingDays >= 3){ score -= 20; factors.push({label:overtradingDays+' overtrading days', bad:true}); }
+    else if(overtradingDays >= 1){ score -= 8; factors.push({label:overtradingDays+' overtrading day'+(overtradingDays>1?'s':''), bad:true}); }
+
+    // Factor 4: Current tilt level (from dashboard tilt detector, if computed this render cycle)
+    var tiltLevel = window._tqCurrentTiltLevel || 0;
+    if(tiltLevel >= 3){ score -= 15; factors.push({label:'Currently on heavy tilt', bad:true}); }
+    else if(tiltLevel === 2){ score -= 8; factors.push({label:'Tilt warning active', bad:true}); }
+
+    score = Math.max(0, Math.min(100, Math.round(score)));
+    return {score:score, factors:factors};
+  }
+
+  function _renderDisciplineScore(trades){
+    if(!_isWidgetVisible('discipline-score')) return;
+    var el = document.getElementById('dash-w-discipline-content');
+    if(!el) return;
+
+    var result = _calcDisciplineScore(trades);
+    if(!result){ el.innerHTML = _emptyState('discipline-score','Not enough data','Tag 5+ trades with Plan Followed to unlock your Discipline Score.'); return; }
+
+    var score = result.score;
+    var color = score>=80?'var(--green)':score>=55?'#fbbf24':'var(--red)';
+    var label = score>=80?'Excellent discipline':score>=55?'Room to tighten up':'Discipline needs work';
+
+    var factorsHtml = result.factors.slice(0,4).map(function(f){
+      var fc = f.bad ? 'var(--red)' : 'var(--green)';
+      var icon = f.bad ? '⚠' : '✓';
+      return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;font-size:12px">'+
+        '<span style="color:'+fc+';font-weight:700;width:14px;flex-shrink:0">'+icon+'</span>'+
+        '<span style="color:var(--text2)">'+f.label+'</span>'+
+      '</div>';
+    }).join('');
+
+    el.innerHTML =
+      '<div style="display:flex;align-items:center;gap:16px;margin-bottom:10px">'+
+        '<div style="font-size:38px;font-weight:800;letter-spacing:-1.5px;color:'+color+';line-height:1">'+score+'</div>'+
+        '<div>'+
+          '<div style="font-size:13px;font-weight:700;color:'+color+'">'+label+'</div>'+
+          '<div style="font-size:11px;color:var(--text3)">out of 100 · independent of P&amp;L</div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="dw-bar-track" style="margin-bottom:10px"><div class="dw-bar-fill" style="width:'+score+'%;background:'+color+'"></div></div>'+
+      '<div style="border-top:0.5px solid var(--border);padding-top:6px">'+factorsHtml+'</div>';
+  }
+
   function _renderAINarrativeWidget() {
     if (!_isWidgetVisible('ai-narrative')) return;
     var el = document.getElementById('dash-w-narrative-content');
@@ -42385,6 +43342,7 @@ window.toggleSidebar = function(){
     try{ renderDashPropMini(trades); }catch(e){}
     try{ _renderBestSetupWidget(trades); }catch(e){}
     try{ _renderAINarrativeWidget(); }catch(e){}
+    try{ _renderDisciplineScore(trades); }catch(e){}
   };
 
   function renderDashCharts(trades, byDay, accBal) {
