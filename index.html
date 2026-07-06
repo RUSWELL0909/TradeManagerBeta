@@ -4645,10 +4645,9 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
   #mc-hero-pnl{font-size:26px!important}
   #mc-hero-pnl-sub{font-size:11px!important}
   /* Mission Status hero — mobile */
-  #mc-mission-hero{padding:20px!important}
-  #mc-hero-status{font-size:28px!important}
-  #mc-hero-metrics{grid-template-columns:repeat(2,1fr)!important;gap:14px 16px!important;width:100%}
-  #mc-hero-highest-risk{max-width:140px!important}
+  #mc-mission-hero{padding:24px 22px 20px!important}
+  #mc-hero-status{font-size:36px!important}
+  #mc-hero-highest-risk{max-width:120px!important}
 
   /* Time filter — bigger tap targets */
   #mc-time-filter{gap:6px!important;margin-bottom:12px!important;flex-wrap:wrap!important}
@@ -5542,10 +5541,6 @@ const _tqSupabaseLoad = (async () => {
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
       My Accounts
     </div>
-    <div class="nav-item" id="nav-riskmonitor">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18"/><path d="M7 14l4-5 3 3 5-7"/><circle cx="19" cy="5" r="1.5" fill="currentColor"/></svg>
-      Risk Monitor
-    </div>
     <div class="nav-item" id="nav-trademanager">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
       Trade Manager
@@ -5663,40 +5658,42 @@ window.toggleSidebar = function(){
   <!-- ═══ MISSION CONTROL (May 2026 — Prop Suite) ═══ -->
   <div id="page-missioncontrol" class="page">
     <!-- MISSION STATUS HERO — "Today Command Center" -->
-    <div id="mc-mission-hero" style="position:relative;margin-bottom:18px;padding:32px 36px;border-radius:20px;overflow:hidden;border:1px solid var(--border);background:var(--card);transition:background .4s ease,border-color .4s ease">
+    <div id="mc-mission-hero" style="position:relative;margin-bottom:18px;padding:44px 44px 28px;border-radius:22px;overflow:hidden;border:1px solid var(--border);background:var(--card);transition:background .4s ease,border-color .4s ease">
       <!-- ambient glow, color set by JS based on status -->
-      <div id="mc-hero-glow" style="position:absolute;inset:0;pointer-events:none;opacity:.5;transition:opacity .4s ease"></div>
-      <div style="position:relative;display:flex;align-items:flex-start;justify-content:space-between;gap:32px;flex-wrap:wrap">
-        <!-- Left: status + AI officer message -->
-        <div style="flex:1;min-width:280px">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            <span style="font-size:10.5px;letter-spacing:3px;color:var(--text3);text-transform:uppercase;font-weight:700">Mission Status</span>
-          </div>
-          <div id="mc-hero-status" style="font-size:44px;font-weight:800;letter-spacing:-1.5px;line-height:1;color:var(--green)">SAFE TO TRADE</div>
-          <div id="mc-hero-ai-msg" style="margin-top:16px;font-size:14px;color:var(--text2);font-weight:500;line-height:1.6;max-width:520px;display:flex;gap:9px;align-items:flex-start">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent3)" stroke-width="2" style="flex-shrink:0;margin-top:2px"><path d="M12 2a5 5 0 0 0-5 5c0 1.9 1 3.5 2.5 4.5V14a2.5 2.5 0 0 0 5 0v-2.5C15.9 10.5 17 8.9 17 7a5 5 0 0 0-5-5z"/><path d="M9 18h6M10 21h4"/></svg>
-            <span id="mc-hero-ai-text">Checking your accounts…</span>
-          </div>
+      <div id="mc-hero-glow" style="position:absolute;inset:0;pointer-events:none;opacity:.6;transition:opacity .4s ease"></div>
+
+      <!-- Top label -->
+      <div style="position:relative;display:flex;align-items:center;gap:8px;margin-bottom:20px">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span style="font-size:10px;letter-spacing:3.5px;color:var(--text3);text-transform:uppercase;font-weight:700">Mission Status</span>
+      </div>
+
+      <!-- DOMINANT status — the one thing the eye lands on -->
+      <div id="mc-hero-status" style="position:relative;font-size:64px;font-weight:800;letter-spacing:-2px;line-height:1;color:var(--green)">SAFE TO TRADE</div>
+
+      <!-- Single strong AI Risk Officer message -->
+      <div id="mc-hero-ai-msg" style="position:relative;margin-top:22px;font-size:15px;color:var(--text2);font-weight:500;line-height:1.65;max-width:640px;display:flex;gap:10px;align-items:flex-start">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent3)" stroke-width="2" style="flex-shrink:0;margin-top:2px"><path d="M12 2a5 5 0 0 0-5 5c0 1.9 1 3.5 2.5 4.5V14a2.5 2.5 0 0 0 5 0v-2.5C15.9 10.5 17 8.9 17 7a5 5 0 0 0-5-5z"/><path d="M9 18h6M10 21h4"/></svg>
+        <span id="mc-hero-ai-text">Checking your accounts…</span>
+      </div>
+
+      <!-- De-emphasized metrics footer strip — supporting detail, not competing with the status -->
+      <div style="position:relative;display:flex;gap:36px;margin-top:32px;padding-top:20px;border-top:1px solid var(--border);flex-wrap:wrap">
+        <div>
+          <div style="font-size:9px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700;margin-bottom:4px">Daily DD Left</div>
+          <div id="mc-hero-dd-left" style="font-size:16px;font-weight:700;color:var(--text2);letter-spacing:-.3px;font-variant-numeric:tabular-nums">—</div>
         </div>
-        <!-- Right: risk metric grid -->
-        <div id="mc-hero-metrics" style="display:grid;grid-template-columns:repeat(2,minmax(140px,1fr));gap:20px 32px;flex-shrink:0">
-          <div>
-            <div style="font-size:9.5px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700;margin-bottom:5px">Daily DD Left</div>
-            <div id="mc-hero-dd-left" style="font-size:22px;font-weight:700;color:var(--text);letter-spacing:-.5px;font-variant-numeric:tabular-nums">—</div>
-          </div>
-          <div>
-            <div style="font-size:9.5px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700;margin-bottom:5px">Recommended Risk</div>
-            <div id="mc-hero-rec-risk" style="font-size:22px;font-weight:700;color:var(--text);letter-spacing:-.5px;font-variant-numeric:tabular-nums">—</div>
-          </div>
-          <div>
-            <div style="font-size:9.5px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700;margin-bottom:5px">Accounts Active</div>
-            <div id="mc-hero-accounts" style="font-size:22px;font-weight:700;color:var(--text);letter-spacing:-.5px;font-variant-numeric:tabular-nums">—</div>
-          </div>
-          <div>
-            <div style="font-size:9.5px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700;margin-bottom:5px">Highest Risk</div>
-            <div id="mc-hero-highest-risk" style="font-size:15px;font-weight:700;color:var(--text);letter-spacing:-.2px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px">—</div>
-          </div>
+        <div>
+          <div style="font-size:9px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700;margin-bottom:4px">Recommended Risk</div>
+          <div id="mc-hero-rec-risk" style="font-size:16px;font-weight:700;color:var(--text2);letter-spacing:-.3px;font-variant-numeric:tabular-nums">—</div>
+        </div>
+        <div>
+          <div style="font-size:9px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700;margin-bottom:4px">Accounts Active</div>
+          <div id="mc-hero-accounts" style="font-size:16px;font-weight:700;color:var(--text2);letter-spacing:-.3px;font-variant-numeric:tabular-nums">—</div>
+        </div>
+        <div>
+          <div style="font-size:9px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700;margin-bottom:4px">Highest Risk</div>
+          <div id="mc-hero-highest-risk" style="font-size:14px;font-weight:700;color:var(--text2);letter-spacing:-.1px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px">—</div>
         </div>
       </div>
     </div>
@@ -5712,10 +5709,57 @@ window.toggleSidebar = function(){
         <span id="mc-hero-title" style="display:none"></span>
         <span id="mc-hero-sub" style="font-size:11.5px;color:var(--text3)"></span>
       </div>
-      <button onclick="mcOpenAddPropAccount()" style="font-size:12px;padding:9px 16px;background:var(--accent);border:none;color:#fff;border-radius:9px;cursor:pointer;font-weight:600;letter-spacing:.3px;box-shadow:0 1px 4px rgba(124,90,240,.35);display:flex;align-items:center;gap:6px">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Add Prop Account
-      </button>
+      <div style="display:flex;gap:8px">
+        <button onclick="mcOpenSimulator()" style="font-size:12px;padding:9px 16px;background:transparent;border:1px solid var(--border);color:var(--text2);border-radius:9px;cursor:pointer;font-weight:600;letter-spacing:.3px;display:flex;align-items:center;gap:6px" title="Test a hypothetical account's risk parameters without creating a real account">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H4a1 1 0 00-1 1v16a1 1 0 001 1h16a1 1 0 001-1V8l-6-5z"/><path d="M14 3v5h6"/></svg>
+          Simulate Account
+        </button>
+        <button onclick="mcOpenAddPropAccount()" style="font-size:12px;padding:9px 16px;background:var(--accent);border:none;color:#fff;border-radius:9px;cursor:pointer;font-weight:600;letter-spacing:.3px;box-shadow:0 1px 4px rgba(124,90,240,.35);display:flex;align-items:center;gap:6px">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Prop Account
+        </button>
+      </div>
+    </div>
+
+    <!-- SIMULATE ACCOUNT MODAL — what-if risk calculator, absorbed from the retired Risk Monitor page -->
+    <div class="pb-overlay" id="mc-sim-overlay">
+      <div class="pb-builder" style="max-width:520px">
+        <div class="pb-builder-header">
+          <div class="pb-builder-title">Simulate Account</div>
+          <button class="pb-builder-close" onclick="mcCloseSimulator()">✕</button>
+        </div>
+        <div class="pb-builder-body" style="max-height:70vh">
+          <div style="font-size:11.5px;color:var(--text3);margin-bottom:16px;line-height:1.5">Test hypothetical risk parameters — e.g. "could I pass this $50k challenge with my current trading?" — without creating a real account.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+            <div>
+              <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">STARTING BALANCE</label>
+              <input type="number" id="mc-sim-balance" class="form-input" value="50000" oninput="mcRunSimulator()" style="width:100%">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">SOURCE TRADES</label>
+              <select id="mc-sim-account" class="form-select" onchange="mcRunSimulator()" style="width:100%"><option value="">All my trades</option></select>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:18px">
+            <div>
+              <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">PROFIT TARGET %</label>
+              <input type="number" id="mc-sim-target" class="form-input" value="8" step="0.5" oninput="mcRunSimulator()" style="width:100%">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">MAX DD %</label>
+              <input type="number" id="mc-sim-maxdd" class="form-input" value="10" step="0.5" oninput="mcRunSimulator()" style="width:100%">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">DAILY LOSS %</label>
+              <input type="number" id="mc-sim-daily" class="form-input" value="5" step="0.5" oninput="mcRunSimulator()" style="width:100%">
+            </div>
+          </div>
+          <div id="mc-sim-result"></div>
+        </div>
+        <div class="pb-builder-footer">
+          <button class="pb-btn pb-btn-ghost" onclick="mcCloseSimulator()">Close</button>
+        </div>
+      </div>
     </div>
 
     <!-- TIME PERIOD FILTER (Phase 3 polish) -->
@@ -6155,6 +6199,10 @@ window.toggleSidebar = function(){
           <button class="dash-view-btn" data-view="percent" onclick="dashSetView('percent')" title="Percentage view" style="padding:5px 10px;border:none;background:transparent;color:var(--text3);border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">%</button>
           <button class="dash-view-btn" data-view="privacy" onclick="dashSetView('privacy')" title="Privacy mode" style="padding:5px 10px;border:none;background:transparent;color:var(--text3);border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">👁</button>
         </div>
+        <div id="dash-detail-switcher" style="display:flex;gap:2px;padding:3px;background:var(--bg2);border:1px solid var(--border);border-radius:8px" title="Essential: 5 key numbers. Advanced: full analytics suite.">
+          <button class="dash-detail-btn" data-detail="essential" onclick="dashSetDetailLevel('essential')" style="padding:5px 10px;border:none;background:transparent;color:var(--text3);border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">Essential</button>
+          <button class="dash-detail-btn active" data-detail="advanced" onclick="dashSetDetailLevel('advanced')" style="padding:5px 10px;border:none;background:var(--accent);color:white;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">Advanced</button>
+        </div>
         <button class="btn btn-ghost" id="dash-edit-layout-btn" style="font-size:12px;padding:8px 10px;display:flex;align-items:center;gap:5px" onclick="dashEditToggle()" title="Edit layout — reorder & hide tiles">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
           <span id="dash-edit-layout-label" style="display:none">Edit layout</span>
@@ -6283,6 +6331,18 @@ window.toggleSidebar = function(){
         </div>
       </div>
 
+    </div>
+
+    <!-- ESSENTIAL VIEW EXTRA — Discipline Score, shown only in Essential mode since Advanced already has it in Extras -->
+    <div id="dash-essential-only" style="display:none;margin-bottom:18px">
+      <div class="card" style="padding:20px 22px;min-height:140px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <span class="dw-title">Discipline Score</span>
+          <span class="info-icon" data-tip="How well you follow your own rules — independent of P&amp;L.">i</span>
+        </div>
+        <div class="dw-sub">How well you follow your own rules</div>
+        <div id="dash-essential-discipline-content"></div>
+      </div>
     </div>
 
     <!-- Hidden tiles tray (shown only in edit mode) -->
@@ -9557,67 +9617,6 @@ window.toggleSidebar = function(){
         <button class="pb-btn pb-btn-ghost" onclick="slCloseSampleModal()">Cancel</button>
         <button class="pb-btn pb-btn-primary" onclick="slSaveSample()">Save Sample</button>
       </div>
-    </div>
-  </div>
-
-  <!-- ═══ RISK MONITOR ═══ -->
-  <div id="page-riskmonitor" class="page">
-    <div class="page-header">
-      <div><div class="page-title">Risk Monitor</div><div class="page-sub">Prop firm rules & live risk tracking</div></div>
-      <button class="pb-btn pb-btn-ghost" style="font-size:10px;padding:8px 16px;border-radius:10px" onclick="rmSave()">Save Settings</button>
-    </div>
-
-    <!-- Config -->
-    <div class="rm-config">
-      <div class="rm-config-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg> <span id="rm-mode-title">ACCOUNT RULES</span></div>
-      <div class="rm-config-row">
-        <div class="rm-config-field"><label>Account</label><select id="rm-account" onchange="rmOnAccountChange()" style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;font-family:Inter,sans-serif"><option value="">All Accounts</option></select></div>
-        <div class="rm-config-field"><label>Starting Balance</label><input type="number" id="rm-balance" value="100000" oninput="rmCalc()"></div>
-        <div class="rm-config-field" id="rm-phase-wrap"><label>Phase</label><select id="rm-phase" onchange="rmCalc()"><option>Phase 1</option><option>Phase 2</option><option>Funded</option></select></div>
-        <div class="rm-config-field"><label id="rm-target-label">Profit Target %</label><input type="number" id="rm-target" value="8" step="0.5" oninput="rmCalc()"></div>
-        <div class="rm-config-field"><label id="rm-maxdd-label">Max Drawdown %</label><input type="number" id="rm-maxdd" value="10" step="0.5" oninput="rmCalc()"></div>
-        <div class="rm-config-field"><label id="rm-daily-label">Daily Loss %</label><input type="number" id="rm-dailyloss" value="5" step="0.5" oninput="rmCalc()"></div>
-        <div class="rm-config-field" id="rm-mindays-wrap"><label>Min Trading Days</label><input type="number" id="rm-mindays" value="5" min="0" oninput="rmCalc()"></div>
-      </div>
-    </div>
-
-    <!-- Status Banner -->
-    <div class="rm-status-banner" id="rm-status">Loading...</div>
-
-    <!-- 3 Gauges -->
-    <div class="rm-gauges">
-      <div class="rm-gauge-card safe" id="rm-g-daily">
-        <div class="rm-gauge-label" id="rm-gauge-daily-label">DAILY LOSS</div>
-        <div class="rm-gauge-val" id="rm-daily-val">$0</div>
-        <div class="rm-gauge-sub" id="rm-daily-sub">of $5,000 limit</div>
-        <div class="rm-gauge-bar"><div class="rm-gauge-fill" id="rm-daily-fill" style="width:0%;background:var(--green)"></div></div>
-      </div>
-      <div class="rm-gauge-card safe" id="rm-g-dd">
-        <div class="rm-gauge-label" id="rm-gauge-dd-label">MAX DRAWDOWN</div>
-        <div class="rm-gauge-val" id="rm-dd-val">0.0%</div>
-        <div class="rm-gauge-sub" id="rm-dd-sub">of 10% limit</div>
-        <div class="rm-gauge-bar"><div class="rm-gauge-fill" id="rm-dd-fill" style="width:0%;background:var(--green)"></div></div>
-      </div>
-      <div class="rm-gauge-card safe" id="rm-g-profit">
-        <div class="rm-gauge-label" id="rm-gauge-profit-label">PROFIT TARGET</div>
-        <div class="rm-gauge-val" id="rm-profit-val">0.0%</div>
-        <div class="rm-gauge-sub" id="rm-profit-sub">of 8% target</div>
-        <div class="rm-gauge-bar"><div class="rm-gauge-fill" id="rm-profit-fill" style="width:0%;background:var(--accent)"></div></div>
-      </div>
-    </div>
-
-    <!-- Stats Row -->
-    <div class="rm-stats-row">
-      <div class="rm-stat-card"><div class="rm-stat-label">CURRENT BALANCE</div><div class="rm-stat-val" id="rm-cur-bal">$100,000</div></div>
-      <div class="rm-stat-card"><div class="rm-stat-label">NET P&L</div><div class="rm-stat-val" id="rm-net-pl">$0</div></div>
-      <div class="rm-stat-card"><div class="rm-stat-label">TRADING DAYS</div><div class="rm-stat-val" id="rm-trading-days">0</div><div class="rm-stat-sub" id="rm-days-sub">of 5 minimum</div></div>
-      <div class="rm-stat-card"><div class="rm-stat-label">DD LEFT</div><div class="rm-stat-val" id="rm-dd-left">$10,000</div></div>
-    </div>
-
-    <!-- Rules Checklist -->
-    <div class="rm-rules">
-      <div class="rm-rules-title">RULES CHECKLIST</div>
-      <div id="rm-rules-list"></div>
     </div>
   </div>
 
@@ -20919,7 +20918,7 @@ window.toggleSidebar = function(){
     pageEl.classList.add('tq-page-enter');
     var navEl = $('nav-' + id); if (navEl) navEl.classList.add('active');
     // If destination is in "More" section, expand it so user sees what's active
-    var morePages = ['dayview','notebook','playbook','riskmonitor','trademanager','news','casestudies','progress','aicoach','youredge','resources'];
+    var morePages = ['dayview','notebook','playbook','trademanager','news','casestudies','progress','aicoach','youredge','resources'];
     if(morePages.indexOf(id) >= 0){
       var moreItems = document.getElementById('nav-more-items');
       var moreChev = document.getElementById('nav-more-chev');
@@ -20943,6 +20942,9 @@ window.toggleSidebar = function(){
           if(isAll) b.classList.add('active'); else b.classList.remove('active');
         });
       }
+      // Restore Essential/Advanced detail level
+      var savedDetail = rfxGet('rf_dash_detail_level') || 'advanced';
+      if(typeof dashSetDetailLevel === 'function') dashSetDetailLevel(savedDetail);
     }
     if (id === 'accounts' && window.renderAccountsPage) window.renderAccountsPage();
     if (id === 'reports') {
@@ -20967,7 +20969,6 @@ window.toggleSidebar = function(){
       window._dvDirty = false;
       _tqRenderAfterPaint(dvInit);
     }
-    if (id === 'riskmonitor' && window.rmCalc) _tqRenderAfterPaint(rmCalc);
     if (id === 'notebook' && window.nbRender) _tqRenderAfterPaint(nbRender);
     if (id === 'trademanager' && window.gbCalc) _tqRenderAfterPaint(gbCalc);
     if (id === 'progress' && window.ptRender) {
@@ -21301,7 +21302,7 @@ window.toggleSidebar = function(){
     }
   })();
 
-  ['dashboard','dayview','journal','notebook','reports','playbook','stratlab','riskmonitor','accounts','trademanager','casestudies','progress','resources','cockpit','missioncontrol','news','aicoach','youredge','trash'].forEach(function(id) {
+  ['dashboard','dayview','journal','notebook','reports','playbook','stratlab','accounts','trademanager','casestudies','progress','resources','cockpit','missioncontrol','news','aicoach','youredge','trash'].forEach(function(id) {
     var el = $('nav-' + id);
     if (el) el.addEventListener('click', function(){ showPage(id); });
   });
@@ -33565,7 +33566,7 @@ window.toggleSidebar = function(){
       'Risk Monitor':'<svg viewBox="0 0 200 100" style="width:100%;height:auto;border-radius:6px;overflow:hidden;background:rgba(124,90,240,.04)"><rect width="200" height="100" fill="none" rx="6"/><text x="10" y="18" font-size="7" fill="var(--text)" font-family="sans-serif" font-weight="bold">DAILY LOSS LIMIT</text><rect x="10" y="24" width="120" height="10" rx="5" fill="rgba(124,90,240,.06)" stroke="var(--border)" stroke-width=".5"/><rect x="10" y="24" width="48" height="10" rx="5" fill="var(--green)" opacity=".7"/><text x="140" y="32" font-size="7" fill="var(--green)" font-family="sans-serif" font-weight="bold">40%</text><text x="10" y="52" font-size="7" fill="var(--text)" font-family="sans-serif" font-weight="bold">WEEKLY LIMIT</text><rect x="10" y="58" width="120" height="10" rx="5" fill="rgba(124,90,240,.06)" stroke="var(--border)" stroke-width=".5"/><rect x="10" y="58" width="80" height="10" rx="5" fill="var(--yellow)" opacity=".7"/><text x="140" y="66" font-size="7" fill="var(--yellow)" font-family="sans-serif" font-weight="bold">67%</text><text x="10" y="84" font-size="7" fill="var(--text)" font-family="sans-serif" font-weight="bold">MAX DRAWDOWN</text><rect x="10" y="88" width="120" height="8" rx="4" fill="rgba(124,90,240,.06)" stroke="var(--border)" stroke-width=".5"/><rect x="10" y="88" width="26" height="8" rx="4" fill="var(--green)" opacity=".7"/><text x="140" y="95" font-size="7" fill="var(--green)" font-family="sans-serif" font-weight="bold">21%</text></svg>',
       'Trade Manager':'<svg viewBox="0 0 200 100" style="width:100%;height:auto;border-radius:6px;overflow:hidden;background:rgba(124,90,240,.04)"><rect width="200" height="100" fill="none" rx="6"/><text x="10" y="16" font-size="8" fill="var(--text)" font-family="sans-serif" font-weight="bold">Position Size Calculator</text><rect x="10" y="22" width="86" height="28" rx="4" fill="rgba(124,90,240,.06)" stroke="var(--border)" stroke-width=".5"/><text x="16" y="34" font-size="6" fill="var(--text2)" font-family="sans-serif">Account: $10,000</text><text x="16" y="44" font-size="6" fill="var(--text2)" font-family="sans-serif">Risk: 1% = $100</text><rect x="104" y="22" width="86" height="28" rx="4" fill="rgba(124,90,240,.06)" stroke="var(--border)" stroke-width=".5"/><text x="110" y="34" font-size="6" fill="var(--text2)" font-family="sans-serif">SL: 15 pips</text><text x="110" y="44" font-size="8" fill="var(--green)" font-family="sans-serif" font-weight="bold">0.67 lots</text><rect x="10" y="58" width="86" height="34" rx="4" fill="var(--accent)" opacity=".12" stroke="var(--accent)" stroke-width=".5"/><text x="16" y="72" font-size="7" fill="var(--accent)" font-family="sans-serif" font-weight="bold">R:R Calculator</text><text x="16" y="84" font-size="6" fill="var(--text3)" font-family="sans-serif">Entry → TP1, TP2, TP3</text></svg>'
     }
-    var pages={Dashboard:'dashboard',Cockpit:'cockpit','Day View':'dayview',Journal:'journal',Notebook:'notebook',Reports:'reports',Playbook:'playbook','Risk Monitor':'riskmonitor','My Accounts':'accounts','Trade Manager':'trademanager','Case Studies':'casestudies','Progress Tracker':'progress','Importing Trades':'journal'};
+    var pages={Dashboard:'dashboard',Cockpit:'cockpit','Day View':'dayview',Journal:'journal',Notebook:'notebook',Reports:'reports',Playbook:'playbook','My Accounts':'accounts','Trade Manager':'trademanager','Case Studies':'casestudies','Progress Tracker':'progress','Importing Trades':'journal'};
     var guides=[
       {title:'Dashboard',desc:'Your command center. KPI strip shows Net P&L, Win Rate, Profit Factor, Avg R:R. Overview has TradeQuill Score (spider chart), charts, and calendar.',color:'var(--accent)'},
       {title:'Cockpit',desc:'Pre-market analysis. Set daily bias, market phase, model, and invalidation flags per pair. Press "Take Trade" to auto-fill a Journal entry with your plan.',color:'var(--green)'},
@@ -34845,6 +34846,84 @@ window.toggleSidebar = function(){
   }
   window.mcOpenAddPropAccount = mcOpenAddPropAccount;
 
+  // ── SIMULATE ACCOUNT — what-if risk calculator (absorbed from the retired Risk Monitor page) ──
+  function mcOpenSimulator(){
+    // Populate account filter dropdown
+    var sel = document.getElementById('mc-sim-account');
+    if(sel){
+      var accs = JSON.parse(rfxGet('rf_accounts')||'[]').filter(function(a){return !a.deleted;});
+      sel.innerHTML = '<option value="">All my trades</option>' + accs.map(function(a){
+        return '<option value="'+a.id+'">'+escapeHtml(a.name)+'</option>';
+      }).join('');
+    }
+    document.getElementById('mc-sim-overlay').classList.add('open');
+    mcRunSimulator();
+  }
+  window.mcOpenSimulator = mcOpenSimulator;
+
+  function mcCloseSimulator(){
+    document.getElementById('mc-sim-overlay').classList.remove('open');
+  }
+  window.mcCloseSimulator = mcCloseSimulator;
+
+  function mcRunSimulator(){
+    var resultEl = document.getElementById('mc-sim-result');
+    if(!resultEl) return;
+
+    var bal = parseFloat(document.getElementById('mc-sim-balance').value) || 50000;
+    var targetPct = (parseFloat(document.getElementById('mc-sim-target').value) || 8) / 100;
+    var maxDDPct = (parseFloat(document.getElementById('mc-sim-maxdd').value) || 10) / 100;
+    var dailyPct = (parseFloat(document.getElementById('mc-sim-daily').value) || 5) / 100;
+    var accountFilter = document.getElementById('mc-sim-account').value;
+
+    var allTrades = (typeof getTradesArr==='function') ? getTradesArr() : [];
+    var trades = accountFilter ? allTrades.filter(function(t){return t.account===accountFilter;}) : allTrades;
+
+    if(!trades.length){
+      resultEl.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text3);font-size:12.5px">No trades to simulate against. Log some trades first, or pick a different account.</div>';
+      return;
+    }
+
+    var targetBal = bal * (1+targetPct);
+    var failBal = bal * (1-maxDDPct);
+    var dailyLimit = bal * dailyPct;
+
+    var sorted = trades.slice().sort(function(a,b){ return (a.date||'').localeCompare(b.date||'') || (a.entryTime||'').localeCompare(b.entryTime||''); });
+    var runBal = bal, peakBal = bal, maxDDAmount = 0, breachDate = null, breached = false;
+    var dayMap = {};
+    sorted.forEach(function(t){
+      if(breached) return;
+      runBal += (typeof tqConvertTradePnl==='function' ? tqConvertTradePnl(t) : (parseFloat(t.pnl)||0));
+      if(runBal > peakBal) peakBal = runBal;
+      var ddAmt = peakBal - runBal;
+      if(ddAmt > maxDDAmount) maxDDAmount = ddAmt;
+      if(runBal <= failBal && !breached){ breached = true; breachDate = t.date; }
+      if(t.date) dayMap[t.date] = true;
+    });
+    var tradingDays = Object.keys(dayMap).length;
+    var passed = !breached && runBal >= targetBal;
+    var netPnl = runBal - bal;
+    var maxDDPctActual = (maxDDAmount/bal*100);
+
+    var verdictColor = breached ? 'var(--red)' : passed ? 'var(--green)' : '#fbbf24';
+    var verdictText = breached ? '❌ Would have breached max drawdown on '+breachDate
+      : passed ? '✅ Would have passed — target reached without breaching limits'
+      : '⏳ In progress — neither passed nor breached yet';
+
+    resultEl.innerHTML =
+      '<div style="padding:14px 16px;border-radius:10px;background:'+(breached?'rgba(239,68,68,.06)':passed?'rgba(29,233,182,.06)':'rgba(251,191,36,.06)')+';border:1px solid '+(breached?'rgba(239,68,68,.15)':passed?'rgba(29,233,182,.15)':'rgba(251,191,36,.15)')+';margin-bottom:14px">'
+        +'<div style="font-size:13px;font-weight:700;color:'+verdictColor+'">'+verdictText+'</div>'
+      +'</div>'
+      +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px">'
+        +'<div class="pb-stat"><div class="pb-stat-val" style="color:'+(netPnl>=0?'var(--green)':'var(--red)')+'">'+(netPnl>=0?'+':'-')+'$'+Math.abs(Math.round(netPnl)).toLocaleString()+'</div><div class="pb-stat-label">SIMULATED P&amp;L</div></div>'
+        +'<div class="pb-stat"><div class="pb-stat-val" style="color:'+(maxDDPctActual>=maxDDPct*100*0.8?'var(--red)':'var(--text)')+'">'+maxDDPctActual.toFixed(1)+'%</div><div class="pb-stat-label">MAX DD HIT</div></div>'
+        +'<div class="pb-stat"><div class="pb-stat-val">'+tradingDays+'</div><div class="pb-stat-label">TRADING DAYS</div></div>'
+      +'</div>'
+      +'<div style="font-size:11px;color:var(--text3);text-align:center">Based on '+trades.length+' trade'+(trades.length!==1?'s':'')+' from your actual history, replayed against these hypothetical limits.</div>';
+  }
+  window.mcRunSimulator = mcRunSimulator;
+
+
   // ═══ ACCOUNT DRILL-DOWN (May 28 2026 — Per-account focused view) ═══
   // Click on Mission Control account card → navigates to Journal with this account selected,
   // showing only its trades + rule banner up top. Cleanest UX without building new page.
@@ -35964,13 +36043,13 @@ window.toggleSidebar = function(){
     // Overall verdict
     var overall, overallColor, glowColor, aiMsg;
     if(hasBreach){
-      overall='STOP'; overallColor='var(--red)'; glowColor='rgba(239,68,68,.10)';
+      overall='STOP'; overallColor='var(--red)'; glowColor='rgba(239,68,68,.15)';
       aiMsg='At least one account has breached its rules. Trading is blocked until you review and reset.';
     } else if(hasWarning){
-      overall='CAUTION'; overallColor='#fbbf24'; glowColor='rgba(251,191,36,.09)';
+      overall='CAUTION'; overallColor='#fbbf24'; glowColor='rgba(251,191,36,.14)';
       aiMsg='One or more accounts are approaching their limits. Reduce size and watch drawdown closely today.';
     } else {
-      overall='SAFE TO TRADE'; overallColor='var(--green)'; glowColor='rgba(29,233,182,.09)';
+      overall='SAFE TO TRADE'; overallColor='var(--green)'; glowColor='rgba(29,233,182,.13)';
       aiMsg = risk > 0
         ? 'All accounts are within healthy limits. Your current risk size looks reasonable — stay disciplined.'
         : 'All accounts are within healthy limits. Set a risk amount below to check a specific trade.';
@@ -35979,7 +36058,7 @@ window.toggleSidebar = function(){
     // Paint hero
     heroEl.style.borderColor = 'color-mix(in srgb, '+overallColor+' 35%, var(--border))';
     var glowEl = document.getElementById('mc-hero-glow');
-    if(glowEl) glowEl.style.background = 'radial-gradient(ellipse 60% 100% at 0% 0%,'+glowColor+',transparent 70%)';
+    if(glowEl) glowEl.style.background = 'radial-gradient(ellipse 90% 140% at 15% -20%,'+glowColor+',transparent 65%)';
 
     var statusEl = document.getElementById('mc-hero-status');
     if(statusEl){ statusEl.textContent = overall; statusEl.style.color = overallColor; }
@@ -42070,6 +42149,54 @@ window.toggleSidebar = function(){
   };
 
   // ═══ DASHBOARD VIEW SWITCHER ($ / % / Privacy) ═══
+  // ── ESSENTIAL / ADVANCED VIEW — declutters Dashboard to 5 key numbers by default.
+  //    Essential: Net P&L + Win Rate (Performance square), Discipline Score, Readiness (risk), AI Hub (summary).
+  //    Advanced: everything (Risk & Discipline / Activity squares, Recovery/Consistency/Goals, charts, extras). ──
+  function dashSetDetailLevel(level){
+    rfxSet('rf_dash_detail_level', level);
+    document.querySelectorAll('.dash-detail-btn').forEach(function(b){
+      var isActive = b.getAttribute('data-detail') === level;
+      b.classList.toggle('active', isActive);
+      b.style.background = isActive ? 'var(--accent)' : 'transparent';
+      b.style.color = isActive ? 'white' : 'var(--text3)';
+    });
+    var isEssential = (level === 'essential');
+    // Hide Risk & Discipline / Activity KPI squares — keep only Performance
+    document.querySelectorAll('[data-bigsq="risk"], [data-bigsq="activity"]').forEach(function(el){
+      el.style.display = isEssential ? 'none' : '';
+    });
+    // Adjust the 3-col row to 1-col when only Performance remains
+    var bigsqRow = document.getElementById('kpi-bigsq-row');
+    if(bigsqRow) bigsqRow.style.gridTemplateColumns = isEssential ? '1fr' : 'repeat(3,1fr)';
+    // Essential-only Discipline Score card
+    var essentialCard = document.getElementById('dash-essential-only');
+    if(essentialCard){
+      essentialCard.style.display = isEssential ? 'block' : 'none';
+      if(isEssential && typeof _renderDisciplineScore === 'function'){
+        var trades = window._dashLastTrades || [];
+        var contentEl = document.getElementById('dash-essential-discipline-content');
+        if(contentEl){
+          // Reuse the same calc, render into the essential-only slot
+          var result = (typeof _calcDisciplineScore==='function') ? _calcDisciplineScore(trades) : null;
+          if(!result){
+            contentEl.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text3);font-size:12px">Tag 5+ trades with Plan Followed to unlock this.</div>';
+          } else {
+            var score = result.score;
+            var color = score>=80?'var(--green)':score>=55?'#fbbf24':'var(--red)';
+            contentEl.innerHTML = '<div style="display:flex;align-items:center;gap:14px;margin-top:8px">'
+              +'<div style="font-size:32px;font-weight:800;color:'+color+';letter-spacing:-1px">'+score+'</div>'
+              +'<div class="dw-bar-track" style="flex:1;height:6px"><div class="dw-bar-fill" style="width:'+score+'%;background:'+color+'"></div></div>'
+            +'</div>';
+          }
+        }
+      }
+    }
+    // Everything below the KPI squares (Recovery/Consistency/Goals, calendar, charts, extras)
+    var advancedBlock = document.getElementById('dash-row-0');
+    if(advancedBlock) advancedBlock.style.display = isEssential ? 'none' : '';
+  }
+  window.dashSetDetailLevel = dashSetDetailLevel;
+
   function dashSetView(view){
     if (window._tqViewSwitchBusy) return;
     window._tqViewSwitchBusy = true;
@@ -46051,7 +46178,7 @@ CREATE POLICY "users manage own tokens" ON tq_share_tokens
       window[fnName]._origReadOnly = orig;
     });
 
-    var allowedPages = ['dashboard','journal','reports','dayview','playbook','progress','youredge','riskmonitor'];
+    var allowedPages = ['dashboard','journal','reports','dayview','playbook','progress','youredge'];
     var origShowPage = window.showPage;
     if(typeof origShowPage === 'function'){
       window.showPage = function(id){
@@ -46995,7 +47122,6 @@ CREATE POLICY "users manage own tokens" ON tq_share_tokens
         {id:'notebook', label:'Notebook'},
         {id:'playbook', label:'Playbook'},
         {id:'accounts', label:'My Accounts'},
-        {id:'riskmonitor', label:'Risk Monitor'},
         {id:'aicoach', label:'AI Coach'},
         {id:'trademanager', label:'Trade Manager'},
         {id:'progress', label:'Progress Tracker'},
