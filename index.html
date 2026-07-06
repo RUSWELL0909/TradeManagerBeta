@@ -7662,7 +7662,7 @@ window.toggleSidebar = function(){
             <div class="gb-row">
               <div class="gb-field"><label>Win Rate %</label><input type="number" id="gb-winrate" value="50" step="5" oninput="gbCalc()"></div>
               <div class="gb-field"><label>Exp. Losses/Win</label>
-                <div style="padding:10px 14px;border-radius:12px;background:rgba(240,180,41,.04);border:1px solid rgba(240,180,41,.08);font-size:14px;font-weight:500;color:#f0b429" id="gb-exp-losses">1.0</div>
+                <div style="padding:10px 14px;border-radius:12px;background:rgba(240,180,41,.04);border:1px solid rgba(240,180,41,.08);font-size:14px;font-weight:500;color:var(--yellow)" id="gb-exp-losses">1.0</div>
               </div>
             </div>
           </div>
@@ -7721,7 +7721,7 @@ window.toggleSidebar = function(){
       </div>
       <div style="display:flex;gap:10px;margin-top:14px">
         <button class="pb-btn pb-btn-ghost" style="font-size:11px;padding:8px 18px;border-radius:10px" onclick="gbReset()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Reset</button>
-        <button class="pb-btn pb-btn-ghost" style="font-size:11px;padding:8px 18px;border-radius:10px;border-color:rgba(240,180,41,.2);color:#f0b429" onclick="gbSave()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg> Save</button>
+        <button class="pb-btn pb-btn-ghost" style="font-size:11px;padding:8px 18px;border-radius:10px;border-color:rgba(240,180,41,.2);color:var(--yellow)" onclick="gbSave()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg> Save</button>
       </div>
     </div>
     </div><!-- /tm-gb -->
@@ -8101,11 +8101,11 @@ window.toggleSidebar = function(){
         </div>
         <div class="dv-notes-split">
           <div class="dv-note-box">
-            <div style="font-size:8px;color:var(--accent3);font-family:Inter,sans-serif;font-weight:600;margin-bottom:4px">PRE-MARKET PLAN</div>
+            <div style="font-size:10.5px;color:var(--accent3);font-family:Inter,sans-serif;font-weight:600;margin-bottom:4px">PRE-MARKET PLAN</div>
             <textarea class="dv-notes-input" id="dv-ex-premarket" placeholder="What's your bias today? Key levels? What setups are you looking for?" oninput="dvSaveNote()"></textarea>
           </div>
           <div class="dv-note-box">
-            <div style="font-size:8px;color:var(--accent3);font-family:Inter,sans-serif;font-weight:600;margin-bottom:4px">POST-MARKET REVIEW</div>
+            <div style="font-size:10.5px;color:var(--accent3);font-family:Inter,sans-serif;font-weight:600;margin-bottom:4px">POST-MARKET REVIEW</div>
             <textarea class="dv-notes-input" id="dv-ex-postmarket" placeholder="What went well? What mistakes did you make? What will you do differently tomorrow?" oninput="dvSaveNote()"></textarea>
           </div>
         </div>
@@ -9374,6 +9374,11 @@ window.toggleSidebar = function(){
           <input type="text" id="sl-f-name" class="form-input" placeholder="e.g. NY Silver Bullet — liquidity sweep entries" style="width:100%">
         </div>
 
+        <div style="margin-bottom:14px">
+          <label style="font-size:11px;font-weight:600;color:var(--accent3);display:block;margin-bottom:5px">RESEARCH QUESTION — what exactly are you trying to prove?</label>
+          <input type="text" id="sl-f-question" class="form-input" placeholder="e.g. Does NY Silver Bullet have positive expectancy on GBPUSD specifically?" style="width:100%;border-color:rgba(124,90,240,.3)">
+        </div>
+
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
           <div>
             <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">MARKET / PAIR</label>
@@ -9455,6 +9460,20 @@ window.toggleSidebar = function(){
       <div class="pb-builder-body" style="max-height:70vh">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
           <div>
+            <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">PAIR</label>
+            <input type="text" id="sl-s-pair" class="form-input" placeholder="GBPUSD" style="width:100%">
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">SESSION</label>
+            <select id="sl-s-session" class="form-select" style="width:100%">
+              <option value="">Unspecified</option>
+              <option>Asia</option><option>London</option><option>New York</option><option>London/NY Overlap</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+          <div>
             <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">DATE</label>
             <input type="date" id="sl-s-date" class="form-input" style="width:100%">
           </div>
@@ -9502,6 +9521,35 @@ window.toggleSidebar = function(){
           <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">NOTES / REASON FOR ENTRY</label>
           <textarea id="sl-s-notes" class="form-input" rows="3" placeholder="Why this qualified as a valid sample" style="width:100%;resize:vertical"></textarea>
         </div>
+
+        <div style="margin-bottom:14px">
+          <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">CHART EVIDENCE (optional)</label>
+          <input type="file" id="sl-s-screenshot-input" accept="image/*" style="display:none" onchange="slHandleScreenshot(this)">
+          <div id="sl-s-screenshot-preview"></div>
+          <div id="sl-s-dropzone" ondragover="event.preventDefault();this.style.borderColor='var(--accent3)';this.style.background='rgba(124,90,240,.05)'" ondragleave="this.style.borderColor='var(--border)';this.style.background='transparent'" ondrop="slHandleScreenshotDrop(event)" onclick="document.getElementById('sl-s-screenshot-input').click()" style="border:1.5px dashed var(--border);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:all .15s">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="1.5" style="margin:0 auto 6px;display:block"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+            <div style="font-size:11.5px;color:var(--text2);font-weight:600">Drop chart screenshot here, click to browse, or paste (Ctrl+V)</div>
+            <div style="font-size:10px;color:var(--text3);margin-top:2px">PNG/JPG, max 3MB</div>
+          </div>
+        </div>
+        <script>(function(){
+          // Wire paste-to-upload once (event delegated to document, scoped by overlay visibility)
+          if(!window._slPasteWired){
+            window._slPasteWired = true;
+            document.addEventListener('paste', function(e){
+              var overlay = document.getElementById('sl-sample-overlay');
+              if(!overlay || !overlay.classList.contains('open')) return;
+              var items = (e.clipboardData||{}).items || [];
+              for(var i=0;i<items.length;i++){
+                if(items[i].type && items[i].type.indexOf('image')===0){
+                  var file = items[i].getAsFile();
+                  if(file && typeof slHandleScreenshotFile==='function') slHandleScreenshotFile(file);
+                  break;
+                }
+              }
+            });
+          }
+        })();</script>
 
         <div style="font-size:10.5px;color:var(--text3);line-height:1.5;padding:10px 12px;background:var(--track);border-radius:8px">This is backtest research data only — no account, emotions, or prop rules attached. Promote this strategy to Playbook once it's validated to start tracking live execution.</div>
       </div>
@@ -9689,47 +9737,47 @@ window.toggleSidebar = function(){
         <div class="tq-row">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><path d="M12 2a4 4 0 014 4v1a2 2 0 012 2v1a2 2 0 01-2 2H8a2 2 0 01-2-2V9a2 2 0 012-2V6a4 4 0 014-4z"/><path d="M6 12v2a6 6 0 0012 0v-2"/><path d="M12 18v4"/></svg>
           <span style="font-size:12px;color:var(--accent3);font-family:Inter,sans-serif;font-weight:600;letter-spacing:.5px">AI TRADE ANALYST</span>
-          <span style="font-size:9px;padding:2px 8px;border-radius:4px;background:rgba(29,233,182,.06);color:var(--green)">powered by Claude</span>
+          <span style="font-size:11px;padding:2px 8px;border-radius:4px;background:rgba(29,233,182,.06);color:var(--green)">powered by Claude</span>
         </div>
         <div class="tq-row-gap-6">
-          <button class="pb-btn pb-btn-ghost" style="font-size:9px;padding:4px 10px" onclick="aiCopyAnalysis(document.querySelector('.ai-tab.active').dataset.tab)">📋 Copy</button>
-          <button class="pb-btn pb-btn-ghost" style="font-size:9px;padding:4px 10px" onclick="aiDownloadAnalysis(document.querySelector('.ai-tab.active').dataset.tab)">↓ PDF</button>
+          <button class="pb-btn pb-btn-ghost" style="font-size:11px;padding:4px 10px" onclick="aiCopyAnalysis(document.querySelector('.ai-tab.active').dataset.tab)">📋 Copy</button>
+          <button class="pb-btn pb-btn-ghost" style="font-size:11px;padding:4px 10px" onclick="aiDownloadAnalysis(document.querySelector('.ai-tab.active').dataset.tab)">↓ PDF</button>
         </div>
       </div>
 
       <!-- Filters row -->
       <div style="display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap;margin-bottom:14px">
         <div style="flex:1;min-width:100px">
-          <label style="font-size:8px;color:var(--text3);font-weight:600;display:block;margin-bottom:3px">DATE</label>
-          <input type="date" id="ai-filter-date" lang="en-US" style="width:100%;padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:10px">
+          <label style="font-size:10.5px;color:var(--text3);font-weight:600;display:block;margin-bottom:3px">DATE</label>
+          <input type="date" id="ai-filter-date" lang="en-US" style="width:100%;padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:11.5px">
         </div>
         <div style="min-width:80px">
-          <label style="font-size:8px;color:var(--text3);font-weight:600;display:block;margin-bottom:3px">PERIOD</label>
-          <select id="ai-filter-period" style="width:100%;padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:10px">
+          <label style="font-size:10.5px;color:var(--text3);font-weight:600;display:block;margin-bottom:3px">PERIOD</label>
+          <select id="ai-filter-period" style="width:100%;padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:11.5px">
             <option value="day">Daily</option><option value="week">Weekly</option><option value="month">Monthly</option>
           </select>
         </div>
         <div style="min-width:100px">
-          <label style="font-size:8px;color:var(--text3);font-weight:600;display:block;margin-bottom:3px">FOCUS</label>
-          <select id="ai-filter-focus" style="width:100%;padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:10px">
+          <label style="font-size:10.5px;color:var(--text3);font-weight:600;display:block;margin-bottom:3px">FOCUS</label>
+          <select id="ai-filter-focus" style="width:100%;padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:11.5px">
             <option value="overall">Overall</option><option value="psychology">Psychology</option><option value="risk">Risk Mgmt</option><option value="setups">Setups</option>
           </select>
         </div>
         <div style="min-width:90px">
-          <label style="font-size:8px;color:var(--text3);font-weight:600;display:block;margin-bottom:3px">ACCOUNT</label>
-          <select id="ai-filter-account" style="width:100%;padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:10px">
+          <label style="font-size:10.5px;color:var(--text3);font-weight:600;display:block;margin-bottom:3px">ACCOUNT</label>
+          <select id="ai-filter-account" style="width:100%;padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:11.5px">
             <option value="">All</option>
           </select>
         </div>
-        <button class="btn btn-primary" style="font-size:10px;padding:6px 14px;white-space:nowrap" onclick="aiRunFiltered()">🧠 Analyze</button>
+        <button class="btn btn-primary" style="font-size:11.5px;padding:6px 14px;white-space:nowrap" onclick="aiRunFiltered()">🧠 Analyze</button>
       </div>
 
       <!-- Tabs -->
       <div style="display:flex;gap:2px;margin-bottom:12px;background:var(--bg);border-radius:8px;padding:3px;width:fit-content">
-        <button class="ai-tab active" data-tab="daily" onclick="aiSwitchTab('daily')" style="padding:5px 14px;border-radius:6px;border:none;font-size:10px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;background:var(--accent);color:white">Daily</button>
-        <button class="ai-tab" data-tab="weekly" onclick="aiSwitchTab('weekly')" style="padding:5px 14px;border-radius:6px;border:none;font-size:10px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;background:transparent;color:var(--text3)">Weekly</button>
-        <button class="ai-tab" data-tab="ask" onclick="aiSwitchTab('ask')" style="padding:5px 14px;border-radius:6px;border:none;font-size:10px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;background:transparent;color:var(--text3)">💬 Ask AI</button>
-        <button class="ai-tab" data-tab="whatif" onclick="aiSwitchTab('whatif')" style="padding:5px 14px;border-radius:6px;border:none;font-size:10px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;background:transparent;color:var(--text3)">🔮 What-If</button>
+        <button class="ai-tab active" data-tab="daily" onclick="aiSwitchTab('daily')" style="padding:5px 14px;border-radius:6px;border:none;font-size:11.5px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;background:var(--accent);color:white">Daily</button>
+        <button class="ai-tab" data-tab="weekly" onclick="aiSwitchTab('weekly')" style="padding:5px 14px;border-radius:6px;border:none;font-size:11.5px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;background:transparent;color:var(--text3)">Weekly</button>
+        <button class="ai-tab" data-tab="ask" onclick="aiSwitchTab('ask')" style="padding:5px 14px;border-radius:6px;border:none;font-size:11.5px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;background:transparent;color:var(--text3)">💬 Ask AI</button>
+        <button class="ai-tab" data-tab="whatif" onclick="aiSwitchTab('whatif')" style="padding:5px 14px;border-radius:6px;border:none;font-size:11.5px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;background:transparent;color:var(--text3)">🔮 What-If</button>
       </div>
 
       <!-- Loading -->
@@ -9755,19 +9803,19 @@ window.toggleSidebar = function(){
             <div style="font-size:11px;color:var(--text3);margin-bottom:10px" id="ai-conv-title">Ask anything about your trading data. Claude analyzes your trades and answers.</div>
             <div style="display:flex;gap:6px;margin-bottom:12px">
               <input type="text" id="ai-ask-input" placeholder="e.g. What's my win rate on Mondays in London session?" style="flex:1;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px;font-family:Inter,sans-serif" onkeydown="if(event.key==='Enter')aiAskQuestion()">
-              <button class="btn btn-primary" style="font-size:10px;padding:8px 14px;white-space:nowrap" onclick="aiAskQuestion()">Ask</button>
+              <button class="btn btn-primary" style="font-size:11.5px;padding:8px 14px;white-space:nowrap" onclick="aiAskQuestion()">Ask</button>
             </div>
             <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px">
-              <button onclick="document.getElementById('ai-ask-input').value=this.textContent;aiAskQuestion()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:9px;cursor:pointer;font-family:Inter,sans-serif">Best pair by win rate?</button>
-              <button onclick="document.getElementById('ai-ask-input').value=this.textContent;aiAskQuestion()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:9px;cursor:pointer;font-family:Inter,sans-serif">When do I lose most?</button>
-              <button onclick="document.getElementById('ai-ask-input').value=this.textContent;aiAskQuestion()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:9px;cursor:pointer;font-family:Inter,sans-serif">Am I overtrading?</button>
-              <button onclick="document.getElementById('ai-ask-input').value=this.textContent;aiAskQuestion()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:9px;cursor:pointer;font-family:Inter,sans-serif">Revenge trade pattern?</button>
-              <button onclick="document.getElementById('ai-ask-input').value=this.textContent;aiAskQuestion()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:9px;cursor:pointer;font-family:Inter,sans-serif">My edge vs my leak?</button>
+              <button onclick="document.getElementById('ai-ask-input').value=this.textContent;aiAskQuestion()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:11px;cursor:pointer;font-family:Inter,sans-serif">Best pair by win rate?</button>
+              <button onclick="document.getElementById('ai-ask-input').value=this.textContent;aiAskQuestion()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:11px;cursor:pointer;font-family:Inter,sans-serif">When do I lose most?</button>
+              <button onclick="document.getElementById('ai-ask-input').value=this.textContent;aiAskQuestion()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:11px;cursor:pointer;font-family:Inter,sans-serif">Am I overtrading?</button>
+              <button onclick="document.getElementById('ai-ask-input').value=this.textContent;aiAskQuestion()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:11px;cursor:pointer;font-family:Inter,sans-serif">Revenge trade pattern?</button>
+              <button onclick="document.getElementById('ai-ask-input').value=this.textContent;aiAskQuestion()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:11px;cursor:pointer;font-family:Inter,sans-serif">My edge vs my leak?</button>
             </div>
             <div id="ai-ask-response" style="font-size:12px;color:var(--text2);line-height:1.7;margin-top:8px;display:flex;flex-direction:column;gap:8px;min-height:200px"></div>
             <div style="display:flex;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
-              <div style="font-size:10px;color:var(--text3)" id="ai-conv-info">New chat</div>
-              <button onclick="aiAskClear()" style="padding:3px 8px;border-radius:6px;border:1px solid rgba(239,68,68,.2);background:transparent;color:var(--red);font-size:9px;cursor:pointer;font-family:Inter,sans-serif">🗑 Delete this chat</button>
+              <div style="font-size:11.5px;color:var(--text3)" id="ai-conv-info">New chat</div>
+              <button onclick="aiAskClear()" style="padding:3px 8px;border-radius:6px;border:1px solid rgba(239,68,68,.2);background:transparent;color:var(--red);font-size:11px;cursor:pointer;font-family:Inter,sans-serif">🗑 Delete this chat</button>
             </div>
           </div>
         </div>
@@ -9776,14 +9824,14 @@ window.toggleSidebar = function(){
         <div style="font-size:11px;color:var(--text3);margin-bottom:10px">Explore hypothetical scenarios. What would your P&L be if you changed something?</div>
         <div style="display:flex;gap:6px;margin-bottom:12px">
           <input type="text" id="ai-whatif-input" placeholder="e.g. What if I only traded XAUUSD in London?" style="flex:1;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px;font-family:Inter,sans-serif" onkeydown="if(event.key==='Enter')aiWhatIf()">
-          <button class="btn btn-primary" style="font-size:10px;padding:8px 14px;white-space:nowrap" onclick="aiWhatIf()">Simulate</button>
+          <button class="btn btn-primary" style="font-size:11.5px;padding:8px 14px;white-space:nowrap" onclick="aiWhatIf()">Simulate</button>
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px">
-          <button onclick="document.getElementById('ai-whatif-input').value=this.textContent;aiWhatIf()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:9px;cursor:pointer;font-family:Inter,sans-serif">What if I skipped trades after 3 losses?</button>
-          <button onclick="document.getElementById('ai-whatif-input').value=this.textContent;aiWhatIf()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:9px;cursor:pointer;font-family:Inter,sans-serif">What if I only took A-grade setups?</button>
-          <button onclick="document.getElementById('ai-whatif-input').value=this.textContent;aiWhatIf()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:9px;cursor:pointer;font-family:Inter,sans-serif">What if I doubled my lot size?</button>
+          <button onclick="document.getElementById('ai-whatif-input').value=this.textContent;aiWhatIf()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:11px;cursor:pointer;font-family:Inter,sans-serif">What if I skipped trades after 3 losses?</button>
+          <button onclick="document.getElementById('ai-whatif-input').value=this.textContent;aiWhatIf()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:11px;cursor:pointer;font-family:Inter,sans-serif">What if I only took A-grade setups?</button>
+          <button onclick="document.getElementById('ai-whatif-input').value=this.textContent;aiWhatIf()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:11px;cursor:pointer;font-family:Inter,sans-serif">What if I doubled my lot size?</button>
         </div>
-        <div style="display:flex;justify-content:flex-end;margin-top:6px"><button onclick="aiWhatIfClear()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text3);font-size:9px;cursor:pointer;font-family:Inter,sans-serif">🗑 Clear chat</button></div>
+        <div style="display:flex;justify-content:flex-end;margin-top:6px"><button onclick="aiWhatIfClear()" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text3);font-size:11px;cursor:pointer;font-family:Inter,sans-serif">🗑 Clear chat</button></div>
         <div id="ai-whatif-response" style="font-size:12px;color:var(--text2);line-height:1.7;margin-top:8px;display:flex;flex-direction:column;gap:8px"></div>
       </div>
     </div>
@@ -28779,6 +28827,7 @@ window.toggleSidebar = function(){
       trades=trades.filter(function(t){return !t._demo;});
       var added=0;var dupes=0;var skipped=0;
       var existingIds={};trades.forEach(function(t){existingIds[t.date+'_'+(t.entryTime||'')+'_'+t.pair+'_'+t.pnl]=true;});
+      var newTradesForPreview=[]; // holds only the freshly parsed trades, for the preview modal
 
       for(var i=1;i<parsed.length;i++){
         var cols=parsed[i];
@@ -28857,7 +28906,7 @@ window.toggleSidebar = function(){
         var entryVal = colF('open price') || colF('entry') || colF('price open') || colF('entry price');
         var exitVal  = colF('close price') || colF('exit')  || colF('price close') || colF('exit price');
 
-        trades.push({
+        var newTrade = {
           id:'tr_imp_'+Date.now()+'_'+i+'_'+Math.random().toString(36).slice(2,5),
           date:(typeof tqNormalizeDate==='function'?tqNormalizeDate(dateVal):dateVal),
           pair:pairVal,
@@ -28928,9 +28977,18 @@ window.toggleSidebar = function(){
           validity:col('validity'),
           psychNote:col('psych note'),
           created:new Date().toISOString()
-        });
+        };
+        trades.push(newTrade);
+        newTradesForPreview.push(newTrade);
         added++;
       }
+      // ── Show preview instead of saving immediately ──
+      // User reviews a sample of parsed trades + totals, then confirms or cancels.
+      if(typeof jrShowImportPreview === 'function'){
+        jrShowImportPreview(trades, newTradesForPreview, added, dupes, skipped);
+        return;
+      }
+      // Fallback (jrShowImportPreview missing) — save immediately as before
       try {
         rfxSet('rf_trades',JSON.stringify(trades));
       } catch(storageErr) {
@@ -28949,7 +29007,7 @@ window.toggleSidebar = function(){
         msg='⚠️ Import failed — localStorage may be blocked. Download this file and open in Chrome.';
       }
       // Non-blocking notification (alert may be blocked in sandbox)
-      try{alert(msg);}catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
+      if(typeof tqToast==='function') tqToast(msg, {type: verify.length>0?'success':'error'});
       var notif=document.createElement('div');
       notif.style.cssText='position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:14px 28px;border-radius:12px;background:'+(verify.length>0?'var(--accent)':'var(--red)')+';color:white;font-size:14px;font-weight:600;font-family:Inter,sans-serif;z-index:9999;box-shadow:0 8px 32px rgba(124,90,240,.3);animation:ckCardEnter .3s ease';
       notif.textContent=verify.length>0?'✓ '+msg:msg;
@@ -28992,6 +29050,83 @@ window.toggleSidebar = function(){
   // Shown BEFORE parsing. Forces user to pick a target account, blocking import
   // if no accounts exist. Trades are imported with t.account = forcedAccount,
   // ignoring any "account" column in the CSV. This guarantees no orphans.
+  // ── Import Preview — shown after parsing, before saving. Lets the trader verify
+  //    the CSV was read correctly (right pairs, right P&L, right dates) before it
+  //    touches their real data. First real-user disappointment usually happens here. ──
+  var _jrPendingImportTrades = null; // full array (existing + new) ready to save on confirm
+  function jrShowImportPreview(allTrades, newTrades, added, dupes, skipped){
+    var stale = document.getElementById('tq-import-preview-modal'); if(stale) stale.remove();
+    _jrPendingImportTrades = allTrades;
+    var sample = newTrades.slice(0, 10);
+    var totalPnl = newTrades.reduce(function(a,t){return a+(parseFloat(t.pnl)||0);},0);
+    var wins = newTrades.filter(function(t){return (parseFloat(t.pnl)||0)>0;}).length;
+
+    var rows = sample.map(function(t){
+      var pnlColor = t.pnl>=0 ? 'var(--green)' : 'var(--red)';
+      return '<div style="display:grid;grid-template-columns:90px 80px 60px 1fr;gap:10px;padding:9px 4px;border-bottom:1px solid var(--border);font-size:12.5px;align-items:center">'
+        +'<span style="color:var(--text3);font-family:Inter,sans-serif;font-size:11px">'+(t.date||'—')+'</span>'
+        +'<span style="font-weight:600;color:var(--text)">'+(t.pair||'—')+'</span>'
+        +'<span style="color:var(--text3);font-size:11px;text-transform:uppercase">'+(t.direction||'—')+'</span>'
+        +'<span style="text-align:right;font-weight:700;color:'+pnlColor+';font-variant-numeric:tabular-nums">'+(t.pnl>=0?'+':'')+'$'+Math.abs(t.pnl).toFixed(2)+'</span>'
+      +'</div>';
+    }).join('');
+
+    var overlay = document.createElement('div');
+    overlay.id = 'tq-import-preview-modal';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px';
+    overlay.innerHTML =
+      '<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;max-width:560px;width:100%;max-height:85vh;display:flex;flex-direction:column;overflow:hidden;font-family:Inter,sans-serif">'
+        +'<div style="padding:20px 24px;border-bottom:1px solid var(--border)">'
+          +'<div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px">Review before importing</div>'
+          +'<div style="font-size:12px;color:var(--text3)">Check that pairs, dates and P&L look right — nothing is saved yet.</div>'
+        +'</div>'
+        +'<div style="padding:16px 24px;display:flex;gap:20px;border-bottom:1px solid var(--border)">'
+          +'<div><div style="font-size:20px;font-weight:700;color:var(--text)">'+added+'</div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.3px">Trades found</div></div>'
+          +'<div><div style="font-size:20px;font-weight:700;color:'+(totalPnl>=0?'var(--green)':'var(--red)')+'">'+(totalPnl>=0?'+':'')+'$'+Math.abs(totalPnl).toFixed(0)+'</div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.3px">Net P&L</div></div>'
+          +'<div><div style="font-size:20px;font-weight:700;color:var(--text)">'+(newTrades.length?Math.round(wins/newTrades.length*100):0)+'%</div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.3px">Win rate</div></div>'
+          +(dupes>0?'<div><div style="font-size:20px;font-weight:700;color:var(--text3)">'+dupes+'</div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.3px">Duplicates skipped</div></div>':'')
+        +'</div>'
+        +'<div style="padding:12px 24px;overflow-y:auto;flex:1">'
+          +'<div style="font-size:10.5px;color:var(--text3);font-weight:700;letter-spacing:.4px;margin-bottom:6px">'+(newTrades.length>10?'FIRST 10 OF '+newTrades.length:'ALL '+newTrades.length)+' TRADES</div>'
+          + (rows || '<div style="text-align:center;padding:30px;color:var(--text3);font-size:12px">No trades to preview</div>')
+        +'</div>'
+        +'<div style="padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px">'
+          +'<button onclick="jrCancelImportPreview()" style="background:transparent;color:var(--text2);border:1px solid var(--border);padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Cancel</button>'
+          +'<button onclick="jrConfirmImportPreview('+added+','+dupes+')" style="background:var(--accent);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Confirm Import ('+added+' trades)</button>'
+        +'</div>'
+      +'</div>';
+    document.body.appendChild(overlay);
+  }
+  window.jrShowImportPreview = jrShowImportPreview;
+
+  window.jrCancelImportPreview = function(){
+    _jrPendingImportTrades = null;
+    var m = document.getElementById('tq-import-preview-modal'); if(m) m.remove();
+    var inp = document.getElementById('jr-csv-input'); if(inp) inp.value = '';
+  };
+
+  window.jrConfirmImportPreview = function(added, dupes){
+    var m = document.getElementById('tq-import-preview-modal'); if(m) m.remove();
+    if(!_jrPendingImportTrades) return;
+    try {
+      rfxSet('rf_trades', JSON.stringify(_jrPendingImportTrades));
+    } catch(storageErr) {
+      if(typeof tqToast==='function') tqToast('Import failed — storage may be blocked. Try opening this file directly in Chrome.', {type:'error'});
+      _jrPendingImportTrades = null;
+      return;
+    }
+    var verify = JSON.parse(rfxGet('rf_trades')||'[]');
+    var msg = added+' trades imported'+(dupes>0?' ('+dupes+' duplicates skipped)':'');
+    if(verify.length===0) msg = '⚠️ Import failed — storage may be blocked.';
+    if(typeof tqToast==='function') tqToast(msg, {type: verify.length>0?'success':'error'});
+    _jrPendingImportTrades = null;
+    if(typeof renderJournal==='function') renderJournal();
+    if(typeof window._invalidateTradesCache==='function') window._invalidateTradesCache();
+    if(typeof tqPushTradesBatch==='function'){
+      try{ tqPushTradesBatch(verify.filter(function(t){return t.id&&String(t.id).indexOf('tr_imp_')===0;})); }catch(e){}
+    }
+  };
+
   function jrCsvPreImport(input){
     if(!input || !input.files || !input.files[0]){ return; }
     var file = input.files[0];
@@ -32926,22 +33061,47 @@ window.toggleSidebar = function(){
     td+='─ LAST 20 TRADES DETAIL ─\n';
     sorted5.slice(-20).forEach(function(t,i){td+=(i+1)+'. '+t.date+' '+t.pair+' '+(t.direction||'')+' $'+tqConvertTradePnl(t).toFixed(2)+' '+(t.session||'')+' '+(t.setup||'')+' '+(t.emotion||'')+' Plan:'+(t.planFollowed||'?')+'\n';});
 
-    // ── STRATEGY LAB / PLAYBOOK: backtest vs live gap ──
-    // Lets AI Coach say things like "your backtest edge on X is +0.5R but live is -0.1R —
-    // that's an execution problem, not a bad model" or flag approved setups barely traded live.
+    // ── STRATEGY LAB / PLAYBOOK: backtest vs live gap, WITH diagnosis ──
+    // Instead of handing raw numbers and letting the model guess, we compute the likely
+    // cause here (late/discretionary execution vs rule-following vs emotional interference)
+    // so the AI gives a specific, grounded answer instead of a generic "execution issue".
     try{
       var allSetups = (typeof getPlaybooks==='function') ? getPlaybooks() : [];
       var btSetups = allSetups.filter(function(s){ return s._backtestStats && s._backtestStats.n>0; });
       if(btSetups.length){
-        td += '\n─ STRATEGY LAB: BACKTEST vs LIVE ─\n';
+        td += '\n─ STRATEGY LAB: BACKTEST vs LIVE (with diagnosis) ─\n';
         btSetups.forEach(function(s){
           var bt = s._backtestStats;
           var liveTrades = trades.filter(function(t){ return t.setupId===s.id || (t.setup||'')===s.name; });
           var liveWins = liveTrades.filter(function(t){ return tqConvertTradePnl(t)>0; }).length;
-          var liveWr = liveTrades.length ? Math.round(liveWins/liveTrades.length*100) : null;
+          var liveWr = liveTrades.length ? (liveWins/liveTrades.length*100) : null;
           var livePnl = liveTrades.reduce(function(a,t){return a+tqConvertTradePnl(t);},0);
+          var liveAvgR = (function(){
+            var rVals = liveTrades.map(function(t){
+              if(t.riskAmount && parseFloat(t.riskAmount)>0) return tqConvertTradePnl(t)/parseFloat(t.riskAmount);
+              return null;
+            }).filter(function(r){return r!==null && isFinite(r);});
+            return rVals.length ? rVals.reduce(function(a,b){return a+b;},0)/rVals.length : null;
+          })();
+
           td += s.name+': backtest '+bt.n+' samples, '+bt.wr.toFixed(0)+'% WR, '+(bt.avgR>=0?'+':'')+bt.avgR.toFixed(2)+'R expectancy'
-              + ' | live '+liveTrades.length+' trades'+(liveWr!=null?', '+liveWr+'% WR, $'+livePnl.toFixed(0):' (not yet traded live)')+'\n';
+              + ' | live '+liveTrades.length+' trades'+(liveWr!=null?', '+liveWr.toFixed(0)+'% WR, $'+livePnl.toFixed(0):' (not yet traded live)')+'\n';
+
+          if(liveTrades.length >= 5 && liveWr!=null){
+            var gapWr = liveWr - bt.wr;
+            if(gapWr < -10){
+              // Diagnose using plan-adherence and emotion tags on THIS setup's live trades specifically
+              var tagged = liveTrades.filter(function(t){ return t.planFollowed==='yes'||t.planFollowed==='no'; });
+              var brokenPct = tagged.length ? (tagged.filter(function(t){return t.planFollowed==='no';}).length/tagged.length*100) : null;
+              var emoCount = liveTrades.filter(function(t){ var e=(t.emotion||'').toLowerCase(); return e.indexOf('revenge')>=0||e.indexOf('fomo')>=0; }).length;
+              var diagnosis;
+              if(brokenPct!=null && brokenPct>=30) diagnosis = 'Likely cause: rule adherence — '+brokenPct.toFixed(0)+'% of live trades on this setup broke the plan.';
+              else if(emoCount>=2) diagnosis = 'Likely cause: emotional interference — '+emoCount+' live trades on this setup tagged revenge/FOMO.';
+              else if(liveAvgR!=null && bt.avgR>0 && liveAvgR<bt.avgR*0.3) diagnosis = 'Likely cause: execution quality — live R-multiples are far below backtest even when the setup criteria matched, suggesting late entries or poor exits.';
+              else diagnosis = 'Cause unclear from tags alone — could be sample-size noise, execution timing, or market regime shift. Worth reviewing recent trades on this setup directly.';
+              td += '  ⚠ GAP: live WR is '+Math.abs(gapWr).toFixed(0)+' points below backtest. '+diagnosis+'\n';
+            }
+          }
         });
       }
       // Research projects still in testing (not yet promoted) — flag if strong edge is sitting unused
@@ -32951,7 +33111,7 @@ window.toggleSidebar = function(){
         td += '\n─ STRATEGY LAB: UNPROMOTED RESEARCH ─\n';
         testingProjects.forEach(function(p){
           var st = (typeof slComputeStats==='function') ? slComputeStats(p.id, p.minSamples) : {n:0,confidence:0};
-          if(st.n>0) td += p.name+': '+st.n+' samples, confidence '+st.confidence+'/100, '+(st.confidenceLabel||'')+'\n';
+          if(st.n>0) td += p.name+': '+st.n+' samples, confidence '+st.confidence+'/100, '+(st.evidenceTier||st.confidenceLabel||'')+(st.freshness&&st.freshness!=='FRESH'?' · '+st.freshness+' ('+st.daysSinceLastSample+'d old)':'')+'\n';
         });
       }
     }catch(e){ if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'ai_strategy_lab_context'}); }
@@ -33005,7 +33165,7 @@ window.toggleSidebar = function(){
     if(typeof tqPushAIMessage==='function'){ tqPushAIMessage(_aiActiveConvKey, 'user', q); }
 
     var __methDesc = (typeof tqGetMethodologyDescriptor === 'function') ? tqGetMethodologyDescriptor() : 'WWA methodology';
-    var systemPrompt='You are an experienced trading mentor talking with a trader who follows the '+__methDesc+'. You are having an ongoing conversation — remember everything the user has said in this conversation and reference it when relevant.\n\nBe direct, supportive, and concise. Use specific numbers from their data. Avoid generic advice. When the user asks a follow-up question, build on what was discussed earlier in this chat.\n\nIf the data includes a STRATEGY LAB section: compare backtest vs live stats for each setup. If live win rate or expectancy is meaningfully worse than backtest, say so plainly and frame it as an execution/discipline issue, not a bad model. If an approved setup has strong backtest data but almost no live trades, point that out — it\'s a validated edge sitting unused. If a setup performs negatively live despite a positive backtest, ask directly why it\'s still active. Only bring this up when the data actually shows a gap — don\'t force it.\n\nTRADER DATA (current snapshot):\n'+aiBuildTraderContext();
+    var systemPrompt='You are an experienced trading mentor talking with a trader who follows the '+__methDesc+'. You are having an ongoing conversation — remember everything the user has said in this conversation and reference it when relevant.\n\nBe direct, supportive, and concise. Use specific numbers from their data. Avoid generic advice. When the user asks a follow-up question, build on what was discussed earlier in this chat.\n\nIf the data includes a STRATEGY LAB section: each setup already has a pre-computed diagnosis (marked "⚠ GAP:") when live underperforms backtest — use that diagnosis directly instead of guessing your own; it was derived from actual plan-adherence and emotion tags on that setup\'s live trades, so it\'s more reliable than a fresh guess. If an approved setup has strong backtest data but almost no live trades, point that out — it\'s a validated edge sitting unused. If research is marked STALE or AGING, mention that the edge may need re-validation before trusting it further. Only bring this up when the data actually shows something — don\'t force it into every response.\n\nTRADER DATA (current snapshot):\n'+aiBuildTraderContext();
 
     fetch(AI_WORKER_URL,{
       method:'POST',
@@ -36175,7 +36335,7 @@ window.toggleSidebar = function(){
 
     function sortArrow(key){ return sort.key===key ? (sort.dir==='asc'?' ▲':' ▼') : ''; }
     var th = function(label, key, align){
-      return '<th onclick="mcSortBy(\''+key+'\')" style="text-align:'+(align||'left')+';padding:8px 12px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);cursor:pointer;user-select:none;white-space:nowrap;border-bottom:1px solid rgba(255,255,255,.08)">'+label+sortArrow(key)+'</th>';
+      return '<th onclick="mcSortBy(\''+key+'\')" style="text-align:'+(align||'left')+';padding:14px 18px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);cursor:pointer;user-select:none;white-space:nowrap;border-bottom:1px solid rgba(255,255,255,.08)">'+label+sortArrow(key)+'</th>';
     };
 
     var rowsHtml = rows.map(function(item){
@@ -36208,19 +36368,19 @@ window.toggleSidebar = function(){
       }
       var spark=_mcAccountSparkline(acc,pnl);
       return '<tr onclick="mcDrillDown(\''+acc.id+'\')" style="cursor:pointer;transition:background .15s" onmouseover="this.style.background=\'rgba(255,255,255,.03)\'" onmouseout="this.style.background=\'\'">'+
-        '<td style="padding:11px 12px;border-bottom:1px solid rgba(255,255,255,.05)">'+
+        '<td style="padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.05)">'+
           '<div style="display:flex;align-items:center;gap:10px">'+
             '<div style="width:34px;height:34px;background:'+sBg+';border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:'+sColor+';letter-spacing:.5px;flex-shrink:0">'+firmAbbr+'</div>'+
             '<div style="min-width:0"><div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(acc.name)+'</div>'+
             '<div style="font-size:11px;color:var(--text2)">'+item.tradeCount+' trades</div></div>'+
           '</div>'+
         '</td>'+
-        '<td style="padding:11px 12px;border-bottom:1px solid rgba(255,255,255,.05)"><span style="font-size:10px;padding:3px 8px;background:'+sBg+';color:'+sColor+';border-radius:4px;font-weight:700;letter-spacing:.4px;white-space:nowrap">'+statusLabel+'</span></td>'+
-        '<td style="padding:11px 12px;text-align:right;border-bottom:1px solid rgba(255,255,255,.05);font-variant-numeric:tabular-nums;font-weight:600;font-size:14px;color:'+pnlColor+'">'+pnlStr+'</td>'+
-        '<td style="padding:11px 12px;text-align:right;border-bottom:1px solid rgba(255,255,255,.05);font-variant-numeric:tabular-nums;color:'+ddColor+';font-weight:600;font-size:13px">'+ddPct.toFixed(0)+'%</td>'+
-        '<td style="padding:11px 12px;text-align:right;border-bottom:1px solid rgba(255,255,255,.05);font-variant-numeric:tabular-nums;color:'+hColor+';font-weight:600;font-size:13px">'+health+'%</td>'+
-        '<td style="padding:11px 12px;text-align:right;border-bottom:1px solid rgba(255,255,255,.05);font-variant-numeric:tabular-nums;color:'+safeColor+';font-weight:600;font-size:13px">'+safeStr+'</td>'+
-        '<td style="padding:11px 12px;text-align:right;border-bottom:1px solid rgba(255,255,255,.05)">'+(spark||'<span style="color:var(--text3);font-size:11px">—</span>')+'</td>'+
+        '<td style="padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.05)"><span style="font-size:10px;padding:3px 8px;background:'+sBg+';color:'+sColor+';border-radius:4px;font-weight:700;letter-spacing:.4px;white-space:nowrap">'+statusLabel+'</span></td>'+
+        '<td style="padding:16px 18px;text-align:right;border-bottom:1px solid rgba(255,255,255,.05);font-variant-numeric:tabular-nums;font-weight:600;font-size:14px;color:'+pnlColor+'">'+pnlStr+'</td>'+
+        '<td style="padding:16px 18px;text-align:right;border-bottom:1px solid rgba(255,255,255,.05);font-variant-numeric:tabular-nums;color:'+ddColor+';font-weight:600;font-size:13px">'+ddPct.toFixed(0)+'%</td>'+
+        '<td style="padding:16px 18px;text-align:right;border-bottom:1px solid rgba(255,255,255,.05);font-variant-numeric:tabular-nums;color:'+hColor+';font-weight:600;font-size:13px">'+health+'%</td>'+
+        '<td style="padding:16px 18px;text-align:right;border-bottom:1px solid rgba(255,255,255,.05);font-variant-numeric:tabular-nums;color:'+safeColor+';font-weight:600;font-size:13px">'+safeStr+'</td>'+
+        '<td style="padding:16px 18px;text-align:right;border-bottom:1px solid rgba(255,255,255,.05)">'+(spark||'<span style="color:var(--text3);font-size:11px">—</span>')+'</td>'+
       '</tr>';
     }).join('');
 
@@ -36228,12 +36388,12 @@ window.toggleSidebar = function(){
       '<table style="width:100%;border-collapse:collapse;min-width:640px">'+
         '<thead><tr>'+
           th('Account','name','left')+
-          '<th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);border-bottom:1px solid rgba(255,255,255,.08)">Status</th>'+
+          '<th style="text-align:left;padding:14px 18px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);border-bottom:1px solid rgba(255,255,255,.08)">Status</th>'+
           th('P&L','pnl','right')+
           th('DD Used','dd','right')+
           th('Health','health','right')+
-          '<th style="text-align:right;padding:8px 12px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);border-bottom:1px solid rgba(255,255,255,.08)">Safe Today</th>'+
-          '<th style="text-align:right;padding:8px 12px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);border-bottom:1px solid rgba(255,255,255,.08)">14d Trend</th>'+
+          '<th style="text-align:right;padding:14px 18px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);border-bottom:1px solid rgba(255,255,255,.08)">Safe Today</th>'+
+          '<th style="text-align:right;padding:14px 18px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);border-bottom:1px solid rgba(255,255,255,.08)">14d Trend</th>'+
         '</tr></thead>'+
         '<tbody>'+(rowsHtml || '<tr><td colspan="7" style="padding:30px;text-align:center;color:var(--text3);font-size:13px">No accounts match this filter</td></tr>')+'</tbody>'+
       '</table>'+
@@ -38052,6 +38212,61 @@ window.toggleSidebar = function(){
   var SL_PROJECTS_KEY = 'rf_research_projects';
   var SL_SAMPLES_KEY = 'rf_research_samples';
 
+  var slSampleScreenshot = null;
+  function slHandleScreenshotFile(file){
+    if(!file) return;
+    if(file.size > 3*1024*1024){
+      if(typeof tqToast==='function') tqToast('Image too large (max 3MB)', {type:'error'});
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = function(e){
+      slSampleScreenshot = e.target.result;
+      var prev = document.getElementById('sl-s-screenshot-preview');
+      if(prev) prev.innerHTML = '<div style="position:relative;margin-bottom:8px"><img src="'+slSampleScreenshot+'" onclick="slPreviewScreenshot(this.src)" style="width:100%;border-radius:8px;border:1px solid var(--border);cursor:zoom-in"><button type="button" onclick="event.stopPropagation();slSampleScreenshot=null;document.getElementById(\'sl-s-screenshot-preview\').innerHTML=\'\';document.getElementById(\'sl-s-dropzone\').style.display=\'block\'" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:5px;width:22px;height:22px;cursor:pointer">✕</button></div>';
+      var dz = document.getElementById('sl-s-dropzone'); if(dz) dz.style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  }
+  window.slHandleScreenshotFile = slHandleScreenshotFile;
+
+  window.slHandleScreenshot = function(input){
+    if(!input.files || !input.files[0]) return;
+    slHandleScreenshotFile(input.files[0]);
+  };
+
+  window.slHandleScreenshotDrop = function(e){
+    e.preventDefault();
+    var dz = e.currentTarget;
+    dz.style.borderColor = 'var(--border)'; dz.style.background = 'transparent';
+    var files = (e.dataTransfer||{}).files;
+    if(files && files[0]) slHandleScreenshotFile(files[0]);
+  };
+
+  // ── Fullscreen preview with zoom — replaces plain window.open ──
+  window.slPreviewScreenshot = function(src){
+    var overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:99999;display:flex;align-items:center;justify-content:center;cursor:zoom-out;padding:30px';
+    var img = document.createElement('img');
+    img.src = src;
+    img.style.cssText = 'max-width:100%;max-height:100%;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,.5);transition:transform .2s;cursor:zoom-in';
+    var zoomed = false;
+    img.onclick = function(e){
+      e.stopPropagation();
+      zoomed = !zoomed;
+      img.style.transform = zoomed ? 'scale(1.8)' : 'scale(1)';
+      img.style.cursor = zoomed ? 'zoom-out' : 'zoom-in';
+    };
+    overlay.onclick = function(){ overlay.remove(); };
+    var closeBtn = document.createElement('button');
+    closeBtn.textContent = '✕';
+    closeBtn.style.cssText = 'position:absolute;top:20px;right:24px;background:rgba(255,255,255,.1);color:#fff;border:none;border-radius:8px;width:36px;height:36px;font-size:16px;cursor:pointer';
+    closeBtn.onclick = function(e){ e.stopPropagation(); overlay.remove(); };
+    overlay.appendChild(img);
+    overlay.appendChild(closeBtn);
+    document.body.appendChild(overlay);
+  };
+
   function slGetProjects(){ try{ return JSON.parse(rfxGet(SL_PROJECTS_KEY)||'[]').filter(function(p){return !p.deleted;}); }catch(e){ return []; } }
   function slSaveProjects(arr){
     rfxSet(SL_PROJECTS_KEY, JSON.stringify(arr));
@@ -38099,13 +38314,78 @@ window.toggleSidebar = function(){
     if(conditionCount >= 2) conf += 5;
     conf = Math.max(0, Math.min(100, Math.round(conf)));
 
-    var confLabel = n < (minSamples||50)*0.5 ? 'Too early — need more data'
-      : conf >= 70 ? 'Strong edge detected'
-      : conf >= 45 ? 'Promising — keep testing'
-      : 'Weak — reconsider this hypothesis';
+    // ── Evidence Strength label — specific reason, not abstract number ──
+    var sessionSet0 = {}; samples.forEach(function(s){ if(s.session) sessionSet0[s.session]=true; });
+    var sessionCount0 = Object.keys(sessionSet0).length;
+    var pairSet0 = {}; samples.forEach(function(s){ if(s.pair) pairSet0[s.pair]=true; });
+    var pairCount0 = Object.keys(pairSet0).length;
+
+    var evidenceTier, evidenceReason;
+    if(n < (minSamples||50)*0.3){
+      evidenceTier = 'Weak Evidence';
+      evidenceReason = 'Only '+n+' sample'+(n!==1?'s':'')+' collected — too few to draw conclusions.';
+    } else if(conf >= 70){
+      evidenceTier = 'Strong Statistical Edge';
+      evidenceReason = 'Validated across '+pairCount0+' pair'+(pairCount0!==1?'s':'')+' and '+conditionCount+' market condition'+(conditionCount!==1?'s':'')+'.';
+    } else if(conf >= 45){
+      evidenceTier = 'Moderate Evidence';
+      evidenceReason = expectancy>0 ? 'Good expectancy but insufficient market diversity.' : 'Mixed results — needs more data across conditions.';
+    } else {
+      evidenceTier = 'Weak Evidence';
+      evidenceReason = expectancy<=0 ? 'Expectancy is flat or negative across '+n+' samples.' : 'Not enough samples or diversity to trust this yet.';
+    }
+    var confLabel = evidenceTier + ' — ' + evidenceReason;
+
+    // ── Overfitting trap detector ──
+    var overfitWarnings = [];
+    if(n>=10 && n<=25 && wr>=85){ overfitWarnings.push('Very high win rate on a small sample — possible overfitting or lucky streak, not yet a proven edge.'); }
+    if(conditionCount<=1 && n>=15){ overfitWarnings.push('All samples come from one market regime. Untested in other conditions, the edge may not hold.'); }
+    if(sessionCount0<=1 && n>=15 && sessionCount0>0){ overfitWarnings.push('Every sample is from the same session — results may not generalize to other times of day.'); }
+    if(pairCount0<=1 && n>=15 && pairCount0>0){ overfitWarnings.push('Tested on a single pair only — this could be a pair-specific quirk, not a repeatable model.'); }
+
+    // ── Statistical Reliability breakdown — the "why" behind the confidence number ──
+    var pairSet = {}; samples.forEach(function(s){ if(s.pair) pairSet[s.pair]=true; });
+    var pairCount = Object.keys(pairSet).length;
+    var reliability = [];
+    reliability.push({ok: expectancy>0, text: expectancy>0?'Positive expectancy':'Negative expectancy'});
+    reliability.push({ok: wr>=45, text: (wr>=45?'Healthy':'Low')+' win rate ('+wr.toFixed(0)+'%)'});
+    reliability.push({ok: n>=(minSamples||50), text: n>=(minSamples||50)?'Sample size sufficient':'Sample size too small ('+n+'/'+(minSamples||50)+')'});
+    reliability.push({ok: conditionCount>=2, text: conditionCount>=2?'Multiple conditions tested':'Only '+(conditionCount||'one')+' market condition tested'});
+    reliability.push({ok: maxStreak<=4, text: maxStreak<=4?(maxStreak===0?'No losing streak observed yet':'Losing streaks stayed manageable'):'Losing streak of '+maxStreak+' observed'});
+    reliability.push({ok: pairCount>=1 && (pairCount>1 || n<10), text: pairCount<=1?'Only one pair tested':'Tested across '+pairCount+' pairs'});
+
+    // Diversity scores 0-100 for the Evidence Meter (pair/session/condition breadth)
+    var diversity = {
+      pair: Math.min(100, pairCount0 * 33),
+      session: Math.min(100, sessionCount0 * 33),
+      condition: Math.min(100, conditionCount * 33)
+    };
+
+    // ── Confidence Decay — how fresh is this research? Markets change; old edges may not hold. ──
+    var lastSampleDate = sorted.length ? sorted[sorted.length-1].date : null;
+    var daysSinceLastSample = lastSampleDate ? Math.floor((new Date() - tqDateObj(lastSampleDate)) / 86400000) : null;
+    var freshness = daysSinceLastSample==null ? null
+      : daysSinceLastSample <= 14 ? 'FRESH'
+      : daysSinceLastSample <= 45 ? 'AGING'
+      : 'STALE';
 
     return {n:n, wins:wins.length, losses:losses.length, wr:wr, avgR:avgR, expectancy:expectancy,
-             maxStreak:maxStreak, conditionCount:conditionCount, confidence:conf, confidenceLabel:confLabel};
+             maxStreak:maxStreak, conditionCount:conditionCount, pairCount:pairCount,
+             confidence:conf, confidenceLabel:confLabel, reliability:reliability,
+             evidenceTier:evidenceTier, evidenceReason:evidenceReason,
+             overfitWarnings:overfitWarnings, diversity:diversity,
+             daysSinceLastSample:daysSinceLastSample, freshness:freshness};
+  }
+
+  // ── Sample Distribution — by pair / session / condition. Catches "100 samples but 93 are GBPUSD". ──
+  function slSampleDistribution(projectId){
+    var samples = slSamplesFor(projectId).filter(function(s){ return s.result!=='no_trade'; });
+    function tally(key){
+      var out = {};
+      samples.forEach(function(s){ var k=s[key]||'Unspecified'; out[k]=(out[k]||0)+1; });
+      return Object.keys(out).sort(function(a,b){return out[b]-out[a];}).map(function(k){return {label:k,n:out[k]};});
+    }
+    return { byPair: tally('pair'), bySession: tally('session'), byCondition: tally('marketCondition') };
   }
 
   function slBestPairSessionDay(projectId){
@@ -38131,6 +38411,7 @@ window.toggleSidebar = function(){
       if(!p) return;
       titleEl.textContent = 'Edit Research Project';
       document.getElementById('sl-f-name').value = p.name||'';
+      document.getElementById('sl-f-question').value = p.researchQuestion||'';
       document.getElementById('sl-f-pair').value = p.pair||'';
       document.getElementById('sl-f-session').value = p.session||'';
       document.getElementById('sl-f-setuptype').value = p.setupType||'';
@@ -38140,7 +38421,7 @@ window.toggleSidebar = function(){
       document.getElementById('sl-f-minsamples').value = p.minSamples||50;
     } else {
       titleEl.textContent = 'New Research Project';
-      ['sl-f-name','sl-f-pair','sl-f-setuptype','sl-f-entry','sl-f-invalid','sl-f-tpmodel'].forEach(function(id){ document.getElementById(id).value=''; });
+      ['sl-f-name','sl-f-question','sl-f-pair','sl-f-setuptype','sl-f-entry','sl-f-invalid','sl-f-tpmodel'].forEach(function(id){ document.getElementById(id).value=''; });
       document.getElementById('sl-f-session').value = '';
       document.getElementById('sl-f-minsamples').value = '50';
     }
@@ -38160,6 +38441,7 @@ window.toggleSidebar = function(){
     var projects = slGetProjects();
     var data = {
       name: name,
+      researchQuestion: document.getElementById('sl-f-question').value.trim(),
       pair: document.getElementById('sl-f-pair').value.trim(),
       session: document.getElementById('sl-f-session').value,
       setupType: document.getElementById('sl-f-setuptype').value.trim(),
@@ -38190,12 +38472,18 @@ window.toggleSidebar = function(){
   function slOpenSampleModal(){
     if(!slDetailId) return;
     slSampleProjectId = slDetailId;
+    var proj = slGetProjects().find(function(p){ return p.id===slDetailId; });
+    document.getElementById('sl-s-pair').value = (proj&&proj.pair) || '';
+    document.getElementById('sl-s-session').value = (proj&&proj.session) || '';
     document.getElementById('sl-s-date').value = tqLocalDateStr(new Date());
     document.getElementById('sl-s-result').value = 'win';
     document.getElementById('sl-s-r').value = '';
     document.getElementById('sl-s-quality').value = 'B';
     document.getElementById('sl-s-condition').value = '';
     document.getElementById('sl-s-notes').value = '';
+    slSampleScreenshot = null;
+    document.getElementById('sl-s-screenshot-preview').innerHTML = '';
+    document.getElementById('sl-s-dropzone').style.display = 'block';
     slSampleRuleFollowed = null;
     document.querySelectorAll('.sl-yn-btn').forEach(function(b){ b.style.background='transparent'; b.style.color='var(--text2)'; });
     document.getElementById('sl-sample-overlay').classList.add('open');
@@ -38221,12 +38509,15 @@ window.toggleSidebar = function(){
       id: 'sls_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
       projectId: slSampleProjectId,
       date: document.getElementById('sl-s-date').value || tqLocalDateStr(new Date()),
+      pair: document.getElementById('sl-s-pair').value.trim(),
+      session: document.getElementById('sl-s-session').value,
       result: document.getElementById('sl-s-result').value,
       rMultiple: parseFloat(document.getElementById('sl-s-r').value)||0,
       setupQuality: document.getElementById('sl-s-quality').value,
       ruleFollowed: slSampleRuleFollowed,
       marketCondition: document.getElementById('sl-s-condition').value.trim(),
       notes: document.getElementById('sl-s-notes').value.trim(),
+      screenshot: slSampleScreenshot,
       created: new Date().toISOString()
     });
     slSaveSamples(samples);
@@ -38247,6 +38538,7 @@ window.toggleSidebar = function(){
 
     var stats = slComputeStats(projectId, p.minSamples);
     var bpsd = slBestPairSessionDay(projectId);
+    var dist = slSampleDistribution(projectId);
     var samples = slSamplesFor(projectId).slice().sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
 
     var progressPct = Math.min(100, (stats.n/(p.minSamples||50))*100);
@@ -38254,10 +38546,18 @@ window.toggleSidebar = function(){
 
     var h = '';
     // Meta + status
-    h += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">'
+    h += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">'
       +'<span style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:5px;background:'+(p.status==='approved'?'rgba(29,233,182,.12)':p.status==='rejected'?'rgba(239,68,68,.12)':'rgba(251,191,36,.12)')+';color:'+(p.status==='approved'?'var(--green)':p.status==='rejected'?'var(--red)':'#fbbf24')+'">'+(p.status||'testing').toUpperCase()+'</span>'
       +'<span style="font-size:11px;color:var(--text3)">'+(p.pair||'Any pair')+(p.session?' · '+p.session:'')+(p.setupType?' · '+p.setupType:'')+'</span>'
       +'</div>';
+
+    // Research Question — the anchor. Rendered like a real hypothesis statement, not a form field.
+    if(p.researchQuestion){
+      h += '<div style="margin-bottom:18px;padding:14px 16px;border-radius:10px;background:rgba(124,90,240,.04);border-left:3px solid var(--accent3)">'
+        +'<div style="font-size:9.5px;color:var(--accent3);font-weight:700;letter-spacing:.5px;margin-bottom:5px">RESEARCH QUESTION</div>'
+        +'<div style="font-size:13px;color:var(--text);font-style:italic;line-height:1.5">"'+escapeHtml(p.researchQuestion)+'"</div>'
+        +'</div>';
+    }
 
     // Sample progress
     h += '<div style="margin-bottom:18px">'
@@ -38265,11 +38565,55 @@ window.toggleSidebar = function(){
       +'<div class="dw-bar-track" style="height:7px"><div class="dw-bar-fill" style="width:'+progressPct.toFixed(0)+'%;background:var(--accent)"></div></div>'
       +'</div>';
 
-    // Confidence score — the flagship element
-    h += '<div style="display:flex;align-items:center;gap:16px;padding:16px 18px;border-radius:12px;background:rgba(255,255,255,.02);border:1px solid var(--border);margin-bottom:18px">'
-      +'<div style="font-size:36px;font-weight:800;color:'+confColor+';letter-spacing:-1.5px;line-height:1">'+stats.confidence+'</div>'
-      +'<div><div style="font-size:13px;font-weight:700;color:'+confColor+'">'+stats.confidenceLabel+'</div><div style="font-size:11px;color:var(--text3);margin-top:2px">Confidence Score — based on sample size, expectancy, win rate &amp; consistency</div></div>'
+    // Evidence Strength + Statistical Reliability breakdown — the "why" behind the number
+    h += '<div style="padding:16px 18px;border-radius:12px;background:rgba(255,255,255,.02);border:1px solid var(--border);margin-bottom:18px">'
+      +'<div style="display:flex;align-items:center;gap:16px;margin-bottom:'+(stats.reliability?'14px':'0')+'">'
+        +'<div style="font-size:36px;font-weight:800;color:'+confColor+';letter-spacing:-1.5px;line-height:1">'+stats.confidence+'</div>'
+        +'<div><div style="font-size:13px;font-weight:700;color:'+confColor+'">'+(stats.evidenceTier||'')+'</div><div style="font-size:11px;color:var(--text3);margin-top:2px">'+(stats.evidenceReason||'')+'</div></div>'
+      +'</div>'
+      +(stats.reliability ? '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;padding-top:12px;border-top:0.5px solid var(--border)">'
+        + stats.reliability.map(function(r){
+            return '<div style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:'+(r.ok?'var(--text2)':'var(--text3)')+'">'
+              +'<span style="color:'+(r.ok?'var(--green)':'#fbbf24')+';font-weight:700;flex-shrink:0">'+(r.ok?'✓':'⚠')+'</span>'+r.text
+            +'</div>';
+          }).join('')
+        +'</div>' : '')
       +'</div>';
+
+    // Evidence Meter — data quality diversity bars
+    if(stats.diversity && stats.n>=3){
+      h += '<div style="margin-bottom:18px;padding:14px 16px;border-radius:10px;background:rgba(255,255,255,.015);border:1px solid var(--border)">'
+        +'<div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:10px;letter-spacing:.3px">DATA QUALITY</div>'
+        + ['pair','session','condition'].map(function(k){
+            var val = stats.diversity[k];
+            var col = val>=66?'var(--green)':val>=33?'#fbbf24':'var(--red)';
+            var label = k==='pair'?'Pair Diversity':k==='session'?'Session Diversity':'Condition Diversity';
+            return '<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--text3);margin-bottom:3px"><span>'+label+'</span></div>'
+              +'<div class="dw-bar-track" style="height:5px"><div class="dw-bar-fill" style="width:'+val+'%;background:'+col+'"></div></div></div>';
+          }).join('')
+        +'</div>';
+    }
+
+    // Overfitting trap warning
+    if(stats.overfitWarnings && stats.overfitWarnings.length){
+      h += '<div style="margin-bottom:18px;padding:12px 14px;border-radius:10px;background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.18)">'
+        + stats.overfitWarnings.map(function(w){
+            return '<div style="display:flex;gap:8px;align-items:flex-start;font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:6px"><span style="flex-shrink:0">⚠️</span><span>'+w+'</span></div>';
+          }).join('')
+        +'</div>';
+    }
+
+    // Confidence Decay — data freshness (markets change; old research may not hold)
+    if(stats.freshness && stats.freshness!=='FRESH'){
+      var freshColor = stats.freshness==='STALE' ? 'var(--red)' : '#fbbf24';
+      var freshText = stats.freshness==='STALE'
+        ? 'Last sample added '+stats.daysSinceLastSample+' days ago. Market regime may have changed — consider adding fresh samples before trusting this edge.'
+        : 'Last sample added '+stats.daysSinceLastSample+' days ago. This research is aging — keep testing to confirm the edge still holds.';
+      h += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;padding:10px 14px;border-radius:9px;background:'+(stats.freshness==='STALE'?'rgba(239,68,68,.06)':'rgba(251,191,36,.06)')+';border:1px solid '+(stats.freshness==='STALE'?'rgba(239,68,68,.15)':'rgba(251,191,36,.15)')+'">'
+        +'<span style="font-size:9px;font-weight:700;padding:3px 8px;border-radius:5px;background:'+freshColor+'22;color:'+freshColor+';letter-spacing:.4px;flex-shrink:0">'+stats.freshness+'</span>'
+        +'<span style="font-size:11.5px;color:var(--text2);line-height:1.4">'+freshText+'</span>'
+        +'</div>';
+    }
 
     // Stats grid
     if(stats.n>0){
@@ -38278,6 +38622,37 @@ window.toggleSidebar = function(){
         +'<div class="pb-stat"><div class="pb-stat-val" style="color:'+(stats.avgR>=0?'var(--green)':'var(--red)')+'">'+(stats.avgR>=0?'+':'')+stats.avgR.toFixed(2)+'R</div><div class="pb-stat-label">AVG R / EXPECTANCY</div></div>'
         +'<div class="pb-stat"><div class="pb-stat-val" style="color:'+(stats.maxStreak>=5?'var(--red)':stats.maxStreak>=3?'#fbbf24':'var(--text)')+'">'+stats.maxStreak+'</div><div class="pb-stat-label">MAX LOSE STREAK</div></div>'
         +'<div class="pb-stat"><div class="pb-stat-val">'+stats.n+'</div><div class="pb-stat-label">SAMPLES</div></div>'
+        +'</div>';
+    }
+
+    // Sample Distribution — catches "100 samples but 93 are GBPUSD"
+    if(stats.n>=3 && (dist.byPair.length>1 || dist.bySession.length>1 || dist.byCondition.length>1)){
+      function distBar(items, label){
+        if(!items.length) return '';
+        var max = items[0].n;
+        return '<div style="flex:1;min-width:140px">'
+          +'<div style="font-size:9.5px;color:var(--text3);font-weight:700;letter-spacing:.4px;margin-bottom:6px">'+label+'</div>'
+          + items.slice(0,4).map(function(it){
+              return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">'
+                +'<span style="font-size:11px;color:var(--text2);width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0">'+escapeHtml(it.label)+'</span>'
+                +'<div class="dw-bar-track" style="height:5px"><div class="dw-bar-fill" style="width:'+(it.n/max*100).toFixed(0)+'%;background:var(--accent3)"></div></div>'
+                +'<span style="font-size:10.5px;color:var(--text3);width:20px;text-align:right;flex-shrink:0">'+it.n+'</span>'
+              +'</div>';
+            }).join('')
+        +'</div>';
+      }
+      h += '<div style="margin-bottom:18px;padding:14px 16px;border-radius:10px;background:rgba(255,255,255,.015);border:1px solid var(--border)">'
+        +'<div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:10px">Sample Distribution</div>'
+        +'<div style="display:flex;gap:16px;flex-wrap:wrap">'
+          +distBar(dist.byPair,'BY PAIR')+distBar(dist.bySession,'BY SESSION')+distBar(dist.byCondition,'BY CONDITION')
+        +'</div></div>';
+    }
+
+    // Best market condition tested
+    if(bpsd.bestCondition){
+      h += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:18px;padding:10px 14px;border-radius:9px;background:rgba(29,233,182,.05);border:1px solid rgba(29,233,182,.12)">'
+        +'<span style="font-size:14px">🎯</span>'
+        +'<span style="font-size:12px;color:var(--text2)">Best tested condition: <strong style="color:var(--green)">'+escapeHtml(bpsd.bestCondition)+'</strong></span>'
         +'</div>';
     }
 
@@ -38291,10 +38666,23 @@ window.toggleSidebar = function(){
     }
 
     // Promote to Playbook button (only when enough data + decent confidence)
-    if(stats.n >= (p.minSamples||50) && p.status==='testing'){
-      h += '<button class="pb-btn pb-btn-primary" style="width:100%;margin-bottom:18px" onclick="slPromoteToPlaybook(\''+p.id+'\')">🚀 Promote to Playbook</button>';
+    if(p.status==='testing' && stats.n>=5){
+      if(stats.n >= (p.minSamples||50)){
+        h += '<div style="display:flex;gap:8px;margin-bottom:18px">'
+          +'<button class="pb-btn pb-btn-primary" style="flex:1" onclick="slPromoteToPlaybook(\''+p.id+'\')">🚀 Promote to Playbook</button>'
+          +'<button class="pb-btn pb-btn-ghost" style="color:var(--red);border-color:rgba(239,68,68,.2)" onclick="slRejectProject(\''+p.id+'\')" title="Reject this hypothesis — negative or unreliable edge">Reject</button>'
+        +'</div>';
+      } else if(stats.expectancy < -0.1 && stats.n >= 10){
+        // Enough negative signal to reject early, before hitting the full sample target
+        h += '<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.15);margin-bottom:18px">'
+          +'<span style="font-size:12px;color:var(--text2);flex:1">Negative expectancy across '+stats.n+' samples. You can keep testing or reject this hypothesis now.</span>'
+          +'<button class="pb-btn pb-btn-ghost" style="color:var(--red);border-color:rgba(239,68,68,.2);white-space:nowrap" onclick="slRejectProject(\''+p.id+'\')">Reject</button>'
+        +'</div>';
+      }
     } else if(p.status==='approved'){
       h += '<div style="text-align:center;padding:10px;color:var(--green);font-size:12px;font-weight:600;margin-bottom:18px">✓ Promoted to Playbook</div>';
+    } else if(p.status==='rejected'){
+      h += '<div style="text-align:center;padding:10px;color:var(--red);font-size:12px;font-weight:600;margin-bottom:18px">✕ Rejected — '+stats.n+' samples showed '+(stats.expectancy>=0?'+':'')+stats.expectancy.toFixed(2)+'R expectancy</div>';
     }
 
     // Samples list
@@ -38305,6 +38693,7 @@ window.toggleSidebar = function(){
       h += '<div style="max-height:200px;overflow-y:auto">' + samples.map(function(s){
         var rc = s.result==='win'?'var(--green)':s.result==='loss'?'var(--red)':'var(--text3)';
         return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border);font-size:12px">'
+          +(s.screenshot?'<img src="'+s.screenshot+'" onclick="slPreviewScreenshot(this.src)" style="width:36px;height:36px;object-fit:cover;border-radius:5px;cursor:zoom-in;flex-shrink:0;border:1px solid var(--border)">':'<span style="width:36px;flex-shrink:0"></span>')
           +'<span style="color:var(--text3);font-family:Inter,sans-serif;font-size:11px;width:70px">'+(s.date||'').slice(5)+'</span>'
           +'<span style="color:'+rc+';font-weight:700;width:60px;text-transform:uppercase;font-size:10.5px">'+s.result+'</span>'
           +'<span style="color:var(--text2);width:50px">'+(s.rMultiple>=0?'+':'')+s.rMultiple.toFixed(1)+'R</span>'
@@ -38353,6 +38742,21 @@ window.toggleSidebar = function(){
   window.slDeleteProject = slDeleteProject;
 
   // ── Promote to Playbook: creates a real Playbook entry seeded from the research project ──
+  // ── Reject: marks a hypothesis as invalidated by the data. Just as valuable as approving. ──
+  function slRejectProject(projectId){
+    var p = slGetProjects().find(function(x){return x.id===projectId;});
+    if(!p) return;
+    if(!confirm('Reject "'+p.name+'"? This marks the hypothesis as invalidated — the data didn\'t support it.')) return;
+    var projects = slGetProjects();
+    var proj = projects.find(function(x){return x.id===projectId;});
+    if(proj) proj.status = 'rejected';
+    slSaveProjects(projects);
+    slViewDetail(projectId);
+    renderSlCards();
+    if(typeof tqToast==='function') tqToast('Hypothesis rejected — that\'s valuable research too', {type:'info'});
+  }
+  window.slRejectProject = slRejectProject;
+
   function slPromoteToPlaybook(projectId){
     var p = slGetProjects().find(function(x){return x.id===projectId;});
     if(!p) return;
@@ -38413,13 +38817,17 @@ window.toggleSidebar = function(){
         var confColor = stats.confidence>=70?'var(--green)':stats.confidence>=45?'#fbbf24':'var(--red)';
         var statusColor = p.status==='approved'?'var(--green)':p.status==='rejected'?'var(--red)':'#fbbf24';
         var statusBg = p.status==='approved'?'rgba(29,233,182,.1)':p.status==='rejected'?'rgba(239,68,68,.1)':'rgba(251,191,36,.1)';
-        return '<div class="pb-card" onclick="slViewDetail(\''+p.id+'\')">'
+        return '<div class="pb-card" onclick="slViewDetail(\''+p.id+'\')" style="position:relative">'
           +'<div class="pb-card-badge" style="background:'+statusBg+';color:'+statusColor+'">'+(p.status||'testing').toUpperCase()+'</div>'
+          +'<div style="position:absolute;top:14px;right:14px;text-align:center">'
+            +'<div style="font-size:22px;font-weight:800;color:'+confColor+';letter-spacing:-1px;line-height:1">'+stats.confidence+'</div>'
+            +'<div style="font-size:8px;color:var(--text3);font-weight:700;letter-spacing:.3px">CONFIDENCE</div>'
+          +'</div>'
           +'<div class="pb-card-head">'
             +'<div class="pb-card-icon" style="background:rgba(251,191,36,.1)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="1.5"><path d="M9 3h6M10 3v5.5L5 18a1.5 1.5 0 001.3 2.2h11.4A1.5 1.5 0 0019 18l-5-9.5V3"/></svg></div>'
             +'<div><div class="pb-card-name">'+escapeHtml(p.name)+'</div><div style="font-size:11px;color:var(--text3);font-family:Inter,sans-serif">'+(p.pair||'Any pair')+(p.session?' · '+p.session:'')+'</div></div>'
           +'</div>'
-          +'<div style="margin:10px 0"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--text3);margin-bottom:4px"><span>'+stats.n+' / '+(p.minSamples||50)+' samples</span><span style="color:'+confColor+';font-weight:700">Confidence '+stats.confidence+'</span></div>'
+          +'<div style="margin:10px 0"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--text3);margin-bottom:4px"><span>'+stats.n+' / '+(p.minSamples||50)+' samples</span></div>'
             +'<div class="dw-bar-track" style="height:4px"><div class="dw-bar-fill" style="width:'+progressPct.toFixed(0)+'%;background:'+confColor+'"></div></div></div>'
           +'<div class="pb-card-stats">'
             +'<div><div class="pb-card-stat-val">'+stats.n+'</div><div class="pb-card-stat-label">SAMPLES</div></div>'
