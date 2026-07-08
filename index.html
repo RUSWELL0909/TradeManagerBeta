@@ -41439,7 +41439,7 @@ window.toggleSidebar = function(){
         else val = '-'+sym+Math.round(maxDD).toLocaleString();
         // sqrt scale: even small DD% shows meaningful bar (2.4%→31%, 10%→63%, 20%→89%)
         var ddFillPct = Math.min(100, Math.sqrt(maxPct / 25) * 100);
-        var mdMini = '<div style="flex:1;height:100%;background:var(--track);border-radius:2px;overflow:hidden"><div style="width:'+ddFillPct.toFixed(0)+'%;height:100%;background:var(--red);opacity:.85;border-radius:2px"></div></div>';
+        var mdMini = '<div style="flex:1;height:100%;background:var(--track);border-radius:2px;overflow:hidden"><div style="width:'+ddFillPct.toFixed(0)+'%;height:100%;background:linear-gradient(90deg,var(--red),rgba(224,92,122,.5));opacity:.9;border-radius:2px"></div></div>';
         return {
           value: val,
           valueColor: maxDD>0?'red':'',
@@ -42821,7 +42821,8 @@ window.toggleSidebar = function(){
         var donutSegs = topPairs.map(function(pp,i){
           var frac = pp.c/total;
           var seg = frac*circ;
-          var s = '<circle cx="50" cy="50" r="34" fill="none" stroke="'+DIST_COLORS[i%DIST_COLORS.length]+'" stroke-width="14" stroke-dasharray="'+seg.toFixed(2)+' '+(circ-seg).toFixed(2)+'" stroke-dashoffset="'+(-offset).toFixed(2)+'" transform="rotate(-90 50 50)" style="transition:stroke-dasharray .6s ease"/>';
+          var segCol = DIST_COLORS[i%DIST_COLORS.length];
+          var s = '<circle cx="50" cy="50" r="34" fill="none" stroke="'+segCol+'" stroke-width="14" stroke-dasharray="'+seg.toFixed(2)+' '+(circ-seg).toFixed(2)+'" stroke-dashoffset="'+(-offset).toFixed(2)+'" transform="rotate(-90 50 50)" style="transition:stroke-dasharray .6s ease;filter:drop-shadow(0 0 4px '+segCol+'88)"/>';
           offset += seg;
           return s;
         }).join('');
@@ -43222,10 +43223,14 @@ window.toggleSidebar = function(){
           '<div class="dash-card-animate" style="display:flex;align-items:center;gap:18px">' +
             '<div style="position:relative;flex-shrink:0">' +
               '<svg width="100" height="100" viewBox="0 0 36 36">' +
+                '<defs>' +
+                  '<linearGradient id="wlGradWin" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="'+TG+'" stop-opacity="1"/><stop offset="100%" stop-color="'+TG+'" stop-opacity=".6"/></linearGradient>' +
+                  '<linearGradient id="wlGradLoss" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="'+TR+'" stop-opacity="1"/><stop offset="100%" stop-color="'+TR+'" stop-opacity=".6"/></linearGradient>' +
+                '</defs>' +
                 '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="rgba(255,255,255,.06)" stroke-width="3.5"/>' +
-                '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="'+TG+'" stroke-width="3.5" stroke-dasharray="'+winPctOfAll.toFixed(2)+' 100" stroke-dashoffset="0" transform="rotate(-90 18 18)" stroke-linecap="round"/>' +
+                '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="url(#wlGradWin)" stroke-width="3.5" stroke-dasharray="'+winPctOfAll.toFixed(2)+' 100" stroke-dashoffset="0" transform="rotate(-90 18 18)" stroke-linecap="round" style="filter:drop-shadow(0 0 3px rgba('+TG_RGB+',.5))"/>' +
                 (bes>0 ? '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="#94a3b8" stroke-width="3.5" stroke-dasharray="'+bePctOfAll.toFixed(2)+' 100" stroke-dashoffset="-'+winPctOfAll.toFixed(2)+'" transform="rotate(-90 18 18)" stroke-linecap="round"/>' : '') +
-                '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="'+TR+'" stroke-width="3.5" stroke-dasharray="'+lossPctOfAll.toFixed(2)+' 100" stroke-dashoffset="-'+(winPctOfAll+bePctOfAll).toFixed(2)+'" transform="rotate(-90 18 18)" stroke-linecap="round"/>' +
+                '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="url(#wlGradLoss)" stroke-width="3.5" stroke-dasharray="'+lossPctOfAll.toFixed(2)+' 100" stroke-dashoffset="-'+(winPctOfAll+bePctOfAll).toFixed(2)+'" transform="rotate(-90 18 18)" stroke-linecap="round" style="filter:drop-shadow(0 0 3px rgba('+TR_RGB+',.5))"/>' +
               '</svg>' +
               '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">' +
                 '<div style="font-size:23px;font-weight:700;color:var(--text);line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.5px">'+wrDecisive.toFixed(0)+'%</div>' +
@@ -43266,9 +43271,9 @@ window.toggleSidebar = function(){
             return '<div class="dash-card-animate" style="margin-top:12px;padding-top:10px;border-top:0.5px solid var(--border)">' +
               '<div style="font-size:10.5px;color:var(--text3);font-weight:700;letter-spacing:.3px;margin-bottom:7px">LARGEST WIN VS LARGEST LOSS</div>' +
               '<div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:4px;font-weight:600"><span style="color:'+TG+'">Largest win</span><span style="color:'+TG+';font-weight:700">+'+ci.sym+mwAbs.toFixed(0)+'</span></div>' +
-              '<div style="height:6px;background:var(--track);border-radius:3px;overflow:hidden"><div style="width:'+(mwAbs/maxBoth*100).toFixed(0)+'%;height:100%;background:'+TG+'"></div></div>' +
+              '<div style="height:6px;background:var(--track);border-radius:3px;overflow:hidden"><div style="width:'+(mwAbs/maxBoth*100).toFixed(0)+'%;height:100%;background:linear-gradient(90deg,'+TG+',rgba('+TG_RGB+',.5))"></div></div>' +
               '<div style="display:flex;justify-content:space-between;font-size:11.5px;margin:7px 0 4px;font-weight:600"><span style="color:'+TR+'">Largest loss</span><span style="color:'+TR+';font-weight:700">-'+ci.sym+mlAbs.toFixed(0)+'</span></div>' +
-              '<div style="height:6px;background:var(--track);border-radius:3px;overflow:hidden"><div style="width:'+(mlAbs/maxBoth*100).toFixed(0)+'%;height:100%;background:'+TR+'"></div></div>' +
+              '<div style="height:6px;background:var(--track);border-radius:3px;overflow:hidden"><div style="width:'+(mlAbs/maxBoth*100).toFixed(0)+'%;height:100%;background:linear-gradient(90deg,'+TR+',rgba('+TR_RGB+',.5))"></div></div>' +
             '</div>';
           })() : '');
       }
@@ -43319,14 +43324,14 @@ window.toggleSidebar = function(){
                 '<span style="color:'+TG+'">Wins held</span>' +
                 '<span style="font-family:Inter,sans-serif;color:var(--text);font-variant-numeric:tabular-nums;font-weight:700">'+(winDur.length?fmt(aw):'—')+'</span>' +
               '</div>' +
-              '<div style="height:7px;background:var(--track);border-radius:3px;overflow:hidden"><div style="width:'+(aw/maxv*100).toFixed(0)+'%;height:100%;background:'+TG+'"></div></div>' +
+              '<div style="height:7px;background:var(--track);border-radius:3px;overflow:hidden"><div style="width:'+(aw/maxv*100).toFixed(0)+'%;height:100%;background:linear-gradient(90deg,'+TG+',rgba('+TG_RGB+',.5))"></div></div>' +
             '</div>' +
             '<div style="margin-top:12px">' +
               '<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;font-weight:600">' +
                 '<span style="color:'+TR+'">Losses cut</span>' +
                 '<span style="font-family:Inter,sans-serif;color:var(--text);font-variant-numeric:tabular-nums;font-weight:700">'+(lossDur.length?fmt(al):'—')+'</span>' +
               '</div>' +
-              '<div style="height:7px;background:var(--track);border-radius:3px;overflow:hidden"><div style="width:'+(al/maxv*100).toFixed(0)+'%;height:100%;background:'+TR+'"></div></div>' +
+              '<div style="height:7px;background:var(--track);border-radius:3px;overflow:hidden"><div style="width:'+(al/maxv*100).toFixed(0)+'%;height:100%;background:linear-gradient(90deg,'+TR+',rgba('+TR_RGB+',.5))"></div></div>' +
             '</div>' +
             (aw>0&&al>0 ? '<div style="font-size:12px;color:var(--text2);font-weight:600;margin-top:10px">Ratio: '+(aw/al).toFixed(1)+':1 '+(aw>=al?'· healthy ✓':'· cut winners early')+'</div>' : '');
 
@@ -43389,11 +43394,11 @@ window.toggleSidebar = function(){
             // Win vs loss size comparison bars
             '<div class="dash-card-animate" style="margin-top:14px">'+
               '<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;font-weight:600"><span style="color:var(--green)">Avg win</span><span style="color:var(--green);font-variant-numeric:tabular-nums;font-weight:700">+'+ci.sym+mx.avgWin.toFixed(0)+'</span></div>'+
-              '<div style="height:8px;background:var(--track);border-radius:3px;overflow:hidden"><div style="width:'+(mx.avgWin/maxWL*100).toFixed(0)+'%;height:100%;background:var(--green)"></div></div>'+
+              '<div style="height:8px;background:var(--track);border-radius:3px;overflow:hidden"><div style="width:'+(mx.avgWin/maxWL*100).toFixed(0)+'%;height:100%;background:linear-gradient(90deg,var(--green),rgba('+TG_RGB+',.5))"></div></div>'+
             '</div>'+
             '<div class="dash-card-animate" style="margin-top:10px">'+
               '<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;font-weight:600"><span style="color:var(--red)">Avg loss</span><span style="color:var(--red);font-variant-numeric:tabular-nums;font-weight:700">-'+ci.sym+mx.avgLoss.toFixed(0)+'</span></div>'+
-              '<div style="height:8px;background:var(--track);border-radius:3px;overflow:hidden"><div style="width:'+(mx.avgLoss/maxWL*100).toFixed(0)+'%;height:100%;background:var(--red)"></div></div>'+
+              '<div style="height:8px;background:var(--track);border-radius:3px;overflow:hidden"><div style="width:'+(mx.avgLoss/maxWL*100).toFixed(0)+'%;height:100%;background:linear-gradient(90deg,var(--red),rgba('+TR_RGB+',.5))"></div></div>'+
             '</div>'+
             '<div class="dash-card-animate" style="display:flex;justify-content:space-between;font-size:13px;padding-top:10px;margin-top:10px;border-top:1px solid var(--border)"><span style="color:var(--text2);font-weight:600">Per 100 trades</span><span style="color:'+expColor+';font-weight:700;font-variant-numeric:tabular-nums;font-size:14px">'+expSign+ci.sym+Math.abs(per100).toFixed(0)+'</span></div>'+
             // Breakeven win rate insight box
