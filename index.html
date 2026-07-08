@@ -3328,17 +3328,19 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(124,90,240,.15);outlin
 
 /* ═══ JOURNAL ═══ */
 .jr-stats{display:flex;align-items:stretch;gap:12px;margin-bottom:18px}
-.jr-hero{flex:2;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px 32px;position:relative;overflow:hidden}
+.jr-hero{flex:1.35;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px 32px;position:relative;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.jr-hero::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),transparent 60%);opacity:.5}
 .jr-hero.neg{background:var(--card);border-color:var(--border)}
 .jr-hero::before{content:'';position:absolute;top:-30%;right:-15%;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(124,90,240,.04),transparent 70%);pointer-events:none}
 .jr-hero.neg::before{background:radial-gradient(circle,rgba(124,90,240,.04),transparent 70%)}
 .jr-hero-val{font-size:var(--text-hero);font-weight:800;letter-spacing:-2.5px;line-height:1}
 .jr-hero-sub{font-size:12px;font-family:Inter,sans-serif;color:var(--text3);margin-top:10px}
 .jr-hero-badge{position:absolute;top:14px;right:16px;padding:4px 10px;border-radius:6px;font-size:11px;font-family:Inter,sans-serif;font-weight:600}
-.jr-stat{flex:1;background:transparent;border:none;border-right:1px solid var(--border);padding:14px 24px;display:flex;flex-direction:column;justify-content:center}
+.jr-stat{flex:1;background:transparent;border:none;border-right:1px solid var(--border);padding:16px 26px;display:flex;flex-direction:column;justify-content:center;transition:background .2s ease}
+.jr-stat:hover{background:rgba(124,90,240,.03)}
 .jr-stat:last-child{border-right:none}
-.jr-stat-val{font-size:28px;font-weight:600;letter-spacing:-.5px;line-height:1;margin:6px 0 8px;color:var(--text2)}
-.jr-stat-label{font-size:11px;color:var(--text3);font-family:Inter,sans-serif;font-weight:700;letter-spacing:.6px;text-transform:uppercase}
+.jr-stat-val{font-size:30px;font-weight:650;letter-spacing:-.6px;line-height:1;margin:6px 0 8px;color:var(--text2)}
+.jr-stat-label{font-size:11.5px;color:var(--text3);font-family:Inter,sans-serif;font-weight:700;letter-spacing:.7px;text-transform:uppercase}
 
 /* ═══════════════════════════════════════════════════════════════
    MERGED GRID SYSTEM — Variant 3 (May 2026)
@@ -3363,35 +3365,35 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(124,90,240,.15);outlin
 [data-theme="light"] .tq-merged-grid{background:#eef2f7;border-color:#e6ebf2;box-shadow:0 1px 2px rgba(15,23,42,.03)}
 [data-theme="light"] .tq-merged-cell{background:#ffffff;border-right-color:#eef2f7}
 [data-theme="light"] .tq-merged-cell:hover{background:#fafbfd}
-.jr-stat-sub{font-size:12.5px;color:var(--text3);font-family:Inter,sans-serif;margin-top:2px}
+.jr-stat-sub{font-size:13px;color:var(--text3);font-family:Inter,sans-serif;margin-top:2px}
 .jr-streak{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:6px;font-size:12px;font-family:Inter,sans-serif;font-weight:600;margin-top:6px}
-.jr-today{background:linear-gradient(135deg,rgba(124,90,240,.03),var(--card));border:1px solid rgba(124,90,240,.06);border-radius:14px;padding:16px 22px;margin-bottom:16px;display:flex;align-items:center;gap:20px}
-.jr-today-badge{padding:5px 14px;border-radius:8px;background:var(--accent);color:white;font-size:12px;font-weight:600;font-family:Inter,sans-serif;flex-shrink:0;box-shadow:0 2px 10px rgba(124,90,240,.15)}
-.jr-today-stats{display:flex;gap:24px;flex:1}
+.jr-today{background:linear-gradient(135deg,rgba(124,90,240,.04),var(--card));border:1px solid var(--border);border-radius:14px;padding:18px 24px;margin-bottom:16px;display:flex;align-items:center;gap:22px;box-shadow:0 1px 2px rgba(16,24,40,.03)}
+.jr-today-badge{padding:6px 15px;border-radius:8px;background:var(--accent);color:white;font-size:12.5px;font-weight:600;font-family:Inter,sans-serif;flex-shrink:0;box-shadow:0 2px 10px rgba(124,90,240,.18)}
+.jr-today-stats{display:flex;gap:28px;flex:1}
 .jr-today-stat{text-align:center}
-.jr-today-stat-val{font-size:18px;font-weight:400;letter-spacing:-.5px}
+.jr-today-stat-val{font-size:21px;font-weight:500;letter-spacing:-.5px}
 .jr-today-mini{width:120px;height:40px;flex-shrink:0}
 .jr-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;flex-wrap:wrap}
 .jr-bar-left{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .jr-bar-right{display:flex;gap:6px;align-items:center}
-.jr-filter{padding:6px 14px;border-radius:8px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text3);font-family:Inter,sans-serif;transition:all .15s}
-.jr-filter:hover{border-color:rgba(124,90,240,.1);color:var(--text2)}
-.jr-filter.active{background:rgba(124,90,240,.06);border-color:var(--accent);color:var(--accent3)}
+.jr-filter{padding:7px 15px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text3);font-family:Inter,sans-serif;transition:all .15s}
+.jr-filter:hover{border-color:rgba(124,90,240,.15);color:var(--text2);background:rgba(124,90,240,.02)}
+.jr-filter.active{background:rgba(124,90,240,.07);border-color:var(--accent);color:var(--accent3)}
 .jr-view-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
 .jr-view-btn:hover{border-color:var(--accent);color:var(--accent3)}
 .jr-view-btn.active{background:rgba(124,90,240,.06);border-color:var(--accent);color:var(--accent3)}
 /* Table view */
-.jr-table-wrap{overflow-x:auto;background:var(--card);border:1px solid var(--border);border-radius:16px}
+.jr-table-wrap{overflow-x:auto;background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.04)}
 .jr-table{width:100%;border-collapse:separate;border-spacing:0;min-width:900px}
-.jr-table th{font-size:10.5px;color:var(--text3);font-family:Inter,sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:14px 18px;text-align:left;border-bottom:1px solid var(--border);background:transparent;cursor:pointer;user-select:none;white-space:nowrap;transition:color .15s}
+.jr-table th{font-size:11.5px;color:var(--text3);font-family:Inter,sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:15px 18px;text-align:left;border-bottom:1px solid var(--border);background:transparent;cursor:pointer;user-select:none;white-space:nowrap;transition:color .15s}
 .jr-table th:hover{color:var(--accent3)}
 .jr-table th:active{color:var(--accent)}
-.jr-table td{font-size:13px;padding:16px 18px;border-bottom:1px solid rgba(124,90,240,.05);transition:background .2s ease;line-height:1.4}
-.jr-table tr:hover td{background:rgba(124,90,240,.04)}
+.jr-table td{font-size:14px;padding:17px 18px;border-bottom:1px solid rgba(124,90,240,.05);transition:background .2s ease;line-height:1.4}
+.jr-table tr:hover td{background:rgba(124,90,240,.045)}
 .jr-table tr:last-child td{border-bottom:none}
-.jr-table tr.jr-glow-win{box-shadow:inset 3px 0 0 var(--green)}
-.jr-table tr.jr-glow-loss{box-shadow:inset 3px 0 0 var(--red)}
-.jr-table tr.jr-glow-be{box-shadow:inset 3px 0 0 var(--accent)}
+.jr-table tr.jr-glow-win{box-shadow:inset 4px 0 0 var(--green)}
+.jr-table tr.jr-glow-loss{box-shadow:inset 4px 0 0 var(--red)}
+.jr-table tr.jr-glow-be{box-shadow:inset 4px 0 0 var(--accent)}
 /* Right-align numeric columns (RR, P&L, Running) for financial-terminal readability */
 .jr-table td.jr-num, .jr-table th.jr-num{text-align:right;font-variant-numeric:tabular-nums}
 .jr-day-sep{background:rgba(124,90,240,.02)}
@@ -3986,7 +3988,7 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(124,90,240,.15);outlin
 .jr-label{font-size:11px;color:var(--text3);font-family:Inter,sans-serif;font-weight:600;margin-bottom:4px;display:block}
 .jr-input{width:100%;padding:9px 12px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px;font-family:Inter,sans-serif;transition:border .15s}
 .jr-input:focus{outline:none;border-color:var(--accent)}
-.jr-select{width:100%;padding:9px 12px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px;cursor:pointer;font-family:Inter,sans-serif}
+.jr-select{width:100%;padding:9px 12px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;cursor:pointer;font-family:Inter,sans-serif}
 .jr-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .jr-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 .jr-row4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
@@ -6777,11 +6779,11 @@ window.toggleSidebar = function(){
     <div class="page-header">
       <div><div class="page-title">Journal</div><div class="page-sub">Log, review, and learn from every trade</div></div>
       <div style="display:flex;gap:8px;align-items:center">
-        <label class="btn btn-ghost" title="Import trades from CSV or Excel" style="font-size:12px;padding:8px 14px;display:flex;align-items:center;gap:6px;cursor:pointer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>Import
+        <label class="btn btn-ghost" title="Import trades from CSV or Excel" style="font-size:13px;padding:9px 16px;display:flex;align-items:center;gap:6px;cursor:pointer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>Import
           <input type="file" id="jr-csv-input" accept=".csv,.xlsx,.xls" style="display:none" onchange="jrCsvPreImport(this)">
         </label>
-        <button class="btn btn-ghost" onclick="jrExportCSV()" title="Export all trades to CSV" style="font-size:12px;padding:8px 14px;display:flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Export</button>
-        <button class="btn btn-ghost" onclick="jrOpenBulkEdit()" title="Apply tags/setup to multiple trades at once" style="font-size:12px;padding:8px 14px;display:flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11H5a2 2 0 00-2 2v7a2 2 0 002 2h14a2 2 0 002-2v-7a2 2 0 00-2-2h-4M9 11V7a3 3 0 016 0v4M9 11h6"/></svg>Bulk edit</button>
+        <button class="btn btn-ghost" onclick="jrExportCSV()" title="Export all trades to CSV" style="font-size:13px;padding:9px 16px;display:flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Export</button>
+        <button class="btn btn-ghost" onclick="jrOpenBulkEdit()" title="Apply tags/setup to multiple trades at once" style="font-size:13px;padding:9px 16px;display:flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11H5a2 2 0 00-2 2v7a2 2 0 002 2h14a2 2 0 002-2v-7a2 2 0 00-2-2h-4M9 11V7a3 3 0 016 0v4M9 11h6"/></svg>Bulk edit</button>
         <button class="btn btn-primary" onclick="openJrModal()">+ Add Trade</button>
       </div>
     </div>
@@ -6794,7 +6796,7 @@ window.toggleSidebar = function(){
         <div class="jr-hero-sub" id="jr-hero-sub">0 trades</div>
         <div class="jr-hero-badge" id="jr-hero-badge" style="display:none">—</div>
       </div>
-      <div class="jr-stats-secondary" style="flex:1.3;display:flex;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden">
+      <div class="jr-stats-secondary" style="flex:1.85;display:flex;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04)">
       <div class="jr-stat" id="jr-stat-wr">
         <div class="jr-stat-label">WIN RATE</div>
         <div class="jr-stat-val" id="jr-wr" style="color:var(--text)">—</div>
@@ -6854,7 +6856,7 @@ window.toggleSidebar = function(){
     <div class="jr-bar" style="flex-direction:column;gap:10px">
       <!-- Row 1: Search + Period + Win/Loss -->
       <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;width:100%">
-        <input class="jr-input" id="jr-search" type="text" placeholder="Search trades..." style="width:180px;padding:6px 12px;font-size:12px;border-radius:8px" oninput="renderJournal()">
+        <input class="jr-input" id="jr-search" type="text" placeholder="Search trades..." style="width:190px;padding:8px 14px;font-size:14px;border-radius:8px" oninput="renderJournal()">
         <div class="jr-period-pills">
           <button class="jr-filter" onclick="jrPeriod('today',this)">Today</button>
           <button class="jr-filter" onclick="jrPeriod('7d',this)">7D</button>
@@ -6869,7 +6871,7 @@ window.toggleSidebar = function(){
         <button class="jr-filter" onclick="jrFilter('loss',this)">Losses</button>
         <button class="jr-filter" onclick="jrFilter('be',this)">BE</button>
         <div style="flex:1"></div>
-        <select class="jr-select" id="jr-sort" style="width:130px;padding:6px 10px;font-size:11px" onchange="renderJournal()">
+        <select class="jr-select" id="jr-sort" style="width:130px;padding:6px 10px;font-size:12.5px" onchange="renderJournal()">
           <option value="date-desc">Newest first</option>
           <option value="date-asc">Oldest first</option>
           <option value="pnl-desc">Best P&L</option>
@@ -6884,42 +6886,42 @@ window.toggleSidebar = function(){
       </div>
       <!-- Row 2: Basic filters — the 90% used ones, always visible -->
       <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;width:100%">
-        <select class="jr-select" id="jr-pair-filter" style="width:110px;padding:5px 8px;font-size:11px" onchange="renderJournal()"><option>All Pairs</option></select>
-        <select class="jr-select" id="jr-setup-filter" style="width:130px;padding:5px 8px;font-size:11px" onchange="renderJournal()"><option>All Setups</option></select>
-        <select class="jr-select" id="jr-session-filter" style="width:110px;padding:5px 8px;font-size:11px" onchange="renderJournal()"><option>All Sessions</option></select>
+        <select class="jr-select" id="jr-pair-filter" style="width:114px;padding:7px 10px;font-size:13.5px" onchange="renderJournal()"><option>All Pairs</option></select>
+        <select class="jr-select" id="jr-setup-filter" style="width:134px;padding:7px 10px;font-size:13.5px" onchange="renderJournal()"><option>All Setups</option></select>
+        <select class="jr-select" id="jr-session-filter" style="width:114px;padding:7px 10px;font-size:13.5px" onchange="renderJournal()"><option>All Sessions</option></select>
         <!-- Date range presets — TradeZella-style quick filters -->
         <div style="display:inline-flex;gap:2px;background:var(--bg3);border-radius:6px;padding:2px;border:1px solid var(--border)" id="jr-date-presets">
-          <button class="jr-date-preset" data-preset="7d" style="padding:3px 8px;font-size:10px;background:transparent;border:none;color:var(--text2);border-radius:4px;cursor:pointer;font-family:Inter,sans-serif">7d</button>
-          <button class="jr-date-preset" data-preset="30d" style="padding:3px 8px;font-size:10px;background:transparent;border:none;color:var(--text2);border-radius:4px;cursor:pointer;font-family:Inter,sans-serif">30d</button>
-          <button class="jr-date-preset" data-preset="mtd" style="padding:3px 8px;font-size:10px;background:transparent;border:none;color:var(--text2);border-radius:4px;cursor:pointer;font-family:Inter,sans-serif">MTD</button>
-          <button class="jr-date-preset" data-preset="ytd" style="padding:3px 8px;font-size:10px;background:transparent;border:none;color:var(--text2);border-radius:4px;cursor:pointer;font-family:Inter,sans-serif">YTD</button>
-          <button class="jr-date-preset" data-preset="all" style="padding:3px 8px;font-size:10px;background:transparent;border:none;color:var(--text2);border-radius:4px;cursor:pointer;font-family:Inter,sans-serif">All</button>
+          <button class="jr-date-preset" data-preset="7d" style="padding:3px 8px;font-size:11.5px;background:transparent;border:none;color:var(--text2);border-radius:4px;cursor:pointer;font-family:Inter,sans-serif">7d</button>
+          <button class="jr-date-preset" data-preset="30d" style="padding:3px 8px;font-size:11.5px;background:transparent;border:none;color:var(--text2);border-radius:4px;cursor:pointer;font-family:Inter,sans-serif">30d</button>
+          <button class="jr-date-preset" data-preset="mtd" style="padding:3px 8px;font-size:11.5px;background:transparent;border:none;color:var(--text2);border-radius:4px;cursor:pointer;font-family:Inter,sans-serif">MTD</button>
+          <button class="jr-date-preset" data-preset="ytd" style="padding:3px 8px;font-size:11.5px;background:transparent;border:none;color:var(--text2);border-radius:4px;cursor:pointer;font-family:Inter,sans-serif">YTD</button>
+          <button class="jr-date-preset" data-preset="all" style="padding:3px 8px;font-size:11.5px;background:transparent;border:none;color:var(--text2);border-radius:4px;cursor:pointer;font-family:Inter,sans-serif">All</button>
         </div>
-        <input type="date" lang="en" class="jr-input" id="jr-date-from" style="width:120px;padding:4px 8px;font-size:11px;border-radius:6px" onchange="renderJournal()">
-        <span style="font-size:10px;color:var(--text3)">–</span>
-        <input type="date" lang="en" class="jr-input" id="jr-date-to" style="width:120px;padding:4px 8px;font-size:11px;border-radius:6px" onchange="renderJournal()">
+        <input type="date" lang="en" class="jr-input" id="jr-date-from" style="width:120px;padding:4px 8px;font-size:12.5px;border-radius:6px" onchange="renderJournal()">
+        <span style="font-size:11.5px;color:var(--text3)">–</span>
+        <input type="date" lang="en" class="jr-input" id="jr-date-to" style="width:120px;padding:4px 8px;font-size:12.5px;border-radius:6px" onchange="renderJournal()">
         <div style="flex:1"></div>
-        <button class="jr-filter" id="jr-adv-toggle" style="padding:5px 12px;font-size:10.5px;display:flex;align-items:center;gap:5px" onclick="jrToggleAdvancedFilters()">
+        <button class="jr-filter" id="jr-adv-toggle" style="padding:5px 12px;font-size:12px;display:flex;align-items:center;gap:5px" onclick="jrToggleAdvancedFilters()">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>
           Advanced Filters
           <svg id="jr-adv-chev" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
-        <button class="jr-filter" style="padding:4px 10px;font-size:10px" onclick="rfxRemove('tq_filters_journal');document.getElementById('jr-date-from').value='';document.getElementById('jr-date-to').value='';document.querySelectorAll('#jr-pair-filter,#jr-setup-filter,#jr-session-filter,#jr-account-filter,#jr-grade-filter,#jr-dir-filter,#jr-tag-filter').forEach(function(s){s.selectedIndex=0;});renderJournal()">Reset</button>
+        <button class="jr-filter" style="padding:6px 13px;font-size:12.5px" onclick="rfxRemove('tq_filters_journal');document.getElementById('jr-date-from').value='';document.getElementById('jr-date-to').value='';document.querySelectorAll('#jr-pair-filter,#jr-setup-filter,#jr-session-filter,#jr-account-filter,#jr-grade-filter,#jr-dir-filter,#jr-tag-filter').forEach(function(s){s.selectedIndex=0;});renderJournal()">Reset</button>
       </div>
       <!-- Row 3: Advanced filters — collapsed by default, rarely-used dimensions -->
       <div id="jr-advanced-filters" style="display:none;align-items:center;gap:6px;flex-wrap:wrap;width:100%;padding:10px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:10px">
-        <span style="font-size:9.5px;color:var(--text3);font-weight:700;letter-spacing:.5px;margin-right:2px">ADVANCED</span>
-        <select class="jr-select" id="jr-account-filter" style="width:120px;padding:5px 8px;font-size:11px" onchange="renderJournal()"><option>All Accounts</option></select>
-        <select class="jr-select" id="jr-group-filter" style="width:115px;padding:5px 8px;font-size:11px" onchange="renderJournal()" title="Filter by account group"><option>All Groups</option></select>
-        <select class="jr-select" id="jr-grade-filter" style="width:90px;padding:5px 8px;font-size:11px" onchange="renderJournal()"><option>All Grades</option><option>A+</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
-        <select class="jr-select" id="jr-pinned-filter" style="width:100px;padding:5px 8px;font-size:11px" onchange="renderJournal()"><option value="">All trades</option><option value="pinned">★ Pinned only</option></select>
-        <select class="jr-select" id="jr-dir-filter" style="width:100px;padding:5px 8px;font-size:11px" onchange="renderJournal()"><option>All Dirs</option><option value="buy">Long</option><option value="sell">Short</option></select>
-        <select class="jr-select" id="jr-tag-filter" style="width:110px;padding:5px 8px;font-size:11px" onchange="renderJournal()"><option>All Tags</option></select>
+        <span style="font-size:11px;color:var(--text3);font-weight:700;letter-spacing:.5px;margin-right:2px">ADVANCED</span>
+        <select class="jr-select" id="jr-account-filter" style="width:120px;padding:5px 8px;font-size:12.5px" onchange="renderJournal()"><option>All Accounts</option></select>
+        <select class="jr-select" id="jr-group-filter" style="width:115px;padding:5px 8px;font-size:12.5px" onchange="renderJournal()" title="Filter by account group"><option>All Groups</option></select>
+        <select class="jr-select" id="jr-grade-filter" style="width:90px;padding:5px 8px;font-size:12.5px" onchange="renderJournal()"><option>All Grades</option><option>A+</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
+        <select class="jr-select" id="jr-pinned-filter" style="width:100px;padding:5px 8px;font-size:12.5px" onchange="renderJournal()"><option value="">All trades</option><option value="pinned">★ Pinned only</option></select>
+        <select class="jr-select" id="jr-dir-filter" style="width:100px;padding:5px 8px;font-size:12.5px" onchange="renderJournal()"><option>All Dirs</option><option value="buy">Long</option><option value="sell">Short</option></select>
+        <select class="jr-select" id="jr-tag-filter" style="width:110px;padding:5px 8px;font-size:12.5px" onchange="renderJournal()"><option>All Tags</option></select>
         <div style="flex:1"></div>
-        <select id="jr-preset-load" class="jr-select" style="width:140px;padding:5px 8px;font-size:11px" title="Load saved filter">
+        <select id="jr-preset-load" class="jr-select" style="width:140px;padding:5px 8px;font-size:12.5px" title="Load saved filter">
           <option value="">Saved filters…</option>
         </select>
-        <button class="jr-filter" style="padding:4px 10px;font-size:10px" onclick="jrSaveFilterPreset()" title="Save current filters as preset">★ Save</button>
+        <button class="jr-filter" style="padding:4px 10px;font-size:11.5px" onclick="jrSaveFilterPreset()" title="Save current filters as preset">★ Save</button>
       </div>
     </div>
 
