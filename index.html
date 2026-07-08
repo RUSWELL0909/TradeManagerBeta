@@ -3267,11 +3267,11 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(124,90,240,.15);outlin
 .pb-card-name{font-size:14px;font-weight:600}
 .pb-card-desc{font-size:11px;color:var(--text3);line-height:1.5;margin-bottom:14px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .pb-card-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding-top:14px;border-top:1px solid var(--border)}
-.pb-card-stat-val{font-size:16px;font-weight:600}
-.pb-card-stat-label{font-size:9.5px;color:var(--text3);font-family:Inter,sans-serif;margin-top:2px}
+.pb-card-stat-val{font-size:14px;font-weight:500}
+.pb-card-stat-label{font-size:8px;color:var(--text3);font-family:Inter,sans-serif;margin-top:2px}
 .pb-card-confluences{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px}
 .pb-card-conf{padding:3px 8px;border-radius:5px;font-size:11px;font-family:Inter,sans-serif;background:rgba(124,90,240,.03);color:var(--text3);border:1px solid rgba(124,90,240,.03)}
-.pb-card-badge{position:absolute;top:12px;right:12px;padding:5px 11px;border-radius:6px;font-size:10px;font-family:Inter,sans-serif;font-weight:700;letter-spacing:.3px}
+.pb-card-badge{position:absolute;top:12px;right:12px;padding:4px 9px;border-radius:6px;font-size:8.5px;font-family:Inter,sans-serif;font-weight:700;letter-spacing:.3px}
 .pb-card-add{border:2px dashed var(--border);background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:200px;gap:8px;color:var(--text3);font-size:13px}
 .pb-card-add:hover{border-color:var(--accent);color:var(--accent3)}
 .pb-card-add svg{opacity:.4}
@@ -3391,20 +3391,18 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(124,90,240,.15);outlin
 .jr-table td{font-size:14px;padding:17px 18px;border-bottom:1px solid rgba(124,90,240,.05);transition:background .2s ease;line-height:1.4}
 .jr-table tr:hover td{background:rgba(124,90,240,.045)}
 .jr-table tr:last-child td{border-bottom:none}
-.jr-table tbody tr:nth-child(even):not(.jr-day-sep) td{background:rgba(124,90,240,.012)}
-.jr-table tbody tr:nth-child(even):not(.jr-day-sep):hover td{background:rgba(124,90,240,.05)}
-.jr-table tr.jr-glow-win{box-shadow:inset 4px 0 0 var(--green)}
-.jr-table tr.jr-glow-loss{box-shadow:inset 4px 0 0 var(--red)}
-.jr-table tr.jr-glow-be{box-shadow:inset 4px 0 0 var(--accent)}
+.jr-table tr.jr-glow-win{box-shadow:inset 3px 0 0 var(--green)}
+.jr-table tr.jr-glow-loss{box-shadow:inset 3px 0 0 var(--red)}
+.jr-table tr.jr-glow-be{box-shadow:inset 3px 0 0 var(--accent)}
 /* Right-align numeric columns (RR, P&L, Running) for financial-terminal readability */
 .jr-table td.jr-num, .jr-table th.jr-num{text-align:right;font-variant-numeric:tabular-nums}
-.jr-day-sep{background:rgba(124,90,240,.025)}
-.jr-day-sep td{padding:10px 18px!important;font-size:13px!important;font-family:Inter,sans-serif!important;font-weight:600!important;color:var(--text3)!important;border-bottom:1px solid rgba(124,90,240,.06)!important}
+.jr-day-sep{background:rgba(124,90,240,.02)}
+.jr-day-sep td{padding:8px 16px!important;font-size:12px!important;font-family:Inter,sans-serif!important;color:var(--text3)!important;border-bottom:1px solid rgba(124,90,240,.03)!important}
 .jr-grade-a{color:var(--green);font-weight:600;font-family:Inter,sans-serif}
 .jr-grade-b{color:var(--accent3);font-weight:600;font-family:Inter,sans-serif}
 .jr-grade-c{color:#f0b429;font-weight:600;font-family:Inter,sans-serif}
 .jr-grade-d{color:var(--red);font-weight:600;font-family:Inter,sans-serif}
-.jr-pill{display:inline-block;padding:4px 11px;border-radius:6px;font-size:11.5px;font-family:Inter,sans-serif;font-weight:700;letter-spacing:.3px}
+.jr-pill{display:inline-block;padding:3px 9px;border-radius:6px;font-size:10.5px;font-family:Inter,sans-serif;font-weight:700;letter-spacing:.3px}
 .jr-pill-win{background:rgba(29,233,182,.1);color:var(--green)}
 .jr-pill-loss{background:rgba(239,68,68,.1);color:var(--red)}
 .jr-pill-be{background:rgba(124,90,240,.06);color:var(--accent3)}
@@ -3990,7 +3988,7 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(124,90,240,.15);outlin
 .jr-label{font-size:11px;color:var(--text3);font-family:Inter,sans-serif;font-weight:600;margin-bottom:4px;display:block}
 .jr-input{width:100%;padding:9px 12px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px;font-family:Inter,sans-serif;transition:border .15s}
 .jr-input:focus{outline:none;border-color:var(--accent)}
-.jr-select{width:100%;padding:9px 12px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;cursor:pointer;font-family:Inter,sans-serif}
+.jr-select{width:100%;padding:9px 12px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px;cursor:pointer;font-family:Inter,sans-serif}
 .jr-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .jr-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 .jr-row4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
@@ -4039,7 +4037,7 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(124,90,240,.15);outlin
 .jr-bulk-bar{display:none;align-items:center;gap:10px;padding:10px 18px;background:rgba(124,90,240,.03);border:1px solid rgba(124,90,240,.06);border-radius:10px;margin-bottom:12px;font-size:11px}
 .jr-bulk-bar.show{display:flex}
 /* Running P&L column */
-.jr-running{font-family:Inter,sans-serif;font-size:13px;color:var(--text3)}
+.jr-running{font-family:Inter,sans-serif;font-size:12px;color:var(--text3)}
 .rpt-meter-fill{height:100%;border-radius:8px}
 .rpt-heatmap-wrap{position:relative}
 .rpt-heatmap-scroll{overflow:hidden;scroll-behavior:smooth;cursor:grab}
@@ -6781,11 +6779,11 @@ window.toggleSidebar = function(){
     <div class="page-header">
       <div><div class="page-title">Journal</div><div class="page-sub">Log, review, and learn from every trade</div></div>
       <div style="display:flex;gap:8px;align-items:center">
-        <label class="btn btn-ghost" title="Import trades from CSV or Excel" style="font-size:13px;padding:9px 16px;display:flex;align-items:center;gap:6px;cursor:pointer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>Import
+        <label class="btn btn-ghost" title="Import trades from CSV or Excel" style="font-size:12px;padding:8px 14px;display:flex;align-items:center;gap:6px;cursor:pointer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>Import
           <input type="file" id="jr-csv-input" accept=".csv,.xlsx,.xls" style="display:none" onchange="jrCsvPreImport(this)">
         </label>
-        <button class="btn btn-ghost" onclick="jrExportCSV()" title="Export all trades to CSV" style="font-size:13px;padding:9px 16px;display:flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Export</button>
-        <button class="btn btn-ghost" onclick="jrOpenBulkEdit()" title="Apply tags/setup to multiple trades at once" style="font-size:13px;padding:9px 16px;display:flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11H5a2 2 0 00-2 2v7a2 2 0 002 2h14a2 2 0 002-2v-7a2 2 0 00-2-2h-4M9 11V7a3 3 0 016 0v4M9 11h6"/></svg>Bulk edit</button>
+        <button class="btn btn-ghost" onclick="jrExportCSV()" title="Export all trades to CSV" style="font-size:12px;padding:8px 14px;display:flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Export</button>
+        <button class="btn btn-ghost" onclick="jrOpenBulkEdit()" title="Apply tags/setup to multiple trades at once" style="font-size:12px;padding:8px 14px;display:flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11H5a2 2 0 00-2 2v7a2 2 0 002 2h14a2 2 0 002-2v-7a2 2 0 00-2-2h-4M9 11V7a3 3 0 016 0v4M9 11h6"/></svg>Bulk edit</button>
         <button class="btn btn-primary" onclick="openJrModal()">+ Add Trade</button>
       </div>
     </div>
@@ -6858,7 +6856,7 @@ window.toggleSidebar = function(){
     <div class="jr-bar" style="flex-direction:column;gap:10px">
       <!-- Row 1: Search + Period + Win/Loss -->
       <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;width:100%">
-        <input class="jr-input" id="jr-search" type="text" placeholder="Search trades..." style="width:190px;padding:8px 14px;font-size:14px;border-radius:8px" oninput="renderJournal()">
+        <input class="jr-input" id="jr-search" type="text" placeholder="Search trades..." style="width:180px;padding:6px 12px;font-size:12px;border-radius:8px" oninput="renderJournal()">
         <div class="jr-period-pills">
           <button class="jr-filter" onclick="jrPeriod('today',this)">Today</button>
           <button class="jr-filter" onclick="jrPeriod('7d',this)">7D</button>
@@ -6873,7 +6871,7 @@ window.toggleSidebar = function(){
         <button class="jr-filter" onclick="jrFilter('loss',this)">Losses</button>
         <button class="jr-filter" onclick="jrFilter('be',this)">BE</button>
         <div style="flex:1"></div>
-        <select class="jr-select" id="jr-sort" style="width:130px;padding:6px 10px;font-size:12.5px" onchange="renderJournal()">
+        <select class="jr-select" id="jr-sort" style="width:130px;padding:6px 10px;font-size:11px" onchange="renderJournal()">
           <option value="date-desc">Newest first</option>
           <option value="date-asc">Oldest first</option>
           <option value="pnl-desc">Best P&L</option>
@@ -6888,42 +6886,42 @@ window.toggleSidebar = function(){
       </div>
       <!-- Row 2: Basic filters — the 90% used ones, always visible -->
       <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;width:100%">
-        <select class="jr-select" id="jr-pair-filter" style="width:114px;padding:7px 10px;font-size:13.5px" onchange="renderJournal()"><option>All Pairs</option></select>
-        <select class="jr-select" id="jr-setup-filter" style="width:134px;padding:7px 10px;font-size:13.5px" onchange="renderJournal()"><option>All Setups</option></select>
-        <select class="jr-select" id="jr-session-filter" style="width:114px;padding:7px 10px;font-size:13.5px" onchange="renderJournal()"><option>All Sessions</option></select>
+        <select class="jr-select" id="jr-pair-filter" style="width:110px;padding:5px 8px;font-size:11px" onchange="renderJournal()"><option>All Pairs</option></select>
+        <select class="jr-select" id="jr-setup-filter" style="width:130px;padding:5px 8px;font-size:11px" onchange="renderJournal()"><option>All Setups</option></select>
+        <select class="jr-select" id="jr-session-filter" style="width:110px;padding:5px 8px;font-size:11px" onchange="renderJournal()"><option>All Sessions</option></select>
         <!-- Date range presets — TradeZella-style quick filters -->
         <div style="display:inline-flex;gap:2px;background:var(--bg3);border-radius:6px;padding:2px;border:1px solid var(--border)" id="jr-date-presets">
-          <button class="jr-date-preset" data-preset="7d" style="padding:3px 8px;font-size:11.5px;background:transparent;border:none;color:var(--text2);border-radius:4px;cursor:pointer;font-family:Inter,sans-serif">7d</button>
-          <button class="jr-date-preset" data-preset="30d" style="padding:3px 8px;font-size:11.5px;background:transparent;border:none;color:var(--text2);border-radius:4px;cursor:pointer;font-family:Inter,sans-serif">30d</button>
-          <button class="jr-date-preset" data-preset="mtd" style="padding:3px 8px;font-size:11.5px;background:transparent;border:none;color:var(--text2);border-radius:4px;cursor:pointer;font-family:Inter,sans-serif">MTD</button>
-          <button class="jr-date-preset" data-preset="ytd" style="padding:3px 8px;font-size:11.5px;background:transparent;border:none;color:var(--text2);border-radius:4px;cursor:pointer;font-family:Inter,sans-serif">YTD</button>
-          <button class="jr-date-preset" data-preset="all" style="padding:3px 8px;font-size:11.5px;background:transparent;border:none;color:var(--text2);border-radius:4px;cursor:pointer;font-family:Inter,sans-serif">All</button>
+          <button class="jr-date-preset" data-preset="7d" style="padding:3px 8px;font-size:10px;background:transparent;border:none;color:var(--text2);border-radius:4px;cursor:pointer;font-family:Inter,sans-serif">7d</button>
+          <button class="jr-date-preset" data-preset="30d" style="padding:3px 8px;font-size:10px;background:transparent;border:none;color:var(--text2);border-radius:4px;cursor:pointer;font-family:Inter,sans-serif">30d</button>
+          <button class="jr-date-preset" data-preset="mtd" style="padding:3px 8px;font-size:10px;background:transparent;border:none;color:var(--text2);border-radius:4px;cursor:pointer;font-family:Inter,sans-serif">MTD</button>
+          <button class="jr-date-preset" data-preset="ytd" style="padding:3px 8px;font-size:10px;background:transparent;border:none;color:var(--text2);border-radius:4px;cursor:pointer;font-family:Inter,sans-serif">YTD</button>
+          <button class="jr-date-preset" data-preset="all" style="padding:3px 8px;font-size:10px;background:transparent;border:none;color:var(--text2);border-radius:4px;cursor:pointer;font-family:Inter,sans-serif">All</button>
         </div>
-        <input type="date" lang="en" class="jr-input" id="jr-date-from" style="width:120px;padding:4px 8px;font-size:12.5px;border-radius:6px" onchange="renderJournal()">
-        <span style="font-size:11.5px;color:var(--text3)">–</span>
-        <input type="date" lang="en" class="jr-input" id="jr-date-to" style="width:120px;padding:4px 8px;font-size:12.5px;border-radius:6px" onchange="renderJournal()">
+        <input type="date" lang="en" class="jr-input" id="jr-date-from" style="width:120px;padding:4px 8px;font-size:11px;border-radius:6px" onchange="renderJournal()">
+        <span style="font-size:10px;color:var(--text3)">–</span>
+        <input type="date" lang="en" class="jr-input" id="jr-date-to" style="width:120px;padding:4px 8px;font-size:11px;border-radius:6px" onchange="renderJournal()">
         <div style="flex:1"></div>
-        <button class="jr-filter" id="jr-adv-toggle" style="padding:5px 12px;font-size:12px;display:flex;align-items:center;gap:5px" onclick="jrToggleAdvancedFilters()">
+        <button class="jr-filter" id="jr-adv-toggle" style="padding:5px 12px;font-size:10.5px;display:flex;align-items:center;gap:5px" onclick="jrToggleAdvancedFilters()">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>
           Advanced Filters
           <svg id="jr-adv-chev" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
-        <button class="jr-filter" style="padding:6px 13px;font-size:12.5px" onclick="rfxRemove('tq_filters_journal');document.getElementById('jr-date-from').value='';document.getElementById('jr-date-to').value='';document.querySelectorAll('#jr-pair-filter,#jr-setup-filter,#jr-session-filter,#jr-account-filter,#jr-grade-filter,#jr-dir-filter,#jr-tag-filter').forEach(function(s){s.selectedIndex=0;});renderJournal()">Reset</button>
+        <button class="jr-filter" style="padding:4px 10px;font-size:10px" onclick="rfxRemove('tq_filters_journal');document.getElementById('jr-date-from').value='';document.getElementById('jr-date-to').value='';document.querySelectorAll('#jr-pair-filter,#jr-setup-filter,#jr-session-filter,#jr-account-filter,#jr-grade-filter,#jr-dir-filter,#jr-tag-filter').forEach(function(s){s.selectedIndex=0;});renderJournal()">Reset</button>
       </div>
       <!-- Row 3: Advanced filters — collapsed by default, rarely-used dimensions -->
       <div id="jr-advanced-filters" style="display:none;align-items:center;gap:6px;flex-wrap:wrap;width:100%;padding:10px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:10px">
-        <span style="font-size:11px;color:var(--text3);font-weight:700;letter-spacing:.5px;margin-right:2px">ADVANCED</span>
-        <select class="jr-select" id="jr-account-filter" style="width:120px;padding:5px 8px;font-size:12.5px" onchange="renderJournal()"><option>All Accounts</option></select>
-        <select class="jr-select" id="jr-group-filter" style="width:115px;padding:5px 8px;font-size:12.5px" onchange="renderJournal()" title="Filter by account group"><option>All Groups</option></select>
-        <select class="jr-select" id="jr-grade-filter" style="width:90px;padding:5px 8px;font-size:12.5px" onchange="renderJournal()"><option>All Grades</option><option>A+</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
-        <select class="jr-select" id="jr-pinned-filter" style="width:100px;padding:5px 8px;font-size:12.5px" onchange="renderJournal()"><option value="">All trades</option><option value="pinned">★ Pinned only</option></select>
-        <select class="jr-select" id="jr-dir-filter" style="width:100px;padding:5px 8px;font-size:12.5px" onchange="renderJournal()"><option>All Dirs</option><option value="buy">Long</option><option value="sell">Short</option></select>
-        <select class="jr-select" id="jr-tag-filter" style="width:110px;padding:5px 8px;font-size:12.5px" onchange="renderJournal()"><option>All Tags</option></select>
+        <span style="font-size:9.5px;color:var(--text3);font-weight:700;letter-spacing:.5px;margin-right:2px">ADVANCED</span>
+        <select class="jr-select" id="jr-account-filter" style="width:120px;padding:5px 8px;font-size:11px" onchange="renderJournal()"><option>All Accounts</option></select>
+        <select class="jr-select" id="jr-group-filter" style="width:115px;padding:5px 8px;font-size:11px" onchange="renderJournal()" title="Filter by account group"><option>All Groups</option></select>
+        <select class="jr-select" id="jr-grade-filter" style="width:90px;padding:5px 8px;font-size:11px" onchange="renderJournal()"><option>All Grades</option><option>A+</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
+        <select class="jr-select" id="jr-pinned-filter" style="width:100px;padding:5px 8px;font-size:11px" onchange="renderJournal()"><option value="">All trades</option><option value="pinned">★ Pinned only</option></select>
+        <select class="jr-select" id="jr-dir-filter" style="width:100px;padding:5px 8px;font-size:11px" onchange="renderJournal()"><option>All Dirs</option><option value="buy">Long</option><option value="sell">Short</option></select>
+        <select class="jr-select" id="jr-tag-filter" style="width:110px;padding:5px 8px;font-size:11px" onchange="renderJournal()"><option>All Tags</option></select>
         <div style="flex:1"></div>
-        <select id="jr-preset-load" class="jr-select" style="width:140px;padding:5px 8px;font-size:12.5px" title="Load saved filter">
+        <select id="jr-preset-load" class="jr-select" style="width:140px;padding:5px 8px;font-size:11px" title="Load saved filter">
           <option value="">Saved filters…</option>
         </select>
-        <button class="jr-filter" style="padding:4px 10px;font-size:11.5px" onclick="jrSaveFilterPreset()" title="Save current filters as preset">★ Save</button>
+        <button class="jr-filter" style="padding:4px 10px;font-size:10px" onclick="jrSaveFilterPreset()" title="Save current filters as preset">★ Save</button>
       </div>
     </div>
 
@@ -30650,14 +30648,14 @@ window.toggleSidebar = function(){
 
           h+='<tr class="'+glowCls+'" style="cursor:pointer" onclick="jrViewDetail(\''+tr.id+'\')">'
             +'<td onclick="event.stopPropagation()"><input type="checkbox" class="jr-bulk-cb jr-row-cb" data-id="'+tr.id+'" onchange="jrToggleBulk(\''+tr.id+'\',this)"></td>'
-            +'<td style="font-family:Inter,sans-serif;font-size:13px;color:var(--text3)">'+(tr.date||'—').slice(5)+'</td>'
-            +'<td style="font-weight:700;font-size:14px;color:var(--text)">'+tr.pair+'</td>'
+            +'<td style="font-family:Inter,sans-serif;font-size:11.5px;color:var(--text3)">'+(tr.date||'—').slice(5)+'</td>'
+            +'<td style="font-weight:700;color:var(--text)">'+tr.pair+'</td>'
             +'<td><span class="jr-pill '+dirCls+'">'+dirLabel+'</span></td>'
-            +'<td style="font-size:13px;color:var(--text2)">'+setupText+(confCount>0?' <span style="color:var(--accent);font-size:10.5px;font-family:Inter,sans-serif">'+confCount+'cf</span>':'')+'</td>'
-            +'<td><span class="'+gradeClass(tr.grade)+'" style="font-size:13px">'+(tr.grade||'<span class="tq-text-muted">—</span>')+'</span></td>'
-            +'<td style="font-size:13px">'+(tr.emotion||'<span class="tq-text-muted">—</span>')+'</td>'
-            +'<td class="jr-num" style="font-family:Inter,sans-serif;font-size:13px;color:var(--text2)">'+rr+'</td>'
-            +'<td class="jr-num" style="font-weight:800;font-size:15.5px;font-family:Inter,sans-serif;letter-spacing:-.2px;color:'+(pnl2>=0?'var(--green)':'var(--red)')+'">'+(pnl2>=0?'+':'-')+'$'+Math.abs(pnl2).toLocaleString('en-US')+'</td>'
+            +'<td style="font-size:12px;color:var(--text2)">'+setupText+(confCount>0?' <span style="color:var(--accent);font-size:9px;font-family:Inter,sans-serif">'+confCount+'cf</span>':'')+'</td>'
+            +'<td><span class="'+gradeClass(tr.grade)+'">'+(tr.grade||'<span class="tq-text-muted">—</span>')+'</span></td>'
+            +'<td style="font-size:12px">'+(tr.emotion||'<span class="tq-text-muted">—</span>')+'</td>'
+            +'<td class="jr-num" style="font-family:Inter,sans-serif;font-size:12px;color:var(--text2)">'+rr+'</td>'
+            +'<td class="jr-num" style="font-weight:800;font-size:14.5px;font-family:Inter,sans-serif;letter-spacing:-.2px;color:'+(pnl2>=0?'var(--green)':'var(--red)')+'">'+(pnl2>=0?'+':'-')+'$'+Math.abs(pnl2).toLocaleString('en-US')+'</td>'
             +'<td class="jr-num jr-running" style="color:'+(running>=0?'var(--green)':'var(--red)')+'">'+(running>=0?'+':'-')+'$'+Math.abs(running).toLocaleString('en-US')+'</td>'
             +'<td><span class="jr-pill '+resultCls+'">'+result+'</span></td>'
             +'<td onclick="event.stopPropagation()" style="white-space:nowrap"><button style="background:none;border:none;color:'+(tr.pinned?'#f0b429':'var(--text3)')+';cursor:pointer;font-size:13px;padding:4px" onclick="jrTogglePin(\''+tr.id+'\')" title="'+(tr.pinned?'Unpin':'Pin for later review')+'">'+(tr.pinned?'★':'☆')+'</button><button style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:13px;padding:4px 6px" onclick="aiChatOpen(\''+tr.id+'\')" title="Ask AI about this trade">✨</button><button style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;padding:4px" onclick="jrDeleteTrade(\''+tr.id+'\')" title="Delete trade">✕</button></td>'
@@ -38901,7 +38899,7 @@ window.toggleSidebar = function(){
     if(stats.reliability){
       h += '<div style="display:flex;flex-direction:column;gap:7px;padding-top:14px;border-top:0.5px solid var(--border);margin-bottom:'+((stats.overfitWarnings&&stats.overfitWarnings.length)||(stats.freshness&&stats.freshness!=='FRESH')?'14px':'0')+'">'
         + stats.reliability.map(function(r){
-            return '<div style="display:flex;align-items:flex-start;gap:6px;font-size:12.5px;color:'+(r.ok?'var(--text2)':'var(--text3)')+';line-height:1.4">'
+            return '<div style="display:flex;align-items:flex-start;gap:6px;font-size:11px;color:'+(r.ok?'var(--text2)':'var(--text3)')+';line-height:1.4">'
               +'<span style="color:'+(r.ok?'var(--green)':'#fbbf24')+';font-weight:700;flex-shrink:0">'+(r.ok?'✓':'⚠')+'</span>'+r.text
             +'</div>';
           }).join('')
@@ -38912,7 +38910,7 @@ window.toggleSidebar = function(){
     if(stats.overfitWarnings && stats.overfitWarnings.length){
       h += '<div style="padding-top:'+(stats.reliability?'0':'14px')+';margin-bottom:'+(stats.freshness&&stats.freshness!=='FRESH'?'14px':'0')+'">'
         + stats.overfitWarnings.map(function(w){
-            return '<div style="display:flex;gap:6px;align-items:flex-start;font-size:12px;color:#fbbf24;line-height:1.4;margin-bottom:6px"><span style="flex-shrink:0">⚠️</span><span>'+w+'</span></div>';
+            return '<div style="display:flex;gap:6px;align-items:flex-start;font-size:10.5px;color:#fbbf24;line-height:1.4;margin-bottom:6px"><span style="flex-shrink:0">⚠️</span><span>'+w+'</span></div>';
           }).join('')
         +'</div>';
     }
@@ -38921,8 +38919,8 @@ window.toggleSidebar = function(){
     if(stats.freshness && stats.freshness!=='FRESH'){
       var freshColor2 = stats.freshness==='STALE' ? 'var(--red)' : '#fbbf24';
       h += '<div style="display:flex;align-items:center;gap:8px;padding-top:14px;border-top:0.5px solid var(--border)">'
-        +'<span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px;background:'+freshColor2+'22;color:'+freshColor2+';letter-spacing:.4px;flex-shrink:0">'+stats.freshness+'</span>'
-        +'<span style="font-size:12px;color:var(--text3);line-height:1.3">Last sample '+stats.daysSinceLastSample+'d ago</span>'
+        +'<span style="font-size:8.5px;font-weight:700;padding:2px 7px;border-radius:5px;background:'+freshColor2+'22;color:'+freshColor2+';letter-spacing:.4px;flex-shrink:0">'+stats.freshness+'</span>'
+        +'<span style="font-size:10.5px;color:var(--text3);line-height:1.3">Last sample '+stats.daysSinceLastSample+'d ago</span>'
         +'</div>';
     }
 
@@ -38949,7 +38947,7 @@ window.toggleSidebar = function(){
     h += '</div>'; // end two-column grid
 
     // ── SAMPLE EVIDENCE FEED — samples as evidence cards, not table rows ──
-    h += '<div style="font-size:12.5px;font-weight:700;color:var(--accent3);margin-bottom:11px;letter-spacing:.3px">SAMPLE EVIDENCE FEED ('+samples.length+')</div>';
+    h += '<div style="font-size:11px;font-weight:700;color:var(--accent3);margin-bottom:10px;letter-spacing:.3px">SAMPLE EVIDENCE FEED ('+samples.length+')</div>';
     if(!samples.length){
       h += '<div style="text-align:center;padding:30px;color:var(--text3);font-size:12px;background:rgba(255,255,255,.015);border:1px dashed var(--border);border-radius:10px">No evidence collected yet. Click "+ Add Sample" below to start testing.</div>';
     } else {
@@ -38957,18 +38955,18 @@ window.toggleSidebar = function(){
         var rc = s.result==='win'?'var(--green)':s.result==='loss'?'var(--red)':'var(--text3)';
         var rBg = s.result==='win'?'rgba(29,233,182,.06)':s.result==='loss'?'rgba(239,68,68,.06)':'rgba(255,255,255,.02)';
         var qColor = s.setupQuality==='A'?'var(--green)':s.setupQuality==='B'?'#fbbf24':'var(--text3)';
-        return '<div style="display:flex;gap:12px;padding:13px 15px;border-radius:10px;background:'+rBg+';border:1px solid var(--border);align-items:flex-start">'
-          +(s.screenshot?'<img src="'+s.screenshot+'" onclick="slPreviewScreenshot(this.src)" style="width:52px;height:52px;object-fit:cover;border-radius:7px;cursor:zoom-in;flex-shrink:0;border:1px solid var(--border)">'
-                        :'<div style="width:52px;height:52px;border-radius:7px;background:rgba(255,255,255,.03);border:1px dashed var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:16px">—</div>')
+        return '<div style="display:flex;gap:12px;padding:12px 14px;border-radius:10px;background:'+rBg+';border:1px solid var(--border);align-items:flex-start">'
+          +(s.screenshot?'<img src="'+s.screenshot+'" onclick="slPreviewScreenshot(this.src)" style="width:48px;height:48px;object-fit:cover;border-radius:7px;cursor:zoom-in;flex-shrink:0;border:1px solid var(--border)">'
+                        :'<div style="width:48px;height:48px;border-radius:7px;background:rgba(255,255,255,.03);border:1px dashed var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:16px">—</div>')
           +'<div style="flex:1;min-width:0">'
-            +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap">'
-              +'<span style="color:'+rc+';font-weight:700;text-transform:uppercase;font-size:12.5px">'+s.result+'</span>'
-              +'<span style="color:var(--text2);font-size:13.5px;font-weight:600">'+(s.rMultiple>=0?'+':'')+s.rMultiple.toFixed(1)+'R</span>'
-              +(s.setupQuality?'<span style="font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:4px;background:'+qColor+'1a;color:'+qColor+'">GRADE '+s.setupQuality+'</span>':'')
-              +'<span style="color:var(--text3);font-size:11.5px;margin-left:auto">'+(s.date||'').slice(5)+'</span>'
+            +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap">'
+              +'<span style="color:'+rc+';font-weight:700;text-transform:uppercase;font-size:11px">'+s.result+'</span>'
+              +'<span style="color:var(--text2);font-size:12px;font-weight:600">'+(s.rMultiple>=0?'+':'')+s.rMultiple.toFixed(1)+'R</span>'
+              +(s.setupQuality?'<span style="font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;background:'+qColor+'1a;color:'+qColor+'">GRADE '+s.setupQuality+'</span>':'')
+              +'<span style="color:var(--text3);font-size:10.5px;margin-left:auto">'+(s.date||'').slice(5)+'</span>'
             +'</div>'
-            +'<div style="font-size:12.5px;color:var(--text3)">'+(s.pair?s.pair+' · ':'')+(s.session?s.session+' · ':'')+(s.marketCondition||'No condition noted')+'</div>'
-            +(s.notes?'<div style="font-size:12.5px;color:var(--text2);margin-top:5px;font-style:italic;line-height:1.4">"'+escapeHtml(s.notes.length>100?s.notes.slice(0,100)+'…':s.notes)+'"</div>':'')
+            +'<div style="font-size:11px;color:var(--text3)">'+(s.pair?s.pair+' · ':'')+(s.session?s.session+' · ':'')+(s.marketCondition||'No condition noted')+'</div>'
+            +(s.notes?'<div style="font-size:11px;color:var(--text2);margin-top:4px;font-style:italic;line-height:1.4">"'+escapeHtml(s.notes.length>100?s.notes.slice(0,100)+'…':s.notes)+'"</div>':'')
           +'</div>'
         +'</div>';
       }).join('') + '</div>';
@@ -39095,14 +39093,14 @@ window.toggleSidebar = function(){
         return '<div class="pb-card" onclick="slViewDetail(\''+p.id+'\')" style="position:relative">'
           +'<div class="pb-card-badge" style="background:'+statusBg+';color:'+statusColor+'">'+(p.status||'testing').toUpperCase()+'</div>'
           +'<div style="position:absolute;top:34px;right:14px;text-align:center">'
-            +'<div style="font-size:24px;font-weight:800;color:'+confColor+';letter-spacing:-1px;line-height:1">'+stats.confidence+'</div>'
-            +'<div style="font-size:9.5px;color:var(--text3);font-weight:700;letter-spacing:.3px">CONFIDENCE</div>'
+            +'<div style="font-size:22px;font-weight:800;color:'+confColor+';letter-spacing:-1px;line-height:1">'+stats.confidence+'</div>'
+            +'<div style="font-size:8px;color:var(--text3);font-weight:700;letter-spacing:.3px">CONFIDENCE</div>'
           +'</div>'
           +'<div class="pb-card-head">'
             +'<div class="pb-card-icon" style="background:rgba(251,191,36,.1)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="1.5"><path d="M9 3h6M10 3v5.5L5 18a1.5 1.5 0 001.3 2.2h11.4A1.5 1.5 0 0019 18l-5-9.5V3"/></svg></div>'
-            +'<div><div class="pb-card-name">'+escapeHtml(p.name)+'</div><div style="font-size:12px;color:var(--text3);font-family:Inter,sans-serif">'+(p.pair||'Any pair')+(p.session?' · '+p.session:'')+'</div></div>'
+            +'<div><div class="pb-card-name">'+escapeHtml(p.name)+'</div><div style="font-size:11px;color:var(--text3);font-family:Inter,sans-serif">'+(p.pair||'Any pair')+(p.session?' · '+p.session:'')+'</div></div>'
           +'</div>'
-          +'<div style="margin:10px 0"><div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--text3);margin-bottom:5px"><span>'+stats.n+' / '+(p.minSamples||50)+' samples</span></div>'
+          +'<div style="margin:10px 0"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--text3);margin-bottom:4px"><span>'+stats.n+' / '+(p.minSamples||50)+' samples</span></div>'
             +'<div class="dw-bar-track" style="height:4px"><div class="dw-bar-fill" style="width:'+progressPct.toFixed(0)+'%;background:'+confColor+'"></div></div></div>'
           +'<div class="pb-card-stats">'
             +'<div><div class="pb-card-stat-val">'+stats.n+'</div><div class="pb-card-stat-label">SAMPLES</div></div>'
@@ -39971,10 +39969,12 @@ window.toggleSidebar = function(){
         var el = document.getElementById(id); if(el) el.textContent = '—';
       });
       // Hide new widgets that might show stale data from previous render cycle
+      // Hide readiness bar (needs a live streak of recent trades — genuinely not meaningful when period is empty)
       var _rbEl = document.getElementById('dash-readiness-bar');
       if(_rbEl) _rbEl.style.display = 'none';
-      var _pmEl = document.getElementById('dash-prop-mini');
-      if(_pmEl) _pmEl.style.display = 'none';
+      // Prop Mini shows prop-ACCOUNT progress, not period trade stats — it must stay visible
+      // even when the 1D/1W/1M period has zero trades, otherwise account cards falsely vanish.
+      try{ if(typeof renderDashPropMini==='function') renderDashPropMini([]); }catch(e){}
       // Destroy charts — otherwise stale data stays on canvas and period switch looks broken
       ['dash-cum-chart','dash-bar-chart','dash-balance-chart','dash-drawdown-chart'].forEach(function(id){
         var cEl = document.getElementById(id);
@@ -44122,7 +44122,7 @@ window.toggleSidebar = function(){
       scales: {
         x: {
           display: true,
-          grid: { display: false },
+          grid: { display: true, color: getComputedStyle(document.documentElement).getPropertyValue('--chart-bg').trim() || 'rgba(255,255,255,.035)', drawBorder: false },
           border: { display: false },
           ticks: {
             color: function(){ return getComputedStyle(document.documentElement).getPropertyValue('--text3').trim() || 'rgba(168,158,196,.5)'; }(),
@@ -44144,6 +44144,28 @@ window.toggleSidebar = function(){
           }
         }
       }
+    };
+
+    // ── Premium chart treatment helpers: gradient area fill + soft line glow ──
+    function _areaGradient(chart, hex){
+      var area = chart.chartArea; if(!area) return hex+'20';
+      var ctx2 = chart.ctx;
+      var key = '_grad_'+hex;
+      var g = ctx2.createLinearGradient(0, area.top, 0, area.bottom);
+      var r=parseInt(hex.slice(1,3),16), gr=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+      g.addColorStop(0, 'rgba('+r+','+gr+','+b+',.32)');
+      g.addColorStop(0.6, 'rgba('+r+','+gr+','+b+',.08)');
+      g.addColorStop(1, 'rgba('+r+','+gr+','+b+',0)');
+      return g;
+    }
+    var lineGlowPlugin = {
+      id: 'lineGlow',
+      beforeDatasetsDraw: function(chart){
+        chart.ctx.save();
+        chart.ctx.shadowColor = 'rgba(46,204,138,.35)';
+        chart.ctx.shadowBlur = 8;
+      },
+      afterDatasetsDraw: function(chart){ chart.ctx.restore(); }
     };
 
     // Cumulative chart
@@ -44224,7 +44246,7 @@ window.toggleSidebar = function(){
         order: 1,
         segment: {
           borderColor: function(c){ return segColor(c.p0.parsed.y, c.p1.parsed.y); },
-          backgroundColor: function(c){ return segColor(c.p0.parsed.y, c.p1.parsed.y) + '20'; }
+          backgroundColor: function(c){ return _areaGradient(c.chart, segColor(c.p0.parsed.y, c.p1.parsed.y)); }
         },
         pointRadius: function(c){
           if (cumVals.length <= 1) return 0;
@@ -44280,6 +44302,11 @@ window.toggleSidebar = function(){
         });
       }
 
+      lineGlowPlugin.beforeDatasetsDraw = function(chart){
+        chart.ctx.save();
+        chart.ctx.shadowColor = isNeg ? 'rgba(224,92,122,.35)' : 'rgba(46,204,138,.35)';
+        chart.ctx.shadowBlur = 8;
+      };
       cumEl._chart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -44287,7 +44314,7 @@ window.toggleSidebar = function(){
           datasets: datasets
         },
         options: cumOpts,
-        plugins: [zeroLinePlugin]
+        plugins: [zeroLinePlugin, lineGlowPlugin]
       });
     } catch(_cErr){ console.error('[chart cumulative ERROR]', _cErr); } }
 
@@ -44321,10 +44348,18 @@ window.toggleSidebar = function(){
       }
       var greenRgb = hexToRgb(themeGreen), redRgb = hexToRgb(themeRed);
 
+      var barCtx = barEl.getContext('2d');
+      var barCanvasH = barEl.height || 260;
+      function _barGrad(rgb, topA, botA){
+        var g = barCtx.createLinearGradient(0, 0, 0, barCanvasH);
+        g.addColorStop(0, 'rgba('+rgb+','+topA+')');
+        g.addColorStop(1, 'rgba('+rgb+','+botA+')');
+        return g;
+      }
       var barColors = barVals.map(function(v,i){
         var isHighlight = (i === bestDayIdx && v > 0) || (i === worstDayIdx && v < 0);
-        if (isHighlight) return v >= 0 ? 'rgba('+greenRgb+',.9)' : 'rgba('+redRgb+',.9)'; // strong but not neon-solid
-        return v >= 0 ? 'rgba('+greenRgb+',.45)' : 'rgba('+redRgb+',.45)';
+        var rgb = v >= 0 ? greenRgb : redRgb;
+        return isHighlight ? _barGrad(rgb, .95, .55) : _barGrad(rgb, .5, .22);
       });
       var barBorderColors = barVals.map(function(v,i){
         if (i === bestDayIdx && v > 0) return 'rgba(255,255,255,.5)';
