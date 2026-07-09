@@ -39872,6 +39872,16 @@ window.toggleSidebar = function(){
   // this is exactly the consumer-app flourish language the product must not speak,
   // and first impressions are where brand tone matters most, not least.
 
+  if(!window._dashVisibilityWired){
+    window._dashVisibilityWired = true;
+    document.addEventListener('visibilitychange', function(){
+      if(!document.hidden && window.Chart && document.querySelector('.dash-chart-fallback')){
+        window._dashChartRetries = 0;
+        try{ if(typeof updateDashboard==='function') updateDashboard(); }catch(e){}
+      }
+    });
+  }
+
   function updateDashboard() {
     // Load real trades from localStorage — exclude deleted (Trash items)
     var raw = (typeof getActiveTrades === 'function') ? getActiveTrades() : JSON.parse(rfxGet('rf_trades')||'[]').filter(function(t){return !t.deleted;});
@@ -44011,15 +44021,31 @@ window.toggleSidebar = function(){
   function renderDashCharts(trades, byDay, accBal) {
     var Chart = window.Chart;
     if (!Chart) {
-      // Chart.js may not have finished loading from CDN yet — retry shortly
+      // Chart.js may not have finished loading from CDN yet (slow network, throttled
+      // background tab, temporary CDN hiccup) — retry generously instead of giving up silently.
       if(!window._dashChartRetries) window._dashChartRetries = 0;
-      if(window._dashChartRetries < 20){
+      if(window._dashChartRetries < 120){ // up to ~60s of retries — covers slow/throttled loads
         window._dashChartRetries++;
-        setTimeout(function(){ try{ renderDashCharts(trades, byDay, accBal); }catch(e){} }, 250);
+        setTimeout(function(){ try{ renderDashCharts(trades, byDay, accBal); }catch(e){} }, 500);
+      } else {
+        // Truly exhausted — show a visible, actionable message instead of a silent blank canvas
+        ['dash-cum-chart','dash-bar-chart','dash-balance-chart','dash-drawdown-chart'].forEach(function(id){
+          var cEl = document.getElementById(id);
+          if(cEl && cEl.parentElement && !cEl.parentElement.querySelector('.dash-chart-fallback')){
+            var msg = document.createElement('div');
+            msg.className = 'dash-chart-fallback';
+            msg.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--text3);font-size:12.5px;text-align:center;padding:20px';
+            msg.innerHTML = 'Charts failed to load.<br><button onclick="location.reload()" style="margin-top:4px;padding:6px 14px;background:rgba(124,90,240,.1);color:var(--accent3);border:1px solid rgba(124,90,240,.2);border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">Reload page</button>';
+            cEl.parentElement.style.position = 'relative';
+            cEl.parentElement.appendChild(msg);
+          }
+        });
       }
       return;
     }
     window._dashChartRetries = 0;
+    // Clear any stale fallback messages now that Chart.js is available
+    document.querySelectorAll('.dash-chart-fallback').forEach(function(m){ m.remove(); });
 
     // Sort days
     var sortedDays = Object.keys(byDay).sort();
