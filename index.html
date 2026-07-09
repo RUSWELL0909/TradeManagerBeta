@@ -42823,7 +42823,7 @@ window.toggleSidebar = function(){
           var frac = pp.c/total;
           var seg = frac*circ;
           var segCol = DIST_COLORS[i%DIST_COLORS.length];
-          var s = '<circle cx="50" cy="50" r="34" fill="none" stroke="'+segCol+'" stroke-width="14" stroke-dasharray="'+seg.toFixed(2)+' '+(circ-seg).toFixed(2)+'" stroke-dashoffset="'+(-offset).toFixed(2)+'" transform="rotate(-90 50 50)" style="transition:stroke-dasharray .6s ease;filter:drop-shadow(0 0 4px '+segCol+'88)"/>';
+          var s = '<circle cx="50" cy="50" r="34" fill="none" stroke="'+segCol+'" stroke-width="14" stroke-dasharray="'+seg.toFixed(2)+' '+(circ-seg).toFixed(2)+'" stroke-dashoffset="'+(-offset).toFixed(2)+'" transform="rotate(-90 50 50)" style="transition:stroke-dasharray .6s ease;filter:drop-shadow(0 0 7px '+segCol+')"/>';
           offset += seg;
           return s;
         }).join('');
@@ -42970,8 +42970,9 @@ window.toggleSidebar = function(){
           var worstSession = sessions[sessions.length-1];
           var segs = sessions.map(function(s,i){
             var pct = (Math.abs(s.p)/totalAbs*100).toFixed(2);
-            var color = s.p>=0 ? 'rgba('+TG_RGB+','+(0.95-i*0.18).toFixed(2)+')' : 'rgba('+TR_RGB+','+(0.95-i*0.18).toFixed(2)+')';
-            return '<div style="background:'+color+';width:'+pct+'%"></div>';
+            var base = s.p>=0 ? TG_RGB : TR_RGB;
+            var a1=(0.95-i*0.18).toFixed(2), a2=(0.45-i*0.1).toFixed(2);
+            return '<div style="background:linear-gradient(90deg,rgba('+base+','+a1+'),rgba('+base+','+a2+'));width:'+pct+'%"></div>';
           }).join('');
           var rows = sessions.map(function(s,i){
             var color = s.p>=0 ? 'rgba('+TG_RGB+','+(0.95-i*0.18).toFixed(2)+')' : 'rgba('+TR_RGB+','+(0.95-i*0.18).toFixed(2)+')';
@@ -43052,8 +43053,9 @@ window.toggleSidebar = function(){
               if(cell.pnl>0) bg='rgba('+TG_RGB+','+(0.15+intensity*0.75).toFixed(2)+')';
               else bg='rgba('+TR_RGB+','+(0.15+intensity*0.75).toFixed(2)+')';
             }
+            var glowStyle = (cell.n>0 && intensity>0.6) ? ';box-shadow:0 0 6px rgba('+(cell.pnl>0?TG_RGB:TR_RGB)+',.45)' : '';
             var title=dow+' '+String(h).padStart(2,'0')+':00'+(cell.n>0?' · '+(cell.pnl>=0?'+':'')+ci.sym+Math.round(cell.pnl)+' · '+cell.n+' tr':'· no trades');
-            return '<div title="'+title+'" style="border-radius:2px;background:'+bg+';height:22px"></div>';
+            return '<div title="'+title+'" style="border-radius:2px;background:'+bg+';height:22px'+glowStyle+'"></div>';
           }).join('');
           return '<div style="text-align:right;font-size:9.5px;color:var(--text3);font-weight:700;display:flex;align-items:center;padding-right:4px">'+dow+'</div>'+cells;
         }).join('');
@@ -43229,9 +43231,9 @@ window.toggleSidebar = function(){
                   '<linearGradient id="wlGradLoss" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="'+TR+'" stop-opacity="1"/><stop offset="100%" stop-color="'+TR+'" stop-opacity=".6"/></linearGradient>' +
                 '</defs>' +
                 '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="rgba(255,255,255,.06)" stroke-width="3.5"/>' +
-                '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="url(#wlGradWin)" stroke-width="3.5" stroke-dasharray="'+winPctOfAll.toFixed(2)+' 100" stroke-dashoffset="0" transform="rotate(-90 18 18)" stroke-linecap="round" style="filter:drop-shadow(0 0 3px rgba('+TG_RGB+',.5))"/>' +
+                '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="url(#wlGradWin)" stroke-width="3.5" stroke-dasharray="'+winPctOfAll.toFixed(2)+' 100" stroke-dashoffset="0" transform="rotate(-90 18 18)" stroke-linecap="round" style="filter:drop-shadow(0 0 6px rgba('+TG_RGB+',.85))"/>' +
                 (bes>0 ? '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="#94a3b8" stroke-width="3.5" stroke-dasharray="'+bePctOfAll.toFixed(2)+' 100" stroke-dashoffset="-'+winPctOfAll.toFixed(2)+'" transform="rotate(-90 18 18)" stroke-linecap="round"/>' : '') +
-                '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="url(#wlGradLoss)" stroke-width="3.5" stroke-dasharray="'+lossPctOfAll.toFixed(2)+' 100" stroke-dashoffset="-'+(winPctOfAll+bePctOfAll).toFixed(2)+'" transform="rotate(-90 18 18)" stroke-linecap="round" style="filter:drop-shadow(0 0 3px rgba('+TR_RGB+',.5))"/>' +
+                '<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="url(#wlGradLoss)" stroke-width="3.5" stroke-dasharray="'+lossPctOfAll.toFixed(2)+' 100" stroke-dashoffset="-'+(winPctOfAll+bePctOfAll).toFixed(2)+'" transform="rotate(-90 18 18)" stroke-linecap="round" style="filter:drop-shadow(0 0 6px rgba('+TR_RGB+',.85))"/>' +
               '</svg>' +
               '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">' +
                 '<div style="font-size:23px;font-weight:700;color:var(--text);line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.5px">'+wrDecisive.toFixed(0)+'%</div>' +
@@ -43448,9 +43450,10 @@ window.toggleSidebar = function(){
             var h = Math.round((v/maxB)*90);
             var isNeg = k.indexOf('-')===0 || k==='-1..0';
             var col = (k==='≤-2'||k==='-2..-1'||k==='-1..0')?'var(--red)':(k==='0..1'?'var(--text3)':'var(--green)');
+            var rgb = (k==='≤-2'||k==='-2..-1'||k==='-1..0')?TR_RGB:(k==='0..1'?'148,163,184':TG_RGB);
             return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">'+
               '<div style="font-size:10px;color:var(--text3);font-variant-numeric:tabular-nums">'+(v||'')+'</div>'+
-              '<div style="width:100%;max-width:30px;height:'+Math.max(2,h)+'px;background:'+col+';border-radius:3px 3px 0 0;opacity:.85"></div>'+
+              '<div style="width:100%;max-width:30px;height:'+Math.max(2,h)+'px;background:linear-gradient(180deg,rgba('+rgb+',.95),rgba('+rgb+',.35));border-radius:3px 3px 0 0;filter:drop-shadow(0 0 4px rgba('+rgb+',.4))"></div>'+
               '<div style="font-size:9px;color:var(--text3);white-space:nowrap">'+k+'R</div>'+
             '</div>';
           }).join('');
@@ -43632,9 +43635,9 @@ window.toggleSidebar = function(){
     return '<div style="position:relative;width:'+size+'px;height:'+size+'px;flex-shrink:0">' +
       '<svg width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'" style="position:absolute;inset:0;transform:rotate(-90deg)">' +
         '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="var(--track)" stroke-width="4"/>' +
-        '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+color+'" stroke-width="4" stroke-linecap="round" stroke-dasharray="'+fill.toFixed(1)+' '+circ.toFixed(1)+'" style="transition:stroke-dasharray .6s ease"/>' +
+        '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+color+'" stroke-width="4" stroke-linecap="round" stroke-dasharray="'+fill.toFixed(1)+' '+circ.toFixed(1)+'" style="filter:drop-shadow(0 0 7px '+color+');transition:stroke-dasharray .6s ease"/>' +
       '</svg>' +
-      '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:'+fontSize+'px;font-weight:800;color:'+color+';font-variant-numeric:tabular-nums;letter-spacing:-.5px">'+displayPct+'</div>' +
+      '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:'+fontSize+'px;font-weight:400;color:'+color+';font-variant-numeric:tabular-nums;letter-spacing:-.5px">'+displayPct+'</div>' +
     '</div>';
   }
 
@@ -43718,7 +43721,7 @@ window.toggleSidebar = function(){
             ring +
             '<div style="flex:1;min-width:0">' +
               '<div style="font-size:14px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:3px">'+(x.a.name||'Account')+'</div>' +
-              '<div style="font-size:20px;font-weight:800;color:'+pnlColor+';font-variant-numeric:tabular-nums;letter-spacing:-.5px;line-height:1.1">'+pnlStr+'</div>' +
+              '<div style="font-size:20px;font-weight:400;color:'+pnlColor+';font-variant-numeric:tabular-nums;letter-spacing:-.5px;line-height:1.1">'+pnlStr+'</div>' +
               '<div style="font-size:11.5px;color:var(--text3);margin-top:4px">'+subInfo+'</div>' +
               ddBar +
             '</div>' +
@@ -43955,15 +43958,26 @@ window.toggleSidebar = function(){
       '</div>';
     }).join('');
 
+    var circ = 2*Math.PI*40;
+    var seg = (score/100)*circ;
+    var rgb = score>=80 ? '46,204,138' : score>=55 ? '251,191,36' : '224,92,122';
+    var ring =
+      '<svg width="92" height="92" viewBox="0 0 92 92" style="flex-shrink:0;transform:rotate(-90deg)">'+
+        '<circle cx="46" cy="46" r="40" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="7"/>'+
+        '<circle cx="46" cy="46" r="40" fill="none" stroke="'+color+'" stroke-width="7" stroke-linecap="round" '+
+          'stroke-dasharray="'+seg.toFixed(1)+' '+circ.toFixed(1)+'" style="filter:drop-shadow(0 0 5px rgba('+rgb+',.55));transition:stroke-dasharray .6s ease"/>'+
+      '</svg>';
+
     el.innerHTML =
       '<div style="display:flex;align-items:center;gap:16px;margin-bottom:10px">'+
-        '<div style="font-size:38px;font-weight:800;letter-spacing:-1.5px;color:'+color+';line-height:1">'+score+'</div>'+
+        '<div style="position:relative;width:92px;height:92px;flex-shrink:0">'+ring+
+          '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:400;letter-spacing:-1px;color:'+color+'">'+score+'</div>'+
+        '</div>'+
         '<div>'+
-          '<div style="font-size:13px;font-weight:700;color:'+color+'">'+label+'</div>'+
+          '<div style="font-size:13px;font-weight:600;color:'+color+'">'+label+'</div>'+
           '<div style="font-size:11px;color:var(--text3)">out of 100 · independent of P&amp;L</div>'+
         '</div>'+
       '</div>'+
-      '<div class="dw-bar-track" style="margin-bottom:10px"><div class="dw-bar-fill" style="width:'+score+'%;background:'+color+'"></div></div>'+
       '<div style="border-top:0.5px solid var(--border);padding-top:6px">'+factorsHtml+'</div>';
   }
 
