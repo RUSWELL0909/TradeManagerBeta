@@ -38387,11 +38387,16 @@ window.toggleSidebar = function(){
       var zoomLevel = curDPR / baseDPR;
       if(zoomLevel > maxZoom){
         var scale = maxZoom / zoomLevel;
-        document.body.style.transform = 'scale(' + scale.toFixed(4) + ')';
-        document.body.style.transformOrigin = 'top left';
-        document.body.style.width = (100 / scale).toFixed(2) + '%';
-        document.body.style.height = (100 / scale).toFixed(2) + '%';
+        // Use CSS `zoom` instead of `transform:scale()` — transform on <body> turns it into
+        // the containing block for every position:fixed element on the page (modals, the
+        // floating bulk-actions bar, toasts, etc.), trapping them inside the document instead
+        // of pinning them to the actual browser viewport. `zoom` scales layout without that side effect.
+        document.body.style.zoom = scale.toFixed(4);
+        document.body.style.transform = '';
+        document.body.style.width = '';
+        document.body.style.height = '';
       } else {
+        document.body.style.zoom = '';
         document.body.style.transform = '';
         document.body.style.width = '';
         document.body.style.height = '';
