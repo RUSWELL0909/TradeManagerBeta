@@ -4376,8 +4376,8 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(124,90,240,.15);outlin
 *{scrollbar-width:thin;scrollbar-color:rgba(124,90,240,.15) transparent}
 
 /* ── Page fade-in on switch ── */
-.page{opacity:0;transform:translateY(4px);transition:opacity .2s ease,transform .2s ease}
-.page.active{opacity:1;transform:translateY(0)}
+.page{opacity:0;transition:opacity .2s ease}
+.page.active{opacity:1}
 
 /* ── Sidebar nav — clean hover ── */
 .nav-item{position:relative}
@@ -5106,8 +5106,8 @@ button:not(:disabled):hover{filter:brightness(1.06)}
 .page.active{opacity:1}
 
 /* Premium page transition — fade + subtle slide-up */
-.page{transform:translateY(8px);transition:opacity .32s cubic-bezier(.4,0,.2,1),transform .32s cubic-bezier(.4,0,.2,1)}
-.page.active{transform:translateY(0)}
+.page{transition:opacity .32s cubic-bezier(.4,0,.2,1)}
+.page.active{}
 /* Forward direction — slide from right */
 .page.tq-page-enter{animation:tqPageEnter .35s cubic-bezier(.4,0,.2,1) forwards}
 @keyframes tqPageEnter{
