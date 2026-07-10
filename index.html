@@ -35038,26 +35038,35 @@ window.toggleSidebar = function(){
     var dailyLimit = bal * dailyPct;
 
     var sorted = trades.slice().sort(function(a,b){ return (a.date||'').localeCompare(b.date||'') || (a.entryTime||'').localeCompare(b.entryTime||''); });
-    var runBal = bal, peakBal = bal, maxDDAmount = 0, breachDate = null, breached = false;
+    var runBal = bal, peakBal = bal, maxDDAmount = 0, breachDate = null, breached = false, breachReason = null;
+    var passed = false, passDate = null;
     var dayMap = {};
+    var dayStartBal = bal, curDay = null;
     sorted.forEach(function(t){
-      if(breached) return;
+      if(breached || passed) return;
+      var td = t.date || '';
+      if(td !== curDay){ curDay = td; dayStartBal = runBal; }
       runBal += (typeof tqConvertTradePnl==='function' ? tqConvertTradePnl(t) : (parseFloat(t.pnl)||0));
       if(runBal > peakBal) peakBal = runBal;
       var ddAmt = peakBal - runBal;
       if(ddAmt > maxDDAmount) maxDDAmount = ddAmt;
-      if(runBal <= failBal && !breached){ breached = true; breachDate = t.date; }
+      // Max drawdown breach
+      if(runBal <= failBal){ breached = true; breachDate = t.date; breachReason = 'max drawdown'; }
+      // Daily loss breach — the limit dead-code bug: this was computed but never checked before
+      var dayLoss = dayStartBal - runBal;
+      if(!breached && dayLoss >= dailyLimit){ breached = true; breachDate = t.date; breachReason = 'daily loss limit'; }
+      // Profit target reached — a real prop challenge ends here (successfully)
+      if(!breached && runBal >= targetBal){ passed = true; passDate = t.date; }
       if(t.date) dayMap[t.date] = true;
     });
     var tradingDays = Object.keys(dayMap).length;
-    var passed = !breached && runBal >= targetBal;
     var netPnl = runBal - bal;
     var maxDDPctActual = (maxDDAmount/bal*100);
 
     var verdictColor = breached ? 'var(--red)' : passed ? 'var(--green)' : '#fbbf24';
-    var verdictText = breached ? '❌ Would have breached max drawdown on '+breachDate
-      : passed ? '✅ Would have passed — target reached without breaching limits'
-      : '⏳ In progress — neither passed nor breached yet';
+    var verdictText = breached ? '❌ Would have breached '+breachReason+' on '+breachDate
+      : passed ? '✅ Would have passed — target reached on '+passDate+' without breaching limits'
+      : '⏳ In progress — neither passed nor breached yet (ran through all '+trades.length+' trades)';
 
     resultEl.innerHTML =
       '<div style="padding:14px 16px;border-radius:10px;background:'+(breached?'rgba(239,68,68,.06)':passed?'rgba(29,233,182,.06)':'rgba(251,191,36,.06)')+';border:1px solid '+(breached?'rgba(239,68,68,.15)':passed?'rgba(29,233,182,.15)':'rgba(251,191,36,.15)')+';margin-bottom:14px">'
