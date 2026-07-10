@@ -3371,7 +3371,7 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(124,90,240,.15);outlin
 .jr-today{background:linear-gradient(135deg,rgba(124,90,240,.04),var(--card));border:1px solid var(--border);border-radius:14px;padding:18px 24px;margin-bottom:16px;display:flex;align-items:center;gap:22px;box-shadow:0 1px 2px rgba(16,24,40,.03)}
 .jr-today-badge{padding:6px 15px;border-radius:8px;background:var(--accent);color:white;font-size:12.5px;font-weight:600;font-family:Inter,sans-serif;flex-shrink:0;box-shadow:0 2px 10px rgba(124,90,240,.18)}
 .jr-today-stats{display:flex;gap:28px;flex:1}
-.jr-today-stat{text-align:center}
+.jr-today-stat{text-align:center;padding:8px 18px;border-radius:10px}
 .jr-today-stat-val{font-size:21px;font-weight:500;letter-spacing:-.5px}
 .jr-today-mini{width:120px;height:40px;flex-shrink:0}
 .jr-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;flex-wrap:wrap}
@@ -4035,8 +4035,12 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(124,90,240,.15);outlin
 .jr-period-pills{display:flex;gap:4px;margin-right:8px}
 /* Bulk checkbox */
 .jr-bulk-cb{width:16px;height:16px;accent-color:var(--accent);cursor:pointer}
-.jr-bulk-bar{display:none;align-items:center;gap:10px;padding:10px 18px;background:rgba(124,90,240,.03);border:1px solid rgba(124,90,240,.06);border-radius:10px;margin-bottom:12px;font-size:11px}
-.jr-bulk-bar.show{display:flex}
+.jr-bulk-bar{display:none;align-items:center;gap:14px;padding:12px 20px;background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 8px 30px rgba(16,24,40,.18),0 2px 8px rgba(16,24,40,.08);font-size:12.5px;position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);z-index:500;opacity:0;transition:opacity .2s ease,transform .2s ease;min-width:420px}
+.jr-bulk-bar.show{display:flex;opacity:1;transform:translateX(-50%) translateY(0)}
+.jr-bulk-action{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:Inter,sans-serif;display:flex;align-items:center;gap:6px;transition:all .15s}
+.jr-bulk-action:hover{border-color:var(--accent);color:var(--accent3);background:rgba(124,90,240,.05)}
+.jr-bulk-action.danger{color:var(--red);border-color:rgba(224,92,122,.2)}
+.jr-bulk-action.danger:hover{background:rgba(224,92,122,.06);border-color:var(--red)}
 /* Running P&L column */
 .jr-running{font-family:Inter,sans-serif;font-size:13px;font-weight:400;color:var(--text3)}
 .rpt-meter-fill{height:100%;border-radius:8px}
@@ -6872,6 +6876,13 @@ window.toggleSidebar = function(){
         <button class="jr-filter" onclick="jrFilter('loss',this)">Losses</button>
         <button class="jr-filter" onclick="jrFilter('be',this)">BE</button>
         <div style="flex:1"></div>
+        <select class="jr-select" id="jr-groupby" style="width:118px;padding:6px 10px;font-size:12px" onchange="renderJournal()" title="Group rows by">
+          <option value="date">Group: Date</option>
+          <option value="pair">Group: Pair</option>
+          <option value="setup">Group: Setup</option>
+          <option value="emotion">Group: Emotion</option>
+          <option value="none">No grouping</option>
+        </select>
         <select class="jr-select" id="jr-sort" style="width:130px;padding:6px 10px;font-size:11px" onchange="renderJournal()">
           <option value="date-desc">Newest first</option>
           <option value="date-asc">Oldest first</option>
@@ -6926,13 +6937,17 @@ window.toggleSidebar = function(){
       </div>
     </div>
 
-    <!-- Bulk actions bar (hidden until checkboxes selected) -->
+    <!-- Bulk actions bar (floating at bottom, hidden until checkboxes selected) -->
     <div class="jr-bulk-bar" id="jr-bulk-bar">
       <input type="checkbox" class="jr-bulk-cb" id="jr-bulk-all" onchange="jrBulkAll(this.checked)">
-      <span id="jr-bulk-count">0 selected</span>
-      <div style="flex:1"></div>
-      <button class="pb-btn pb-btn-ghost" style="padding:5px 14px;font-size:10px;color:var(--red);border-color:rgba(239,68,68,.2)" onclick="jrBulkDelete()">Delete Selected</button>
+      <span id="jr-bulk-count" style="font-weight:600;color:var(--text2);white-space:nowrap">0 selected</span>
+      <div style="width:1px;height:20px;background:var(--border)"></div>
+      <button class="jr-bulk-action" onclick="jrBulkQuickTag()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41L11 3.83A2 2 0 009.59 3H4a1 1 0 00-1 1v5.59a2 2 0 00.59 1.41l9.58 9.58a2 2 0 002.82 0l4.6-4.6a2 2 0 000-2.82z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>Tag Setup</button>
+      <button class="jr-bulk-action" onclick="jrBulkDuplicate()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Duplicate</button>
+      <button class="jr-bulk-action danger" onclick="jrBulkDelete()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg>Delete</button>
+      <button class="jr-bulk-action" style="border:none;padding:6px" onclick="jrBulkAll(false);document.querySelectorAll('.jr-row-cb').forEach(function(cb){cb.checked=false;});" title="Clear selection">✕</button>
     </div>
+
 
     <!-- Prop firm rule status banner (Block 4 — shows when account w/ rules is filtered) -->
     <div id="jr-rule-banner" style="display:none;margin-bottom:14px"></div>
@@ -27558,6 +27573,37 @@ window.toggleSidebar = function(){
   }
   window.jrBulkDelete = jrBulkDelete;
 
+  // ── Bulk quick-tag (apply a setup name to every selected trade in one go) ──
+  function jrBulkQuickTag(){
+    var ids=Object.keys(jrSelected);
+    if(!ids.length) return;
+    var setupName = prompt('Apply setup name to '+ids.length+' selected trade'+(ids.length!==1?'s':'')+':');
+    if(setupName===null || !setupName.trim()) return;
+    var trades = getTradesArr();
+    trades.forEach(function(t){ if(jrSelected[t.id]) t.setup = setupName.trim(); });
+    rfxSet('rf_trades', JSON.stringify(trades));
+    if(typeof tqToast==='function') tqToast('✓ Tagged '+ids.length+' trade'+(ids.length!==1?'s':'')+' with "'+setupName.trim()+'"', {type:'success', duration:3000});
+    jrSelected={};
+    var bar=document.getElementById('jr-bulk-bar'); if(bar) bar.className='jr-bulk-bar';
+    renderJournal();
+  }
+  window.jrBulkQuickTag = jrBulkQuickTag;
+
+  // ── Bulk duplicate (clone every selected trade as a fresh draft, reusing the single-trade path) ──
+  function jrBulkDuplicate(){
+    var ids=Object.keys(jrSelected);
+    if(!ids.length) return;
+    tqConfirm('Duplicate '+ids.length+' selected trade'+(ids.length!==1?'s':'')+' as new draft entries?', {title:'Duplicate '+ids.length+' trades', okLabel:'Duplicate'}).then(function(ok){
+      if(!ok) return;
+      ids.forEach(function(tid){ try{ jrDuplicateTrade(tid); }catch(e){} });
+      jrSelected={};
+      var bar=document.getElementById('jr-bulk-bar'); if(bar) bar.className='jr-bulk-bar';
+      if(typeof tqToast==='function') tqToast('✓ Duplicated '+ids.length+' trade'+(ids.length!==1?'s':''), {type:'success', duration:3000});
+      renderJournal();
+    });
+  }
+  window.jrBulkDuplicate = jrBulkDuplicate;
+
   // ── Duplicate trade ──
   function jrDuplicateTrade(id){
     var trades=getTradesArr();
@@ -30598,10 +30644,16 @@ window.toggleSidebar = function(){
       var runMap={};
       tSorted.forEach(function(tr){runningPnl += tqConvertTradePnl(tr);runMap[tr.id]=runningPnl;});
 
-      // Group by date for day separators
+      // Group rows — respects the Group By selector (date / pair / setup / emotion / none)
+      var groupBy = (document.getElementById('jr-groupby')||{}).value || 'date';
       var dayGroups={};var dayOrder=[];
       t.forEach(function(tr){
-        var d=tr.date||'Unknown';
+        var d;
+        if(groupBy==='none') d='__all__';
+        else if(groupBy==='pair') d=tr.pair||'Other';
+        else if(groupBy==='setup') d=tr._setupDisplay||tr.setup||'No Setup';
+        else if(groupBy==='emotion') d=tr.emotion||'Untagged';
+        else d=tr.date||'Unknown';
         if(!dayGroups[d]){dayGroups[d]=[];dayOrder.push(d);}
         dayGroups[d].push(tr);
       });
@@ -30619,14 +30671,25 @@ window.toggleSidebar = function(){
         var dayTrades=dayGroups[day];
         var dayPnl=dayTrades.reduce(function(a,x){return a+tqConvertTradePnl(x);},0);
         var dayWins=dayTrades.filter(function(x){return tqConvertTradePnl(x)>0;}).length;
-        var dateObj=new Date(day+'T12:00:00');
-        var dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-        var monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-        var dayLabel=isNaN(dateObj.getTime())?day:(dayNames[dateObj.getDay()]+', '+monthNames[dateObj.getMonth()]+' '+dateObj.getDate());
+        var dayLabel;
+        if(groupBy==='none'){
+          dayLabel = 'All trades';
+        } else if(groupBy==='date'){
+          var dateObj=new Date(day+'T12:00:00');
+          var dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+          var monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+          dayLabel=isNaN(dateObj.getTime())?day:(dayNames[dateObj.getDay()]+', '+monthNames[dateObj.getMonth()]+' '+dateObj.getDate());
+        } else {
+          dayLabel = escapeHtml(day);
+        }
+        if(groupBy==='none'){
+          h+='';
+        } else {
         h+='<tr class="jr-day-sep"><td colspan="12"><div style="display:flex;justify-content:space-between;align-items:center">'
           +'<span>'+dayLabel+' — '+dayTrades.length+' trade'+(dayTrades.length>1?'s':'')+(dayWins>0?' · '+dayWins+'W':'')+'</span>'
           +'<span style="font-weight:600;color:'+(dayPnl>=0?'var(--green)':'var(--red)')+'">'+(dayPnl>=0?'+':'-')+'$'+Math.abs(dayPnl).toLocaleString('en-US')+'</span>'
           +'</div></td></tr>';
+        }
 
         dayTrades.forEach(function(tr){
           var pnl2=tr.pnl||0;
@@ -30637,10 +30700,10 @@ window.toggleSidebar = function(){
           var isLong=dir==='buy'||dir==='long';
           var dirCls=isLong?'jr-pill-buy':'jr-pill-sell';
           var dirLabel=isLong?'LONG':'SHORT';
-          var rr='—';
+          var rr='—', rrNum=null;
           if(tr.entry&&tr.sl&&tr.exit){
             var risk=Math.abs(tr.entry-tr.sl);
-            if(risk>0.00001) rr=(Math.abs(tr.exit-tr.entry)/risk).toFixed(1)+'R';
+            if(risk>0.00001){ rrNum=Math.abs(tr.exit-tr.entry)/risk; rr=rrNum.toFixed(1)+'R'; }
           }
           var confCount=(tr.confluences||[]).length;
           var setupText=tr._setupDisplay||tr.setup||'—';
@@ -30649,13 +30712,17 @@ window.toggleSidebar = function(){
 
           h+='<tr class="'+glowCls+'" style="cursor:pointer" onclick="jrViewDetail(\''+tr.id+'\')">'
             +'<td onclick="event.stopPropagation()"><input type="checkbox" class="jr-bulk-cb jr-row-cb" data-id="'+tr.id+'" onchange="jrToggleBulk(\''+tr.id+'\',this)"></td>'
-            +'<td style="font-family:Inter,sans-serif;font-size:11.5px;color:var(--text3)">'+(tr.date||'—').slice(5)+'</td>'
-            +'<td style="font-weight:700;color:var(--text)">'+tr.pair+'</td>'
+            +'<td style="font-family:Inter,sans-serif;font-size:13px;color:var(--text3)">'+(tr.date||'—').slice(5)+'</td>'
+            +'<td style="font-weight:700;font-size:14px;color:var(--text)">'+tr.pair+'</td>'
             +'<td><span class="jr-pill '+dirCls+'">'+dirLabel+'</span></td>'
-            +'<td style="font-size:12px;color:var(--text2)">'+setupText+(confCount>0?' <span style="color:var(--accent);font-size:9px;font-family:Inter,sans-serif">'+confCount+'cf</span>':'')+'</td>'
-            +'<td><span class="'+gradeClass(tr.grade)+'">'+(tr.grade||'<span class="tq-text-muted">—</span>')+'</span></td>'
-            +'<td style="font-size:12px">'+(tr.emotion||'<span class="tq-text-muted">—</span>')+'</td>'
-            +'<td class="jr-num" style="font-family:Inter,sans-serif;font-size:12px;color:var(--text2)">'+rr+'</td>'
+            +'<td style="font-size:13px;color:var(--text2)">'+setupText+(confCount>0?' <span style="color:var(--accent);font-size:10.5px;font-family:Inter,sans-serif">'+confCount+'cf</span>':'')+'</td>'
+            +'<td><span class="'+gradeClass(tr.grade)+'" style="font-size:13px">'+(tr.grade||'<span class="tq-text-muted">—</span>')+'</span></td>'
+            +'<td style="font-size:13px">'+(tr.emotion||'<span class="tq-text-muted">—</span>')+'</td>'
+            +'<td class="jr-num">'+(rrNum===null?'<span style="font-family:Inter,sans-serif;font-size:13px;color:var(--text3)">—</span>':
+              '<div style="display:flex;align-items:center;gap:6px;justify-content:flex-end">'
+                +'<span style="font-family:Inter,sans-serif;font-size:13px;color:var(--text2);white-space:nowrap">'+rr+'</span>'
+                +'<div style="width:34px;height:5px;background:var(--track);border-radius:3px;overflow:hidden;flex-shrink:0"><div style="width:'+Math.min(100,rrNum/3*100).toFixed(0)+'%;height:100%;background:'+(pnl2>=0?'var(--green)':'var(--red)')+';opacity:.85;border-radius:3px"></div></div>'
+              +'</div>')+'</td>'
             +'<td class="jr-num" style="font-weight:500;font-size:15px;font-family:Inter,sans-serif;letter-spacing:-.2px;color:'+(pnl2>=0?'var(--green)':'var(--red)')+'">'+(pnl2>=0?'+':'-')+'$'+Math.abs(pnl2).toLocaleString('en-US')+'</td>'
             +'<td class="jr-num jr-running" style="color:'+(running>=0?'var(--green)':'var(--red)')+'">'+(running>=0?'+':'-')+'$'+Math.abs(running).toLocaleString('en-US')+'</td>'
             +'<td><span class="jr-pill '+resultCls+'">'+result+'</span></td>'
