@@ -2658,6 +2658,18 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(124,90,240,.15);outlin
     min-height: 72px; border-radius: 6px; background: var(--bg2);
     border: 1.5px solid rgba(124,90,240,.15); opacity: .45;
   }
+  /* Selected-day accent ring — layers on top of win/loss/be background so both signals read at once */
+  .dash-cal-cell.selected { box-shadow: 0 0 0 2px var(--accent), 0 0 12px rgba(124,90,240,.25) !important; border-color: var(--accent) !important; }
+  .dash-cal-cell.selected.today { box-shadow: 0 0 0 2px var(--accent), 0 0 0 4px rgba(124,90,240,.2) !important; }
+  /* Weekly Result column */
+  .dash-cal-week-cell {
+    min-height: 72px; border-radius: 6px; padding: 8px 6px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+    background: rgba(124,90,240,.04); border: 1px solid rgba(124,90,240,.1);
+  }
+  .dash-cal-week-cell.empty { opacity: .4; }
+  .dash-cal-week-pnl { font-size: 14px; font-weight: 500; font-family: 'Inter', sans-serif; letter-spacing: -.3px; font-variant-numeric: tabular-nums; }
+  .dash-cal-week-trades { font-size: 9px; color: var(--text3); font-family: 'Inter', sans-serif; text-align: center; }
 
   /* Gauge circles */
   #dash-wr-circle, #dash-pf-circle, #dash-daywr-circle {
@@ -6032,7 +6044,7 @@ window.toggleSidebar = function(){
           <option value="__new__">+ New preset…</option>
         </select>
         <button id="ck-preset-rename" onclick="var cp=ckActiveCustomPreset();if(cp)ckRenameCustomPreset(cp.id);" title="Rename this preset" style="display:none;background:none;border:1px solid var(--border);color:var(--text3);padding:6px 8px;border-radius:7px;cursor:pointer"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-        <button id="ck-preset-delete" onclick="var cp=ckActiveCustomPreset();if(cp&&confirm('Delete preset \''+cp.name+'\'? Your trades are not affected.'))ckDeleteCustomPreset(cp.id);" title="Delete this preset" style="display:none;background:none;border:1px solid var(--border);color:var(--text3);padding:6px 8px;border-radius:7px;cursor:pointer"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button>
+        <button id="ck-preset-delete" onclick="var cp=ckActiveCustomPreset();if(cp)ckDeleteCustomPreset(cp.id);" title="Delete this preset" style="display:none;background:none;border:1px solid var(--border);color:var(--text3);padding:6px 8px;border-radius:7px;cursor:pointer"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button>
       </div>
     </div>
 
@@ -6575,9 +6587,13 @@ window.toggleSidebar = function(){
               <div class="tq-row"><button id="dash-cal-prev" class="dash-cal-nav">&#8249;</button><span id="dash-cal-title" style="font-size:13px;font-weight:600;font-family:Inter,sans-serif;letter-spacing:-.3px"></span><span class="info-icon" data-tip="Daily net P&amp;L calendar. Color intensity = size of the day. Footer shows the month's best and worst day.">i</span><button id="dash-cal-next" class="dash-cal-nav">&#8250;</button></div>
               <div class="tq-row"><div id="dash-cal-month-total" style="font-size:12px;font-weight:600;font-family:Inter,sans-serif;color:var(--text3)"></div><button class="btn btn-ghost" style="font-size:10px;padding:3px 8px" id="dash-cal-today">This month</button></div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px"><div class="dash-cal-hdr">SUN</div><div class="dash-cal-hdr">MON</div><div class="dash-cal-hdr">TUE</div><div class="dash-cal-hdr">WED</div><div class="dash-cal-hdr">THU</div><div class="dash-cal-hdr">FRI</div><div class="dash-cal-hdr">SAT</div></div>
-            <div id="dash-calendar-grid" style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px"></div>
-            <div id="dash-cal-month-bw" style="margin-top:10px;font-size:11.5px;color:var(--text3);font-weight:500"></div>
+            <div style="display:grid;grid-template-columns:repeat(7,1fr) 92px;gap:3px;margin-bottom:4px"><div class="dash-cal-hdr">SUN</div><div class="dash-cal-hdr">MON</div><div class="dash-cal-hdr">TUE</div><div class="dash-cal-hdr">WED</div><div class="dash-cal-hdr">THU</div><div class="dash-cal-hdr">FRI</div><div class="dash-cal-hdr">SAT</div><div class="dash-cal-hdr" style="text-align:center">WEEK</div></div>
+            <div id="dash-calendar-grid" style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr)) 92px;gap:3px"></div>
+            <div style="display:flex;align-items:center;gap:16px;margin-top:10px;font-size:10.5px;color:var(--text3);font-family:Inter,sans-serif">
+              <span style="display:flex;align-items:center;gap:5px">Loss <span style="display:inline-flex;gap:2px"><span style="width:11px;height:11px;border-radius:3px;background:rgba(224,92,122,.25)"></span><span style="width:11px;height:11px;border-radius:3px;background:rgba(224,92,122,.55)"></span><span style="width:11px;height:11px;border-radius:3px;background:rgba(224,92,122,.9)"></span></span></span>
+              <span style="display:flex;align-items:center;gap:5px">Profit <span style="display:inline-flex;gap:2px"><span style="width:11px;height:11px;border-radius:3px;background:rgba(46,204,138,.25)"></span><span style="width:11px;height:11px;border-radius:3px;background:rgba(46,204,138,.55)"></span><span style="width:11px;height:11px;border-radius:3px;background:rgba(46,204,138,.9)"></span></span></span>
+            </div>
+            <div id="dash-cal-month-bw" style="margin-top:6px;font-size:11.5px;color:var(--text3);font-weight:500"></div>
           </div>
         </div>
         </div><!-- /section recent-calendar -->
@@ -10741,17 +10757,21 @@ window.toggleSidebar = function(){
     } catch(e){ alert('Export failed: '+e.message); }
   };
   window.settingsClearConfirm = function(){
-    if(!confirm('⚠ This will permanently delete ALL your local data (trades, notes, playbook, case studies, settings). Cloud-synced data will remain. Continue?')) return;
-    if(!confirm('Are you absolutely sure? This cannot be undone.')) return;
-    var keys = [];
-    for(var k in localStorage){
-      if(localStorage.hasOwnProperty(k) && (k.startsWith('rf_') || k.startsWith('tb_') || k.startsWith('rossfx-'))){
-        keys.push(k);
-      }
-    }
-    keys.forEach(function(k){ localStorage.removeItem(k); });
-    if(typeof tqToast==='function'){tqToast('Local data cleared. Reloading...',{type:'success'});}else{alert('Local data cleared. Reloading...');}
-    location.reload();
+    tqConfirm('⚠ This will permanently delete ALL your local data (trades, notes, playbook, case studies, settings). Cloud-synced data will remain. Continue?', {title:'Clear Local Data', okLabel:'Continue', danger:true}).then(function(ok1){
+      if(!ok1) return;
+      tqConfirm('Are you absolutely sure? This cannot be undone.', {title:'Final Confirmation', okLabel:'Delete Everything', danger:true}).then(function(ok2){
+        if(!ok2) return;
+        var keys = [];
+        for(var k in localStorage){
+          if(localStorage.hasOwnProperty(k) && (k.startsWith('rf_') || k.startsWith('tb_') || k.startsWith('rossfx-'))){
+            keys.push(k);
+          }
+        }
+        keys.forEach(function(k){ localStorage.removeItem(k); });
+        if(typeof tqToast==='function'){tqToast('Local data cleared. Reloading...',{type:'success'});}else{alert('Local data cleared. Reloading...');}
+        location.reload();
+      });
+    });
   };
   // Active style for theme buttons
   var st = document.createElement('style');
@@ -10790,10 +10810,11 @@ window.toggleSidebar = function(){
   };
 
   window.tcSettingsAddNew = function(){
-    var name = prompt('Category name (e.g. "Sleep", "Confidence", "Day type"):');
-    if(!name || !name.trim()) return;
-    if(typeof tcAdd === 'function') tcAdd(name.trim(), []);
-    tcSettingsRender();
+    tqPrompt('', {title:'New Category', placeholder:'e.g. Sleep, Confidence, Day type...'}).then(function(name){
+      if(!name || !name.trim()) return;
+      if(typeof tcAdd === 'function') tcAdd(name.trim(), []);
+      tcSettingsRender();
+    });
   };
 
   window.tcSettingsRenameCategory = function(id, newName){
@@ -10802,9 +10823,11 @@ window.toggleSidebar = function(){
   };
 
   window.tcSettingsDeleteCategory = function(id){
-    if(!confirm('Delete this category? Existing trades keep their tags but the category disappears from the Add Trade modal.')) return;
-    if(typeof tcDelete === 'function') tcDelete(id);
-    tcSettingsRender();
+    tqConfirm('Delete this category? Existing trades keep their tags but the category disappears from the Add Trade modal.', {title:'Delete Category', okLabel:'Delete', danger:true}).then(function(ok){
+      if(!ok) return;
+      if(typeof tcDelete === 'function') tcDelete(id);
+      tcSettingsRender();
+    });
   };
 
   window.tcSettingsAddOption = function(catId, opt){
@@ -10830,10 +10853,12 @@ window.toggleSidebar = function(){
   };
 
   window.tcSettingsResetDefaults = function(){
-    if(!confirm('Restore default tag categories? Your custom categories will be replaced. Existing trades keep their tags.')) return;
-    if(typeof tcResetDefaults === 'function') tcResetDefaults();
-    tcSettingsRender();
-    if(typeof tqToast==='function') tqToast('Default categories restored', {type:'success'});
+    tqConfirm('Restore default tag categories? Your custom categories will be replaced. Existing trades keep their tags.', {title:'Restore Defaults', okLabel:'Restore'}).then(function(ok){
+      if(!ok) return;
+      if(typeof tcResetDefaults === 'function') tcResetDefaults();
+      tcSettingsRender();
+      if(typeof tqToast==='function') tqToast('Default categories restored', {type:'success'});
+    });
   };
 
   // ══ LEGAL MODAL (May 2026) ══
@@ -10909,11 +10934,6 @@ window.toggleSidebar = function(){
     var msg = 'PERMANENTLY DELETE your TradeQuill account?\n\n' +
               'This will:\n• Delete all trades, notes, settings\n• Sign you out\n• Cannot be undone\n\n' +
               'Export your data first if you want a backup.';
-    if(typeof tqConfirm !== 'function'){
-      if(!confirm(msg)) return;
-      _tqPerformDelete();
-      return;
-    }
     tqConfirm(msg, { title: '⚠️ Delete account', okLabel: 'Yes, delete everything', danger: true }).then(function(ok){
       if(!ok) return;
       tqConfirm('Final confirmation. This is irreversible.', { title: 'Last chance', okLabel: 'I understand — delete now', danger: true }).then(function(ok2){
@@ -11054,7 +11074,8 @@ window.toggleSidebar = function(){
   };
 
   window.aiChatClear = async function(){
-    if(!confirm('Clear this conversation? This permanently deletes all messages for this '+(currentTradeId?'trade':'chat')+'.')) return;
+    var ok = await tqConfirm('Clear this conversation? This permanently deletes all messages for this '+(currentTradeId?'trade':'chat')+'.', {title:'Clear Conversation', okLabel:'Clear', danger:true});
+    if(!ok) return;
     if(typeof tqDeleteAIConversation === 'function'){
       await tqDeleteAIConversation(currentTradeId);
     }
@@ -14880,11 +14901,13 @@ window.toggleSidebar = function(){
     }
     if(purgeBtn){
       purgeBtn.addEventListener('click', function(){
-        if(!confirm('Move '+orphans.length+' unassigned trades to Trash? Restorable for 90 days.')) return;
-        var n = tqDeleteOrphans();
-        _closeOrphan();
-        _refreshAfter();
-        _toast('✓ '+n+' trades moved to Trash');
+        tqConfirm('Move '+orphans.length+' unassigned trades to Trash? Restorable for 90 days.', {title:'Move to Trash', okLabel:'Move to Trash', danger:true}).then(function(ok){
+          if(!ok) return;
+          var n = tqDeleteOrphans();
+          _closeOrphan();
+          _refreshAfter();
+          _toast('✓ '+n+' trades moved to Trash');
+        });
       });
     }
     if(createBtn){
@@ -15705,7 +15728,8 @@ window.toggleSidebar = function(){
       var msg = 'Move ALL ' + active.length + ' trades to Trash?\n\n';
       msg += '✅ Restorable for 90 days from Trash.\n';
       msg += '⚠ After 90 days, permanently deleted.';
-      if(!confirm(msg)) return;
+      tqConfirm(msg, {title:'Delete All Trades', okLabel:'Move to Trash', danger:true}).then(function(ok){
+      if(!ok) return;
 
       var bulkId = 'bulk_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
       var bulkAt = new Date().toISOString();
@@ -15730,6 +15754,7 @@ window.toggleSidebar = function(){
       if(typeof trUpdateBadge === 'function') try{ trUpdateBadge(); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
 
       if(typeof tqToast==='function'){tqToast('✓ Moved ' + count + ' trades to Trash. Restorable from Trash for 90 days.',{type:'success'});}else{alert('✓ Moved ' + count + ' trades to Trash. Restorable from Trash for 90 days.');}
+      });
     };
     function accSave(list){
       rfxSet('rf_accounts', JSON.stringify(list));
@@ -16072,15 +16097,16 @@ window.toggleSidebar = function(){
       msg += '✅ All ' + attachedCount + ' trades stay visible in your reports.\n';
       msg += '🔒 Account becomes read-only — no new trades can be added to it.\n';
       msg += '↶ You can unarchive anytime from My Accounts.';
-      if(!confirm(msg)) return;
-
-      a.archived = true;
-      a.archivedAt = new Date().toISOString();
-      accs[idx] = a;
-      accSave(accs);
-      renderAccountsPage();
-      // Refresh other places that show account dropdowns
-      _accSyncDropdowns();
+      tqConfirm(msg, {title:'Archive Account', okLabel:'Archive'}).then(function(ok){
+        if(!ok) return;
+        a.archived = true;
+        a.archivedAt = new Date().toISOString();
+        accs[idx] = a;
+        accSave(accs);
+        renderAccountsPage();
+        // Refresh other places that show account dropdowns
+        _accSyncDropdowns();
+      });
     }
     window.archiveAccount = archiveAccount;
 
@@ -19127,9 +19153,9 @@ window.toggleSidebar = function(){
     window.obPrev = obPrev;
 
     function obSkipTour(){
-      if(confirm('Skip the tour? You can restart it anytime from Settings.')){
-        obComplete();
-      }
+      tqConfirm('Skip the tour? You can restart it anytime from Settings.', {title:'Skip Tour', okLabel:'Skip'}).then(function(ok){
+        if(ok) obComplete();
+      });
     }
     window.obSkipTour = obSkipTour;
 
@@ -26160,7 +26186,8 @@ window.toggleSidebar = function(){
       del.style.cssText = 'color:var(--red);border-color:rgba(239,68,68,.3);margin-right:auto';
       del.textContent = 'Delete';
       del.onclick = function(){
-        if(confirm('Move this case study to Trash?\n\nIt will be auto-deleted after 90 days, but you can restore it from Trash anytime.')){
+        tqConfirm('Move this case study to Trash?\n\nIt will be auto-deleted after 90 days, but you can restore it from Trash anytime.', {title:'Delete Case Study', okLabel:'Move to Trash', danger:true}).then(function(ok){
+          if(!ok) return;
           if(typeof trSoftDelete === 'function'){
             trSoftDelete('case', csEditId);
             // Re-read caseStudies to keep in sync (trSoftDelete modified storage)
@@ -26174,7 +26201,7 @@ window.toggleSidebar = function(){
           closeModal('addCS');
           renderCS();
           _csResetModal();
-        }
+        });
       };
       footer.insertBefore(del, footer.firstChild);
     }
@@ -26975,26 +27002,29 @@ window.toggleSidebar = function(){
   window.jrRenderCustomTags=jrRenderCustomTags;
 
   function jrAddCustomTag(){
-    var name=prompt('Enter custom tag name:');
-    if(!name||!name.trim())return;
-    name=name.trim();
-    var defs=jrGetCustomTagDefs();
-    if(defs.indexOf(name)>=0){alert('Tag "'+name+'" already exists');return;}
-    defs.push(name);
-    jrSaveCustomTagDefs(defs);
-    // Re-render with current active tags preserved
-    var active=Array.from(document.querySelectorAll('#jr-custom-tags-row .jr-psych-tag.on')).map(function(t){return t.getAttribute('data-tagname') || t.textContent.replace(/×/g,'').trim();});
-    active.push(name); // auto-select new tag
-    jrRenderCustomTags(active);
+    tqPrompt('', {title:'New Tag', placeholder:'Enter custom tag name...'}).then(function(name){
+      if(!name||!name.trim())return;
+      name=name.trim();
+      var defs=jrGetCustomTagDefs();
+      if(defs.indexOf(name)>=0){alert('Tag "'+name+'" already exists');return;}
+      defs.push(name);
+      jrSaveCustomTagDefs(defs);
+      // Re-render with current active tags preserved
+      var active=Array.from(document.querySelectorAll('#jr-custom-tags-row .jr-psych-tag.on')).map(function(t){return t.getAttribute('data-tagname') || t.textContent.replace(/×/g,'').trim();});
+      active.push(name); // auto-select new tag
+      jrRenderCustomTags(active);
+    });
   }
   window.jrAddCustomTag=jrAddCustomTag;
 
   function jrDeleteCustomTag(name){
-    if(!confirm('Delete tag "'+name+'"?'))return;
-    var defs=jrGetCustomTagDefs().filter(function(t){return t!==name;});
-    jrSaveCustomTagDefs(defs);
-    var active=Array.from(document.querySelectorAll('#jr-custom-tags-row .jr-psych-tag.on')).map(function(t){return t.getAttribute('data-tagname') || t.textContent.replace(/×/g,'').trim();});
-    jrRenderCustomTags(active);
+    tqConfirm('Delete tag "'+name+'"?', {title:'Delete Tag', okLabel:'Delete', danger:true}).then(function(ok){
+      if(!ok) return;
+      var defs=jrGetCustomTagDefs().filter(function(t){return t!==name;});
+      jrSaveCustomTagDefs(defs);
+      var active=Array.from(document.querySelectorAll('#jr-custom-tags-row .jr-psych-tag.on')).map(function(t){return t.getAttribute('data-tagname') || t.textContent.replace(/×/g,'').trim();});
+      jrRenderCustomTags(active);
+    });
   }
   window.jrDeleteCustomTag=jrDeleteCustomTag;
 
@@ -27578,15 +27608,16 @@ window.toggleSidebar = function(){
   function jrBulkQuickTag(){
     var ids=Object.keys(jrSelected);
     if(!ids.length) return;
-    var setupName = prompt('Apply setup name to '+ids.length+' selected trade'+(ids.length!==1?'s':'')+':');
-    if(setupName===null || !setupName.trim()) return;
-    var trades = getTradesArr();
-    trades.forEach(function(t){ if(jrSelected[t.id]) t.setup = setupName.trim(); });
-    rfxSet('rf_trades', JSON.stringify(trades));
-    if(typeof tqToast==='function') tqToast('✓ Tagged '+ids.length+' trade'+(ids.length!==1?'s':'')+' with "'+setupName.trim()+'"', {type:'success', duration:3000});
-    jrSelected={};
-    var bar=document.getElementById('jr-bulk-bar'); if(bar) bar.className='jr-bulk-bar';
-    renderJournal();
+    tqPrompt('Apply setup name to '+ids.length+' selected trade'+(ids.length!==1?'s':'')+':', {title:'Tag Setup', okLabel:'Apply', placeholder:'e.g. Breakout, Pullback...'}).then(function(setupName){
+      if(setupName===null || !setupName.trim()) return;
+      var trades = getTradesArr();
+      trades.forEach(function(t){ if(jrSelected[t.id]) t.setup = setupName.trim(); });
+      rfxSet('rf_trades', JSON.stringify(trades));
+      if(typeof tqToast==='function') tqToast('✓ Tagged '+ids.length+' trade'+(ids.length!==1?'s':'')+' with "'+setupName.trim()+'"', {type:'success', duration:3000});
+      jrSelected={};
+      var bar=document.getElementById('jr-bulk-bar'); if(bar) bar.className='jr-bulk-bar';
+      renderJournal();
+    });
   }
   window.jrBulkQuickTag = jrBulkQuickTag;
 
@@ -28357,16 +28388,18 @@ window.toggleSidebar = function(){
           +(summary.notes||0)+' notes\n'
           +(summary.playbooks||0)+' playbooks\n\n'
           +'⚠️ This will REPLACE all current data.';
-        if(!confirm(msg)){input.value='';return;}
-        // Restore all keys
-        var restored=0;
-        Object.keys(data._keys).forEach(function(key){
-          rfxSet(key,data._keys[key]);
-          restored++;
+        tqConfirm(msg, {title:'Restore Backup', okLabel:'Restore', danger:true}).then(function(ok){
+          if(!ok){input.value='';return;}
+          // Restore all keys
+          var restored=0;
+          Object.keys(data._keys).forEach(function(key){
+            rfxSet(key,data._keys[key]);
+            restored++;
+          });
+          input.value='';
+          if(typeof tqToast==='function'){tqToast('Restored '+restored+' data keys!\n\nPage will now reload.',{type:'success'});}else{alert('Restored '+restored+' data keys!\n\nPage will now reload.');}
+          location.reload();
         });
-        input.value='';
-        if(typeof tqToast==='function'){tqToast('Restored '+restored+' data keys!\n\nPage will now reload.',{type:'success'});}else{alert('Restored '+restored+' data keys!\n\nPage will now reload.');}
-        location.reload();
       }catch(err){
         if(typeof tqToast==='function'){tqToast('Error reading backup: '+err.message,{type:'error'});}else{alert('Error reading backup: '+err.message);}
       }
@@ -28733,6 +28766,56 @@ window.toggleSidebar = function(){
     });
   }
   window.tqConfirm = tqConfirm;
+
+  // Promise-based prompt — replaces browser prompt() with a styled modal
+  function tqPrompt(msg, opts){
+    opts = opts || {};
+    var title = opts.title || 'Enter value';
+    var okLabel = opts.okLabel || 'OK';
+    var cancelLabel = opts.cancelLabel || 'Cancel';
+    var defaultValue = opts.defaultValue != null ? opts.defaultValue : '';
+    var placeholder = opts.placeholder || '';
+    return new Promise(function(resolve){
+      var prev = document.getElementById('tq-prompt-modal');
+      if(prev) prev.remove();
+      var html =
+        '<div id="tq-prompt-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;font-family:Inter,sans-serif">' +
+          '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;max-width:440px;width:100%;padding:26px;box-shadow:0 20px 60px rgba(0,0,0,.5)">' +
+            '<div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:8px">'+String(title).replace(/</g,'&lt;')+'</div>' +
+            (msg ? '<div style="font-size:13px;color:var(--text2);line-height:1.55;margin-bottom:14px;white-space:pre-wrap">'+String(msg).replace(/</g,'&lt;')+'</div>' : '') +
+            '<input id="tq-prompt-input" type="text" class="form-input" style="width:100%;margin-bottom:20px" placeholder="'+String(placeholder).replace(/"/g,'&quot;')+'">' +
+            '<div style="display:flex;gap:8px;justify-content:flex-end">' +
+              '<button id="tq-prompt-cancel" style="background:var(--bg3);color:var(--text);border:1px solid var(--border);padding:9px 18px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">'+cancelLabel+'</button>' +
+              '<button id="tq-prompt-ok" style="background:var(--accent);color:#fff;border:none;padding:9px 18px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">'+okLabel+'</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      var w = document.createElement('div');
+      w.innerHTML = html;
+      document.body.appendChild(w.firstElementChild);
+      var input = document.getElementById('tq-prompt-input');
+      input.value = defaultValue;
+
+      function done(result){
+        var m = document.getElementById('tq-prompt-modal');
+        if(m) m.remove();
+        document.removeEventListener('keydown', onKey);
+        resolve(result);
+      }
+      function onKey(e){
+        if(e.key === 'Escape') done(null);
+        else if(e.key === 'Enter'){ e.preventDefault(); done(input.value); }
+      }
+      document.getElementById('tq-prompt-ok').onclick = function(){ done(input.value); };
+      document.getElementById('tq-prompt-cancel').onclick = function(){ done(null); };
+      document.getElementById('tq-prompt-modal').onclick = function(e){
+        if(e.target.id === 'tq-prompt-modal') done(null);
+      };
+      document.addEventListener('keydown', onKey);
+      setTimeout(function(){ input.focus(); input.select(); }, 30);
+    });
+  }
+  window.tqPrompt = tqPrompt;
 
   // Monkey-patch window.alert so the 44+ legacy alert() calls render as toasts.
   // We keep window.confirm native for now — confirm() is sync (returns boolean),
@@ -29831,11 +29914,6 @@ window.toggleSidebar = function(){
 
   // Clear all demo data (trades + demo account)
   window.tqClearSampleData = function(){
-    if(typeof tqConfirm !== 'function'){
-      if(!confirm('Remove all demo data (trades + demo account)?')) return;
-      _doClearDemo();
-      return;
-    }
     tqConfirm('Remove all demo data?\n\nThis will delete the Demo Account and all sample trades. Your real trades are not affected.', {
       title: 'Clear demo data',
       okLabel: 'Remove demo',
@@ -30247,23 +30325,23 @@ window.toggleSidebar = function(){
           var el = document.getElementById(id);
           if(el) current[id] = el.value;
         });
-        // Use prompt for now (in-app modal would be nicer but we need text input)
-        var name = prompt('Save current filters as:', '');
-        if(!name) return;
-        name = name.trim().slice(0, 40);
-        if(!name) return;
-        var stored = {};
-        try{ stored = JSON.parse(rfxGet('tq_filter_presets_journal')||'{}'); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
-        stored[name] = current;
-        rfxSet('tq_filter_presets_journal', JSON.stringify(stored));
-        var sel = document.getElementById('jr-preset-load');
-        if(sel && sel._jrWired === true){
-          // Re-trigger populate by tripping the wired flag and re-running
-          sel._jrWired = false;
-          // Clear options then trigger by re-rendering
-          renderJournal();
-        }
-        if(typeof tqToast === 'function') tqToast('Saved preset: '+name, {type:'success'});
+        tqPrompt('', {title:'Save Filter Preset', placeholder:'Preset name...'}).then(function(name){
+          if(!name) return;
+          name = name.trim().slice(0, 40);
+          if(!name) return;
+          var stored = {};
+          try{ stored = JSON.parse(rfxGet('tq_filter_presets_journal')||'{}'); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
+          stored[name] = current;
+          rfxSet('tq_filter_presets_journal', JSON.stringify(stored));
+          var sel = document.getElementById('jr-preset-load');
+          if(sel && sel._jrWired === true){
+            // Re-trigger populate by tripping the wired flag and re-running
+            sel._jrWired = false;
+            // Clear options then trigger by re-rendering
+            renderJournal();
+          }
+          if(typeof tqToast === 'function') tqToast('Saved preset: '+name, {type:'success'});
+        });
       };
 
       // Date preset chips
@@ -31674,7 +31752,7 @@ window.toggleSidebar = function(){
   function ptGetGoals(){return JSON.parse(rfxGet(PT_KEY+'_goals')||'{"weekly":[],"monthly":[]}');}
   function ptSaveGoals(g){rfxSet(PT_KEY+'_goals',JSON.stringify(g));}
 
-  function ptAddGoal(type){var text=prompt('Enter your '+(type==='weekly'?'weekly':'monthly')+' goal:');if(!text||!text.trim())return;var goals=ptGetGoals();goals[type].push({text:text.trim(),done:false,id:'g_'+Date.now()+'_'+Math.random().toString(36).slice(2,7)});ptSaveGoals(goals);ptRender();}
+  function ptAddGoal(type){tqPrompt('', {title:'New '+(type==='weekly'?'Weekly':'Monthly')+' Goal', placeholder:'Enter your goal...'}).then(function(text){if(!text||!text.trim())return;var goals=ptGetGoals();goals[type].push({text:text.trim(),done:false,id:'g_'+Date.now()+'_'+Math.random().toString(36).slice(2,7)});ptSaveGoals(goals);ptRender();});}
   window.ptAddGoal=ptAddGoal;
   function ptToggleGoal(type,id){var goals=ptGetGoals();var g=goals[type].find(function(x){return x.id===id;});if(g)g.done=!g.done;ptSaveGoals(goals);ptRender();}
   window.ptToggleGoal=ptToggleGoal;
@@ -33414,21 +33492,23 @@ window.toggleSidebar = function(){
 
   function aiAskClear(){
     if(!_aiActiveConvKey){ askChatHistory=[]; aiRenderAskChat(false); return; }
-    if(!confirm('Delete this conversation permanently? This cannot be undone.'))return;
-    // Remove from Supabase
-    if(typeof tqDeleteAIConversation==='function'){ tqDeleteAIConversation(_aiActiveConvKey); }
-    // Remove from local list
-    var list = JSON.parse(rfxGet('ai_conv_list')||'[]');
-    list = list.filter(function(c){return c.key !== _aiActiveConvKey;});
-    rfxSet('ai_conv_list', JSON.stringify(list));
-    // Reset UI
-    askChatHistory=[];
-    _aiActiveConvKey = null;
-    rfxRemove && rfxRemove('ai_active_conv_key');
-    try { localStorage.removeItem('ai_active_conv_key'); } catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
-    aiRenderAskChat(false);
-    aiRenderConvList();
-    _aiUpdateConvTitle('New chat');
+    tqConfirm('Delete this conversation permanently? This cannot be undone.', {title:'Delete Conversation', okLabel:'Delete', danger:true}).then(function(ok){
+      if(!ok) return;
+      // Remove from Supabase
+      if(typeof tqDeleteAIConversation==='function'){ tqDeleteAIConversation(_aiActiveConvKey); }
+      // Remove from local list
+      var list = JSON.parse(rfxGet('ai_conv_list')||'[]');
+      list = list.filter(function(c){return c.key !== _aiActiveConvKey;});
+      rfxSet('ai_conv_list', JSON.stringify(list));
+      // Reset UI
+      askChatHistory=[];
+      _aiActiveConvKey = null;
+      rfxRemove && rfxRemove('ai_active_conv_key');
+      try { localStorage.removeItem('ai_active_conv_key'); } catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
+      aiRenderAskChat(false);
+      aiRenderConvList();
+      _aiUpdateConvTitle('New chat');
+    });
   }
   window.aiAskClear=aiAskClear;
 
@@ -34227,48 +34307,56 @@ window.toggleSidebar = function(){
   window.ckRefreshPresetSelector = ckRefreshPresetSelector;
 
   function ckCreateCustomPreset(){
-    var name = prompt('Name your preset (e.g. "Scalping", "Swing"):', '');
-    if(name === null){ ckRefreshPresetSelector(); return; } // cancelled — restore selector
-    name = name.trim();
-    if(!name){ ckRefreshPresetSelector(); return; }
-    var id = 'ckp_' + Date.now();
-    var presets = ckGetCustomPresets();
-    // Seed with the default Simple tag sets so it's usable immediately
-    presets.push({
-      id: id,
-      name: name.slice(0,30),
-      confluences: CK_DEFAULT_CONFLUENCES.slice(),
-      psych: CK_DEFAULT_PSYCH.slice()
+    tqPrompt('', {title:'New Preset', placeholder:'e.g. Scalping, Swing...'}).then(function(name){
+      if(name === null){ ckRefreshPresetSelector(); return; } // cancelled — restore selector
+      name = name.trim();
+      if(!name){ ckRefreshPresetSelector(); return; }
+      var id = 'ckp_' + Date.now();
+      var presets = ckGetCustomPresets();
+      // Seed with the default Simple tag sets so it's usable immediately
+      presets.push({
+        id: id,
+        name: name.slice(0,30),
+        confluences: CK_DEFAULT_CONFLUENCES.slice(),
+        psych: CK_DEFAULT_PSYCH.slice()
+      });
+      ckSaveCustomPresets(presets);
+      try{ rfxSet(CK_PRESET_KEY, id); }catch(e){}
+      ckRefreshPresetSelector();
+      ckRenderBoards();
+      if(typeof tqToast==='function') tqToast('Preset "'+name+'" created', {type:'success'});
     });
-    ckSaveCustomPresets(presets);
-    try{ rfxSet(CK_PRESET_KEY, id); }catch(e){}
-    ckRefreshPresetSelector();
-    ckRenderBoards();
-    if(typeof tqToast==='function') tqToast('Preset "'+name+'" created', {type:'success'});
   }
   window.ckCreateCustomPreset = ckCreateCustomPreset;
 
   window.ckDeleteCustomPreset = function(id){
-    var presets = ckGetCustomPresets().filter(function(p){ return p.id !== id; });
-    ckSaveCustomPresets(presets);
-    if(ckGetPreset() === id){ try{ rfxSet(CK_PRESET_KEY, 'simple'); }catch(e){} }
-    ckRefreshPresetSelector();
-    ckRenderBoards();
-    if(typeof tqToast==='function') tqToast('Preset deleted', {type:'info', duration:1500});
+    var presets = ckGetCustomPresets();
+    var p = presets.find(function(x){ return x.id === id; });
+    if(!p) return;
+    tqConfirm('Delete preset \''+p.name+'\'? Your trades are not affected.', {title:'Delete Preset', okLabel:'Delete', danger:true}).then(function(ok){
+      if(!ok) return;
+      var remaining = presets.filter(function(x){ return x.id !== id; });
+      ckSaveCustomPresets(remaining);
+      if(ckGetPreset() === id){ try{ rfxSet(CK_PRESET_KEY, 'simple'); }catch(e){} }
+      ckRefreshPresetSelector();
+      ckRenderBoards();
+      if(typeof tqToast==='function') tqToast('Preset deleted', {type:'info', duration:1500});
+    });
   };
 
   window.ckRenameCustomPreset = function(id){
     var presets = ckGetCustomPresets();
     var p = presets.find(function(x){ return x.id === id; });
     if(!p) return;
-    var name = prompt('Rename preset:', p.name||'');
-    if(name === null) return;
-    name = name.trim();
-    if(!name) return;
-    p.name = name.slice(0,30);
-    ckSaveCustomPresets(presets);
-    ckRefreshPresetSelector();
-    ckRenderBoards();
+    tqPrompt('', {title:'Rename Preset', defaultValue:p.name||''}).then(function(name){
+      if(name === null) return;
+      name = name.trim();
+      if(!name) return;
+      p.name = name.slice(0,30);
+      ckSaveCustomPresets(presets);
+      ckRefreshPresetSelector();
+      ckRenderBoards();
+    });
   };
 
   // ── Editable pill lists for Simple board (user can add/remove their own tags) ──
@@ -37843,7 +37931,7 @@ window.toggleSidebar = function(){
     var type=document.getElementById('nb-type').value;
     var date=document.getElementById('nb-date').value||tqLocalDateStr(new Date());
     var el=document.getElementById('nb-content');
-    if(el.value.trim()&&!confirm('Replace current content with template?'))return;
+    function _nbInsertTemplateProceed(){
     var trades=nbGetTrades();
     var tpl='';
 
@@ -37924,6 +38012,12 @@ window.toggleSidebar = function(){
 
     el.value=tpl;
     nbUpdateWordCount();
+    }
+    if(el.value.trim()){
+      tqConfirm('Replace current content with template?', {title:'Replace Content', okLabel:'Replace'}).then(function(ok){ if(ok) _nbInsertTemplateProceed(); });
+    } else {
+      _nbInsertTemplateProceed();
+    }
   }
   window.nbInsertTemplate=nbInsertTemplate;
 
@@ -38350,9 +38444,11 @@ window.toggleSidebar = function(){
   window.gbCalc=gbCalc;
 
   function gbReset(){
-    if(!confirm('Reset all Golden Bullet trade log? Settings will be kept.')) return;
-    rfxRemove(GB_KEY+'_log');
-    gbRenderLog();
+    tqConfirm('Reset all Golden Bullet trade log? Settings will be kept.', {title:'Reset Trade Log', okLabel:'Reset', danger:true}).then(function(ok){
+      if(!ok) return;
+      rfxRemove(GB_KEY+'_log');
+      gbRenderLog();
+    });
   }
   window.gbReset=gbReset;
 
@@ -39076,21 +39172,23 @@ window.toggleSidebar = function(){
 
   function slDeleteProject(){
     if(!slDetailId) return;
-    if(!confirm('Delete this research project and all its samples? This cannot be undone.')) return;
-    var deletedId = slDetailId;
-    var projects = slGetProjects().filter(function(p){ return p.id!==deletedId; });
-    slSaveProjects(projects);
-    var deletedSamples = slGetSamples().filter(function(s){ return s.projectId===deletedId; });
-    var samples = slGetSamples().filter(function(s){ return s.projectId!==deletedId; });
-    slSaveSamples(samples);
-    if(typeof _tqSupa!=='undefined'&&_tqSupa&&_tqUser){
-      if(typeof tqDeleteResearchProject==='function') tqDeleteResearchProject(deletedId);
-      deletedSamples.forEach(function(s){
-        _tqSupa.from('research_samples').delete().eq('user_id',_tqUser.id).eq('external_id',s.id).then(function(){});
-      });
-    }
-    slCloseDetail();
-    renderSlCards();
+    tqConfirm('Delete this research project and all its samples? This cannot be undone.', {title:'Delete Project', okLabel:'Delete', danger:true}).then(function(ok){
+      if(!ok) return;
+      var deletedId = slDetailId;
+      var projects = slGetProjects().filter(function(p){ return p.id!==deletedId; });
+      slSaveProjects(projects);
+      var deletedSamples = slGetSamples().filter(function(s){ return s.projectId===deletedId; });
+      var samples = slGetSamples().filter(function(s){ return s.projectId!==deletedId; });
+      slSaveSamples(samples);
+      if(typeof _tqSupa!=='undefined'&&_tqSupa&&_tqUser){
+        if(typeof tqDeleteResearchProject==='function') tqDeleteResearchProject(deletedId);
+        deletedSamples.forEach(function(s){
+          _tqSupa.from('research_samples').delete().eq('user_id',_tqUser.id).eq('external_id',s.id).then(function(){});
+        });
+      }
+      slCloseDetail();
+      renderSlCards();
+    });
   }
   window.slDeleteProject = slDeleteProject;
 
@@ -39099,52 +39197,55 @@ window.toggleSidebar = function(){
   function slRejectProject(projectId){
     var p = slGetProjects().find(function(x){return x.id===projectId;});
     if(!p) return;
-    if(!confirm('Reject "'+p.name+'"? This marks the hypothesis as invalidated — the data didn\'t support it.')) return;
-    var projects = slGetProjects();
-    var proj = projects.find(function(x){return x.id===projectId;});
-    if(proj) proj.status = 'rejected';
-    slSaveProjects(projects);
-    slViewDetail(projectId);
-    renderSlCards();
-    if(typeof tqToast==='function') tqToast('Hypothesis rejected — that\'s valuable research too', {type:'info'});
+    tqConfirm('Reject "'+p.name+'"? This marks the hypothesis as invalidated — the data didn\'t support it.', {title:'Reject Hypothesis', okLabel:'Reject'}).then(function(ok){
+      if(!ok) return;
+      var projects = slGetProjects();
+      var proj = projects.find(function(x){return x.id===projectId;});
+      if(proj) proj.status = 'rejected';
+      slSaveProjects(projects);
+      slViewDetail(projectId);
+      renderSlCards();
+      if(typeof tqToast==='function') tqToast('Hypothesis rejected — that\'s valuable research too', {type:'info'});
+    });
   }
   window.slRejectProject = slRejectProject;
 
   function slPromoteToPlaybook(projectId){
     var p = slGetProjects().find(function(x){return x.id===projectId;});
     if(!p) return;
-    if(!confirm('Promote "'+p.name+'" to your Playbook? This makes it available for live trading with its research stats attached.')) return;
+    tqConfirm('Promote "'+p.name+'" to your Playbook? This makes it available for live trading with its research stats attached.', {title:'Promote to Playbook', okLabel:'Promote'}).then(function(ok){
+      if(!ok) return;
+      var stats = slComputeStats(projectId, p.minSamples);
+      var playbooks = getPlaybooks();
+      var colors = ['#7c5af0','#1de9b6','#5cc8ff','#fbbf24','#ef4444'];
+      playbooks.push({
+        id: 'pb_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+        name: p.name,
+        description: 'Promoted from Strategy Lab · Backtest: '+stats.n+' samples, '+stats.wr.toFixed(0)+'% WR, '+(stats.avgR>=0?'+':'')+stats.avgR.toFixed(2)+'R expectancy.'+(p.entryRules?' Entry: '+p.entryRules:''),
+        color: colors[playbooks.length % colors.length],
+        confluences: p.setupType ? [p.setupType] : [],
+        triggers: p.entryRules ? [p.entryRules] : [],
+        management: p.invalidationRules ? ['Invalidation: '+p.invalidationRules] : [],
+        pairs: p.pair ? [p.pair] : [],
+        sessions: p.session ? [p.session] : [],
+        defaultRR: p.tpModel || '',
+        active: true,
+        created: new Date().toISOString(),
+        _fromResearch: projectId,
+        _backtestStats: {n:stats.n, wr:stats.wr, avgR:stats.avgR, maxStreak:stats.maxStreak, confidence:stats.confidence, confidenceLabel:stats.confidenceLabel}
+      });
+      savePlaybooks(playbooks);
 
-    var stats = slComputeStats(projectId, p.minSamples);
-    var playbooks = getPlaybooks();
-    var colors = ['#7c5af0','#1de9b6','#5cc8ff','#fbbf24','#ef4444'];
-    playbooks.push({
-      id: 'pb_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
-      name: p.name,
-      description: 'Promoted from Strategy Lab · Backtest: '+stats.n+' samples, '+stats.wr.toFixed(0)+'% WR, '+(stats.avgR>=0?'+':'')+stats.avgR.toFixed(2)+'R expectancy.'+(p.entryRules?' Entry: '+p.entryRules:''),
-      color: colors[playbooks.length % colors.length],
-      confluences: p.setupType ? [p.setupType] : [],
-      triggers: p.entryRules ? [p.entryRules] : [],
-      management: p.invalidationRules ? ['Invalidation: '+p.invalidationRules] : [],
-      pairs: p.pair ? [p.pair] : [],
-      sessions: p.session ? [p.session] : [],
-      defaultRR: p.tpModel || '',
-      active: true,
-      created: new Date().toISOString(),
-      _fromResearch: projectId,
-      _backtestStats: {n:stats.n, wr:stats.wr, avgR:stats.avgR, maxStreak:stats.maxStreak, confidence:stats.confidence, confidenceLabel:stats.confidenceLabel}
+      // Mark research project as approved
+      var projects = slGetProjects();
+      var proj = projects.find(function(x){return x.id===projectId;});
+      if(proj) proj.status = 'approved';
+      slSaveProjects(projects);
+
+      slCloseDetail();
+      renderSlCards();
+      if(typeof tqToast==='function') tqToast('Promoted to Playbook — ready for live tracking', {type:'success', duration:4000});
     });
-    savePlaybooks(playbooks);
-
-    // Mark research project as approved
-    var projects = slGetProjects();
-    var proj = projects.find(function(x){return x.id===projectId;});
-    if(proj) proj.status = 'approved';
-    slSaveProjects(projects);
-
-    slCloseDetail();
-    renderSlCards();
-    if(typeof tqToast==='function') tqToast('Promoted to Playbook — ready for live tracking', {type:'success', duration:4000});
   }
   window.slPromoteToPlaybook = slPromoteToPlaybook;
 
@@ -39489,17 +39590,18 @@ window.toggleSidebar = function(){
     var msg = 'Move "'+s.name+'" to Trash?';
     if(linked>0) msg += '\n\n⚠ '+linked+' trades are tagged with this setup. They\'ll show "No Setup" in Reports while this is in Trash.';
     msg += '\n\nIt will be auto-deleted after 90 days, but you can restore it from Trash anytime.';
-    if(!confirm(msg)) return;
-
-    if(typeof trSoftDelete === 'function'){
-      trSoftDelete('playbook', pbDetailId);
-    } else {
-      var setups = rawAll.filter(function(x){return x.id!==pbDetailId;});
-      if(typeof tqDeletePlaybook==='function')tqDeletePlaybook(pbDetailId);
-      savePlaybooks(setups);
-    }
-    closePbDetail();
-    renderPbCards();
+    tqConfirm(msg, {title:'Delete Setup', okLabel:'Move to Trash', danger:true}).then(function(ok){
+      if(!ok) return;
+      if(typeof trSoftDelete === 'function'){
+        trSoftDelete('playbook', pbDetailId);
+      } else {
+        var setups = rawAll.filter(function(x){return x.id!==pbDetailId;});
+        if(typeof tqDeletePlaybook==='function')tqDeletePlaybook(pbDetailId);
+        savePlaybooks(setups);
+      }
+      closePbDetail();
+      renderPbCards();
+    });
   }
   window.pbDeleteFromDetail = pbDeleteFromDetail;
 
@@ -39692,32 +39794,37 @@ window.toggleSidebar = function(){
   window.pbToggleArr = pbToggleArr;
 
   function pbAddConfluence(){
-    var v = prompt('Add confluence:');
-    if(v&&v.trim()){ if(!pbDraft.confluences) pbDraft.confluences=[]; pbDraft.confluences.push(v.trim()); renderPbStep(); }
+    tqPrompt('', {title:'Add Confluence'}).then(function(v){
+      if(v&&v.trim()){ if(!pbDraft.confluences) pbDraft.confluences=[]; pbDraft.confluences.push(v.trim()); renderPbStep(); }
+    });
   }
   window.pbAddConfluence = pbAddConfluence;
 
   function pbAddTrigger(){
-    var v = prompt('Add entry trigger:');
-    if(v&&v.trim()){ if(!pbDraft.triggers) pbDraft.triggers=[]; pbDraft.triggers.push(v.trim()); renderPbStep(); }
+    tqPrompt('', {title:'Add Entry Trigger'}).then(function(v){
+      if(v&&v.trim()){ if(!pbDraft.triggers) pbDraft.triggers=[]; pbDraft.triggers.push(v.trim()); renderPbStep(); }
+    });
   }
   window.pbAddTrigger = pbAddTrigger;
 
   function pbAddManagement(){
-    var v = prompt('Add management rule:');
-    if(v&&v.trim()){ if(!pbDraft.management) pbDraft.management=[]; pbDraft.management.push(v.trim()); renderPbStep(); }
+    tqPrompt('', {title:'Add Management Rule'}).then(function(v){
+      if(v&&v.trim()){ if(!pbDraft.management) pbDraft.management=[]; pbDraft.management.push(v.trim()); renderPbStep(); }
+    });
   }
   window.pbAddManagement = pbAddManagement;
 
   function pbAddInvalidation(){
-    var v = prompt('Add invalidation criteria (red flag):');
-    if(v&&v.trim()){ if(!pbDraft.invalidations) pbDraft.invalidations=[]; pbDraft.invalidations.push(v.trim()); renderPbStep(); }
+    tqPrompt('', {title:'Add Invalidation Criteria', placeholder:'Red flag that invalidates this setup...'}).then(function(v){
+      if(v&&v.trim()){ if(!pbDraft.invalidations) pbDraft.invalidations=[]; pbDraft.invalidations.push(v.trim()); renderPbStep(); }
+    });
   }
   window.pbAddInvalidation = pbAddInvalidation;
 
   function pbAddContextOption(ci){
-    var v = prompt('Add option:');
-    if(v&&v.trim()){ pbDraft.context[ci].options.push(v.trim()); renderPbStep(); }
+    tqPrompt('', {title:'Add Option'}).then(function(v){
+      if(v&&v.trim()){ pbDraft.context[ci].options.push(v.trim()); renderPbStep(); }
+    });
   }
   window.pbAddContextOption = pbAddContextOption;
 
@@ -42132,14 +42239,16 @@ window.toggleSidebar = function(){
   window.dashCustomizeClose = dashCustomizeClose;
 
   function dashCustomizeReset(){
-    if(!confirm('Reset all widgets to default visibility?')) return;
-    // Clear the actual storage key used by dashGetPrefs / dashSavePrefs
-    try { rfxRemove && rfxRemove('rf_dash_widgets'); } catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
-    try { localStorage.removeItem('rf_dash_widgets'); } catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
-    // Apply immediately so widgets refresh, then re-open modal to show new state
-    if(typeof dashApplyCustomization === 'function') dashApplyCustomization();
-    if(typeof dashCustomizeOpen === 'function') dashCustomizeOpen();
-    if(typeof updateDashboard === 'function') updateDashboard();
+    tqConfirm('Reset all widgets to default visibility?', {title:'Reset Widgets', okLabel:'Reset'}).then(function(ok){
+      if(!ok) return;
+      // Clear the actual storage key used by dashGetPrefs / dashSavePrefs
+      try { rfxRemove && rfxRemove('rf_dash_widgets'); } catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
+      try { localStorage.removeItem('rf_dash_widgets'); } catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
+      // Apply immediately so widgets refresh, then re-open modal to show new state
+      if(typeof dashApplyCustomization === 'function') dashApplyCustomization();
+      if(typeof dashCustomizeOpen === 'function') dashCustomizeOpen();
+      if(typeof updateDashboard === 'function') updateDashboard();
+    });
   }
   window.dashCustomizeReset = dashCustomizeReset;
 
@@ -42199,20 +42308,21 @@ window.toggleSidebar = function(){
   window.dashTemplateLoad = dashTemplateLoad;
 
   function dashTemplateSaveNew(){
-    var name = prompt('Name for this template:','My layout');
-    if(!name || !name.trim()) return;
-    name = name.trim().slice(0,30);
-    var tpl = dashGetTemplates();
-    if(tpl.list.find(function(t){return t.name===name;})){
-      if(typeof tqToast==='function'){tqToast('A template with that name already exists.',{type:'error'});}else{alert('A template with that name already exists.');}
-      return;
-    }
-    // Save current prefs under new name
-    var curPrefs = dashGetPrefs();
-    tpl.list.push({name:name, prefs:curPrefs});
-    tpl.active = name;
-    dashSaveTemplates(tpl);
-    dashTemplateRefreshSelect();
+    tqPrompt('', {title:'Save Layout Template', defaultValue:'My layout'}).then(function(name){
+      if(!name || !name.trim()) return;
+      name = name.trim().slice(0,30);
+      var tpl = dashGetTemplates();
+      if(tpl.list.find(function(t){return t.name===name;})){
+        if(typeof tqToast==='function'){tqToast('A template with that name already exists.',{type:'error'});}else{alert('A template with that name already exists.');}
+        return;
+      }
+      // Save current prefs under new name
+      var curPrefs = dashGetPrefs();
+      tpl.list.push({name:name, prefs:curPrefs});
+      tpl.active = name;
+      dashSaveTemplates(tpl);
+      dashTemplateRefreshSelect();
+    });
   }
   window.dashTemplateSaveNew = dashTemplateSaveNew;
 
@@ -42220,14 +42330,16 @@ window.toggleSidebar = function(){
     var tpl = dashGetTemplates();
     if(tpl.list.length <= 1){alert('Cannot delete the last template.');return;}
     if(tpl.active === 'Main'){alert('Cannot delete the Main template.');return;}
-    if(!confirm('Delete template "'+tpl.active+'"?')) return;
-    tpl.list = tpl.list.filter(function(t){return t.name !== tpl.active;});
-    tpl.active = tpl.list[0].name;
-    dashSaveTemplates(tpl);
-    // Load the new active template
-    rfxSet('rf_dash_widgets', JSON.stringify(tpl.list[0].prefs||{}));
-    dashApplyCustomization();
-    dashCustomizeOpen();
+    tqConfirm('Delete template "'+tpl.active+'"?', {title:'Delete Template', okLabel:'Delete', danger:true}).then(function(ok){
+      if(!ok) return;
+      tpl.list = tpl.list.filter(function(t){return t.name !== tpl.active;});
+      tpl.active = tpl.list[0].name;
+      dashSaveTemplates(tpl);
+      // Load the new active template
+      rfxSet('rf_dash_widgets', JSON.stringify(tpl.list[0].prefs||{}));
+      dashApplyCustomization();
+      dashCustomizeOpen();
+    });
   }
   window.dashTemplateDelete = dashTemplateDelete;
 
@@ -44791,9 +44903,24 @@ window.toggleSidebar = function(){
     var todayKey = _today.getFullYear() + '-' + String(_today.getMonth()+1).padStart(2,'0') + '-' + String(_today.getDate()).padStart(2,'0');
 
     var cells = '';
+    var colCount = 0;
+    var weekPnl = 0, weekTrades = 0, weekHasData = false;
+
+    function emitWeekCell(){
+      if(weekHasData && weekTrades > 0){
+        var wColor = weekPnl >= 0 ? 'var(--green)' : 'var(--red)';
+        var wSign = weekPnl >= 0 ? '+' : '-';
+        cells += '<div class="dash-cal-week-cell"><div class="dash-cal-week-pnl" style="color:'+wColor+'">'+wSign+'$'+Math.abs(weekPnl).toFixed(0)+'</div><div class="dash-cal-week-trades">'+weekTrades+' trade'+(weekTrades!==1?'s':'')+'</div></div>';
+      } else {
+        cells += '<div class="dash-cal-week-cell empty"><div class="dash-cal-week-pnl">$0</div><div class="dash-cal-week-trades">0 trades</div></div>';
+      }
+      weekPnl = 0; weekTrades = 0; weekHasData = false; colCount = 0;
+    }
+
     // Empty leading cells
     for (var i = 0; i < firstDay; i++) {
       cells += '<div class="dash-cal-empty"></div>';
+      colCount++;
     }
 
     for (var d = 1; d <= daysInMonth; d++) {
@@ -44801,10 +44928,13 @@ window.toggleSidebar = function(){
       var pnl = byDay[key];
       var count = tradesByDay[key] || 0;
       var isToday = (key === todayKey);
+      var isSelected = (window._dashCalSelected === key);
       var cls = 'dash-cal-cell';
       if (isToday) cls += ' today';
+      if (isSelected) cls += ' selected';
 
       if (pnl !== undefined) {
+        weekPnl += pnl; weekTrades += count; weekHasData = true;
         if (pnl > 0) cls += ' win';
         else if (pnl < 0) cls += ' loss';
         else cls += ' be';
@@ -44820,7 +44950,7 @@ window.toggleSidebar = function(){
           ? '<div class="dash-cal-cell-trades">' + count + ' trade' + (count !== 1 ? 's' : '') + '</div>'
           : '';
 
-        cells += '<div class="' + cls + '" onclick="showDayDetail(\'' + key + '\')">'
+        cells += '<div class="' + cls + '" onclick="window._dashCalSelected=\'' + key + '\';showDayDetail(\'' + key + '\');renderDashCalendar(window._dashCalByDay,window._dashCalTradesByDay);">'
           + '<div class="dash-cal-cell-num">' + d + '</div>'
           + '<div class="tq-right">'
           + '<div class="dash-cal-cell-pnl ' + pnlCls + '">' + pnlFmt + '</div>'
@@ -44829,12 +44959,21 @@ window.toggleSidebar = function(){
           + '</div>';
       } else {
         // No trades — empty cell, just day number
-        cells += '<div class="' + cls + '" onclick="showDayDetail(\'' + key + '\')">'
+        cells += '<div class="' + cls + '" onclick="window._dashCalSelected=\'' + key + '\';showDayDetail(\'' + key + '\');renderDashCalendar(window._dashCalByDay,window._dashCalTradesByDay);">'
           + '<div class="dash-cal-cell-num">' + d + '</div>'
           + '<div></div>'
           + '</div>';
       }
+      colCount++;
+      if(colCount === 7) emitWeekCell();
     }
+    // Trailing partial week
+    if(colCount > 0){
+      for (var e = colCount; e < 7; e++){ cells += '<div class="dash-cal-empty"></div>'; }
+      emitWeekCell();
+    }
+    window._dashCalByDay = byDay;
+    window._dashCalTradesByDay = tradesByDay;
 
     grid.innerHTML = cells;
 
