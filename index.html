@@ -6585,7 +6585,7 @@ window.toggleSidebar = function(){
 
         <!-- RECENT TRADES + CALENDAR -->
         <div class="dash-section" data-section="recent-calendar">
-        <div class="dash-charts-split" style="display:grid;grid-template-columns:30fr 70fr;gap:12px;margin-top:12px">
+        <div class="dash-charts-split" style="display:grid;grid-template-columns:24fr 76fr;gap:12px;margin-top:12px">
           <!-- Recent Trades -->
           <div class="card" data-widget="recent-trades" style="padding:20px 22px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-right:26px">
@@ -6593,7 +6593,7 @@ window.toggleSidebar = function(){
               <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px;font-weight:600" onclick="showPage('journal')">View all →</button>
             </div>
             <div id="dash-recent-summary" class="dw-sub" style="margin-bottom:8px"></div>
-            <div style="display:grid;grid-template-columns:90px 1fr 80px;font-size:11px;color:var(--text3);font-family:Inter,sans-serif;font-weight:600;padding:0 2px;margin-bottom:6px">
+            <div style="display:grid;grid-template-columns:78px 1fr 68px;font-size:10.5px;color:var(--text3);font-family:Inter,sans-serif;font-weight:600;padding:0 2px;margin-bottom:6px">
               <span>Date</span><span>Symbol</span><span class="tq-right">P&L</span>
             </div>
             <div id="dash-recent-trades">
@@ -40778,7 +40778,7 @@ window.toggleSidebar = function(){
     // Recent trades
     var recentEl = document.getElementById('dash-recent-trades');
     if (recentEl) {
-      var RECENT_LIMIT = 14;
+      var RECENT_LIMIT = 20;
       var recent = trades.slice(0, RECENT_LIMIT);
       var ccy = (typeof tqGetDisplayCurrency==='function') ? tqGetDisplayCurrency() : 'USD';
       var sym = {USD:'$',EUR:'€',GBP:'£',JPY:'¥',CHF:'CHF ',CAD:'C$',AUD:'A$',NZD:'NZ$'}[ccy] || '$';
@@ -40808,10 +40808,10 @@ window.toggleSidebar = function(){
         var pnlStr = isBe ? sym+'0' : (isWin ? '+'+sym : '-'+sym) + Math.abs(pn).toFixed(0);
         var clickable = !!(t.id && typeof jrViewDetail==='function');
         var clickAttr = clickable ? ' onclick="jrViewDetail(\''+t.id+'\')"' : '';
-        return '<div class="rt-row"'+clickAttr+' style="display:grid;grid-template-columns:90px 1fr 80px;padding:9px 8px;border-radius:6px;font-size:13px;border-bottom:1px solid var(--border);font-variant-numeric:tabular-nums;transition:background .15s;'+(clickable?'cursor:pointer':'')+'" onmouseover="this.style.background=\'rgba(139,92,246,.05)\'" onmouseout="this.style.background=\'transparent\'">'
-          + '<span style="font-family:Inter,sans-serif;color:var(--text3);font-size:11.5px">' + (t.date||'').replace(/-/g,'/') + '</span>'
-          + '<span style="font-weight:600;color:var(--accent3)">' + (t.pair||t.symbol||'—') + ' ' + tag + '</span>'
-          + '<span style="text-align:right;color:' + pnlColor + ';font-family:Inter,sans-serif;font-weight:700">' + pnlStr + '</span>'
+        return '<div class="rt-row"'+clickAttr+' style="display:grid;grid-template-columns:78px 1fr 68px;padding:8px 6px;border-radius:6px;font-size:12px;border-bottom:1px solid var(--border);font-variant-numeric:tabular-nums;transition:background .15s;'+(clickable?'cursor:pointer':'')+'" onmouseover="this.style.background=\'rgba(139,92,246,.05)\'" onmouseout="this.style.background=\'transparent\'">'
+          + '<span style="font-family:Inter,sans-serif;color:var(--text3);font-size:10.5px">' + (t.date||'').replace(/-/g,'/') + '</span>'
+          + '<span style="font-weight:600;color:var(--accent3);font-size:12px">' + (t.pair||t.symbol||'—') + ' ' + tag + '</span>'
+          + '<span style="text-align:right;color:' + pnlColor + ';font-family:Inter,sans-serif;font-weight:700;font-size:12px">' + pnlStr + '</span>'
           + '</div>';
       }).join('');
       // "View more" footer if there are more trades than shown
