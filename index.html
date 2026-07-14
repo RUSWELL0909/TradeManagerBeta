@@ -3524,7 +3524,8 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(139,92,246,.15);outlin
 .dv-explore-meta{font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-top:2px}
 .dv-explore-pnl{font-size:30px;font-weight:400;letter-spacing:-2px}
 .dv-explore-stats{display:grid;grid-template-columns:repeat(6,1fr);border-bottom:1px solid var(--border)}
-.dv-ex-stat{text-align:center;padding:12px 6px;border-right:1px solid rgba(139,92,246,.02)}
+.dv-ex-stat{text-align:center;padding:16px 6px;border-right:1px solid var(--border);transition:background .2s ease}
+.dv-ex-stat:hover{background:rgba(139,92,246,.04)}
 .dv-ex-stat:last-child{border-right:none}
 .dv-ex-stat-val{font-size:19px;font-weight:400;margin-bottom:3px}
 .dv-ex-stat-label{font-size:10px;color:var(--text3);font-family:Inter,sans-serif;font-weight:600;letter-spacing:.5px}
@@ -3554,7 +3555,7 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(139,92,246,.15);outlin
 .dv-spark-label{font-size:11px;color:var(--text3);font-family:Inter,sans-serif;font-weight:700;letter-spacing:.5px;margin-bottom:8px}
 /* Session breakdown */
 .dv-session-bar{display:flex;height:28px;border-radius:8px;overflow:hidden;margin-top:6px}
-.dv-session-seg{display:flex;align-items:center;justify-content:center;font-size:8px;font-family:Inter,sans-serif;font-weight:600;color:white;min-width:30px;transition:all .2s}
+.dv-session-seg{display:flex;align-items:center;justify-content:center;font-size:10.5px;font-family:Inter,sans-serif;font-weight:700;letter-spacing:.4px;color:white;min-width:34px;transition:all .2s}
 .dv-session-seg:hover{filter:brightness(1.2)}
 .dv-session-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .dv-session-pill{display:flex;align-items:center;gap:7px;padding:6px 13px;border-radius:8px;font-size:13px;font-family:Inter,sans-serif;background:rgba(139,92,246,.02);border:1px solid rgba(139,92,246,.03)}
@@ -3990,7 +3991,7 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(139,92,246,.15);outlin
 [data-theme="light"] .dv-day-tip{background:var(--card);border-color:rgba(139,92,246,.12);color:var(--text);box-shadow:0 4px 16px rgba(0,0,0,.12)}
 [data-theme="light"] .dv-day-tip{background:var(--card);border-color:var(--border);color:var(--text);box-shadow:0 4px 16px rgba(0,0,0,.1)}
 /* Polish: sparkline area fill */
-.dv-spark-fill{opacity:.08}
+.dv-spark-fill{opacity:1}
 /* Polish: empty month message */
 .dv-empty-msg{color:var(--text3);font-size:12px;font-family:Inter,sans-serif;opacity:.25;grid-column:1/-1;text-align:center;padding:30px 0}
 
@@ -8264,9 +8265,19 @@ window.toggleSidebar = function(){
       <div class="dv-spark-card" id="dv-spark-card" style="display:none">
         <div class="dv-spark-label">INTRADAY P&L CURVE <span class="info-icon" data-tip="Cumulative P&L across trades for this day. Only shows when 2+ trades were taken — single-trade days don't generate a curve.">i</span></div>
         <svg id="dv-spark-svg" viewBox="0 0 600 120" style="width:100%;height:100px">
+          <defs>
+            <linearGradient id="dv-spark-grad-green" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--green)" stop-opacity=".35"/>
+              <stop offset="100%" stop-color="var(--green)" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="dv-spark-grad-red" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--red)" stop-opacity=".35"/>
+              <stop offset="100%" stop-color="var(--red)" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
           <line id="dv-spark-zero" x1="0" y1="60" x2="600" y2="60" stroke="rgba(139,92,246,.06)" stroke-width="1" stroke-dasharray="4"/>
           <polygon id="dv-spark-fill" class="dv-spark-fill" points=""/>
-          <polyline id="dv-spark-line" points="" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline id="dv-spark-line" points="" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
           <g id="dv-spark-dots"></g>
         </svg>
       </div>
@@ -31311,18 +31322,20 @@ window.toggleSidebar = function(){
       var line=document.getElementById('dv-spark-line');
       line.setAttribute('points',polyPts);
       line.setAttribute('stroke',dP>=0?'var(--green)':'var(--red)');
+      line.style.filter='drop-shadow(0 0 5px '+(dP>=0?'rgba(46,204,138,.6)':'rgba(224,92,122,.6)')+')';
       // Area fill
       var fillEl=document.getElementById('dv-spark-fill');
       var firstX=40,lastX=40+520;
       fillEl.setAttribute('points',polyPts+' '+lastX.toFixed(1)+','+zeroY.toFixed(1)+' '+firstX.toFixed(1)+','+zeroY.toFixed(1));
-      fillEl.setAttribute('fill',dP>=0?'var(--green)':'var(--red)');
+      fillEl.setAttribute('fill','url(#dv-spark-grad-'+(dP>=0?'green':'red')+')');
       // Dots
       var dotsG=document.getElementById('dv-spark-dots');
       dotsG.innerHTML=pts.map(function(p,i){
         var x=40+(i/(pts.length-1))*520;
         var y=svgH-padY-((p-minP)/range)*(svgH-padY*2);
         var c=dT[i].pnl>=0?'var(--green)':'var(--red)';
-        return '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3.5" fill="'+c+'" stroke="var(--card)" stroke-width="1.5"/>';
+        var cRgb=dT[i].pnl>=0?'46,204,138':'224,92,122';
+        return '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="4" fill="'+c+'" stroke="var(--card)" stroke-width="1.5" style="filter:drop-shadow(0 0 4px rgba('+cRgb+',.8))"/>';
       }).join('');
     } else sparkCard.style.display='none';
 
@@ -31353,10 +31366,12 @@ window.toggleSidebar = function(){
           var pnlX=(typeof tqConvertTradePnl==='function')?tqConvertTradePnl(x.t):(parseFloat(x.t.pnl)||0);
           var xPct=((x.min-rangeStart)/span*100);
           var col=pnlX>=0?'var(--green)':'var(--red)';
-          return '<div title="'+(x.t.pair||'')+' '+(x.t.entryTime||x.t.time||'')+' · '+(pnlX>=0?'+':'')+pnlX.toFixed(0)+'" style="position:absolute;left:'+xPct.toFixed(1)+'%;top:6px;transform:translateX(-50%);width:9px;height:9px;border-radius:50%;background:'+col+';box-shadow:0 0 6px '+col+';cursor:pointer" onclick="jrViewDetail(\''+x.t.id+'\')"></div>';
+          var rgb=pnlX>=0?'46,204,138':'224,92,126';
+          var size=Math.min(16,9+Math.abs(pnlX)/40);
+          return '<div title="'+(x.t.pair||'')+' '+(x.t.entryTime||x.t.time||'')+' · '+(pnlX>=0?'+':'')+pnlX.toFixed(0)+'" style="position:absolute;left:'+xPct.toFixed(1)+'%;top:10px;transform:translate(-50%,-50%);width:'+size.toFixed(0)+'px;height:'+size.toFixed(0)+'px;border-radius:50%;background:'+col+';box-shadow:0 0 8px rgba('+rgb+',.7);cursor:pointer;transition:transform .15s" onmouseover="this.style.transform=\'translate(-50%,-50%) scale(1.3)\'" onmouseout="this.style.transform=\'translate(-50%,-50%) scale(1)\'" onclick="jrViewDetail(\''+x.t.id+'\')"></div>';
         }).join('');
         document.getElementById('dv-timeline').innerHTML=
-          '<div style="position:absolute;left:0;right:0;top:10px;height:1px;background:var(--border)"></div>'+hourMarks+dots;
+          '<div style="position:absolute;left:0;right:0;top:10px;height:2px;background:linear-gradient(90deg,rgba(139,92,246,.03),rgba(139,92,246,.15),rgba(139,92,246,.03))"></div>'+hourMarks+dots;
       } else { timelineCard.style.display='none'; }
     } else { timelineCard.style.display='none'; }
 
@@ -31378,7 +31393,7 @@ window.toggleSidebar = function(){
       sessKeys.forEach(function(s){
         var pct=Math.max(Math.abs(sessPnl[s])/totalAbsPnl*100,8);
         var col=dvSessColors[s]||'var(--accent)';
-        barH+='<div class="dv-session-seg" style="width:'+pct.toFixed(0)+'%;background:'+col+'">'+s.slice(0,3).toUpperCase()+'</div>';
+        barH+='<div class="dv-session-seg" style="width:'+pct.toFixed(0)+'%;background:linear-gradient(90deg,'+col+'dd,'+col+'99)">'+s.slice(0,3).toUpperCase()+'</div>';
       });
       document.getElementById('dv-session-bar').innerHTML=barH;
       // Pills
