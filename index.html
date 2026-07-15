@@ -31313,7 +31313,52 @@ window.toggleSidebar = function(){
     // Avg R:R stat
     var rrVals=dT.map(function(t){if(t.entry&&t.sl&&t.exit){var r=Math.abs(t.entry-t.sl);if(r>0.00001)return Math.abs(t.exit-t.entry)/r;}return null;}).filter(function(v){return v!==null;});
     var avgRR=rrVals.length>0?(rrVals.reduce(function(a,v){return a+v;},0)/rrVals.length).toFixed(1)+'R':'—';
-    document.getElementById('dv-ex-stats').innerHTML+='<div class="dv-ex-stat"><div class="dv-ex-stat-val" style="color:var(--accent)">'+avgRR+'</div><div class="dv-ex-stat-label">AVG R:R</div></div>';
+
+    // Best / Worst trade of the day
+    var pnlSorted=dT.map(function(t){return {t:t,p:tqConvertTradePnl(t)};}).sort(function(a,b){return b.p-a.p;});
+    var bestT=pnlSorted.length?pnlSorted[0]:null;
+    var worstT=pnlSorted.length?pnlSorted[pnlSorted.length-1]:null;
+
+    // Total $ risked — reuses the SAME per-instrument contract-size table already defined
+    // for the position-size calculator (contractSizes), so gold/indices aren't miscalculated
+    // as if they were 100k-unit forex lots.
+    var totalRisked=dT.reduce(function(a,t){
+      if(t.sl && t.entry){
+        var pairKey=(t.pair||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+        var cs=(typeof contractSizes!=='undefined' && contractSizes[pairKey]) || 100000;
+        var r=Math.abs(t.entry-t.sl)*(parseFloat(t.lots)||0.1)*cs;
+        return a+(isFinite(r)?r:0);
+      }
+      return a;
+    },0);
+
+    // Avg hold time — reuses the same entryTime/exitTime/duration fields the Dashboard's
+    // duration widget already reads, just scoped to today's trades.
+    function _toMinDv(str){ var m=/^(\d{1,2}):(\d{2})/.exec(str||''); return m?parseInt(m[1],10)*60+parseInt(m[2],10):null; }
+    var holdMins=dT.map(function(t){
+      if(t.duration && parseFloat(t.duration)>0) return parseFloat(t.duration);
+      if(t.entryTime && t.exitTime){ var a=_toMinDv(t.entryTime),b=_toMinDv(t.exitTime); if(a!==null&&b!==null){ var d=b-a; if(d<0)d+=1440; return d; } }
+      return null;
+    }).filter(function(v){return v!==null;});
+    var avgHold=holdMins.length?(holdMins.reduce(function(a,v){return a+v;},0)/holdMins.length):null;
+    var avgHoldStr=avgHold===null?'—':(avgHold>=60?(avgHold/60).toFixed(1)+'h':Math.round(avgHold)+'m');
+
+    // Max same-direction streak within the day (chronological)
+    var chronoT=dT.slice().sort(function(a,b){return (a.entryTime||'').localeCompare(b.entryTime||'');});
+    var maxStreak=0,curStreak=0,lastSign=null;
+    chronoT.forEach(function(t){
+      var sign=tqConvertTradePnl(t)>=0?'W':'L';
+      if(sign===lastSign){ curStreak++; } else { curStreak=1; lastSign=sign; }
+      if(curStreak>maxStreak) maxStreak=curStreak;
+    });
+
+    document.getElementById('dv-ex-stats').innerHTML+=
+      '<div class="dv-ex-stat"><div class="dv-ex-stat-val" style="color:var(--accent)">'+avgRR+'</div><div class="dv-ex-stat-label">AVG R:R</div></div>'
+      +'<div class="dv-ex-stat"><div class="dv-ex-stat-val" style="color:'+(bestT&&bestT.p>=0?'var(--green)':'var(--text3)')+'">'+(bestT?(bestT.p>=0?'+':'-')+'$'+Math.abs(bestT.p).toFixed(0):'—')+'</div><div class="dv-ex-stat-label">BEST · '+(bestT?bestT.t.pair||'':'')+'</div></div>'
+      +'<div class="dv-ex-stat"><div class="dv-ex-stat-val" style="color:'+(worstT&&worstT.p<0?'var(--red)':'var(--text3)')+'">'+(worstT?(worstT.p>=0?'+':'-')+'$'+Math.abs(worstT.p).toFixed(0):'—')+'</div><div class="dv-ex-stat-label">WORST · '+(worstT?worstT.t.pair||'':'')+'</div></div>'
+      +'<div class="dv-ex-stat"><div class="dv-ex-stat-val">'+(totalRisked>0?'$'+totalRisked.toFixed(0):'—')+'</div><div class="dv-ex-stat-label">TOTAL RISKED</div></div>'
+      +'<div class="dv-ex-stat"><div class="dv-ex-stat-val">'+avgHoldStr+'</div><div class="dv-ex-stat-label">AVG HOLD</div></div>'
+      +'<div class="dv-ex-stat"><div class="dv-ex-stat-val" style="color:'+(maxStreak>=3?'#fbbf24':'var(--text)')+'">'+(maxStreak||'—')+'</div><div class="dv-ex-stat-label">MAX STREAK</div></div>';
 
     // ── Intraday P&L Sparkline ──
     var sparkCard=document.getElementById('dv-spark-card');
