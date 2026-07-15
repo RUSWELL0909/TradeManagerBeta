@@ -2642,7 +2642,7 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(139,92,246,.15);outlin
   .dash-cal-nav:hover { border-color: var(--accent); color: var(--accent3); }
   .dash-cal-hdr { text-align: center; font-size: 9px; color: var(--text3); font-weight: 400; font-family: 'Inter', sans-serif; padding: 4px 0 6px; letter-spacing: 1.5px; text-transform: uppercase; opacity: 0.65; }
   .dash-cal-cell {
-    min-height: 83px; border-radius: 6px; padding: 6px 8px;
+    min-height: 104px; border-radius: 6px; padding: 6px 8px;
     cursor: pointer; position: relative;
     transition: filter .15s, border-color .2s, box-shadow .2s;
     border: 1.5px solid rgba(139,92,246,.18);
@@ -2659,13 +2659,13 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(139,92,246,.15);outlin
   .dash-cal-cell.loss { background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.3); }
   .dash-cal-cell.be   { background: rgba(75,123,229,.12); border-color: rgba(75,123,229,.3); }
   .dash-cal-cell-num {
-    font-size: 10px; font-weight: 300; color: var(--text3);
+    font-size: 11.5px; font-weight: 400; color: var(--text3);
     font-family: 'Inter', sans-serif; text-align: right; line-height: 1;
     align-self: flex-start; width: 100%;
     font-variant-numeric: tabular-nums;
   }
   .dash-cal-cell-pnl {
-    font-size: 17px; font-weight: 400; font-family: 'Inter', sans-serif;
+    font-size: 20px; font-weight: 400; font-family: 'Inter', sans-serif;
     line-height: 1.1; text-align: right; letter-spacing: -0.4px;
     font-variant-numeric: tabular-nums;
   }
@@ -2678,7 +2678,7 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(139,92,246,.15);outlin
     font-variant-numeric: tabular-nums;
   }
   .dash-cal-empty {
-    min-height: 83px; border-radius: 6px; background: var(--bg2);
+    min-height: 104px; border-radius: 6px; background: var(--bg2);
     border: 1.5px solid rgba(139,92,246,.15); opacity: .45;
   }
   /* Selected-day accent ring — layers on top of win/loss/be background so both signals read at once */
@@ -2686,7 +2686,7 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(139,92,246,.15);outlin
   .dash-cal-cell.selected.today { box-shadow: 0 0 0 2px var(--accent), 0 0 0 4px rgba(139,92,246,.2) !important; }
   /* Weekly Result column */
   .dash-cal-week-cell {
-    min-height: 83px; border-radius: 6px; padding: 8px 6px;
+    min-height: 104px; border-radius: 6px; padding: 8px 6px;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
     background: rgba(139,92,246,.04); border: 1px solid rgba(139,92,246,.1);
   }
@@ -3480,7 +3480,7 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(139,92,246,.15);outlin
 .dv-arrow:hover{border-color:var(--accent);color:var(--accent3)}
 .dv-cal-grid{display:grid;gap:5px}
 .dv-cal-head{font-size:11px;color:var(--text3);font-family:Inter,sans-serif;font-weight:400;text-align:center;padding:0 0 10px;letter-spacing:1.5px;text-transform:uppercase;opacity:.65}
-.dv-day{border-radius:10px;padding:12px 10px;cursor:pointer;transition:all .2s;text-align:center;border:1.5px solid rgba(139,92,246,.15);min-height:94px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;font-feature-settings:"tnum" 1;animation:dvCellIn .3s cubic-bezier(.22,1,.36,1) both}
+.dv-day{border-radius:10px;padding:14px 10px;cursor:pointer;transition:all .2s;text-align:center;border:1.5px solid rgba(139,92,246,.15);min-height:112px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;font-feature-settings:"tnum" 1;animation:dvCellIn .3s cubic-bezier(.22,1,.36,1) both}
 .dv-day:hover{background:rgba(139,92,246,.04);border-color:rgba(139,92,246,.25)}
 .dv-day.empty{opacity:0;pointer-events:none}
 .dv-day.today{border-color:rgba(139,92,246,.35);box-shadow:0 0 14px rgba(139,92,246,.08)}
