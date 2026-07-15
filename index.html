@@ -8265,7 +8265,7 @@ window.toggleSidebar = function(){
       <!-- Intraday P&L Sparkline -->
       <div class="dv-spark-card" id="dv-spark-card" style="display:none">
         <div class="dv-spark-label">INTRADAY P&L CURVE <span class="info-icon" data-tip="Cumulative P&L across trades for this day. Only shows when 2+ trades were taken — single-trade days don't generate a curve.">i</span></div>
-        <svg id="dv-spark-svg" viewBox="0 0 600 120" style="width:100%;height:100px">
+        <svg id="dv-spark-svg" viewBox="0 0 640 140" style="width:100%;height:118px">
           <defs>
             <linearGradient id="dv-spark-grad-green" x1="0" y1="0" x2="0" y2="120" gradientUnits="userSpaceOnUse">
               <stop offset="0%" stop-color="var(--green)" stop-opacity=".3"/>
@@ -8276,12 +8276,14 @@ window.toggleSidebar = function(){
               <stop offset="100%" stop-color="var(--red)" stop-opacity="0"/>
             </linearGradient>
           </defs>
-          <line id="dv-spark-zero" x1="0" y1="60" x2="600" y2="60" stroke="rgba(139,92,246,.06)" stroke-width="1" stroke-dasharray="4"/>
-          <line id="dv-spark-limit" x1="0" y1="0" x2="600" y2="0" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="5,3" style="display:none"/>
+          <g id="dv-spark-ygrid"></g>
+          <line id="dv-spark-zero" x1="40" y1="60" x2="600" y2="60" stroke="rgba(139,92,246,.1)" stroke-width="1" stroke-dasharray="4"/>
+          <line id="dv-spark-limit" x1="40" y1="0" x2="600" y2="0" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="5,3" style="display:none"/>
           <text id="dv-spark-limit-label" x="595" y="0" text-anchor="end" font-size="9" fill="#fbbf24" font-family="Inter,sans-serif" style="display:none">Daily Loss Limit</text>
           <polygon id="dv-spark-fill" class="dv-spark-fill" points=""/>
           <polyline id="dv-spark-line" points="" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
           <g id="dv-spark-dots"></g>
+          <g id="dv-spark-xaxis"></g>
         </svg>
       </div>
       <!-- Day Timeline — hour-by-hour map of when trades happened -->
@@ -31373,6 +31375,17 @@ window.toggleSidebar = function(){
       var zeroY=svgH-padY-((0-minP)/range)*(svgH-padY*2);
       document.getElementById('dv-spark-zero').setAttribute('y1',zeroY);
       document.getElementById('dv-spark-zero').setAttribute('y2',zeroY);
+      // Y-axis $ gridlines — top (max), zero already drawn separately, bottom (min)
+      var yGridG=document.getElementById('dv-spark-ygrid');
+      var maxY=svgH-padY-((maxP-minP)/range)*(svgH-padY*2);
+      var minY=svgH-padY-((minP-minP)/range)*(svgH-padY*2);
+      function fmtDollar(v){ return (v>=0?'+':'-')+'$'+Math.abs(v).toFixed(0); }
+      yGridG.innerHTML=
+        '<line x1="40" y1="'+maxY.toFixed(1)+'" x2="600" y2="'+maxY.toFixed(1)+'" stroke="var(--border)" stroke-width="1"/>'
+        +'<text x="34" y="'+(maxY+3).toFixed(1)+'" text-anchor="end" font-size="9.5" fill="var(--text3)" font-family="Inter,sans-serif">'+fmtDollar(maxP)+'</text>'
+        +'<line x1="40" y1="'+minY.toFixed(1)+'" x2="600" y2="'+minY.toFixed(1)+'" stroke="var(--border)" stroke-width="1"/>'
+        +'<text x="34" y="'+(minY+3).toFixed(1)+'" text-anchor="end" font-size="9.5" fill="var(--text3)" font-family="Inter,sans-serif">'+fmtDollar(minP)+'</text>'
+        +'<text x="34" y="'+(zeroY+3).toFixed(1)+'" text-anchor="end" font-size="9.5" fill="var(--text3)" font-family="Inter,sans-serif">$0</text>';
       // Daily loss limit reference line — reuses the SAME acc.dailyLossLimit field the
       // Simulate Account / Mission Control risk tools already use, so this isn't a new metric.
       var limitLine=document.getElementById('dv-spark-limit'), limitLabel=document.getElementById('dv-spark-limit-label');
@@ -31409,14 +31422,24 @@ window.toggleSidebar = function(){
       var firstX=40,lastX=40+520;
       fillEl.setAttribute('points',polyPts+' '+lastX.toFixed(1)+','+zeroY.toFixed(1)+' '+firstX.toFixed(1)+','+zeroY.toFixed(1));
       fillEl.setAttribute('fill','url(#dv-spark-grad-'+(dP>=0?'green':'red')+')');
-      // Dots
+      // Dots (with hover tooltip showing pair, time, and this trade's $ result)
       var dotsG=document.getElementById('dv-spark-dots');
       dotsG.innerHTML=pts.map(function(p,i){
         var x=40+(i/(pts.length-1))*520;
         var y=svgH-padY-((p-minP)/range)*(svgH-padY*2);
         var c=dT[i].pnl>=0?'var(--green)':'var(--red)';
         var cRgb=dT[i].pnl>=0?'46,204,138':'224,92,122';
-        return '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="4" fill="'+c+'" stroke="var(--card)" stroke-width="1.5" style="filter:drop-shadow(0 0 4px rgba('+cRgb+',.8))"/>';
+        var tradePnl=tqConvertTradePnl(dT[i]);
+        var tip=(dT[i].pair||'')+' '+(dT[i].entryTime||dT[i].time||'')+' · '+(tradePnl>=0?'+':'-')+'$'+Math.abs(tradePnl).toFixed(0)+' · cum '+fmtDollar(p);
+        return '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="4" fill="'+c+'" stroke="var(--card)" stroke-width="1.5" style="filter:drop-shadow(0 0 4px rgba('+cRgb+',.8));cursor:pointer"><title>'+tip+'</title></circle>';
+      }).join('');
+      // X-axis time labels beneath each point
+      var xAxisG=document.getElementById('dv-spark-xaxis');
+      xAxisG.innerHTML=pts.map(function(p,i){
+        var x=40+(i/(pts.length-1))*520;
+        var timeLbl=dT[i].entryTime||dT[i].time||'';
+        if(!timeLbl) return '';
+        return '<text x="'+x.toFixed(1)+'" y="136" text-anchor="middle" font-size="9" fill="var(--text3)" font-family="Inter,sans-serif">'+timeLbl+'</text>';
       }).join('');
     } else sparkCard.style.display='none';
 
