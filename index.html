@@ -3523,9 +3523,10 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(139,92,246,.15);outlin
 .dv-explore-date{font-size:16px;font-weight:600;font-family:Inter,sans-serif}
 .dv-explore-meta{font-size:12px;color:var(--text3);font-family:Inter,sans-serif;margin-top:2px}
 .dv-explore-pnl{font-size:30px;font-weight:400;letter-spacing:-2px}
-.dv-explore-stats{display:grid;grid-template-columns:repeat(6,1fr);border-bottom:1px solid var(--border)}
-.dv-ex-stat{text-align:center;padding:16px 6px;border-right:1px solid var(--border);transition:background .2s ease}
-.dv-ex-stat:hover{background:rgba(139,92,246,.04)}
+/* .dv-explore-stats — replaced by the card-styled version below during premium pass */
+.dv-explore-stats{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;padding:16px;border-bottom:1px solid var(--border)}
+.dv-ex-stat{text-align:center;padding:16px 10px;border:1px solid var(--border);border-radius:12px;background:var(--card);transition:background .2s ease,border-color .2s ease}
+.dv-ex-stat:hover{background:rgba(139,92,246,.04);border-color:rgba(139,92,246,.25)}
 .dv-ex-stat:last-child{border-right:none}
 .dv-ex-stat-val{font-size:19px;font-weight:400;margin-bottom:3px}
 .dv-ex-stat-label{font-size:10px;color:var(--text3);font-family:Inter,sans-serif;font-weight:600;letter-spacing:.5px}
@@ -8276,6 +8277,8 @@ window.toggleSidebar = function(){
             </linearGradient>
           </defs>
           <line id="dv-spark-zero" x1="0" y1="60" x2="600" y2="60" stroke="rgba(139,92,246,.06)" stroke-width="1" stroke-dasharray="4"/>
+          <line id="dv-spark-limit" x1="0" y1="0" x2="600" y2="0" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="5,3" style="display:none"/>
+          <text id="dv-spark-limit-label" x="595" y="0" text-anchor="end" font-size="9" fill="#fbbf24" font-family="Inter,sans-serif" style="display:none">Daily Loss Limit</text>
           <polygon id="dv-spark-fill" class="dv-spark-fill" points=""/>
           <polyline id="dv-spark-line" points="" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
           <g id="dv-spark-dots"></g>
@@ -31289,8 +31292,19 @@ window.toggleSidebar = function(){
     var avgG='—';if(grades.length>0){var gs2=grades.reduce(function(a,g){return a+(gm2[g]||0);},0)/grades.length;avgG=gs2>=4.5?'A+':gs2>=3.5?'A':gs2>=2.5?'B':gs2>=1.5?'C':'D';}
     var planned=dT.filter(function(t){return t.planFollowed==='yes';}).length;
     var planPct=dT.length>0?Math.round(planned/dT.length*100)+'%':'—';
+    var wrNum = dT.length>0 ? (wins.length/dT.length*100) : null;
+    var wrGaugeColor = wrNum===null ? 'var(--text3)' : wrNum>=50 ? 'var(--green)' : wrNum>=30 ? '#fbbf24' : 'var(--red)';
+    var wrGaugeRgb = wrNum===null ? '148,163,184' : wrNum>=50 ? '46,204,138' : wrNum>=30 ? '251,191,36' : '224,92,122';
+    var wrPct = wrNum===null ? 0 : Math.max(0,Math.min(100,wrNum));
+    // Semi-circle gauge: arc from 180deg to 0deg (left to right), circumference of half-circle r=34 is PI*34
+    var gaugeCirc = Math.PI*34;
+    var gaugeSeg = (wrPct/100)*gaugeCirc;
+    var wrGaugeSvg = '<svg width="84" height="46" viewBox="0 0 84 46" style="display:block;margin:0 auto">'
+      +'<path d="M 6 42 A 36 36 0 0 1 78 42" fill="none" stroke="var(--track)" stroke-width="7" stroke-linecap="round"/>'
+      +'<path d="M 6 42 A 36 36 0 0 1 78 42" fill="none" stroke="'+wrGaugeColor+'" stroke-width="7" stroke-linecap="round" stroke-dasharray="'+gaugeSeg.toFixed(1)+' 999" style="filter:drop-shadow(0 0 4px rgba('+wrGaugeRgb+',.6));transition:stroke-dasharray .6s ease"/>'
+      +'</svg>';
     document.getElementById('dv-ex-stats').innerHTML='<div class="dv-ex-stat"><div class="dv-ex-stat-val">'+dT.length+'</div><div class="dv-ex-stat-label">TRADES</div></div>'
-      +'<div class="dv-ex-stat"><div class="dv-ex-stat-val" style="color:'+(parseFloat(wr2)>=50?'var(--green)':'var(--text)')+'">'+wr2+'</div><div class="dv-ex-stat-label">WIN RATE</div></div>'
+      +'<div class="dv-ex-stat">'+wrGaugeSvg+'<div class="dv-ex-stat-val" style="margin-top:-4px;color:'+wrGaugeColor+'">'+wr2+'</div><div class="dv-ex-stat-label">WIN RATE</div></div>'
       +'<div class="dv-ex-stat"><div class="dv-ex-stat-val" class="tq-green">'+wins.length+'W</div><div class="dv-ex-stat-label">/ '+losses.length+'L</div></div>'
       +'<div class="dv-ex-stat"><div class="dv-ex-stat-val">'+avgG+'</div><div class="dv-ex-stat-label">AVG GRADE</div></div>'
       +'<div class="dv-ex-stat"><div class="dv-ex-stat-val" style="color:'+(parseInt(planPct)>=80?'var(--green)':'var(--text)')+'">'+planPct+'</div><div class="dv-ex-stat-label">PLAN</div></div>'
@@ -31314,6 +31328,28 @@ window.toggleSidebar = function(){
       var zeroY=svgH-padY-((0-minP)/range)*(svgH-padY*2);
       document.getElementById('dv-spark-zero').setAttribute('y1',zeroY);
       document.getElementById('dv-spark-zero').setAttribute('y2',zeroY);
+      // Daily loss limit reference line — reuses the SAME acc.dailyLossLimit field the
+      // Simulate Account / Mission Control risk tools already use, so this isn't a new metric.
+      var limitLine=document.getElementById('dv-spark-limit'), limitLabel=document.getElementById('dv-spark-limit-label');
+      var dvAccSel=document.getElementById('dv-account-filter');
+      var selAccId=dvAccSel?dvAccSel.value:'all';
+      var limitDrawn=false;
+      if(selAccId && selAccId!=='all' && typeof accLoad==='function'){
+        var accs2=accLoad();
+        var accObj=accs2.find(function(a){return a.id===selAccId;});
+        if(accObj && accObj.dailyLossLimit && accObj.startingBalance){
+          var limitAbs = accObj.ddMode==='dollar' ? accObj.dailyLossLimit : (accObj.startingBalance*accObj.dailyLossLimit/100);
+          var limitVal = -Math.abs(limitAbs);
+          if(limitVal>=minP-range*0.15 && limitVal<=maxP+range*0.15){
+            var limitY=svgH-padY-((limitVal-minP)/range)*(svgH-padY*2);
+            limitLine.setAttribute('y1',limitY.toFixed(1)); limitLine.setAttribute('y2',limitY.toFixed(1));
+            limitLine.style.display='block';
+            limitLabel.setAttribute('y',(limitY-4).toFixed(1)); limitLabel.style.display='block';
+            limitDrawn=true;
+          }
+        }
+      }
+      if(!limitDrawn){ limitLine.style.display='none'; limitLabel.style.display='none'; }
       var polyPts=pts.map(function(p,i){
         var x=40+(i/(pts.length-1))*520;
         var y=svgH-padY-((p-minP)/range)*(svgH-padY*2);
