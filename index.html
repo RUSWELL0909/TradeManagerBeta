@@ -36,48 +36,23 @@
     lk.href = url;
     document.head.appendChild(lk);
   }catch(e){ console.warn('PWA manifest registration failed', e); }
-  // Real Service Worker — DISABLED (May 2026)
-  // SW was causing cache issues that broke incognito / mentor-link loads.
-  // Kept the SW file (now a kill-switch) so existing users get unregistered
-  // when they next visit, but no new registrations happen.
+  // Service Worker — RE-ENABLED (July 2026) with a rewritten sw.js (v2) that
+  // never caches the HTML document itself, only genuinely static assets.
+  // This avoids the stale-app-shell bug that caused the May 2026 disable.
   try{
-    if('serviceWorker' in navigator){
-      // Eagerly unregister any leftover SW from prior versions on load
-      window.addEventListener('load', function(){
-        navigator.serviceWorker.getRegistrations().then(function(regs){
-          if(regs.length === 0){
-            console.log('TradeQuill: no SW present (good)');
-            return;
-          }
-          // If kill-switch is already running, let it finish.
-          // If it's an older broken SW, it gets replaced when sw.js is fetched fresh.
-          regs.forEach(function(r){
-            r.update().catch(function(){});
-          });
-          console.log('TradeQuill: kicked', regs.length, 'SW registration(s) for refresh');
-        }).catch(function(e){ console.warn('TradeQuill: SW check failed', e); });
-      });
-    }
-  }catch(e){ console.warn('TradeQuill: SW init failed', e); }
-
-  // OLD CODE BELOW — DISABLED. Kept for reference, never executes.
-  if(false){
     if('serviceWorker' in navigator){
       window.addEventListener('load', function(){
         navigator.serviceWorker.register('./sw.js').then(function(reg){
           console.log('TradeQuill: Service worker registered (scope:', reg.scope+')');
-          // Update detection — show toast when new version available
           reg.addEventListener('updatefound', function(){
             var newWorker = reg.installing;
             if(!newWorker) return;
             newWorker.addEventListener('statechange', function(){
               if(newWorker.state === 'installed' && navigator.serviceWorker.controller){
-                // New version available
                 if(typeof window.tqToast === 'function'){
-                  var toast = window.tqToast(
+                  window.tqToast(
                     '✨ New version available — refresh to update',
                     {type: 'info', duration: 0, action: {label: 'Refresh', onClick: function(){
-                      newWorker.postMessage('SKIP_WAITING');
                       window.location.reload();
                     }}}
                   );
@@ -85,23 +60,13 @@
               }
             });
           });
-          // Check for updates every hour while tab is open
-          setInterval(function(){
-            reg.update().catch(function(){});
-          }, 60 * 60 * 1000);
+          setInterval(function(){ reg.update().catch(function(){}); }, 60 * 60 * 1000);
         }).catch(function(err){
-          console.warn('TradeQuill: SW registration failed (offline mode unavailable)', err);
-        });
-        // Reload when SW takes control of the page (after activation)
-        var refreshing = false;
-        navigator.serviceWorker.addEventListener('controllerchange', function(){
-          if(refreshing) return;
-          refreshing = true;
-          window.location.reload();
+          console.warn('TradeQuill: Service worker registration failed (offline mode unavailable)', err);
         });
       });
     }
-  } // end if(false) — old SW code disabled
+  }catch(e){ console.warn('TradeQuill: SW init failed', e); }
 })();
 </script>
 <!-- Content Security Policy — restricts where the app can connect, blocking exfiltration via XSS.
@@ -4368,8 +4333,8 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(139,92,246,.15);outlin
   .dash-charts-split{grid-template-columns:1fr!important}
   .dash-bottom-grid{grid-template-columns:1fr!important;grid-template-rows:auto!important}
   .tm-limits-grid{grid-template-columns:repeat(2,1fr)!important}
-  .acc-table-head{display:none!important}
-  .acc-table-row{grid-template-columns:1fr!important;gap:4px!important;padding:12px 16px!important}
+  /* .acc-table-row was dead CSS — the actual markup class is .acc-row (see the
+     correct fix for it further down in this same media query block). */
 }
 @media(max-width:480px){
   .stats-row{grid-template-columns:1fr!important}
@@ -4632,6 +4597,28 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
 @media (max-width:768px){
   .sidebar{display:none}
   .main-content{margin-left:0!important;padding-bottom:80px!important}
+  /* Journal filter row — .jr-period-pills has no internal wrap, so on narrow
+     screens its buttons were overflowing past .main's overflow-x:hidden and
+     getting silently clipped (Losses/BE/etc unreachable). Let them wrap. */
+  .jr-period-pills{flex-wrap:wrap;row-gap:6px}
+  .jr-bar select.jr-select{width:auto!important;flex:1;min-width:100px}
+  #jr-search{width:100%!important}
+  /* Accounts page — .acc-row is a fixed 6-column CSS grid (2fr 1fr 1fr 1fr 100px 130px)
+     that doesn't fit a 390px screen; the action-icon column (edit/archive/clear/delete)
+     was getting clipped and unreachable. Stack it into a single column on mobile. */
+  .acc-row{grid-template-columns:1fr!important;row-gap:8px}
+  .acc-row > div{min-width:0}
+  .acc-row > div[style*="justify-content:flex-end"]{justify-content:flex-start!important;flex-wrap:wrap}
+  .acc-table-head{display:none!important}
+  /* Day View calendar — cells need to shrink text/padding on narrow screens
+     now that grid columns are allowed to shrink (minmax(0,1fr) fix applied
+     in the dvRender() JS function). */
+  .dv-day{min-width:0;padding:6px 3px;min-height:64px;font-size:11px}
+  .dv-day *{min-width:0}
+  /* Journal row action icons (pin/AI/delete) were only 18-28px touch targets —
+     below the ~44px minimum recommended for a finger tap. Keep the icon glyph
+     the same visual size but pad out the actual tappable hit-area. */
+  .jr-row-icon-btn{min-width:38px!important;min-height:38px!important;display:inline-flex!important;align-items:center;justify-content:center}
   .mob-bottom-nav{
     display:flex;
     position:fixed;
@@ -5674,7 +5661,7 @@ const _tqSupabaseLoad = (async () => {
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 14h2M8 18h2M14 14h2M14 18h2"/></svg>
         Economic Calendar
       </div>
-      <div class="nav-item" id="nav-casestudies">
+      <div class="nav-item" id="nav-casestudies" style="display:none">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 3H4a1 1 0 00-1 1v16a1 1 0 001 1h16a1 1 0 001-1V8l-6-5z"/><path d="M14 3v5h6"/><circle cx="9" cy="14" r="1.5"/><path d="M9 15.5V17"/></svg>
         Case Studies
       </div>
@@ -30903,7 +30890,7 @@ window.toggleSidebar = function(){
             +'<td class="jr-num" style="font-weight:500;font-size:15px;font-family:Inter,sans-serif;letter-spacing:-.2px;color:'+(pnl2>=0?'var(--green)':'var(--red)')+'">'+(pnl2>=0?'+':'-')+'$'+Math.abs(pnl2).toLocaleString('en-US')+'</td>'
             +'<td class="jr-num jr-running" style="color:'+(running>=0?'var(--green)':'var(--red)')+'">'+(running>=0?'+':'-')+'$'+Math.abs(running).toLocaleString('en-US')+'</td>'
             +'<td><span class="jr-pill '+resultCls+'">'+result+'</span></td>'
-            +'<td onclick="event.stopPropagation()" style="white-space:nowrap"><button style="background:none;border:none;color:'+(tr.pinned?'#f0b429':'var(--text3)')+';cursor:pointer;font-size:13px;padding:4px" onclick="jrTogglePin(\''+tr.id+'\')" title="'+(tr.pinned?'Unpin':'Pin for later review')+'">'+(tr.pinned?'★':'☆')+'</button><button style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:13px;padding:4px 6px" onclick="aiChatOpen(\''+tr.id+'\')" title="Ask AI about this trade">✨</button><button style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;padding:4px" onclick="jrDeleteTrade(\''+tr.id+'\')" title="Delete trade">✕</button></td>'
+            +'<td onclick="event.stopPropagation()" style="white-space:nowrap"><button class="jr-row-icon-btn" style="background:none;border:none;color:'+(tr.pinned?'#f0b429':'var(--text3)')+';cursor:pointer;font-size:13px;padding:4px" onclick="jrTogglePin(\''+tr.id+'\')" title="'+(tr.pinned?'Unpin':'Pin for later review')+'">'+(tr.pinned?'★':'☆')+'</button><button class="jr-row-icon-btn" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:13px;padding:4px 6px" onclick="aiChatOpen(\''+tr.id+'\')" title="Ask AI about this trade">✨</button><button class="jr-row-icon-btn" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;padding:4px" onclick="jrDeleteTrade(\''+tr.id+'\')" title="Delete trade">✕</button></td>'
             +'</tr>';
         });
       });
@@ -31547,14 +31534,15 @@ window.toggleSidebar = function(){
       var confC=(tr.confluences||[]).length;
       var setupCol=dvSetupColors[tr.setup]||'var(--accent)';
       var timeStr='';if(tr.entryTime){timeStr=tr.entryTime;}else if(tr.time){timeStr=tr.time;}
-      var modelStr=tr.model?'<span style="color:var(--text3);font-size:9px;font-family:Inter,sans-serif;margin-left:4px">'+tr.model+'</span>':'';
-      var biasIcon=tr.dailyBias==='Bullish'?'<span style="color:var(--green);font-size:9px">&#9650;</span>':tr.dailyBias==='Bearish'?'<span style="color:var(--red);font-size:9px">&#9660;</span>':'';
+      var modelStr=tr.model?'<span style="color:var(--text3);font-size:11px;font-family:Inter,sans-serif;margin-left:4px">'+tr.model+'</span>':'';
+      var biasIcon=tr.dailyBias==='Bullish'?'<span style="color:var(--green);font-size:11px">&#9650;</span>':tr.dailyBias==='Bearish'?'<span style="color:var(--red);font-size:11px">&#9660;</span>':'';
       th+='<div class="dv-trade-row" onclick="jrViewDetail(\''+tr.id+'\')">'
         +'<div class="dv-tr-glow" style="background:'+(p>=0?'var(--green)':'var(--red)')+'"></div>'
         +(timeStr?'<div class="dv-tr-time">'+timeStr+'</div>':'')
+        +(tr.screenshots&&tr.screenshots.length>0?'<img src="'+tr.screenshots[0]+'" onclick="event.stopPropagation();slPreviewScreenshot(this.src)" style="width:24px;height:24px;object-fit:cover;border-radius:5px;cursor:zoom-in;flex-shrink:0;border:1px solid var(--border)" title="Click to preview">':'')
         +'<div class="dv-tr-pair">'+tr.pair+' '+biasIcon+'</div>'
         +'<span class="jr-pill '+(isL?'jr-pill-buy':'jr-pill-sell')+'">'+(isL?'LONG':'SHORT')+'</span>'
-        +'<div class="dv-tr-setup">'+(tr.setup?'<span class="dv-tr-setup-dot" style="background:'+setupCol+'"></span>':'')+''+(tr.setup||'<span class="tq-text-muted">—</span>')+modelStr+(confC>0?' <span style="color:var(--accent);font-size:9px;font-family:Inter,sans-serif">'+confC+'cf</span>':'')+'</div>'
+        +'<div class="dv-tr-setup">'+(tr.setup?'<span class="dv-tr-setup-dot" style="background:'+setupCol+'"></span>':'')+''+(tr.setup||'<span class="tq-text-muted">—</span>')+modelStr+(confC>0?' <span style="color:var(--accent);font-size:11px;font-family:Inter,sans-serif">'+confC+'cf</span>':'')+'</div>'
         +'<div class="dv-tr-rr">'+(rrNumDv===null?rr:'<div style="display:flex;align-items:center;gap:5px;justify-content:flex-end"><span>'+rr+'</span><div style="width:28px;height:4px;background:var(--track);border-radius:2px;overflow:hidden;flex-shrink:0"><div style="width:'+Math.min(100,rrNumDv/3*100).toFixed(0)+'%;height:100%;background:'+(p>=0?'var(--green)':'var(--red)')+';opacity:.85"></div></div></div>')+'</div>'
         +'<div class="dv-tr-grade" style="'+gc+'">'+(tr.grade||'—')+'</div>'
         +'<div class="dv-tr-pnl" style="color:'+(p>=0?'var(--green)':'var(--red)')+'">'+dvFmtPnl(p)+'</div>'
@@ -45312,11 +45300,11 @@ window.toggleSidebar = function(){
     var daysInMonth = new Date(year, month+1, 0).getDate();
     var today = new Date();
 
-    var html = '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px">';
+    var html = '<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px;margin-bottom:4px">';
     ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(function(d){
       html += '<div style="text-align:center;font-size:10px;color:var(--text3);font-weight:600;padding:4px">' + d + '</div>';
     });
-    html += '</div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px">';
+    html += '</div><div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px">';
 
     for (var i=0; i<firstDay; i++) html += '<div></div>';
     for (var d=1; d<=daysInMonth; d++) {
