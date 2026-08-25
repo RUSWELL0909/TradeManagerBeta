@@ -5490,6 +5490,16 @@ const _tqSupabaseLoad = (async () => {
 .tq-auth-title{font-family:Inter,sans-serif;font-size:22px;font-weight:600;color:#f5f0ff;margin-bottom:6px}
 .tq-auth-sub{font-size:12px;color:#ab9cd6;margin-bottom:28px;font-family:Inter,sans-serif}
 .tq-auth-input{width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#f5f0ff;font-size:13px;font-family:Inter,sans-serif;margin-bottom:12px;outline:none;transition:border-color .2s}
+.tq-auth-input:-webkit-autofill,
+.tq-auth-input:-webkit-autofill:hover,
+.tq-auth-input:-webkit-autofill:focus,
+.tq-auth-input:-webkit-autofill:active{
+  -webkit-text-fill-color:#f5f0ff !important;
+  -webkit-box-shadow:0 0 0px 1000px #1a1330 inset !important;
+  box-shadow:0 0 0px 1000px #1a1330 inset !important;
+  caret-color:#f5f0ff;
+  transition:background-color 5000s ease-in-out 0s;
+}
 .tq-auth-input:focus{border-color:#8b5cf6}
 .tq-auth-input::placeholder{color:rgba(240,234,255,.4)}
 .tq-auth-btn{width:100%;padding:12px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-size:13px;font-weight:600;font-family:Inter,sans-serif;cursor:pointer;margin-top:4px;transition:opacity .2s}
