@@ -73,7 +73,7 @@
      'unsafe-inline' is unavoidable for the single-file architecture (inline scripts/styles).
      We allow only known endpoints: Supabase (data), Anthropic (AI Coach via Worker), Cloudflare Workers (custom),
      TradingView (charts), Forex Factory (news), Google Fonts, and data: for embedded SVGs/images. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.anthropic.com https://*.workers.dev https://api.exchangerate.host https://api.frankfurter.app https://www.tradingview.com https://*.tradingview.com https://www.forexfactory.com; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; frame-src https://*.tradingview.com https://www.tradingview.com;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.anthropic.com https://*.workers.dev https://api.exchangerate.host https://api.frankfurter.app https://www.tradingview.com https://*.tradingview.com https://www.forexfactory.com https://accounts.google.com https://www.googleapis.com https://oauth2.googleapis.com; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; frame-src https://*.tradingview.com https://www.tradingview.com;">
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%230a0814'/%3E%3Cpath d='M160 380V160c0-12 8-24 20-28l100-36c8-3 16 3 16 12v240' stroke='%237c5af0' stroke-width='20' fill='none' stroke-linecap='round'/%3E%3Cpath d='M296 200l60-20v180' stroke='%232ecc8a' stroke-width='14' fill='none' stroke-linecap='round'/%3E%3Cpath d='M140 320l40-60 30 20 40-50 30 30 40-40' stroke='%237c5af0' stroke-width='10' fill='none' stroke-linecap='round' stroke-linejoin='round' opacity='.4'/%3E%3C/svg%3E">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%237c5af0'/%3E%3Ctext x='16' y='22' font-family='Inter,sans-serif' font-size='18' font-weight='800' fill='%23fff' text-anchor='middle'%3ETQ%3C/text%3E%3C/svg%3E">
 <!-- Open Graph / Twitter — social sharing preview -->
@@ -5499,6 +5499,17 @@ const _tqSupabaseLoad = (async () => {
   box-shadow:0 0 0px 1000px #1a1330 inset !important;
   caret-color:#f5f0ff;
   transition:background-color 5000s ease-in-out 0s;
+}
+/* ID-level override — wins over the global [data-theme="light"/"obsidian"]
+   input[type="password"/"email"] rules (which use !important + higher
+   specificity than .tq-auth-input alone) that were forcing a white/light
+   background here while our text stayed light, making input invisible. */
+#tq-auth-email, #tq-auth-pass,
+[data-theme="light"] #tq-auth-email, [data-theme="light"] #tq-auth-pass,
+[data-theme="obsidian"] #tq-auth-email, [data-theme="obsidian"] #tq-auth-pass {
+  background: rgba(255,255,255,.06) !important;
+  color: #f5f0ff !important;
+  border-color: rgba(255,255,255,.14) !important;
 }
 .tq-auth-input:focus{border-color:#8b5cf6}
 .tq-auth-input::placeholder{color:rgba(240,234,255,.4)}
