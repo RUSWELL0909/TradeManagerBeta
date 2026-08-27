@@ -24498,8 +24498,13 @@ window.toggleSidebar = function(){
       var pointData = chronological.map(function(c, i){
         return {x: i+1, y: c.capture, _trade: c.trade, _mfe: c.mfePips, _actual: c.actualPips};
       });
-      var pointColors = chronological.map(function(c){return captureColor(c.capture);});
-      var pointBorders = chronological.map(function(c){return captureColor(c.capture);});
+      function _resolveChartColor(v){
+        if(v.indexOf('var(')!==0) return v;
+        var m=/var\((--[a-zA-Z0-9-]+)/.exec(v);
+        return m ? (getComputedStyle(document.documentElement).getPropertyValue(m[1]).trim()||v) : v;
+      }
+      var pointColors = chronological.map(function(c){return _resolveChartColor(captureColor(c.capture));});
+      var pointBorders = chronological.map(function(c){return _resolveChartColor(captureColor(c.capture));});
 
       if(canvas._chart){ try{canvas._chart.destroy();}catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});} }
       canvas._chart = new Chart(canvas, {
@@ -44826,8 +44831,11 @@ window.toggleSidebar = function(){
     if (cumEl) { try {
       if(cumEl._chart) { cumEl._chart.destroy(); cumEl._chart = null; }
       var isNeg = cumVals[cumVals.length-1] < 0;
-      var col = isNeg ? 'var(--red)' : 'var(--green)';
-      var posCol = 'var(--green)', negCol = 'var(--red)', peakCol = '#ffd166', troughCol = '#9b7cf0';
+      var _rootStyle = getComputedStyle(document.documentElement);
+      var _themeGreen = _rootStyle.getPropertyValue('--green').trim() || '#1de9b6';
+      var _themeRed = _rootStyle.getPropertyValue('--red').trim() || '#ef4444';
+      var col = isNeg ? _themeRed : _themeGreen;
+      var posCol = _themeGreen, negCol = _themeRed, peakCol = '#ffd166', troughCol = '#9b7cf0';
       var ctx = cumEl.getContext('2d');
       var cumOpts = JSON.parse(JSON.stringify(chartDefaults));
       cumOpts.scales.y.grace = '12%';
@@ -45022,7 +45030,7 @@ window.toggleSidebar = function(){
       var barBorderWidths = barVals.map(function(v,i){
         return (i === bestDayIdx && v > 0) || (i === worstDayIdx && v < 0) ? 1.5 : 0;
       });
-      var barHover = barVals.map(function(v){ return v >= 0 ? 'var(--green)' : 'var(--red)'; });
+      var barHover = barVals.map(function(v){ return v >= 0 ? themeGreen : themeRed; });
       var avgLine = barVals.map(function(){ return avgDay; });
       var barOpts = JSON.parse(JSON.stringify(chartDefaults));
       barOpts.layout = { padding: { top: 14, bottom: 14 } };
