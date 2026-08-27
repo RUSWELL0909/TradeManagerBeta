@@ -28162,7 +28162,7 @@ window.toggleSidebar = function(){
     // Top accent line
     var accent=ctx.createLinearGradient(0,0,W,0);
     accent.addColorStop(0,'#8b5cf6');
-    accent.addColorStop(0.5,'var(--green)');
+    accent.addColorStop(0.5,'#1de9b6');
     accent.addColorStop(1,'#8b5cf6');
     ctx.fillStyle=accent;
     ctx.fillRect(0,0,W,3);
@@ -28183,7 +28183,7 @@ window.toggleSidebar = function(){
     // Direction badge (next to pair, measured correctly with same font)
     var pairW=ctx.measureText(t.pair||'—').width;
     var dirLabel=isLong?'LONG':'SHORT';
-    var dirColor=isLong?'var(--green)':'var(--red)';
+    var dirColor=isLong?'#1de9b6':'#ef4444';
     var dirBg=isLong?'rgba(29,233,182,.15)':'rgba(239,68,68,.15)';
     ctx.font='bold 10px sans-serif';
     var dirW=ctx.measureText(dirLabel).width+14;
@@ -41135,7 +41135,7 @@ window.toggleSidebar = function(){
       var mn = Math.min.apply(null, vals), mx = Math.max.apply(null, vals);
       var rng = mx - mn || 1;
       var isPos = vals[vals.length-1] >= 0;
-      var col = isPos ? 'var(--green)' : 'var(--red)';
+      var col = isPos ? '#1de9b6' : '#ef4444';
       var grad = ctx.createLinearGradient(0,0,0,H);
       grad.addColorStop(0, col + '55'); grad.addColorStop(1, col + '00');
       ctx.beginPath();
@@ -44721,7 +44721,7 @@ window.toggleSidebar = function(){
     var spEl = document.getElementById('dash-pnl-sparkline');
     if (spEl) {
       if(spEl._chart) { spEl._chart.destroy(); spEl._chart = null; }
-      var spColor = cumVals[cumVals.length-1] < 0 ? 'var(--red)' : 'var(--green)';
+      var spColor = cumVals[cumVals.length-1] < 0 ? '#ef4444' : '#1de9b6';
       spEl._chart = new Chart(spEl.getContext('2d'), {
         type:'line',
         data:{ labels: last60, datasets:[{ data:cumVals, borderColor:spColor, borderWidth:1.5,
