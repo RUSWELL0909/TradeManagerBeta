@@ -24966,7 +24966,7 @@ window.toggleSidebar = function(){
             {
               label:'Your actual',
               data: cumActual,
-              borderColor:'var(--green)',
+              borderColor:'#1de9b6',
               borderWidth: 2.4,
               pointRadius: 0,
               tension: 0.3,
@@ -36456,14 +36456,14 @@ window.toggleSidebar = function(){
       }
       var lastV = l.pts[l.pts.length-1];
       var glowRgb = l.color==='#8b5cf6' ? '139,92,246' : (l.color==='var(--green)'?'46,204,138':(l.color==='var(--red)'?'224,92,122':'139,92,246'));
-      var dot = '<circle cx="'+xAt(l.pts.length-1).toFixed(1)+'" cy="'+yAt(lastV).toFixed(1)+'" r="4.5" fill="'+l.color+'" stroke="var(--card)" stroke-width="1.5" style="filter:drop-shadow(0 0 6px rgba('+glowRgb+',.8))"/>';
+      var dot = '<circle cx="'+xAt(l.pts.length-1).toFixed(1)+'" cy="'+yAt(lastV).toFixed(1)+'" r="4" fill="'+l.color+'" stroke="var(--card)" stroke-width="1.5" style="filter:drop-shadow(0 0 3px rgba('+glowRgb+',.4))"/>';
       // area fill for combined mode
       var area = '';
       if(mode==='combined'){
         var areaD = d + ' L '+xAt(l.pts.length-1).toFixed(1)+' '+zeroY.toFixed(1)+' L '+xAt(0).toFixed(1)+' '+zeroY.toFixed(1)+' Z';
         area = '<path d="'+areaD+'" fill="url(#mcEqGrad)" opacity="0.5"/>';
       }
-      return area + '<path d="'+d+'" fill="none" stroke="'+l.color+'" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" style="filter:drop-shadow(0 0 4px rgba('+glowRgb+',.5))"/>'+dot;
+      return area + '<path d="'+d+'" fill="none" stroke="'+l.color+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" style="filter:drop-shadow(0 0 2px rgba('+glowRgb+',.3))"/>'+dot;
     }).join('');
 
     // Legend (overlay mode)
@@ -36959,15 +36959,14 @@ window.toggleSidebar = function(){
     });
 
     el.style.display='block';
-    el.innerHTML = '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">'+
+    el.innerHTML = '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">'+
       concentrationCard+bwCard+splitCard+wrCard+payoutCard+rorCard+
     '</div>';
   }
 
   // Premium insight card builder
   function _mcInsightCard(o){
-    return '<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;display:flex;align-items:center;gap:14px;min-width:0;position:relative;overflow:hidden">'+
-      '<div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:'+o.accent+';opacity:.7"></div>'+
+    return '<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;display:flex;align-items:center;gap:16px;min-width:0;position:relative;overflow:hidden">'+
       '<div style="flex-shrink:0">'+o.visual+'</div>'+
       '<div style="min-width:0;flex:1">'+
         '<div style="font-size:11px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:700;margin-bottom:6px">'+o.label+'</div>'+
@@ -45240,7 +45239,7 @@ window.toggleSidebar = function(){
           datasets: [{
             label: 'Drawdown',
             data: ddVals,
-            borderColor: 'var(--red)', borderWidth: 2,
+            borderColor: '#ef4444', borderWidth: 2,
             backgroundColor: ddGrad,
             fill: true, tension: 0.35,
             pointRadius: function(c){
@@ -45251,11 +45250,11 @@ window.toggleSidebar = function(){
             },
             pointBackgroundColor: function(c){
               if (c.dataIndex === worstDDidx && minDD < -0.01) return '#9b7cf0';
-              return 'var(--red)';
+              return '#ef4444';
             },
             pointBorderColor: '#fff', pointBorderWidth: 1.5,
             pointHoverRadius: 5,
-            pointHoverBackgroundColor: 'var(--red)',
+            pointHoverBackgroundColor: '#ef4444',
             pointHoverBorderColor: '#fff', pointHoverBorderWidth: 2
           }]
         },
@@ -45267,7 +45266,7 @@ window.toggleSidebar = function(){
             tooltip: {
               backgroundColor: 'rgba(19,15,36,.95)',
               borderColor: 'rgba(239,68,68,.3)', borderWidth: 1,
-              titleColor: '#a89ec4', bodyColor: 'var(--red)', padding: 10,
+              titleColor: '#a89ec4', bodyColor: '#ef4444', padding: 10,
               titleFont: { family: "'Inter',sans-serif", size: 11 },
               bodyFont: { family: "'Inter',sans-serif", size: 12, weight: '700' },
               displayColors: false,
