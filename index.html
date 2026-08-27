@@ -3392,10 +3392,10 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(139,92,246,.15);outlin
 .jr-stat-sub{font-size:13px;color:var(--text3);font-family:Inter,sans-serif;margin-top:2px}
 .jr-streak{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:6px;font-size:12px;font-family:Inter,sans-serif;font-weight:600;margin-top:6px}
 .jr-today{background:linear-gradient(135deg,rgba(139,92,246,.04),var(--card));border:1px solid var(--border);border-radius:14px;padding:18px 24px;margin-bottom:16px;display:flex;align-items:center;gap:22px;box-shadow:var(--shadow-sm)}
-.jr-today-badge{padding:6px 15px;border-radius:8px;background:var(--accent);color:white;font-size:12.5px;font-weight:600;font-family:Inter,sans-serif;flex-shrink:0;box-shadow:0 2px 10px rgba(139,92,246,.18)}
+.jr-today-badge{padding:5px 13px;border-radius:8px;background:var(--accent);color:white;font-size:11.5px;font-weight:600;font-family:Inter,sans-serif;flex-shrink:0}
 .jr-today-stats{display:flex;gap:28px;flex:1}
 .jr-today-stat{text-align:center;padding:8px 18px;border-radius:10px}
-.jr-today-stat-val{font-size:21px;font-weight:500;letter-spacing:-.5px}
+.jr-today-stat-val{font-size:16px;font-weight:500;letter-spacing:-.3px;color:var(--text2)}
 .jr-today-mini{width:120px;height:40px;flex-shrink:0}
 .jr-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;flex-wrap:wrap}
 .jr-bar-left{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
@@ -30997,7 +30997,7 @@ window.toggleSidebar = function(){
             +'<td><span class="jr-pill '+dirCls+'">'+dirLabel+'</span></td>'
             +'<td class="jr-inline-cell" data-field="setup" data-id="'+tr.id+'" onclick="event.stopPropagation();jrInlineEditStart(this,\'setup\',\''+escapeHtml((tr.setup||'').replace(/'/g,'&#39;'))+'\')" style="font-size:13px;color:var(--text2);cursor:text">'+setupText+(confCount>0?' <span style="color:var(--accent);font-size:10.5px;font-family:Inter,sans-serif">'+confCount+'cf</span>':'')+'</td>'
             +'<td class="jr-inline-cell" data-field="grade" data-id="'+tr.id+'" onclick="event.stopPropagation();jrInlineEditStart(this,\'grade\',\''+(tr.grade||'')+'\')" style="cursor:text"><span class="'+gradeClass(tr.grade)+'" style="font-size:13px">'+(tr.grade||'<span class="tq-text-muted">—</span>')+'</span></td>'
-            +'<td class="jr-inline-cell" data-field="emotion" data-id="'+tr.id+'" onclick="event.stopPropagation();jrInlineEditStart(this,\'emotion\',\''+escapeHtml((tr.emotion||'').replace(/'/g,'&#39;'))+'\')" style="font-size:13px;cursor:text">'+(tr.emotion||'<span class="tq-text-muted">—</span>')+'</td>'
+            +'<td class="jr-inline-cell" data-field="emotion" data-id="'+tr.id+'" onclick="event.stopPropagation();jrInlineEditStart(this,\'emotion\',\''+escapeHtml((tr.emotion||'').replace(/'/g,'&#39;'))+'\')" style="font-size:13px;color:var(--text3);cursor:text">'+(tr.emotion||'<span class="tq-text-muted">—</span>')+'</td>'
             +'<td class="jr-num">'+(rrNum===null?'<span style="font-family:Inter,sans-serif;font-size:13px;color:var(--text3)">—</span>':
               '<div style="display:flex;align-items:center;gap:6px;justify-content:flex-end">'
                 +'<span style="font-family:Inter,sans-serif;font-size:13px;color:var(--text2);white-space:nowrap">'+rr+'</span>'
