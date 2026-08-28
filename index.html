@@ -3520,7 +3520,7 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(139,92,246,.15);outlin
 .dv-ex-stat{text-align:center;padding:16px 10px;border:1px solid var(--border);border-radius:12px;background:var(--card);transition:background .2s ease,border-color .2s ease}
 .dv-ex-stat:hover{background:rgba(139,92,246,.04);border-color:rgba(139,92,246,.25)}
 .dv-ex-stat:last-child{border-right:none}
-.dv-ex-stat-val{font-size:19px;font-weight:400;margin-bottom:3px}
+.dv-ex-stat-val{font-size:22px;font-weight:400;margin-bottom:3px}
 .dv-ex-stat-label{font-size:10px;color:var(--text3);font-family:Inter,sans-serif;font-weight:600;letter-spacing:.5px}
 .dv-ex-stat-secondary{text-align:center;padding:8px 10px}
 .dv-ex-stat-secondary .dv-ex-stat-val{font-size:14px;color:var(--text2);font-weight:400;margin-bottom:3px}
@@ -7497,6 +7497,9 @@ window.toggleSidebar = function(){
     <!-- Day cards strip (horizontally scrollable for full month) -->
     <div id="news-day-cards" style="display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin"></div>
 
+    <!-- Summary stats row -->
+    <div id="news-summary-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px"></div>
+
     <!-- Currency filter — compact button with dropdown -->
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;position:relative">
       <button id="news-ccy-toggle" onclick="newsCcyToggleDropdown(event)" style="padding:9px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;cursor:pointer;display:flex;align-items:center;gap:10px;font-family:Inter,sans-serif;font-size:11px;font-weight:600;color:var(--text);transition:all .15s">
@@ -7522,10 +7525,11 @@ window.toggleSidebar = function(){
     </div>
 
     <!-- STICKY column header — perfectly aligned with our custom rows -->
-    <div id="news-col-header" class="news-col-header-themed" style="position:sticky;top:90px;z-index:40;display:grid;grid-template-columns:78px 120px 1fr 110px 110px 110px;gap:14px;align-items:center;padding:13px 22px 13px 28px;border-radius:12px;font-family:Inter,sans-serif;font-size:9px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;margin-bottom:8px">
+    <div id="news-col-header" class="news-col-header-themed" style="position:sticky;top:90px;z-index:40;display:grid;grid-template-columns:78px 120px 1fr 90px 110px 110px 110px;gap:14px;align-items:center;padding:13px 22px 13px 28px;border-radius:12px;font-family:Inter,sans-serif;font-size:9px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;margin-bottom:8px">
       <div>Time</div>
       <div>Currency</div>
       <div>Event</div>
+      <div>Impact</div>
       <div style="text-align:right;color:var(--accent);font-weight:600">Actual</div>
       <div class="tq-right">Forecast</div>
       <div class="tq-right">Prior</div>
@@ -30923,7 +30927,7 @@ window.toggleSidebar = function(){
       pbSetups.forEach(function(s){setupColorMap[s.name]=s.color;setupColorMap[s.id]=s.color;});
 
       var sortArrow=function(col){var cur=sort;if(cur.indexOf(col)===0)return cur.indexOf('-desc')>0?' &#9660;':' &#9650;';return '';};
-      var h='<div class="jr-table-wrap"><table class="jr-table"><thead><tr><th style="width:30px"><input type="checkbox" class="jr-bulk-cb" onchange="jrBulkAll(this.checked)"></th><th onclick="jrColSort(\'date\')" style="cursor:pointer">Date'+sortArrow('date')+'</th><th onclick="jrColSort(\'pair\')" style="cursor:pointer">Pair'+sortArrow('pair')+'</th><th>Dir</th><th>Setup</th><th onclick="jrColSort(\'grade\')" style="cursor:pointer">Grade'+sortArrow('grade')+'</th><th>Emotion</th><th class="jr-num" onclick="jrColSort(\'rr\')" style="cursor:pointer">R:R'+sortArrow('rr')+'</th><th class="jr-num" onclick="jrColSort(\'pnl\')" style="cursor:pointer">P&L'+sortArrow('pnl')+'</th><th class="jr-num">Cumulative</th><th>Result</th><th></th></tr></thead><tbody>';
+      var h='<div class="jr-table-wrap"><table class="jr-table"><thead><tr><th style="width:30px"><input type="checkbox" class="jr-bulk-cb" onchange="jrBulkAll(this.checked)"></th><th onclick="jrColSort(\'date\')" style="cursor:pointer">Date'+sortArrow('date')+'</th><th onclick="jrColSort(\'pair\')" style="cursor:pointer">Pair'+sortArrow('pair')+'</th><th>Account</th><th>Dir</th><th>Setup</th><th onclick="jrColSort(\'grade\')" style="cursor:pointer">Grade'+sortArrow('grade')+'</th><th>Emotion</th><th class="jr-num" onclick="jrColSort(\'rr\')" style="cursor:pointer">R:R'+sortArrow('rr')+'</th><th class="jr-num" onclick="jrColSort(\'pnl\')" style="cursor:pointer">P&L'+sortArrow('pnl')+'</th><th>Result</th><th></th></tr></thead><tbody>';
       // Running P&L calc (date asc)
       var runningPnl=0;
       var tSorted=t.slice().sort(function(a,b){return (a.date||'').localeCompare(b.date||'');});
@@ -31000,6 +31004,7 @@ window.toggleSidebar = function(){
             +'<td onclick="event.stopPropagation()"><input type="checkbox" class="jr-bulk-cb jr-row-cb" data-id="'+tr.id+'" onchange="jrToggleBulk(\''+tr.id+'\',this)"></td>'
             +'<td style="font-family:Inter,sans-serif;font-size:13px;color:var(--text3)">'+(tr.date||'—').slice(5)+'</td>'
             +'<td style="font-weight:700;font-size:14px;color:var(--text)"><div style="display:flex;align-items:center;gap:8px">'+(tr.screenshots&&tr.screenshots.length>0?'<img src="'+tr.screenshots[0]+'" onclick="event.stopPropagation();slPreviewScreenshot(this.src)" style="width:26px;height:26px;object-fit:cover;border-radius:5px;cursor:zoom-in;flex-shrink:0;border:1px solid var(--border)" title="Click to preview">':'')+'<span>'+tr.pair+'</span></div></td>'
+            +'<td>'+(function(){ var acc=allAccs.find(function(a){return a.id===tr.account;}); return acc?'<span style="display:inline-block;padding:3px 10px;border:1px solid var(--border);border-radius:6px;font-size:11.5px;color:var(--text2);font-family:Inter,sans-serif;white-space:nowrap">'+escapeHtml(acc.name)+'</span>':'<span class="tq-text-muted">—</span>'; })()+'</td>'
             +'<td><span class="jr-pill '+dirCls+'">'+dirLabel+'</span></td>'
             +'<td class="jr-inline-cell" data-field="setup" data-id="'+tr.id+'" onclick="event.stopPropagation();jrInlineEditStart(this,\'setup\',\''+escapeHtml((tr.setup||'').replace(/'/g,'&#39;'))+'\')" style="font-size:13px;color:var(--text2);cursor:text">'+setupText+(confCount>0?' <span style="color:var(--accent);font-size:10.5px;font-family:Inter,sans-serif">'+confCount+'cf</span>':'')+'</td>'
             +'<td class="jr-inline-cell" data-field="grade" data-id="'+tr.id+'" onclick="event.stopPropagation();jrInlineEditStart(this,\'grade\',\''+(tr.grade||'')+'\')" style="cursor:text"><span class="'+gradeClass(tr.grade)+'" style="font-size:13px">'+(tr.grade||'<span class="tq-text-muted">—</span>')+'</span></td>'
@@ -31010,7 +31015,6 @@ window.toggleSidebar = function(){
                 +'<div style="width:34px;height:5px;background:var(--track);border-radius:3px;overflow:hidden;flex-shrink:0"><div style="width:'+Math.min(100,rrNum/3*100).toFixed(0)+'%;height:100%;background:'+(pnl2>=0?'var(--green)':'var(--red)')+';opacity:.85;border-radius:3px"></div></div>'
               +'</div>')+'</td>'
             +'<td class="jr-num" style="font-weight:500;font-size:15px;font-family:Inter,sans-serif;letter-spacing:-.2px;color:'+(pnl2>=0?'var(--green)':'var(--red)')+'">'+(pnl2>=0?'+':'-')+'$'+Math.abs(pnl2).toLocaleString('en-US')+'</td>'
-            +'<td class="jr-num jr-running" style="color:'+(running>=0?'var(--green)':'var(--red)')+'">'+(running>=0?'+':'-')+'$'+Math.abs(running).toLocaleString('en-US')+'</td>'
             +'<td><span class="jr-pill '+resultCls+'">'+result+'</span></td>'
             +'<td onclick="event.stopPropagation()" style="white-space:nowrap"><button class="jr-row-icon-btn" style="background:none;border:none;color:'+(tr.pinned?'#f0b429':'var(--text3)')+';cursor:pointer;font-size:13px;padding:4px" onclick="jrTogglePin(\''+tr.id+'\')" title="'+(tr.pinned?'Unpin':'Pin for later review')+'">'+(tr.pinned?'★':'☆')+'</button><button class="jr-row-icon-btn" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:13px;padding:4px 6px" onclick="aiChatOpen(\''+tr.id+'\')" title="Ask AI about this trade">✨</button><button class="jr-row-icon-btn" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;padding:4px" onclick="jrDeleteTrade(\''+tr.id+'\')" title="Delete trade">✕</button></td>'
             +'</tr>';
@@ -31525,7 +31529,6 @@ window.toggleSidebar = function(){
       var line=document.getElementById('dv-spark-line');
       line.setAttribute('points',polyPts);
       line.setAttribute('stroke',dP>=0?'var(--green)':'var(--red)');
-      line.style.filter='drop-shadow(0 0 5px '+(dP>=0?'rgba(46,204,138,.6)':'rgba(224,92,122,.6)')+')';
       // Area fill
       var fillEl=document.getElementById('dv-spark-fill');
       var firstX=40,lastX=40+520;
@@ -31540,7 +31543,7 @@ window.toggleSidebar = function(){
         var cRgb=dT[i].pnl>=0?'46,204,138':'224,92,122';
         var tradePnl=tqConvertTradePnl(dT[i]);
         var tip=(dT[i].pair||'')+' '+(dT[i].entryTime||dT[i].time||'')+' · '+(tradePnl>=0?'+':'-')+'$'+Math.abs(tradePnl).toFixed(0)+' · cum '+fmtDollar(p);
-        return '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="4" fill="'+c+'" stroke="var(--card)" stroke-width="1.5" style="filter:drop-shadow(0 0 4px rgba('+cRgb+',.8));cursor:pointer"><title>'+tip+'</title></circle>';
+        return '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="4" fill="'+c+'" stroke="var(--card)" stroke-width="1.5" style="cursor:pointer"><title>'+tip+'</title></circle>';
       }).join('');
       // X-axis time labels beneath each point
       var xAxisG=document.getElementById('dv-spark-xaxis');
@@ -36304,8 +36307,8 @@ window.toggleSidebar = function(){
       var glowRgb = pts[pts.length-1] >= pts[0] ? '46,204,138' : '224,92,122';
       var lastX = w, lastY = h - ((pts[pts.length-1]-min)/range)*h;
       return '<svg width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" style="overflow:visible">'+
-        '<polyline points="'+coords+'" fill="none" stroke="'+lineColor+'" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.9" style="filter:drop-shadow(0 0 2.5px rgba('+glowRgb+',.6))"/>'+
-        '<circle cx="'+lastX.toFixed(1)+'" cy="'+lastY.toFixed(1)+'" r="2" fill="'+lineColor+'" style="filter:drop-shadow(0 0 3px rgba('+glowRgb+',.8))"/>'+
+        '<polyline points="'+coords+'" fill="none" stroke="'+lineColor+'" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.9"/>'+
+        '<circle cx="'+lastX.toFixed(1)+'" cy="'+lastY.toFixed(1)+'" r="2" fill="'+lineColor+'"/>'+
       '</svg>';
     }catch(e){ return ''; }
   }
@@ -36462,14 +36465,14 @@ window.toggleSidebar = function(){
       }
       var lastV = l.pts[l.pts.length-1];
       var glowRgb = l.color==='#8b5cf6' ? '139,92,246' : (l.color==='var(--green)'?'46,204,138':(l.color==='var(--red)'?'224,92,122':'139,92,246'));
-      var dot = '<circle cx="'+xAt(l.pts.length-1).toFixed(1)+'" cy="'+yAt(lastV).toFixed(1)+'" r="4" fill="'+l.color+'" stroke="var(--card)" stroke-width="1.5" style="filter:drop-shadow(0 0 3px rgba('+glowRgb+',.4))"/>';
+      return area + '<path d="'+d+'" fill="none" stroke="'+l.color+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
       // area fill for combined mode
       var area = '';
       if(mode==='combined'){
         var areaD = d + ' L '+xAt(l.pts.length-1).toFixed(1)+' '+zeroY.toFixed(1)+' L '+xAt(0).toFixed(1)+' '+zeroY.toFixed(1)+' Z';
         area = '<path d="'+areaD+'" fill="url(#mcEqGrad)" opacity="0.5"/>';
       }
-      return area + '<path d="'+d+'" fill="none" stroke="'+l.color+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" style="filter:drop-shadow(0 0 2px rgba('+glowRgb+',.3))"/>'+dot;
+      return area + '<path d="'+d+'" fill="none" stroke="'+l.color+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
     }).join('');
 
     // Legend (overlay mode)
@@ -42867,7 +42870,7 @@ window.toggleSidebar = function(){
     var s = document.createElement('style');
     s.id = 'news-styles';
     s.textContent = ''
-      + '.news-row{position:relative;display:grid;grid-template-columns:78px 120px 1fr 110px 110px 110px;gap:14px;align-items:center;padding:14px 22px 14px 28px;background:var(--card);border:1px solid var(--border);border-radius:11px;margin-bottom:5px;font-family:Inter,sans-serif;font-size:12px;transition:transform .15s,background .15s,border-color .15s,box-shadow .15s;overflow:hidden}'
+      + '.news-row{position:relative;display:grid;grid-template-columns:78px 120px 1fr 90px 110px 110px 110px;gap:14px;align-items:center;padding:14px 22px 14px 28px;background:var(--card);border:1px solid var(--border);border-radius:11px;margin-bottom:5px;font-family:Inter,sans-serif;font-size:12px;transition:transform .15s,background .15s,border-color .15s,box-shadow .15s;overflow:hidden}'
       + '[data-theme="dark"] .news-row{background:var(--bg2)}'
       + '.news-row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:11px 0 0 11px;background:transparent;transition:width .15s}'
       + '.news-row.imp-high::before{background:linear-gradient(180deg,#ff6b8a,var(--red));box-shadow:0 0 12px rgba(239,68,68,.35)}'
@@ -43164,9 +43167,33 @@ window.toggleSidebar = function(){
   }
   window.newsCcyNone = newsCcyNone;
 
+  function newsRenderSummaryStats(){
+    var el = document.getElementById('news-summary-stats');
+    if(!el || !_newsData) return;
+    var now = new Date();
+    var todayKey = newsFmtDayKey(now);
+    var weekStart = new Date(now); weekStart.setHours(0,0,0,0); weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+    var weekEnd = new Date(weekStart); weekEnd.setDate(weekEnd.getDate() + 7);
+    var highCount = 0, todayCount = 0, weekCount = 0;
+    _newsData.forEach(function(e){
+      var d = new Date(e.date);
+      if(e.impact === 'High') highCount++;
+      if(newsFmtDayKey(d) === todayKey) todayCount++;
+      if(d >= weekStart && d < weekEnd) weekCount++;
+    });
+    function stat(val, label){
+      return '<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 20px;text-align:center">'
+        +'<div style="font-size:24px;font-weight:400;color:var(--text);font-variant-numeric:tabular-nums">'+val+'</div>'
+        +'<div style="font-size:10px;color:var(--text3);letter-spacing:.6px;text-transform:uppercase;font-weight:600;margin-top:3px">'+label+'</div>'
+      +'</div>';
+    }
+    el.innerHTML = stat(highCount, 'High Impact') + stat(todayCount, 'Today') + stat(weekCount, 'This Week');
+  }
+
   function newsRenderContent(){
     var content = document.getElementById('news-content');
     if(!content || !_newsData) return;
+    newsRenderSummaryStats();
     var activeCcy = newsGetActiveCcy();
     var activeImp = newsGetActiveImpacts();
     var now = new Date();
@@ -43238,9 +43265,9 @@ window.toggleSidebar = function(){
       + '<div style="font-size:13px;font-weight:600;color:var(--text2);font-variant-numeric:tabular-nums;letter-spacing:.2px">'+time+'</div>'
       + '<div style="display:flex;align-items:center;gap:9px;font-size:12px"><span style="font-size:17px;line-height:1">'+flag+'</span><span style="color:var(--text);font-weight:600;letter-spacing:.3px">'+e.country+'</span></div>'
       + '<div style="display:flex;align-items:center;font-size:13px;color:var(--text);overflow:hidden;min-width:0">'
-      +   '<span class="news-event-dot" style="background:'+impColor+';'+dotShadow+'"></span>'
       +   '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600">'+e.title+'</span>'
       + '</div>'
+      + '<div style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:'+impColor+';font-weight:600"><span class="news-event-dot" style="background:'+impColor+';'+dotShadow+'"></span>'+(e.impact||'Low')+'</div>'
       + '<div class="tq-right"><span style="display:inline-block;min-width:58px;padding:4px 10px;border-radius:6px;background:'+actualBg+';border:1px solid '+actualBorder+';font-size:12px;font-weight:600;color:'+actualColor+';font-variant-numeric:tabular-nums">'+actual+'</span></div>'
       + '<div style="text-align:right;font-size:12px;color:var(--text2);font-weight:600;font-variant-numeric:tabular-nums">'+forecast+'</div>'
       + '<div style="text-align:right;font-size:12px;color:var(--text3);font-weight:500;font-variant-numeric:tabular-nums">'+previous+'</div>'
