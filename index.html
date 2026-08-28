@@ -6625,7 +6625,7 @@ window.toggleSidebar = function(){
 
         <!-- RECENT TRADES + CALENDAR -->
         <div class="dash-section" data-section="recent-calendar">
-        <div class="dash-charts-split" style="display:grid;grid-template-columns:24fr 76fr;gap:12px;margin-top:12px">
+        <div class="dash-charts-split" style="display:grid;grid-template-columns:24fr 76fr;gap:12px;margin-top:12px;align-items:start">
           <!-- Recent Trades -->
           <div class="card" data-widget="recent-trades" style="padding:20px 22px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-right:26px">
@@ -37263,31 +37263,30 @@ window.toggleSidebar = function(){
     }
     var rulesMetaStr = rulesMeta.join(' · ') || 'No rules set';
 
-    // DD progress bar (if maxDrawdownLimit exists)
+    // DD progress bar — REMOVED from Mission Control's default card view (Aug 2026):
+    // this exact number + bar (Daily Loss/Max DD %) is already shown, with MORE
+    // detail, on the My Accounts page. Keeping it here duplicated the same info
+    // in two places. What genuinely belongs on this aggregate/glance page is
+    // live alerts (breach/warning/target), not the static config breakdown —
+    // those still surface below via extraInsight, alone on their own line.
     var ddBar = '';
     var ddInsight = '';
     if(st && acc.maxDrawdownLimit){
       var ddPctOfLimit = st.maxDdPctOf || 0;
-      var barColor = ddPctOfLimit >= 80 ? 'linear-gradient(90deg,#ef4444,#f87171)' :
-                     ddPctOfLimit >= 60 ? 'linear-gradient(90deg,var(--yellow),#fcd34d)' :
-                     'linear-gradient(90deg,#1de9b6,#34d399)';
-      ddBar = '<div style="height:4px;background:rgba(255,255,255,.08);border-radius:2px;margin-top:7px;overflow:hidden;position:relative">'+
-              '<div style="position:absolute;top:0;left:0;height:100%;width:'+Math.min(100,ddPctOfLimit).toFixed(1)+'%;background:'+barColor+';border-radius:2px"></div>'+
-              '</div>';
-      var ddCur = acc.ddMode === 'dollar' ? '$'+st.currentDdAbs.toFixed(0) : st.currentDdPct.toFixed(2)+'%';
-      var ddMax = acc.ddMode === 'dollar' ? '$'+acc.maxDrawdownLimit : acc.maxDrawdownLimit+'%';
       var insightColor = ddPctOfLimit >= 80 ? 'var(--red)' : ddPctOfLimit >= 60 ? 'var(--yellow)' : 'var(--green)';
       var extraInsight = '';
       if(st.breaches.length > 0){
-        extraInsight = ' · <strong>' + st.breaches[0] + '</strong>';
+        extraInsight = '<strong>' + st.breaches[0] + '</strong>';
       } else if(st.warnings.length > 0){
-        extraInsight = ' · ' + st.warnings[0];
+        extraInsight = st.warnings[0];
       } else if(st.profitTargetMet){
-        extraInsight = ' · Target met ✓';
+        extraInsight = 'Target met ✓';
       } else if(acc.profitTarget && st.profitPctOf > 0){
-        extraInsight = ' · Profit ' + st.profitPctOf.toFixed(0) + '% to target';
+        extraInsight = 'Profit ' + st.profitPctOf.toFixed(0) + '% to target';
       }
-      ddInsight = '<div style="font-size:12px;color:'+insightColor+';margin-top:4px;font-family:Inter,sans-serif">DD: '+ddCur+' / '+ddMax+' ('+ddPctOfLimit.toFixed(0)+'%)'+extraInsight+'</div>';
+      if(extraInsight){
+        ddInsight = '<div style="font-size:12px;color:'+insightColor+';margin-top:4px;font-family:Inter,sans-serif">'+extraInsight+'</div>';
+      }
     }
 
     // Status pill row (status + optional payout pill)
