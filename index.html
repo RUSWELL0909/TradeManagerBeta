@@ -192,7 +192,7 @@
   --bg2:#0f0f0f; --track:rgba(255,255,255,.14);             /* sidebar — barely above bg */
   --bg3:#121212;             /* elevated panels — Option 2 */
   --sidebar-bg:#050505;
-  --card:#1a1a1a;            /* cards — gentle lift from bg */
+  --card:#242424;            /* cards — clearer lift from bg for visible separation */
   --border:#1f1f1f;           /* subtle separator */
 
   /* Accent — keep brand violet for actives */
@@ -12956,10 +12956,25 @@ window.toggleSidebar = function(){
         }
         var cloudTrades = res.data || [];
         if(cloudTrades.length === 0){
+          // Don't trust "0 results" immediately — a fresh session right after
+          // login can transiently return 0 rows before auth/RLS context is
+          // fully settled, especially right after tqWipeUserData() cleared
+          // local storage on logout. Retry once before concluding the account
+          // is genuinely empty; only then push (which itself safely no-ops on
+          // empty local data, so this retry is what actually protects the user
+          // from seeing a falsely-empty Journal, not a cloud-deletion risk).
+          if(!_tqTradesPullRetried){
+            _tqTradesPullRetried = true;
+            console.warn('TradeQuill: Cloud returned 0 trades — retrying once before assuming account is empty');
+            setTimeout(function(){ tqPullTrades(); }, 1500);
+            return;
+          }
+          _tqTradesPullRetried = false;
           // No cloud trades: push local trades up
           tqPushAllLocal();
           return;
         }
+        _tqTradesPullRetried = false;
         // Merge strategy: cloud wins for conflicts, keep local-only trades.
         // EXCEPTION: if local has deleted:true but cloud row lacks it (legacy row pushed
         // before the field round-tripped), preserve local state and re-push to fix cloud.
@@ -13930,6 +13945,7 @@ window.toggleSidebar = function(){
   // Rate-limit + concurrency guard for tqPushAllLocal — prevents infinite push loops (May 2026 fix)
   var _tqLastFullPush = 0;
   var _tqFullPushInProgress = false;
+  var _tqTradesPullRetried = false;
   function tqPushAllLocal(force){
     if(!_tqSupa || !_tqUser) return;
     // Concurrency guard — never run two full pushes simultaneously
