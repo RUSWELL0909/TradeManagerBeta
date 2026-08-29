@@ -129,7 +129,8 @@
 /* ── DARK (default) ─────────────────────────── */
 :root, [data-theme="dark"] {
   --bg:#0a0814; --bg2:#0f0d1c; --bg3:#151228; --track:rgba(255,255,255,.14);
-  --card:#27233f; --border:#241e4a;
+  --sidebar-bg:#060410;
+  --card:#201c38; --border:#241e4a;
   --accent:#8b5cf6; --accent2:#a374ff; --accent3:#c4aeff;
   --green:#40c6a5; --red:#cd4c4c; --yellow:#d0a749;
   --text:#f7f3ff; --text2:#d8cff0; --text3:#ab9cd6;
@@ -190,7 +191,8 @@
   --bg:#0a0a0a;              /* page — almost black */
   --bg2:#0f0f0f; --track:rgba(255,255,255,.14);             /* sidebar — barely above bg */
   --bg3:#121212;             /* elevated panels — Option 2 */
-  --card:#212121;            /* cards — Option 2 (darker than before) */
+  --sidebar-bg:#050505;
+  --card:#1a1a1a;            /* cards — gentle lift from bg */
   --border:#1f1f1f;           /* subtle separator */
 
   /* Accent — keep brand violet for actives */
@@ -225,7 +227,7 @@
 
 /* Obsidian — sidebar */
 [data-theme="obsidian"] .sidebar {
-  background: #0d0d0d !important;
+  background: #050505 !important;
   border-right: 0.5px solid #121212 !important;
 }
 [data-theme="obsidian"] .sidebar::after { display: none; }
@@ -2217,7 +2219,7 @@
 *{margin:0;padding:0;box-sizing:border-box}
 html{overflow-x:hidden}
 body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;overflow-x:hidden;font-size:14px;line-height:1.6;background-image:radial-gradient(ellipse at 20% 50%,var(--body-bg-grad1) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,var(--body-bg-grad2) 0%,transparent 50%)}
-.sidebar{width:220px;min-height:100vh;background:var(--bg2);border-right:1px solid var(--border);padding:28px 0;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.sidebar{width:220px;min-height:100vh;background:var(--sidebar-bg);border-right:1px solid var(--border);padding:28px 0;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
 .sidebar::-webkit-scrollbar{display:none}
 .logo{padding:20px 16px 20px;border-bottom:1px solid var(--border);margin-bottom:16px;text-align:center}
 .logo-text{font-size:15px;font-weight:600;color:var(--sidebar-logo);letter-spacing:1px;font-family:Inter,sans-serif;text-transform:uppercase}
