@@ -41080,7 +41080,7 @@ window.toggleSidebar = function(){
     // Recent trades
     var recentEl = document.getElementById('dash-recent-trades');
     if (recentEl) {
-      var RECENT_LIMIT = 20;
+      var RECENT_LIMIT = 12;
       var recent = trades.slice(0, RECENT_LIMIT);
       var ccy = (typeof tqGetDisplayCurrency==='function') ? tqGetDisplayCurrency() : 'USD';
       var sym = {USD:'$',EUR:'€',GBP:'£',JPY:'¥',CHF:'CHF ',CAD:'C$',AUD:'A$',NZD:'NZ$'}[ccy] || '$';
