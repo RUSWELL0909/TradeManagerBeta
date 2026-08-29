@@ -129,7 +129,7 @@
 /* ── DARK (default) ─────────────────────────── */
 :root, [data-theme="dark"] {
   --bg:#0a0814; --bg2:#0f0d1c; --bg3:#151228; --track:rgba(255,255,255,.14);
-  --card:#181430; --border:#241e4a;
+  --card:#27233f; --border:#241e4a;
   --accent:#8b5cf6; --accent2:#a374ff; --accent3:#c4aeff;
   --green:#1de9b6; --red:#ef4444; --yellow:#f0b429;
   --text:#f7f3ff; --text2:#d8cff0; --text3:#ab9cd6;
@@ -190,7 +190,7 @@
   --bg:#0a0a0a;              /* page — almost black */
   --bg2:#0f0f0f; --track:rgba(255,255,255,.14);             /* sidebar — barely above bg */
   --bg3:#121212;             /* elevated panels — Option 2 */
-  --card:#121212;            /* cards — Option 2 (darker than before) */
+  --card:#212121;            /* cards — Option 2 (darker than before) */
   --border:#1f1f1f;           /* subtle separator */
 
   /* Accent — keep brand violet for actives */
@@ -2272,7 +2272,7 @@ body.dash-edit-mode .dash-section{outline:1px dashed rgba(139,92,246,.15);outlin
 /* Widget hover actions (Hide ⊝ + Replace ⇄) — May 2026 */
 [data-widget]{position:relative}
 .widget-actions{position:absolute;top:6px;right:6px;display:flex;gap:3px;opacity:0;transition:opacity .15s;z-index:20;pointer-events:none}
-[data-widget]:hover > .widget-actions{opacity:1;pointer-events:auto}
+body.dash-edit-mode [data-widget]:hover > .widget-actions{opacity:1;pointer-events:auto}
 .widget-action-btn{width:24px;height:24px;border:0.5px solid var(--border);border-radius:6px;background:var(--bg2);display:inline-flex;align-items:center;justify-content:center;color:var(--text3);cursor:pointer;transition:all .15s;padding:0}
 .widget-action-btn:hover{background:rgba(139,92,246,.1);color:var(--accent3);border-color:rgba(139,92,246,.35)}
 .widget-action-btn.minus:hover{background:rgba(255,80,95,.08);color:#ef4444;border-color:rgba(239,68,68,.35)}
@@ -23527,10 +23527,11 @@ window.toggleSidebar = function(){
     var setupArr=Object.entries(setups).sort(function(a,b){return b[1].pnl-a[1].pnl;});
     var sColors=['rgba(139,92,246,.7)','rgba(139,92,246,.45)','rgba(139,92,246,.12)','rgba(139,92,246,.06)','rgba(139,92,246,.55)','rgba(139,92,246,.35)'];
     var sHover=['rgba(139,92,246,.9)','rgba(139,92,246,.65)','rgba(139,92,246,.4)','rgba(139,92,246,.12)','rgba(139,92,246,.75)','rgba(139,92,246,.5)'];
+    var _rptDonutBorder = getComputedStyle(document.documentElement).getPropertyValue('--card').trim() || '#27233f';
     rptChart('rpt-ch-donut',{type:'doughnut',data:{labels:setupArr.map(function(s){return s[0];}),
       datasets:[{data:setupArr.map(function(s){return s[1].count;}),backgroundColor:setupArr.map(function(_,i){return sColors[i%sColors.length];}),
         hoverBackgroundColor:setupArr.map(function(_,i){return sHover[i%sHover.length];}),
-        borderWidth:2,borderColor:'#1e1838',hoverOffset:4}]},
+        borderWidth:2,borderColor:_rptDonutBorder,hoverOffset:4}]},
       options:{responsive:true,maintainAspectRatio:true,cutout:'70%',plugins:{legend:{display:false},tooltip:_rTooltip}}});
     var sLegColors=['rgba(139,92,246,.7)','rgba(139,92,246,.45)','rgba(139,92,246,.12)','rgba(139,92,246,.06)','rgba(139,92,246,.55)','rgba(139,92,246,.35)'];
     if(el('rpt-donut-legend'))el('rpt-donut-legend').innerHTML=setupArr.map(function(s,i){
@@ -41080,7 +41081,7 @@ window.toggleSidebar = function(){
     // Recent trades
     var recentEl = document.getElementById('dash-recent-trades');
     if (recentEl) {
-      var RECENT_LIMIT = 12;
+      var RECENT_LIMIT = 11;
       var recent = trades.slice(0, RECENT_LIMIT);
       var ccy = (typeof tqGetDisplayCurrency==='function') ? tqGetDisplayCurrency() : 'USD';
       var sym = {USD:'$',EUR:'€',GBP:'£',JPY:'¥',CHF:'CHF ',CAD:'C$',AUD:'A$',NZD:'NZ$'}[ccy] || '$';
