@@ -130,7 +130,7 @@
 :root, [data-theme="dark"] {
   --bg:#0d0a19; --bg2:#0f0d1c; --bg3:#151228; --track:rgba(255,255,255,.14);
   --sidebar-bg:#000000;
-  --card:#201c38; --border:#241e4a;
+  --card:#1c1930; --border:#241e4a;
   --accent:#8b5cf6; --accent2:#a374ff; --accent3:#c4aeff;
   --green:#40c6a5; --red:#cd4c4c; --yellow:#d0a749;
   --text:#f7f3ff; --text2:#d8cff0; --text3:#ab9cd6;
@@ -192,7 +192,7 @@
   --bg2:#0f0f0f; --track:rgba(255,255,255,.14);             /* sidebar — barely above bg */
   --bg3:#121212;             /* elevated panels — Option 2 */
   --sidebar-bg:#000000;
-  --card:#242424;            /* cards — clearer lift from bg for visible separation */
+  --card:#1e1e1e;            /* cards — clearer lift from bg for visible separation */
   --border:#1f1f1f;           /* subtle separator */
 
   /* Accent — keep brand violet for actives */
@@ -3417,7 +3417,7 @@ body.dash-edit-mode [data-widget]:hover > .widget-actions{opacity:1;pointer-even
 .jr-table th{font-size:11.5px;color:var(--text3);font-family:Inter,sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:15px 18px;text-align:left;border-bottom:1px solid var(--border);background:transparent;cursor:pointer;user-select:none;white-space:nowrap;transition:color .15s}
 .jr-table th:hover{color:var(--accent3)}
 .jr-table th:active{color:var(--accent)}
-.jr-table td{font-size:14px;padding:17px 18px;border-bottom:1px solid rgba(139,92,246,.05);transition:background .2s ease;line-height:1.4}
+.jr-table td{font-size:14.5px;font-weight:500;padding:17px 18px;border-bottom:1px solid rgba(139,92,246,.05);transition:background .2s ease;line-height:1.4}
 .jr-inline-cell:hover{background:rgba(139,92,246,.05)}
 .jr-inline-input{width:100%;padding:4px 7px;font-size:13px;font-family:Inter,sans-serif;border:1px solid var(--accent);border-radius:5px;background:var(--card);color:var(--text);outline:none}
 .jr-table tr:hover td{background:rgba(139,92,246,.045)}
@@ -3428,7 +3428,7 @@ body.dash-edit-mode [data-widget]:hover > .widget-actions{opacity:1;pointer-even
 /* Right-align numeric columns (RR, P&L, Running) for financial-terminal readability */
 .jr-table td.jr-num, .jr-table th.jr-num{text-align:right;font-variant-numeric:tabular-nums}
 .jr-day-sep{background:rgba(139,92,246,.02)}
-.jr-day-sep td{padding:8px 16px!important;font-size:12px!important;font-family:Inter,sans-serif!important;color:var(--text3)!important;border-bottom:1px solid rgba(139,92,246,.03)!important}
+.jr-day-sep td{padding:8px 24px 8px 16px!important;font-size:12px!important;font-family:Inter,sans-serif!important;color:var(--text3)!important;border-bottom:1px solid rgba(139,92,246,.03)!important}
 .jr-grade-a{color:var(--green);font-weight:600;font-family:Inter,sans-serif}
 .jr-grade-b{color:var(--accent3);font-weight:600;font-family:Inter,sans-serif}
 .jr-grade-c{color:#d0a749;font-weight:600;font-family:Inter,sans-serif}
@@ -4879,6 +4879,36 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
   .dash-bigsq-row{grid-template-columns:1fr!important}
 }
 .kpi-tile{background:linear-gradient(180deg,var(--bg3) 0%,var(--card) 100%);border:0.5px solid var(--border);border-radius:12px;padding:16px 18px 16px 22px;position:relative;overflow:hidden;cursor:default;transition:all .2s;min-height:108px;display:flex;flex-direction:column}
+
+/* ── Subtle ambient animation, Dashboard widgets only ──
+   A slow, low-opacity light sweep on cards/tiles, and a slow continuous
+   rotation highlight on circular gauges. Kept deliberately faint/slow so it
+   reads as "alive" rather than distracting. */
+@keyframes tqShimmerSweep{
+  0%{ transform:translateX(-120%) skewX(-12deg); }
+  100%{ transform:translateX(220%) skewX(-12deg); }
+}
+#page-dashboard .kpi-tile::after,
+#page-dashboard .card::after{
+  content:'';
+  position:absolute;
+  top:0; left:0;
+  width:35%; height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.05),transparent);
+  animation:tqShimmerSweep 7s ease-in-out infinite;
+  animation-delay:calc(var(--tq-shimmer-delay, 0) * 1s);
+  pointer-events:none;
+  z-index:1;
+}
+#page-dashboard .card{position:relative;overflow:hidden}
+
+@keyframes tqGaugeBreathe{
+  0%,100%{ filter:drop-shadow(0 0 0px rgba(139,92,246,0)); }
+  50%{ filter:drop-shadow(0 0 5px rgba(139,92,246,.25)); }
+}
+#page-dashboard .tq-gauge-breathe svg{
+  animation:tqGaugeBreathe 4s ease-in-out infinite;
+}
 .kpi-tile::before{content:'';position:absolute;top:18px;bottom:18px;left:0;width:3px;background:transparent;border-radius:0 2px 2px 0;transition:background .2s, opacity .2s, top .2s, bottom .2s}
 .kpi-tile.accent-green::before{background:var(--green);opacity:.7}
 .kpi-tile.accent-red::before{background:var(--red);opacity:.7}
@@ -6589,7 +6619,7 @@ window.toggleSidebar = function(){
             </div>
             <div class="dw-sub">Daily return stability score</div>
             <div style="display:flex;align-items:center;gap:22px">
-              <div style="position:relative;flex-shrink:0">
+              <div class="tq-gauge-breathe" style="position:relative;flex-shrink:0">
                 <svg width="100" height="100" viewBox="0 0 36 36">
                   <defs>
                     <linearGradient id="consRingGrad" x1="0" y1="0" x2="1" y2="0">
@@ -13858,9 +13888,67 @@ window.toggleSidebar = function(){
   }
   window.tqShowQuote = tqShowQuote;
 
+  function tqStartQuoteParticles(){
+    var canvas = document.getElementById('quote-particles');
+    if(!canvas || canvas._tqParticlesStarted) return;
+    canvas._tqParticlesStarted = true;
+    var ctx = canvas.getContext('2d');
+    if(!ctx) return;
+    var particles = [];
+    var dpr = window.devicePixelRatio || 1;
+    var sized = false;
+    function resize(){
+      var rect = canvas.parentElement.getBoundingClientRect();
+      if(rect.width === 0 || rect.height === 0) return false;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      canvas.style.width = rect.width + 'px';
+      canvas.style.height = rect.height + 'px';
+      return true;
+    }
+    function spawn(w, h){
+      return {
+        x: Math.random() * w,
+        y: Math.random() * h,
+        r: 0.6 + Math.random() * 1.4,
+        speed: 0.08 + Math.random() * 0.18,
+        drift: (Math.random() - 0.5) * 0.12,
+        opacity: 0.08 + Math.random() * 0.18
+      };
+    }
+    window.addEventListener('resize', function(){ sized = resize(); });
+    function tick(){
+      // Dashboard may not be the active page yet when this first runs — keep
+      // retrying resize() every frame (cheap check) until it succeeds once,
+      // rather than permanently locking in a 0×0 size from an early attempt.
+      if(!sized){
+        sized = resize();
+        if(sized && particles.length === 0){
+          var count = 26;
+          for(var i=0; i<count; i++){ particles.push(spawn(canvas.width, canvas.height)); }
+        }
+      }
+      if(sized && !document.hidden && document.getElementById('quote-particles')){
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(function(p){
+          p.y += p.speed * dpr;
+          p.x += p.drift * dpr;
+          if(p.y > canvas.height){ p.y = -4; p.x = Math.random() * canvas.width; }
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r * dpr, 0, Math.PI*2);
+          ctx.fillStyle = 'rgba(196,174,255,'+p.opacity+')';
+          ctx.fill();
+        });
+      }
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
   function tqStartQuoteRotation(){
     if(_tqQuoteTimer) return; // already running
     tqShowQuote(true);                       // show first quote immediately
+    tqStartQuoteParticles();                 // gentle floating snow-like particles
     _tqQuoteTimer = setInterval(function(){
       // Skip rotation if tab is hidden (browser pauses transitions anyway)
       if(document.hidden) return;
@@ -31021,7 +31109,7 @@ window.toggleSidebar = function(){
 
           h+='<tr class="'+glowCls+'" style="cursor:pointer" onclick="jrViewDetail(\''+tr.id+'\')">'
             +'<td onclick="event.stopPropagation()"><input type="checkbox" class="jr-bulk-cb jr-row-cb" data-id="'+tr.id+'" onchange="jrToggleBulk(\''+tr.id+'\',this)"></td>'
-            +'<td style="font-family:Inter,sans-serif;font-size:13px;color:var(--text3)">'+(tr.date||'—').slice(5)+'</td>'
+            +'<td style="font-family:Inter,sans-serif;font-size:13px;color:var(--text2)">'+(tr.date||'—').slice(5)+'</td>'
             +'<td style="font-weight:700;font-size:14px;color:var(--text)"><div style="display:flex;align-items:center;gap:8px">'+(tr.screenshots&&tr.screenshots.length>0?'<img src="'+tr.screenshots[0]+'" onclick="event.stopPropagation();slPreviewScreenshot(this.src)" style="width:26px;height:26px;object-fit:cover;border-radius:5px;cursor:zoom-in;flex-shrink:0;border:1px solid var(--border)" title="Click to preview">':'')+'<span>'+tr.pair+'</span></div></td>'
             +'<td>'+(function(){ var acc=allAccs.find(function(a){return a.id===tr.account;}); return acc?'<span style="display:inline-block;padding:3px 10px;border:1px solid var(--border);border-radius:6px;font-size:11.5px;color:var(--text2);font-family:Inter,sans-serif;white-space:nowrap">'+escapeHtml(acc.name)+'</span>':'<span class="tq-text-muted">—</span>'; })()+'</td>'
             +'<td><span class="jr-pill '+dirCls+'">'+dirLabel+'</span></td>'
