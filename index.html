@@ -128,8 +128,8 @@
 }
 /* ── DARK (default) ─────────────────────────── */
 :root, [data-theme="dark"] {
-  --bg:#0a0814; --bg2:#0f0d1c; --bg3:#151228; --track:rgba(255,255,255,.14);
-  --sidebar-bg:#060410;
+  --bg:#0d0a19; --bg2:#0f0d1c; --bg3:#151228; --track:rgba(255,255,255,.14);
+  --sidebar-bg:#000000;
   --card:#201c38; --border:#241e4a;
   --accent:#8b5cf6; --accent2:#a374ff; --accent3:#c4aeff;
   --green:#40c6a5; --red:#cd4c4c; --yellow:#d0a749;
@@ -188,10 +188,10 @@
 [data-theme="obsidian"] {
   color-scheme: dark;
   /* Surfaces — Option 2: pure neutral, darker cards */
-  --bg:#0a0a0a;              /* page — almost black */
+  --bg:#0d0d0d;              /* page — almost black */
   --bg2:#0f0f0f; --track:rgba(255,255,255,.14);             /* sidebar — barely above bg */
   --bg3:#121212;             /* elevated panels — Option 2 */
-  --sidebar-bg:#050505;
+  --sidebar-bg:#000000;
   --card:#242424;            /* cards — clearer lift from bg for visible separation */
   --border:#1f1f1f;           /* subtle separator */
 
@@ -221,13 +221,13 @@
 
 /* Obsidian — body */
 [data-theme="obsidian"] body {
-  background: #0a0a0a;
+  background: #0d0d0d;
   background-image: none;
 }
 
 /* Obsidian — sidebar */
 [data-theme="obsidian"] .sidebar {
-  background: #050505 !important;
+  background: #000000 !important;
   border-right: 0.5px solid #121212 !important;
 }
 [data-theme="obsidian"] .sidebar::after { display: none; }
