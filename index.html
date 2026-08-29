@@ -4883,11 +4883,20 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
 #page-dashboard .card{position:relative;overflow:hidden}
 
 @keyframes tqGaugeBreathe{
-  0%,100%{ filter:drop-shadow(0 0 0px rgba(139,92,246,0)); }
-  50%{ filter:drop-shadow(0 0 5px rgba(139,92,246,.25)); }
+  0%,100%{ opacity:0; }
+  50%{ opacity:1; }
 }
-#page-dashboard .tq-gauge-breathe svg{
+#page-dashboard .tq-gauge-breathe{ position:relative; }
+#page-dashboard .tq-gauge-breathe::before{
+  content:'';
+  position:absolute;
+  inset:-4px;
+  border-radius:50%;
+  box-shadow:0 0 10px 2px rgba(139,92,246,.3);
+  opacity:0;
   animation:tqGaugeBreathe 4s ease-in-out infinite;
+  pointer-events:none;
+  z-index:0;
 }
 .kpi-tile::before{content:'';position:absolute;top:18px;bottom:18px;left:0;width:3px;background:transparent;border-radius:0 2px 2px 0;transition:background .2s, opacity .2s, top .2s, bottom .2s}
 .kpi-tile.accent-green::before{background:var(--green);opacity:.7}
@@ -13918,6 +13927,7 @@ window.toggleSidebar = function(){
       };
     }
     window.addEventListener('resize', function(){ sized = resize(); });
+    var frameSkip = 0;
     function tick(){
       // Dashboard may not be the active page yet when this first runs — keep
       // retrying resize() every frame (cheap check) until it succeeds once,
@@ -13929,11 +13939,15 @@ window.toggleSidebar = function(){
           for(var i=0; i<count; i++){ particles.push(spawn(canvas.width, canvas.height)); }
         }
       }
-      if(sized && !document.hidden && document.getElementById('quote-particles')){
+      // Particles drift slowly — redrawing every other frame (~30fps) is
+      // visually seamless and roughly halves the ongoing CPU/paint cost of
+      // this loop running continuously in the background.
+      frameSkip = (frameSkip + 1) % 2;
+      if(sized && frameSkip === 0 && !document.hidden && canvas.isConnected){
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         particles.forEach(function(p){
-          p.y += p.speed * dpr;
-          p.x += p.drift * dpr;
+          p.y += p.speed * dpr * 2;
+          p.x += p.drift * dpr * 2;
           if(p.y > canvas.height){ p.y = -4; p.x = Math.random() * canvas.width; }
           ctx.beginPath();
           ctx.arc(p.x, p.y, p.r * dpr, 0, Math.PI*2);
