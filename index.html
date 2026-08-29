@@ -4880,26 +4880,6 @@ body,.sidebar,.card,.rpt-card,.page-header,.nb-card,.ck-pair-card,.rm-gauge-card
 }
 .kpi-tile{background:linear-gradient(180deg,var(--bg3) 0%,var(--card) 100%);border:0.5px solid var(--border);border-radius:12px;padding:16px 18px 16px 22px;position:relative;overflow:hidden;cursor:default;transition:all .2s;min-height:108px;display:flex;flex-direction:column}
 
-/* ── Subtle ambient animation, Dashboard widgets only ──
-   A slow, low-opacity light sweep on cards/tiles, and a slow continuous
-   rotation highlight on circular gauges. Kept deliberately faint/slow so it
-   reads as "alive" rather than distracting. */
-@keyframes tqShimmerSweep{
-  0%{ transform:translateX(-120%) skewX(-12deg); }
-  100%{ transform:translateX(220%) skewX(-12deg); }
-}
-#page-dashboard .kpi-tile::after,
-#page-dashboard .card::after{
-  content:'';
-  position:absolute;
-  top:0; left:0;
-  width:35%; height:100%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.05),transparent);
-  animation:tqShimmerSweep 7s ease-in-out infinite;
-  animation-delay:calc(var(--tq-shimmer-delay, 0) * 1s);
-  pointer-events:none;
-  z-index:1;
-}
 #page-dashboard .card{position:relative;overflow:hidden}
 
 @keyframes tqGaugeBreathe{
@@ -13887,6 +13867,27 @@ window.toggleSidebar = function(){
     }, 1200); // match CSS transition duration
   }
   window.tqShowQuote = tqShowQuote;
+
+  // Draws a chart line in once, left-to-right, when it first renders — NOT a
+  // repeating loop. Call after inserting an SVG containing <path class="tq-line-reveal">.
+  function tqRevealLines(container){
+    if(!container) return;
+    var paths = container.querySelectorAll('path.tq-line-reveal');
+    paths.forEach(function(path){
+      try{
+        var len = path.getTotalLength();
+        if(!len || !isFinite(len)) return;
+        path.style.transition = 'none';
+        path.style.strokeDasharray = len + ' ' + len;
+        path.style.strokeDashoffset = len;
+        // Force reflow so the transition below actually animates from this state
+        void path.getBoundingClientRect();
+        path.style.transition = 'stroke-dashoffset 1s ease-out';
+        path.style.strokeDashoffset = '0';
+      }catch(e){}
+    });
+  }
+  window.tqRevealLines = tqRevealLines;
 
   function tqStartQuoteParticles(){
     var canvas = document.getElementById('quote-particles');
@@ -36572,14 +36573,14 @@ window.toggleSidebar = function(){
       }
       var lastV = l.pts[l.pts.length-1];
       var glowRgb = l.color==='#8b5cf6' ? '139,92,246' : (l.color==='var(--green)'?'46,204,138':(l.color==='var(--red)'?'224,92,122':'139,92,246'));
-      return area + '<path d="'+d+'" fill="none" stroke="'+l.color+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+      return area + '<path class="tq-line-reveal" d="'+d+'" fill="none" stroke="'+l.color+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
       // area fill for combined mode
       var area = '';
       if(mode==='combined'){
         var areaD = d + ' L '+xAt(l.pts.length-1).toFixed(1)+' '+zeroY.toFixed(1)+' L '+xAt(0).toFixed(1)+' '+zeroY.toFixed(1)+' Z';
         area = '<path d="'+areaD+'" fill="url(#mcEqGrad)" opacity="0.5"/>';
       }
-      return area + '<path d="'+d+'" fill="none" stroke="'+l.color+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+      return area + '<path class="tq-line-reveal" d="'+d+'" fill="none" stroke="'+l.color+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
     }).join('');
 
     // Legend (overlay mode)
@@ -36626,6 +36627,7 @@ window.toggleSidebar = function(){
         '<div><div style="font-size:9.5px;color:var(--text3);letter-spacing:.4px;text-transform:uppercase;font-weight:700;margin-bottom:4px">Worst Day</div><div style="font-size:15px;font-weight:700;color:var(--red);font-variant-numeric:tabular-nums">'+(worstDayD?'-$'+Math.abs(Math.round(worstDayV)).toLocaleString():'—')+'</div></div>'+
       '</div>'+
     '</div>';
+    if(typeof window.tqRevealLines === 'function') window.tqRevealLines(el);
   }
 
   // ── Days-to-Funded tracker (challenge accounts working toward a profit target) ──
@@ -44977,6 +44979,19 @@ window.toggleSidebar = function(){
       var ctx = cumEl.getContext('2d');
       var cumOpts = JSON.parse(JSON.stringify(chartDefaults));
       cumOpts.scales.y.grace = '12%';
+      // One-time left-to-right line reveal on load — NOT a repeating effect.
+      cumOpts.animation = {
+        x: {
+          type: 'number', easing: 'linear', duration: 900,
+          from: NaN,
+          delay: function(ctx){
+            if(ctx.type !== 'data' || ctx.xStarted || !ctx.dataset || !ctx.dataset.data) return 0;
+            ctx.xStarted = true;
+            return ctx.index * (900 / ctx.dataset.data.length);
+          }
+        },
+        y: { duration: 0 }
+      };
       cumOpts.plugins.tooltip.callbacks = {
         title: function(items){ return items[0].label; },
         label: function(c){
@@ -45283,6 +45298,18 @@ window.toggleSidebar = function(){
         options: {
           responsive: true, maintainAspectRatio: false,
           interaction: { mode: 'index', intersect: false },
+          animation: {
+            x: {
+              type: 'number', easing: 'linear', duration: 900,
+              from: NaN,
+              delay: function(ctx){
+                if(ctx.type !== 'data' || ctx.xStarted || !ctx.dataset || !ctx.dataset.data) return 0;
+                ctx.xStarted = true;
+                return ctx.index * (900 / ctx.dataset.data.length);
+              }
+            },
+            y: { duration: 0 }
+          },
           plugins: {
             legend: { display: false },
             tooltip: {
@@ -45375,6 +45402,18 @@ window.toggleSidebar = function(){
         options: {
           responsive: true, maintainAspectRatio: false,
           interaction: { mode: 'index', intersect: false },
+          animation: {
+            x: {
+              type: 'number', easing: 'linear', duration: 900,
+              from: NaN,
+              delay: function(ctx){
+                if(ctx.type !== 'data' || ctx.xStarted || !ctx.dataset || !ctx.dataset.data) return 0;
+                ctx.xStarted = true;
+                return ctx.index * (900 / ctx.dataset.data.length);
+              }
+            },
+            y: { duration: 0 }
+          },
           plugins: {
             legend: { display: false },
             tooltip: {
