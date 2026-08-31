@@ -7188,7 +7188,7 @@ window.toggleSidebar = function(){
         </div>
 
         <!-- DIRECTION & STRUCTURE -->
-        <div class="jr-group" id="jr-direction-group" data-jr-step="basic">
+        <div class="jr-group jr-detailed" id="jr-direction-group" data-jr-step="basic">
           <div class="jr-group-title">Direction</div>
           <div class="jr-row" style="margin-bottom:10px">
             <div class="jr-field"><label class="jr-label">DAILY BIAS <span style="color:var(--text3);font-weight:400;text-transform:none">Previous Daily Candle Close</span></label>
@@ -7215,6 +7215,21 @@ window.toggleSidebar = function(){
           </div>
         </div>
 
+        <!-- ENTRY MODEL — visible in both Quick and Detailed -->
+        <div class="jr-group" data-jr-step="basic">
+          <div class="jr-field" id="jr-model-wrap"><label class="jr-label">ENTRY MODEL</label>
+            <select class="jr-select" id="jr-model">
+              <option value="">Select model...</option>
+              <option>London Reversal</option>
+              <option>New York Reversal</option>
+              <option>SMT London Continuation</option>
+              <option>SMT New York Continuation</option>
+              <option>London 50% Asia Continuation</option>
+              <option>USD News Strategy</option>
+            </select>
+          </div>
+        </div>
+
         <!-- CONDITION & MODEL -->
         <div class="jr-group jr-detailed" data-jr-step="setup">
           <div class="jr-group-title">Condition</div>
@@ -7225,17 +7240,6 @@ window.toggleSidebar = function(){
                 <button class="jr-conf-pill" id="jr-cond-mm" onclick="jrSetCond(this,'Market Mechanics')" style="flex:1;text-align:center;padding:7px">Market Mechanics</button>
               </div>
             </div>
-          </div>
-          <div class="jr-field" id="jr-model-wrap"><label class="jr-label">SELECT MODEL</label>
-            <select class="jr-select" id="jr-model">
-              <option value="">Select model...</option>
-              <option>London Reversal</option>
-              <option>New York Reversal</option>
-              <option>SMT London Continuation</option>
-              <option>SMT New York Continuation</option>
-              <option>London 50% Asia Continuation</option>
-              <option>USD News Strategy</option>
-            </select>
           </div>
           <div class="jr-row" style="margin-top:10px">
             <div class="jr-field"><label class="jr-label">TREND ALIGNMENT</label>
@@ -7391,7 +7395,7 @@ window.toggleSidebar = function(){
         <!-- PSYCHOLOGY -->
         <div class="jr-group" data-jr-step="psychology">
           <div class="jr-group-title">Notes</div>
-          <div class="jr-field jr-detailed" style="margin-bottom:10px"><label class="jr-label">PSYCHOLOGY TAGS</label>
+          <div class="jr-field" style="margin-bottom:10px"><label class="jr-label">PSYCHOLOGY TAGS</label>
             <div class="jr-psych-tags" id="jr-psych-tags-row">
               <button class="jr-psych-tag" onclick="this.classList.toggle('on')">FOMO</button>
               <button class="jr-psych-tag" onclick="this.classList.toggle('on')">Revenge trading</button>
