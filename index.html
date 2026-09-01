@@ -13881,13 +13881,26 @@ window.toggleSidebar = function(){
   }
   window.tqShowQuote = tqShowQuote;
 
-  // Draws a chart line in once, left-to-right, when it first renders — NOT a
-  // repeating loop. Call after inserting an SVG containing <path class="tq-line-reveal">.
+  var _tqRevealedContainers = {};
+  // Draws a chart line in once, left-to-right, the FIRST time a given
+  // container renders it — NOT a repeating loop, and NOT replayed on
+  // subsequent re-renders of the same widget (e.g. when a background data
+  // refresh/retry redraws the same chart with fresh data — that should just
+  // update the line instantly, not replay the whole draw-in animation again).
   function tqRevealLines(container){
     if(!container) return;
+    var key = container.id || container;
+    var alreadyRevealed = !!_tqRevealedContainers[key];
     var paths = container.querySelectorAll('path.tq-line-reveal');
     paths.forEach(function(path){
       try{
+        if(alreadyRevealed){
+          // Not the first render for this widget — just show the line, no animation.
+          path.style.transition = 'none';
+          path.style.strokeDasharray = '';
+          path.style.strokeDashoffset = '0';
+          return;
+        }
         var len = path.getTotalLength();
         if(!len || !isFinite(len)) return;
         path.style.transition = 'none';
@@ -13899,6 +13912,7 @@ window.toggleSidebar = function(){
         path.style.strokeDashoffset = '0';
       }catch(e){}
     });
+    if(key) _tqRevealedContainers[key] = true;
   }
   window.tqRevealLines = tqRevealLines;
 
@@ -44999,8 +45013,13 @@ window.toggleSidebar = function(){
       var ctx = cumEl.getContext('2d');
       var cumOpts = JSON.parse(JSON.stringify(chartDefaults));
       cumOpts.scales.y.grace = '12%';
-      // One-time left-to-right line reveal on load — NOT a repeating effect.
-      cumOpts.animation = {
+      // One-time left-to-right line reveal — only on this chart's first ever
+      // render. A later re-render (e.g. after a background data refresh/retry
+      // repopulates trades) just redraws instantly, no replayed animation.
+      window._tqChartFirstRender = window._tqChartFirstRender || {};
+      var _cumIsFirst = !window._tqChartFirstRender['dash-cum-chart'];
+      window._tqChartFirstRender['dash-cum-chart'] = true;
+      cumOpts.animation = _cumIsFirst ? {
         x: {
           type: 'number', easing: 'linear', duration: 900,
           from: NaN,
@@ -45011,7 +45030,7 @@ window.toggleSidebar = function(){
           }
         },
         y: { duration: 0 }
-      };
+      } : false;
       cumOpts.plugins.tooltip.callbacks = {
         title: function(items){ return items[0].label; },
         label: function(c){
@@ -45318,18 +45337,23 @@ window.toggleSidebar = function(){
         options: {
           responsive: true, maintainAspectRatio: false,
           interaction: { mode: 'index', intersect: false },
-          animation: {
-            x: {
-              type: 'number', easing: 'linear', duration: 900,
-              from: NaN,
-              delay: function(ctx){
-                if(ctx.type !== 'data' || ctx.xStarted || !ctx.dataset || !ctx.dataset.data) return 0;
-                ctx.xStarted = true;
-                return ctx.index * (900 / ctx.dataset.data.length);
-              }
-            },
-            y: { duration: 0 }
-          },
+          animation: (function(){
+            window._tqChartFirstRender = window._tqChartFirstRender || {};
+            var isFirst = !window._tqChartFirstRender['dash-balance-chart'];
+            window._tqChartFirstRender['dash-balance-chart'] = true;
+            return isFirst ? {
+              x: {
+                type: 'number', easing: 'linear', duration: 900,
+                from: NaN,
+                delay: function(ctx){
+                  if(ctx.type !== 'data' || ctx.xStarted || !ctx.dataset || !ctx.dataset.data) return 0;
+                  ctx.xStarted = true;
+                  return ctx.index * (900 / ctx.dataset.data.length);
+                }
+              },
+              y: { duration: 0 }
+            } : false;
+          })(),
           plugins: {
             legend: { display: false },
             tooltip: {
@@ -45422,7 +45446,11 @@ window.toggleSidebar = function(){
         options: {
           responsive: true, maintainAspectRatio: false,
           interaction: { mode: 'index', intersect: false },
-          animation: {
+          animation: (function(){
+            window._tqChartFirstRender = window._tqChartFirstRender || {};
+            var isFirst = !window._tqChartFirstRender['dash-drawdown-chart'];
+            window._tqChartFirstRender['dash-drawdown-chart'] = true;
+            return isFirst ? {
             x: {
               type: 'number', easing: 'linear', duration: 900,
               from: NaN,
@@ -45433,7 +45461,8 @@ window.toggleSidebar = function(){
               }
             },
             y: { duration: 0 }
-          },
+            } : false;
+          })(),
           plugins: {
             legend: { display: false },
             tooltip: {
