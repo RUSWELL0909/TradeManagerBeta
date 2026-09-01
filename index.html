@@ -12989,7 +12989,7 @@ window.toggleSidebar = function(){
           if(!_tqTradesPullRetried){
             _tqTradesPullRetried = true;
             console.warn('TradeQuill: Cloud returned 0 trades — retrying once before assuming account is empty');
-            setTimeout(function(){ tqPullTrades(); }, 1500);
+            setTimeout(function(){ tqPullTrades(); }, 600);
             return;
           }
           _tqTradesPullRetried = false;
