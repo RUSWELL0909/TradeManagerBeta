@@ -21421,8 +21421,10 @@ window.toggleSidebar = function(){
 
   // Premium scroll polish — adds shadow to topbar when scrolled (May 2026)
   (function(){
+    var mcCached = null, mcSearched = false; // cache the .main-content lookup instead of re-querying every scroll event
     function _onScroll(){
-      var scrolled = window.scrollY > 4 || (document.querySelector('.main-content') && document.querySelector('.main-content').scrollTop > 4);
+      if(!mcSearched){ mcCached = document.querySelector('.main-content'); mcSearched = true; }
+      var scrolled = window.scrollY > 4 || (mcCached && mcCached.scrollTop > 4);
       document.body.classList.toggle('tq-scrolled', scrolled);
     }
     window.addEventListener('scroll', _onScroll, {passive:true});
