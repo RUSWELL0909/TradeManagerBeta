@@ -6771,10 +6771,10 @@ window.toggleSidebar = function(){
           </div>
 
           <!-- Session Matrix (was Hour-of-day heatmap) -->
-          <div class="card" data-widget="hour-heatmap" data-widget-hidden="true" style="padding:20px 22px;min-height:216px">
+          <div class="card" data-widget="hour-heatmap" data-widget-hidden="true" style="padding:20px 22px;min-height:216px;display:flex;flex-direction:column">
             <div class="dw-header"><span class="dw-title">Session matrix</span><span class="info-icon" data-tip="2D heatmap: hour of day × day of week. Green = profitable slot, red = losing slot. Intensity = size of P&amp;L.">i</span></div>
             <div id="dash-w-session-matrix-sub" class="dw-sub">P&L by hour × day · hover cell for details</div>
-            <div id="dash-w-hour-grid" style="gap:2px"></div>
+            <div id="dash-w-hour-grid" style="gap:2px;flex:1;min-height:0"></div>
             <div id="dash-w-hour-summary"></div>
             <div id="dash-w-hour-active"></div>
           </div>
@@ -13881,26 +13881,13 @@ window.toggleSidebar = function(){
   }
   window.tqShowQuote = tqShowQuote;
 
-  var _tqRevealedContainers = {};
-  // Draws a chart line in once, left-to-right, the FIRST time a given
-  // container renders it — NOT a repeating loop, and NOT replayed on
-  // subsequent re-renders of the same widget (e.g. when a background data
-  // refresh/retry redraws the same chart with fresh data — that should just
-  // update the line instantly, not replay the whole draw-in animation again).
+  // Draws a chart line in once, left-to-right, when it first renders — NOT a
+  // repeating loop. Call after inserting an SVG containing <path class="tq-line-reveal">.
   function tqRevealLines(container){
     if(!container) return;
-    var key = container.id || container;
-    var alreadyRevealed = !!_tqRevealedContainers[key];
     var paths = container.querySelectorAll('path.tq-line-reveal');
     paths.forEach(function(path){
       try{
-        if(alreadyRevealed){
-          // Not the first render for this widget — just show the line, no animation.
-          path.style.transition = 'none';
-          path.style.strokeDasharray = '';
-          path.style.strokeDashoffset = '0';
-          return;
-        }
         var len = path.getTotalLength();
         if(!len || !isFinite(len)) return;
         path.style.transition = 'none';
@@ -13912,7 +13899,6 @@ window.toggleSidebar = function(){
         path.style.strokeDashoffset = '0';
       }catch(e){}
     });
-    if(key) _tqRevealedContainers[key] = true;
   }
   window.tqRevealLines = tqRevealLines;
 
@@ -43833,13 +43819,14 @@ window.toggleSidebar = function(){
             }
             var glowStyle = (cell.n>0 && intensity>0.6) ? ';box-shadow:0 0 6px rgba('+(cell.pnl>0?TG_RGB:TR_RGB)+',.45)' : '';
             var title=dow+' '+String(h).padStart(2,'0')+':00'+(cell.n>0?' · '+(cell.pnl>=0?'+':'')+ci.sym+Math.round(cell.pnl)+' · '+cell.n+' tr':'· no trades');
-            return '<div title="'+title+'" style="border-radius:2px;background:'+bg+';height:32px'+glowStyle+'"></div>';
+            return '<div title="'+title+'" style="border-radius:2px;background:'+bg+';height:100%;min-height:18px'+glowStyle+'"></div>';
           }).join('');
           return '<div style="text-align:right;font-size:9.5px;color:var(--text3);font-weight:700;display:flex;align-items:center;padding-right:4px">'+dow+'</div>'+cells;
         }).join('');
 
         grid.style.display='grid';
         grid.style.gridTemplateColumns='28px repeat('+HOURS.length+',1fr)';
+        grid.style.gridTemplateRows='auto repeat('+DAYS.length+',1fr)';
         grid.style.gap='2px';
         grid.innerHTML=hdrRow+dataRows;
 
@@ -45013,13 +45000,8 @@ window.toggleSidebar = function(){
       var ctx = cumEl.getContext('2d');
       var cumOpts = JSON.parse(JSON.stringify(chartDefaults));
       cumOpts.scales.y.grace = '12%';
-      // One-time left-to-right line reveal — only on this chart's first ever
-      // render. A later re-render (e.g. after a background data refresh/retry
-      // repopulates trades) just redraws instantly, no replayed animation.
-      window._tqChartFirstRender = window._tqChartFirstRender || {};
-      var _cumIsFirst = !window._tqChartFirstRender['dash-cum-chart'];
-      window._tqChartFirstRender['dash-cum-chart'] = true;
-      cumOpts.animation = _cumIsFirst ? {
+      // One-time left-to-right line reveal on load — NOT a repeating effect.
+      cumOpts.animation = {
         x: {
           type: 'number', easing: 'linear', duration: 900,
           from: NaN,
@@ -45030,7 +45012,7 @@ window.toggleSidebar = function(){
           }
         },
         y: { duration: 0 }
-      } : false;
+      };
       cumOpts.plugins.tooltip.callbacks = {
         title: function(items){ return items[0].label; },
         label: function(c){
@@ -45337,23 +45319,18 @@ window.toggleSidebar = function(){
         options: {
           responsive: true, maintainAspectRatio: false,
           interaction: { mode: 'index', intersect: false },
-          animation: (function(){
-            window._tqChartFirstRender = window._tqChartFirstRender || {};
-            var isFirst = !window._tqChartFirstRender['dash-balance-chart'];
-            window._tqChartFirstRender['dash-balance-chart'] = true;
-            return isFirst ? {
-              x: {
-                type: 'number', easing: 'linear', duration: 900,
-                from: NaN,
-                delay: function(ctx){
-                  if(ctx.type !== 'data' || ctx.xStarted || !ctx.dataset || !ctx.dataset.data) return 0;
-                  ctx.xStarted = true;
-                  return ctx.index * (900 / ctx.dataset.data.length);
-                }
-              },
-              y: { duration: 0 }
-            } : false;
-          })(),
+          animation: {
+            x: {
+              type: 'number', easing: 'linear', duration: 900,
+              from: NaN,
+              delay: function(ctx){
+                if(ctx.type !== 'data' || ctx.xStarted || !ctx.dataset || !ctx.dataset.data) return 0;
+                ctx.xStarted = true;
+                return ctx.index * (900 / ctx.dataset.data.length);
+              }
+            },
+            y: { duration: 0 }
+          },
           plugins: {
             legend: { display: false },
             tooltip: {
@@ -45446,11 +45423,7 @@ window.toggleSidebar = function(){
         options: {
           responsive: true, maintainAspectRatio: false,
           interaction: { mode: 'index', intersect: false },
-          animation: (function(){
-            window._tqChartFirstRender = window._tqChartFirstRender || {};
-            var isFirst = !window._tqChartFirstRender['dash-drawdown-chart'];
-            window._tqChartFirstRender['dash-drawdown-chart'] = true;
-            return isFirst ? {
+          animation: {
             x: {
               type: 'number', easing: 'linear', duration: 900,
               from: NaN,
@@ -45461,8 +45434,7 @@ window.toggleSidebar = function(){
               }
             },
             y: { duration: 0 }
-            } : false;
-          })(),
+          },
           plugins: {
             legend: { display: false },
             tooltip: {
