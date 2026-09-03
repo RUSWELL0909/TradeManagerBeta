@@ -12120,6 +12120,14 @@ window.toggleSidebar = function(){
           tqGuardUserSwitch(_tqUser.id);
           tqHideAuth();
           tqShowUserBar();
+          // Warm the FX rate cache as early as possible, in parallel with the
+          // trades pull below — this is what usually caused a visible
+          // "renders once with identity rates → flashes empty → re-renders
+          // with real rates" sequence: by the time updateDashboard() first
+          // runs, real rates are now often already cached, so that automatic
+          // second re-render (and the reveal-animation replaying with it)
+          // doesn't need to happen in the common case.
+          if(typeof _tqFxFetch === 'function'){ try{ _tqFxFetch(); }catch(e){} }
           tqPullAll(); // sync all on load
           tqCheckAdmin();
           // Defensive URL cleanup — don't leave the access_token visible in the
