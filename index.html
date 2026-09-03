@@ -14726,7 +14726,9 @@ window.toggleSidebar = function(){
       local.forEach(function(a){
         if(!cloudMap[a.id]) merged.push(a);
       });
-      rfxSet('rf_accounts',JSON.stringify(merged));
+      var _prevAccountsJSON = rfxGet('rf_accounts') || '[]';
+      var _mergedAccountsJSON = JSON.stringify(merged);
+      rfxSet('rf_accounts',_mergedAccountsJSON);
       console.log('TradeQuill: Merged',merged.length,'accounts ('+needsCloudDelete.length+' pending cloud cleanup, '+Object.keys(tombstones).length+' tombstones)');
       // Re-issue cloud delete for accounts that local marked deleted but cloud still has, AND tombstoned ones
       if(needsCloudDelete.length > 0 && _tqSupa && _tqUser){
@@ -14738,7 +14740,12 @@ window.toggleSidebar = function(){
         });
       }
       if(typeof renderAccountsPage==='function')renderAccountsPage();
-      if(typeof updateDashboard==='function')updateDashboard();
+      // Only re-render the dashboard if accounts data actually changed — this
+      // pull runs on every page load, and unconditionally re-rendering here
+      // was causing a visible "data appears, then flashes empty, then
+      // reappears with the reveal animation replaying" sequence ~1.5-2s in,
+      // even when nothing about accounts had actually changed.
+      if(_mergedAccountsJSON !== _prevAccountsJSON && typeof updateDashboard==='function')updateDashboard();
     });
   }
 
