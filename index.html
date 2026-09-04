@@ -14001,6 +14001,7 @@ window.toggleSidebar = function(){
     }
     if(theme !== 'dark' && theme !== 'light' && theme !== 'obsidian') theme = 'dark';
 
+    var _themeActuallyChanged = document.documentElement.getAttribute('data-theme') !== theme;
     document.documentElement.setAttribute('data-theme', theme);
     try{ rfxSet('rf_theme', theme); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
 
@@ -14015,8 +14016,12 @@ window.toggleSidebar = function(){
       else o.classList.remove('active');
     });
 
-    // Hook: notify dashboard/charts so they can re-render with new theme colors
-    if(typeof updateDashboard === 'function') {
+    // Hook: notify dashboard/charts so they can re-render with new theme colors —
+    // but only if the theme actually changed. tqPullSettings calls setTheme()
+    // on every page load with whatever's stored in the cloud, which in the
+    // common case is the same theme already active — this was unconditionally
+    // re-rendering (and replaying chart animations) every single time anyway.
+    if(_themeActuallyChanged && typeof updateDashboard === 'function') {
       try{ updateDashboard(); }catch(e){if(typeof window.tqTrackError==='function')tqTrackError(e,{context:'silent_catch'});}
     }
   }
@@ -14726,6 +14731,13 @@ window.toggleSidebar = function(){
       local.forEach(function(a){
         if(!cloudMap[a.id]) merged.push(a);
       });
+      // Sort by a stable key before comparing/storing — the cloud query has no
+      // ORDER BY clause, so Postgres doesn't guarantee row order between
+      // identical successive queries. Without this, JSON.stringify(merged)
+      // could differ between page loads purely due to element reordering,
+      // even when the actual account data was unchanged — defeating the
+      // "only re-render if something really changed" check below.
+      merged.sort(function(a,b){ return String(a.id||'').localeCompare(String(b.id||'')); });
       var _prevAccountsJSON = rfxGet('rf_accounts') || '[]';
       var _mergedAccountsJSON = JSON.stringify(merged);
       rfxSet('rf_accounts',_mergedAccountsJSON);
